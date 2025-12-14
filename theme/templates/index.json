@@ -178,6 +178,98 @@
         "badge_color": "#9333ea",
         "background_color": "rgba(248, 250, 252, 0.5)"
       }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "settings": {
+        "heading": "Get 10% Off Your First Order",
+        "description": "Join our newsletter for exclusive deals, new product alerts, and business tips",
+        "placeholder": "Enter your email address",
+        "button_text": "Subscribe",
+        "form_action": "/contact#newsletter",
+        "gradient_start": "#2563eb",
+        "gradient_end": "#1d4ed8",
+        "button_text_color": "#2563eb"
+      }
+    },
+    "why-choose-us": {
+      "type": "why-choose-us",
+      "blocks": {
+        "feature-1": {
+          "type": "feature",
+          "settings": {
+            "icon": "shield",
+            "title": "Verified Suppliers",
+            "description": "All suppliers are thoroughly vetted for quality and reliability"
+          }
+        },
+        "feature-2": {
+          "type": "feature",
+          "settings": {
+            "icon": "truck",
+            "title": "Fast Shipping",
+            "description": "Quick delivery with tracking on all orders"
+          }
+        },
+        "feature-3": {
+          "type": "feature",
+          "settings": {
+            "icon": "star",
+            "title": "Quality Guarantee",
+            "description": "30-day return policy on all products"
+          }
+        },
+        "card-1": {
+          "type": "card",
+          "settings": {
+            "icon": "shield",
+            "color": "green",
+            "label": "Verified",
+            "title": "Suppliers"
+          }
+        },
+        "card-2": {
+          "type": "card",
+          "settings": {
+            "icon": "truck",
+            "color": "teal",
+            "label": "Fast",
+            "title": "Shipping"
+          }
+        },
+        "card-3": {
+          "type": "card",
+          "settings": {
+            "icon": "package",
+            "color": "mint",
+            "label": "Bulk",
+            "title": "Pricing"
+          }
+        },
+        "card-4": {
+          "type": "card",
+          "settings": {
+            "icon": "star",
+            "color": "green",
+            "label": "Quality",
+            "title": "Guaranteed"
+          }
+        }
+      },
+      "block_order": [
+        "feature-1",
+        "feature-2",
+        "feature-3",
+        "card-1",
+        "card-2",
+        "card-3",
+        "card-4"
+      ],
+      "settings": {
+        "heading": "Why Choose Hylee?",
+        "description": "Hylee is your trusted B2B marketplace, connecting small businesses with verified suppliers worldwide. We streamline wholesale purchasing with competitive prices, quality assurance, and seamless logistics.",
+        "background_color": "rgba(248, 250, 252, 0.5)"
+      }
     }
   },
   "order": [
@@ -187,6 +279,8 @@
     "best-sellers",
     "flash-deals",
     "new-arrivals",
-    "recommended"
+    "recommended",
+    "why-choose-us",
+    "newsletter"
   ]
 }

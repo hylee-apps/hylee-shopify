@@ -1,0 +1,214 @@
+{% comment %}
+  Newsletter Section
+  Email capture with blue gradient background
+{% endcomment %}
+
+<section class="newsletter" id="newsletter-{{ section.id }}">
+  <div class="newsletter__container">
+    <svg class="newsletter__icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="2" y="4" width="20" height="16" rx="2"/>
+      <path d="m2 7 10 6 10-6"/>
+    </svg>
+    
+    {% if section.settings.heading != blank %}
+      <h3 class="newsletter__heading">{{ section.settings.heading }}</h3>
+    {% endif %}
+    
+    {% if section.settings.description != blank %}
+      <p class="newsletter__description">{{ section.settings.description }}</p>
+    {% endif %}
+    
+    <form 
+      action="{{ section.settings.form_action | default: '/contact#newsletter' }}" 
+      method="post" 
+      class="newsletter__form"
+      accept-charset="UTF-8"
+    >
+      <input type="hidden" name="form_type" value="customer" />
+      <input type="hidden" name="utf8" value="✓" />
+      <input type="hidden" name="contact[tags]" value="newsletter" />
+      
+      <div class="newsletter__input-wrapper">
+        <input
+          type="email"
+          name="contact[email]"
+          placeholder="{{ section.settings.placeholder | default: 'Enter your email address' }}"
+          class="newsletter__input"
+          required
+          aria-label="Email address"
+        />
+        <button type="submit" class="newsletter__button">
+          {{ section.settings.button_text | default: 'Subscribe' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<style>
+#newsletter-{{ section.id }} {
+  padding: 4rem 1.5rem;
+  background: linear-gradient(to right, {{ section.settings.gradient_start | default: '#2563eb' }}, {{ section.settings.gradient_end | default: '#1d4ed8' }});
+}
+
+#newsletter-{{ section.id }} .newsletter__container {
+  max-width: 56rem;
+  margin: 0 auto;
+  text-align: center;
+  color: white;
+}
+
+#newsletter-{{ section.id }} .newsletter__icon {
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto 1rem;
+  color: white;
+}
+
+#newsletter-{{ section.id }} .newsletter__heading {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: white;
+  line-height: 1.3;
+}
+
+#newsletter-{{ section.id }} .newsletter__description {
+  margin: 0 0 2rem 0;
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+}
+
+#newsletter-{{ section.id }} .newsletter__form {
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+#newsletter-{{ section.id }} .newsletter__input-wrapper {
+  display: flex;
+  gap: 0.5rem;
+}
+
+#newsletter-{{ section.id }} .newsletter__input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: #0f172a;
+  background: white;
+  outline: none;
+  transition: all 0.2s;
+}
+
+#newsletter-{{ section.id }} .newsletter__input:focus {
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
+}
+
+#newsletter-{{ section.id }} .newsletter__input::placeholder {
+  color: #94a3b8;
+}
+
+#newsletter-{{ section.id }} .newsletter__button {
+  padding: 0.75rem 1.5rem;
+  background: white;
+  color: {{ section.settings.button_text_color | default: '#2563eb' }};
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+#newsletter-{{ section.id }} .newsletter__button:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 767px) {
+  #newsletter-{{ section.id }} {
+    padding: 3rem 1rem;
+  }
+  
+  #newsletter-{{ section.id }} .newsletter__heading {
+    font-size: 1.5rem;
+  }
+  
+  #newsletter-{{ section.id }} .newsletter__description {
+    font-size: 1rem;
+  }
+  
+  #newsletter-{{ section.id }} .newsletter__input-wrapper {
+    flex-direction: column;
+  }
+  
+  #newsletter-{{ section.id }} .newsletter__button {
+    width: 100%;
+  }
+}
+</style>
+
+{% schema %}
+{
+  "name": "Newsletter",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Get 10% Off Your First Order"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Join our newsletter for exclusive deals, new product alerts, and business tips"
+    },
+    {
+      "type": "text",
+      "id": "placeholder",
+      "label": "Input Placeholder",
+      "default": "Enter your email address"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "Subscribe"
+    },
+    {
+      "type": "text",
+      "id": "form_action",
+      "label": "Form Action URL",
+      "default": "/contact#newsletter",
+      "info": "URL where form will be submitted"
+    },
+    {
+      "type": "color",
+      "id": "gradient_start",
+      "label": "Gradient Start Color",
+      "default": "#2563eb"
+    },
+    {
+      "type": "color",
+      "id": "gradient_end",
+      "label": "Gradient End Color",
+      "default": "#1d4ed8"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button Text Color",
+      "default": "#2563eb"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Newsletter"
+    }
+  ]
+}
+{% endschema %}
