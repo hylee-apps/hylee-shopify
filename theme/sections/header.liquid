@@ -1,0 +1,253 @@
+{{ 'section-header.css' | asset_url | stylesheet_tag }}
+
+{% liquid
+  assign variant = section.settings.variant
+  assign show_categories = section.settings.show_categories
+  assign show_track_order = section.settings.show_track_order
+  assign cta_text = section.settings.cta_text
+  assign cta_link = section.settings.cta_link
+%}
+
+<header class="header{% if variant == 'minimal' %} header--minimal{% endif %}" id="shopify-section-header">
+  {%- comment -%} Top Banner {%- endcomment -%}
+  {% if section.settings.show_announcement and section.settings.announcement_text != blank %}
+    <div class="header__announcement">
+      {{ section.settings.announcement_text }}
+    </div>
+  {% endif %}
+  
+  <div class="header__inner-wrapper">
+    <div class="header__inner">
+    {%- comment -%} Logo {%- endcomment -%}
+    <a href="{{ routes.root_url }}" class="header__logo">
+      {% if section.settings.logo != blank %}
+        <img 
+          src="{{ section.settings.logo | image_url: width: 28 }}" 
+          alt="{{ shop.name }}"
+          class="header__logo-image"
+          width="28"
+          height="28"
+          loading="eager"
+        >
+      {% else %}
+        <img 
+          src="https://placehold.co/28x28/71717a/ffffff?text=H" 
+          alt="{{ shop.name }}"
+          class="header__logo-image"
+          width="28"
+          height="28"
+          loading="eager"
+        >
+      {% endif %}
+      <span class="header__logo-text">{{ section.settings.logo_text | default: shop.name }}</span>
+    </a>
+
+    {%- if variant == 'default' -%}
+      {%- comment -%} Main Navigation {%- endcomment -%}
+      <nav class="header__nav" role="navigation">
+        <a href="{{ routes.root_url }}" class="header__nav-link">
+          {{ 'header.navigation.home' | t }}
+        </a>
+        <a href="{{ routes.collections_url }}" class="header__nav-link">
+          {{ 'header.navigation.products' | t }}
+        </a>
+        
+        {%- if show_categories and linklists[section.settings.categories_menu].links.size > 0 -%}
+          <div class="header__categories">
+            <button 
+              class="header__nav-link" 
+              aria-expanded="false"
+              aria-controls="categories-dropdown"
+              data-categories-toggle
+            >
+              {{ 'header.navigation.categories' | t }}
+            </button>
+            
+            <div class="header__categories-menu hidden" id="categories-dropdown" data-categories-menu>
+              <div class="header__categories-overlay hidden" data-categories-overlay></div>
+              {%- for link in linklists[section.settings.categories_menu].links -%}
+                <a 
+                  href="{{ link.url }}" 
+                  class="header__categories-item"
+                >
+                  <span class="header__categories-icon">{{ link.object.metafields.custom.icon | default: '📁' }}</span>
+                  <div class="header__categories-info">
+                    <div class="header__categories-name">{{ link.title }}</div>
+                    {% if link.object.products_count %}
+                      <div class="header__categories-count">{{ link.object.products_count }}+ items</div>
+                    {% endif %}
+                  </div>
+                </a>
+              {%- endfor -%}
+            </div>
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.show_about -%}
+          <a href="{{ section.settings.about_link }}" class="header__nav-link">
+            {{ 'header.navigation.about' | t }}
+          </a>
+        {%- endif -%}
+      </nav>
+    {%- endif -%}
+
+    {%- comment -%} Actions {%- endcomment -%}
+    <div class="header__actions">
+      {%- if show_track_order -%}
+        <a href="{{ section.settings.track_order_link | default: '/pages/track-order' }}" class="header__action-link">
+          {{ 'header.actions.track_order' | t }}
+        </a>
+      {%- endif -%}
+
+      {%- if shop.customer_accounts_enabled -%}
+        <a href="{{ routes.account_url }}" class="header__action-link header__action-link--outline">
+          {%- if customer -%}
+            {{ 'header.actions.account' | t }}
+          {%- else -%}
+            {{ 'header.actions.sign_in' | t }}
+          {%- endif -%}
+        </a>
+      {%- endif -%}
+
+      {%- if cta_text != blank and cta_link != blank -%}
+        <a href="{{ cta_link }}" class="header__cta">
+          {{ cta_text }}
+        </a>
+      {%- endif -%}
+    </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Categories dropdown functionality
+  (function() {
+    const toggle = document.querySelector('[data-categories-toggle]');
+    const menu = document.querySelector('[data-categories-menu]');
+    const overlay = document.querySelector('[data-categories-overlay]');
+    
+    if (toggle && menu && overlay) {
+      toggle.addEventListener('click', function() {
+        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', !isExpanded);
+        menu.classList.toggle('hidden');
+        overlay.classList.toggle('hidden');
+      });
+      
+      overlay.addEventListener('click', function() {
+        toggle.setAttribute('aria-expanded', 'false');
+        menu.classList.add('hidden');
+        overlay.classList.add('hidden');
+      });
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Header",
+  "class": "section-header",
+  "settings": [
+    {
+      "type": "select",
+      "id": "variant",
+      "label": "Header Style",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "minimal",
+          "label": "Minimal"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "type": "header",
+      "content": "Announcement Bar"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_announcement",
+      "label": "Show Announcement Bar",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "announcement_text",
+      "label": "Announcement Text",
+      "default": "Free Shipping on Orders Over $50 | Use Code: FREESHIP"
+    },
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo Image"
+    },
+    {
+      "type": "text",
+      "id": "logo_text",
+      "label": "Logo Text",
+      "default": "Hylee"
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_categories",
+      "label": "Show Categories Dropdown",
+      "default": true
+    },
+    {
+      "type": "link_list",
+      "id": "categories_menu",
+      "label": "Categories Menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_about",
+      "label": "Show About Link",
+      "default": false
+    },
+    {
+      "type": "url",
+      "id": "about_link",
+      "label": "About Page Link"
+    },
+    {
+      "type": "header",
+      "content": "Actions"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_track_order",
+      "label": "Show Track Order Link",
+      "default": true
+    },
+    {
+      "type": "url",
+      "id": "track_order_link",
+      "label": "Track Order Page"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "Call to Action Text",
+      "default": "Get Started"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "Call to Action Link"
+    }
+  ]
+}
+{% endschema %}

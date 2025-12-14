@@ -1,0 +1,193 @@
+/* Form Component Styles */
+.form {
+  width: 100%;
+}
+
+/* Form Item (Field Container) */
+.form__item {
+  display: grid;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+/* Form Label */
+.form__label {
+  display: inline-block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  color: rgb(15, 23, 42);
+  margin-bottom: 0.25rem;
+}
+
+.form__label--required::after {
+  content: "*";
+  color: rgb(239, 68, 68);
+  margin-left: 0.25rem;
+}
+
+.form__label--error {
+  color: rgb(239, 68, 68);
+}
+
+/* Form Description */
+.form__description {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: rgb(100, 116, 139);
+  margin: 0;
+}
+
+/* Form Message (Error/Success) */
+.form__message {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  margin: 0;
+}
+
+.form__message--error {
+  color: rgb(239, 68, 68);
+}
+
+.form__message--success {
+  color: rgb(34, 197, 94);
+}
+
+.form__message--warning {
+  color: rgb(234, 179, 8);
+}
+
+/* Form Actions (Button Group) */
+.form__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.form__actions--end {
+  justify-content: flex-end;
+}
+
+.form__actions--center {
+  justify-content: center;
+}
+
+.form__actions--between {
+  justify-content: space-between;
+}
+
+/* Form Grid Layout */
+.form--grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.form--grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.form--grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 768px) {
+  .form--grid-cols-2,
+  .form--grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Form Field Sizes */
+.form__item--sm {
+  gap: 0.375rem;
+}
+
+.form__item--lg {
+  gap: 0.75rem;
+}
+
+/* Form Section */
+.form__section {
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  background-color: rgb(248, 250, 252);
+  margin-bottom: 1.5rem;
+}
+
+.form__section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: rgb(15, 23, 42);
+  margin: 0 0 1rem 0;
+}
+
+.form__section-description {
+  font-size: 0.875rem;
+  color: rgb(100, 116, 139);
+  margin: 0 0 1.5rem 0;
+}
+
+/* Form States */
+.form--loading {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.form--disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Required Indicator */
+.form__required-note {
+  font-size: 0.8125rem;
+  color: rgb(100, 116, 139);
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* Form Errors Summary */
+.form__errors-summary {
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.5rem;
+  background-color: rgb(254, 242, 242);
+  border: 1px solid rgb(239, 68, 68);
+}
+
+.form__errors-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgb(239, 68, 68);
+  margin: 0 0 0.5rem 0;
+}
+
+.form__errors-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.8125rem;
+  color: rgb(220, 38, 38);
+}
+
+.form__errors-list li {
+  margin-bottom: 0.25rem;
+}
+
+/* Inline Form */
+.form--inline {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.form--inline .form__item {
+  flex: 1;
+  min-width: 200px;
+}
+
+.form--inline .form__actions {
+  margin-top: 0;
+  flex-shrink: 0;
+}

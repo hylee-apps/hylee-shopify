@@ -1,0 +1,98 @@
+{% comment %}
+  Button Component Snippet
+  
+  Usage:
+    {% render 'button', 
+      text: 'Click Me',
+      url: '/products',
+      variant: 'primary',
+      size: 'default'
+    %}
+  
+  Parameters:
+    - text: Button text content (required)
+    - url: Link destination (optional, creates <a> if present, <button> if not)
+    - variant: primary, secondary, destructive, outline, ghost, link (default: primary)
+    - size: default, sm, lg, icon (default: default)
+    - type: button, submit, reset (default: button, only applies to <button>)
+    - disabled: true/false (default: false)
+    - loading: true/false (default: false)
+    - icon: Icon HTML or SVG (optional)
+    - icon_position: left, right (default: left)
+    - full_width: true/false (default: false)
+    - class: Additional CSS classes
+    - id: Element ID
+    - data_attributes: Object with data attributes
+{% endcomment %}
+
+{% liquid
+  assign variant = variant | default: 'primary'
+  assign size = size | default: 'default'
+  assign type = type | default: 'button'
+  assign disabled = disabled | default: false
+  assign loading = loading | default: false
+  assign icon_position = icon_position | default: 'left'
+  assign full_width = full_width | default: false
+  
+  assign btn_classes = 'btn'
+  assign btn_classes = btn_classes | append: ' btn--' | append: variant
+  assign btn_classes = btn_classes | append: ' btn--' | append: size
+  
+  if full_width
+    assign btn_classes = btn_classes | append: ' btn--full-width'
+  endif
+  
+  if loading
+    assign btn_classes = btn_classes | append: ' btn--loading'
+  endif
+  
+  if class
+    assign btn_classes = btn_classes | append: ' ' | append: class
+  endif
+%}
+
+{% if url and url != blank %}
+  <a 
+    href="{{ url }}"
+    class="{{ btn_classes }}"
+    {% if id %}id="{{ id }}"{% endif %}
+    {% if disabled %}aria-disabled="true"{% endif %}
+    {% if data_attributes %}
+      {% for attribute in data_attributes %}
+        data-{{ attribute[0] }}="{{ attribute[1] }}"
+      {% endfor %}
+    {% endif %}
+  >
+    {% if icon and icon_position == 'left' %}
+      {{ icon }}
+    {% endif %}
+    {% if text %}
+      <span>{{ text }}</span>
+    {% endif %}
+    {% if icon and icon_position == 'right' %}
+      {{ icon }}
+    {% endif %}
+  </a>
+{% else %}
+  <button 
+    type="{{ type }}"
+    class="{{ btn_classes }}"
+    {% if id %}id="{{ id }}"{% endif %}
+    {% if disabled %}disabled{% endif %}
+    {% if data_attributes %}
+      {% for attribute in data_attributes %}
+        data-{{ attribute[0] }}="{{ attribute[1] }}"
+      {% endfor %}
+    {% endif %}
+  >
+    {% if icon and icon_position == 'left' %}
+      {{ icon }}
+    {% endif %}
+    {% if text %}
+      <span>{{ text }}</span>
+    {% endif %}
+    {% if icon and icon_position == 'right' %}
+      {{ icon }}
+    {% endif %}
+  </button>
+{% endif %}

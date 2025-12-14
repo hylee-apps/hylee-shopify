@@ -1,0 +1,132 @@
+{% comment %}
+  Card Component Snippet
+  
+  Usage:
+    {% render 'card',
+      title: 'Card Title',
+      description: 'Card description text',
+      content: '<p>Card content goes here</p>'
+    %}
+  
+  Or with blocks:
+    {% capture card_content %}
+      <p>Custom content with full control</p>
+    {% endcapture %}
+    
+    {% capture card_footer %}
+      {% render 'button', text: 'Action', variant: 'primary' %}
+    {% endcapture %}
+    
+    {% render 'card',
+      title: 'Product Title',
+      content: card_content,
+      footer: card_footer
+    %}
+  
+  Parameters:
+    - title: Card title text (optional)
+    - description: Card description text (optional)
+    - action: HTML for action button in header (optional)
+    - content: Card content HTML (optional)
+    - footer: Card footer HTML (optional)
+    - image_url: URL for card image (optional)
+    - image_alt: Alt text for card image (optional)
+    - variant: default, elevated, hover, clickable (default: default)
+    - size: default, sm, lg (default: default)
+    - border_header: true/false - add border to header (default: false)
+    - border_footer: true/false - add border to footer (default: false)
+    - url: Make entire card clickable with this URL (optional)
+    - class: Additional CSS classes
+    - id: Element ID
+{% endcomment %}
+
+{% liquid
+  assign card_variant = variant | default: 'default'
+  assign card_size = size | default: 'default'
+  assign border_header = border_header | default: false
+  assign border_footer = border_footer | default: false
+  
+  assign card_classes = 'card'
+  assign card_classes = card_classes | append: ' card--' | append: card_variant
+  assign card_classes = card_classes | append: ' card--' | append: card_size
+  
+  if url and url != blank
+    assign card_classes = card_classes | append: ' card--clickable'
+  endif
+  
+  if class
+    assign card_classes = card_classes | append: ' ' | append: class
+  endif
+  
+  assign has_header = false
+  if title and title != blank or description and description != blank or action and action != blank
+    assign has_header = true
+  endif
+  
+  assign has_footer = false
+  if footer and footer != blank
+    assign has_footer = true
+  endif
+  
+  assign header_classes = 'card__header'
+  if action and action != blank
+    assign header_classes = header_classes | append: ' card__header--with-action'
+  endif
+  if border_header
+    assign header_classes = header_classes | append: ' card__header--border-bottom'
+  endif
+  
+  assign footer_classes = 'card__footer'
+  if border_footer
+    assign footer_classes = footer_classes | append: ' card__footer--border-top'
+  endif
+%}
+
+{% if url and url != blank %}
+  <a href="{{ url }}" class="{{ card_classes }}"{% if id %} id="{{ id }}"{% endif %}>
+{% else %}
+  <div class="{{ card_classes }}"{% if id %} id="{{ id }}"{% endif %}>
+{% endif %}
+
+  {% if image_url and image_url != blank %}
+    <img
+      src="{{ image_url }}"
+      alt="{{ image_alt | default: title }}"
+      class="card__image"
+      loading="lazy"
+    >
+  {% endif %}
+
+  {% if has_header %}
+    <div class="{{ header_classes }}">
+      {% if title and title != blank %}
+        <h4 class="card__title">{{ title }}</h4>
+      {% endif %}
+      
+      {% if description and description != blank %}
+        <p class="card__description">{{ description }}</p>
+      {% endif %}
+      
+      {% if action and action != blank %}
+        <div class="card__action">{{ action }}</div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% if content and content != blank %}
+    <div class="card__content">
+      {{ content }}
+    </div>
+  {% endif %}
+
+  {% if has_footer %}
+    <div class="{{ footer_classes }}">
+      {{ footer }}
+    </div>
+  {% endif %}
+
+{% if url and url != blank %}
+  </a>
+{% else %}
+  </div>
+{% endif %}

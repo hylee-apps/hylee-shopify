@@ -1,0 +1,325 @@
+<!-- Product Template -->
+{% comment %}
+  Product Detail Page
+  Displays individual product with images, variants, and add to cart
+{% endcomment %}
+
+<div class="product-page">
+  <div class="product-container">
+    
+    <!-- Breadcrumbs -->
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/" class="breadcrumbs__link">Home</a>
+      <span class="breadcrumbs__separator">/</span>
+      {% if collection %}
+        <a href="{{ collection.url }}" class="breadcrumbs__link">{{ collection.title }}</a>
+        <span class="breadcrumbs__separator">/</span>
+      {% endif %}
+      <span class="breadcrumbs__current">{{ product.title }}</span>
+    </nav>
+
+    <!-- Product Main -->
+    <div class="product-main">
+      
+      <!-- Product Gallery -->
+      <div class="product-gallery">
+        <div class="product-gallery__main">
+          {% if product.featured_image %}
+            <img
+              src="{{ product.featured_image | image_url: width: 800 }}"
+              alt="{{ product.featured_image.alt | default: product.title }}"
+              id="product-featured-image"
+              class="product-gallery__image"
+              loading="eager"
+            >
+          {% else %}
+            <div class="product-gallery__placeholder">No image available</div>
+          {% endif %}
+
+          <!-- Badges -->
+          <div class="product-gallery__badges">
+            {% if product.available == false %}
+              {% render 'badge', text: 'Sold Out', variant: 'secondary', size: 'lg' %}
+            {% elsif product.compare_at_price > product.price %}
+              {% assign discount = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price %}
+              {% render 'badge', text: discount | append: '% Off', variant: 'destructive', size: 'lg' %}
+            {% endif %}
+            
+            {% if product.tags contains 'new' %}
+              {% render 'badge', text: 'New Arrival', variant: 'success', size: 'lg' %}
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Thumbnails -->
+        {% if product.images.size > 1 %}
+          <div class="product-gallery__thumbnails">
+            {% for image in product.images limit: 5 %}
+              <button
+                type="button"
+                class="product-gallery__thumbnail{% if forloop.first %} product-gallery__thumbnail--active{% endif %}"
+                data-image-url="{{ image | image_url: width: 800 }}"
+                aria-label="View image {{ forloop.index }}"
+              >
+                <img src="{{ image | image_url: width: 150 }}" alt="{{ image.alt | default: product.title }}">
+              </button>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Product Info -->
+      <div class="product-info">
+        
+        <!-- Vendor -->
+        {% if product.vendor %}
+          <p class="product-info__vendor">{{ product.vendor }}</p>
+        {% endif %}
+
+        <!-- Title -->
+        <h1 class="product-info__title">{{ product.title }}</h1>
+
+        <!-- Rating -->
+        {% if product.metafields.reviews.rating.value %}
+          <div class="product-info__rating">
+            <div class="product-rating">
+              {% assign rating = product.metafields.reviews.rating.value %}
+              {% for i in (1..5) %}
+                {% if i <= rating %}
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                  </svg>
+                {% else %}
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                  </svg>
+                {% endif %}
+              {% endfor %}
+            </div>
+            <span class="product-info__rating-text">
+              {{ rating }} 
+              {% if product.metafields.reviews.count.value %}
+                ({{ product.metafields.reviews.count.value }} reviews)
+              {% endif %}
+            </span>
+          </div>
+        {% endif %}
+
+        <!-- Price -->
+        <div class="product-info__price">
+          {% if product.compare_at_price > product.price %}
+            <span class="product-info__price-sale">{{ product.selected_or_first_available_variant.price | money }}</span>
+            <span class="product-info__price-compare">{{ product.selected_or_first_available_variant.compare_at_price | money }}</span>
+          {% else %}
+            <span class="product-info__price-regular">{{ product.selected_or_first_available_variant.price | money }}</span>
+          {% endif %}
+        </div>
+
+        <!-- Description -->
+        {% if product.description != blank %}
+          <div class="product-info__description">
+            {{ product.description }}
+          </div>
+        {% endif %}
+
+        <!-- Product Form -->
+        <form action="/cart/add" method="post" class="product-form" id="product-form">
+          
+          <!-- Variants -->
+          {% unless product.has_only_default_variant %}
+            <div class="product-variants">
+              {% for option in product.options_with_values %}
+                <div class="product-variant-group">
+                  <label class="product-variant-group__label">
+                    {{ option.name }}
+                    <span class="product-variant-group__selected" id="selected-{{ option.name | handleize }}">
+                      {{ option.selected_value }}
+                    </span>
+                  </label>
+
+                  {% if option.name == 'Color' or option.name == 'Colour' %}
+                    <!-- Color Swatches -->
+                    <div class="product-variant-swatches">
+                      {% for value in option.values %}
+                        {% render 'radio-group',
+                          name: option.name,
+                          options: option.values,
+                          layout: 'buttons',
+                          value: option.selected_value
+                        %}
+                      {% endfor %}
+                    </div>
+                  {% else %}
+                    <!-- Buttons -->
+                    {% assign option_values = '' %}
+                    {% for value in option.values %}
+                      {% assign option_value_pair = value | append: ':' | append: value %}
+                      {% if forloop.first %}
+                        {% assign option_values = option_value_pair %}
+                      {% else %}
+                        {% assign option_values = option_values | append: ',' | append: option_value_pair %}
+                      {% endif %}
+                    {% endfor %}
+                    {% assign option_values_array = option_values | split: ',' %}
+                    
+                    {% render 'radio-group',
+                      name: option.name,
+                      options: option_values_array,
+                      layout: 'buttons',
+                      value: option.selected_value
+                    %}
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% endunless %}
+
+          <!-- Quantity -->
+          <div class="product-quantity">
+            {% render 'input',
+              name: 'quantity',
+              label: 'Quantity',
+              type: 'number',
+              value: '1',
+              size: 'lg'
+            %}
+          </div>
+
+          <!-- Hidden Variant ID -->
+          <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+
+          <!-- Add to Cart Button -->
+          <div class="product-actions">
+            {% render 'button',
+              text: 'Add to Cart',
+              type: 'submit',
+              variant: 'primary',
+              size: 'lg',
+              disabled: product.available == false,
+              class: 'product-actions__add-to-cart'
+            %}
+            
+            <button type="button" class="product-actions__wishlist" aria-label="Add to wishlist">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Availability -->
+          <div class="product-availability">
+            {% if product.available %}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgb(34, 197, 94)" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span class="product-availability__text product-availability__text--in-stock">
+                In Stock - Ships within 2-3 business days
+              </span>
+            {% else %}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgb(239, 68, 68)" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+              </svg>
+              <span class="product-availability__text product-availability__text--out-of-stock">
+                Out of Stock
+              </span>
+            {% endif %}
+          </div>
+
+        </form>
+
+        <!-- Features -->
+        <div class="product-features">
+          <div class="product-feature">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            </svg>
+            <span>Free Shipping</span>
+          </div>
+          <div class="product-feature">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <span>30-Day Returns</span>
+          </div>
+          <div class="product-feature">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+              <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+            <span>Secure Payment</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Additional Info Tabs -->
+    <div class="product-tabs">
+      <div class="product-tabs__nav">
+        <button class="product-tabs__button product-tabs__button--active" data-tab="details">Details</button>
+        <button class="product-tabs__button" data-tab="shipping">Shipping</button>
+        <button class="product-tabs__button" data-tab="reviews">Reviews</button>
+      </div>
+
+      <div class="product-tabs__content">
+        <div class="product-tabs__panel product-tabs__panel--active" id="tab-details">
+          {{ product.description }}
+        </div>
+        <div class="product-tabs__panel" id="tab-shipping">
+          <p>Free standard shipping on orders over $50. Express shipping available at checkout.</p>
+        </div>
+        <div class="product-tabs__panel" id="tab-reviews">
+          <p>Customer reviews coming soon.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if recommendations.products.size > 0 %}
+      <div class="related-products">
+        <h2 class="related-products__title">You May Also Like</h2>
+        <div class="related-products__grid">
+          {% for product in recommendations.products limit: 4 %}
+            {% render 'product-card', product: product %}
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<script>
+  // Thumbnail gallery
+  document.querySelectorAll('.product-gallery__thumbnail').forEach(thumb => {
+    thumb.addEventListener('click', () => {
+      const imageUrl = thumb.dataset.imageUrl;
+      document.getElementById('product-featured-image').src = imageUrl;
+      
+      document.querySelectorAll('.product-gallery__thumbnail').forEach(t => {
+        t.classList.remove('product-gallery__thumbnail--active');
+      });
+      thumb.classList.add('product-gallery__thumbnail--active');
+    });
+  });
+
+  // Tabs
+  document.querySelectorAll('.product-tabs__button').forEach(button => {
+    button.addEventListener('click', () => {
+      const tab = button.dataset.tab;
+      
+      document.querySelectorAll('.product-tabs__button').forEach(b => {
+        b.classList.remove('product-tabs__button--active');
+      });
+      document.querySelectorAll('.product-tabs__panel').forEach(p => {
+        p.classList.remove('product-tabs__panel--active');
+      });
+      
+      button.classList.add('product-tabs__button--active');
+      document.getElementById(`tab-${tab}`).classList.add('product-tabs__panel--active');
+    });
+  });
+</script>

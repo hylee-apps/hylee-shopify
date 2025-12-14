@@ -1,0 +1,106 @@
+{% comment %}
+  Input Component Snippet
+  
+  Usage:
+    {% render 'input',
+      name: 'email',
+      label: 'Email Address',
+      type: 'email',
+      required: true,
+      placeholder: 'Enter your email'
+    %}
+  
+  Parameters:
+    - name: Input name attribute (required)
+    - label: Label text (optional)
+    - type: text, email, password, number, tel, url, search, date, etc. (default: text)
+    - value: Input value
+    - placeholder: Placeholder text
+    - required: true/false (default: false)
+    - disabled: true/false (default: false)
+    - readonly: true/false (default: false)
+    - size: default, sm, lg (default: default)
+    - error: Error message text
+    - hint: Helper text
+    - icon: Icon HTML or SVG
+    - icon_position: left, right (default: left)
+    - autocomplete: Autocomplete attribute value
+    - pattern: Pattern for validation
+    - minlength: Minimum length
+    - maxlength: Maximum length
+    - min: Minimum value (for number/date inputs)
+    - max: Maximum value (for number/date inputs)
+    - step: Step value (for number inputs)
+    - class: Additional CSS classes
+    - id: Element ID (defaults to name if not provided)
+{% endcomment %}
+
+{% liquid
+  assign input_type = type | default: 'text'
+  assign input_size = size | default: 'default'
+  assign required = required | default: false
+  assign disabled = disabled | default: false
+  assign readonly = readonly | default: false
+  assign icon_position = icon_position | default: 'left'
+  assign input_id = id | default: name
+  
+  assign has_icon = false
+  if icon and icon != blank
+    assign has_icon = true
+  endif
+  
+  assign input_classes = 'input'
+  assign input_classes = input_classes | append: ' input--' | append: input_size
+  
+  if error and error != blank
+    assign input_classes = input_classes | append: ' input--error'
+  endif
+  
+  if class
+    assign input_classes = input_classes | append: ' ' | append: class
+  endif
+%}
+
+<div class="input-group">
+  {% if label and label != blank %}
+    <label for="{{ input_id }}" class="input-label{% if required %} input-label--required{% endif %}">
+      {{ label }}
+    </label>
+  {% endif %}
+
+  {% if has_icon %}
+    <div class="input-wrapper{% if icon_position == 'right' %} input-wrapper--icon-right{% endif %}">
+      <span class="input-icon">{{ icon }}</span>
+  {% endif %}
+
+  <input
+    type="{{ input_type }}"
+    name="{{ name }}"
+    id="{{ input_id }}"
+    class="{{ input_classes }}"
+    {% if value and value != blank %}value="{{ value }}"{% endif %}
+    {% if placeholder and placeholder != blank %}placeholder="{{ placeholder }}"{% endif %}
+    {% if required %}required{% endif %}
+    {% if disabled %}disabled{% endif %}
+    {% if readonly %}readonly{% endif %}
+    {% if autocomplete and autocomplete != blank %}autocomplete="{{ autocomplete }}"{% endif %}
+    {% if pattern and pattern != blank %}pattern="{{ pattern }}"{% endif %}
+    {% if minlength %}minlength="{{ minlength }}"{% endif %}
+    {% if maxlength %}maxlength="{{ maxlength }}"{% endif %}
+    {% if min %}min="{{ min }}"{% endif %}
+    {% if max %}max="{{ max }}"{% endif %}
+    {% if step %}step="{{ step }}"{% endif %}
+    {% if error and error != blank %}aria-invalid="true" aria-describedby="{{ input_id }}-error"{% endif %}
+    {% if hint and hint != blank and error == blank %}aria-describedby="{{ input_id }}-hint"{% endif %}
+  >
+
+  {% if has_icon %}
+    </div>
+  {% endif %}
+
+  {% if error and error != blank %}
+    <span id="{{ input_id }}-error" class="input-error">{{ error }}</span>
+  {% elsif hint and hint != blank %}
+    <span id="{{ input_id }}-hint" class="input-hint">{{ hint }}</span>
+  {% endif %}
+</div>

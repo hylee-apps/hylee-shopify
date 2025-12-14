@@ -1,0 +1,134 @@
+{% comment %}
+  Product Card Snippet
+  Reusable product card for grid/list views
+  
+  Parameters:
+    - product: Product object (required)
+    - show_vendor: Display vendor name (default: false)
+    - show_quick_view: Show quick view button (default: false)
+    - lazy_load: Lazy load images (default: true)
+{% endcomment %}
+
+{% liquid
+  assign show_vendor = show_vendor | default: false
+  assign show_quick_view = show_quick_view | default: false
+  assign lazy_load = lazy_load | default: true
+  
+  assign on_sale = false
+  if product.compare_at_price > product.price
+    assign on_sale = true
+  endif
+  
+  assign sold_out = true
+  if product.available
+    assign sold_out = false
+  endif
+%}
+
+<article class="product-card">
+  
+  <!-- Product Image -->
+  <div class="product-card__image">
+    <a href="{{ product.url }}">
+      {% if product.featured_image %}
+        <img
+          src="{{ product.featured_image | image_url: width: 600 }}"
+          alt="{{ product.featured_image.alt | default: product.title }}"
+          {% if lazy_load %}loading="lazy"{% else %}loading="eager"{% endif %}
+          width="600"
+          height="600"
+        >
+      {% else %}
+        <img
+          src="https://placehold.co/600x600/f1f5f9/64748b?text={{ product.title | slice: 0 }}"
+          alt="{{ product.title }}"
+          loading="lazy"
+          width="600"
+          height="600"
+        >
+      {% endif %}
+    </a>
+
+    <!-- Badges -->
+    {% if on_sale or sold_out or product.tags contains 'new' %}
+      <div class="product-card__badges">
+        {% if sold_out %}
+          <span class="product-card__badge product-card__badge--sold-out">Sold Out</span>
+        {% elsif on_sale %}
+          <span class="product-card__badge product-card__badge--sale">Sale</span>
+        {% endif %}
+        
+        {% if product.tags contains 'new' %}
+          <span class="product-card__badge product-card__badge--new">New</span>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Product Info -->
+  <div class="product-card__info">
+    {% if show_vendor and product.vendor %}
+      <p class="product-card__vendor">{{ product.vendor }}</p>
+    {% endif %}
+
+    <h3 class="product-card__title">
+      <a href="{{ product.url }}">{{ product.title }}</a>
+    </h3>
+
+    <!-- Price -->
+    <div class="product-card__price{% if on_sale %} product-card__price--on-sale{% endif %}">
+      <span class="product-card__price-current">{{ product.price | money }}</span>
+      {% if on_sale %}
+        <span class="product-card__price-compare">{{ product.compare_at_price | money }}</span>
+      {% endif %}
+    </div>
+
+      <!-- Rating (if available) -->
+      {% if product.metafields.reviews.rating.value %}
+        <div class="product-card__rating">
+          <div class="product-card__stars">
+            {% assign rating = product.metafields.reviews.rating.value %}
+            {% for i in (1..5) %}
+              {% if i <= rating %}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              {% else %}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              {% endif %}
+            {% endfor %}
+          </div>
+          {% if product.metafields.reviews.count.value %}
+            <span class="product-card__review-count">({{ product.metafields.reviews.count.value }})</span>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Quick Add Button -->
+  {% unless sold_out %}
+    <div class="product-card__actions">
+      {% if product.has_only_default_variant %}
+        <button 
+          type="button" 
+          class="product-card__quick-add"
+          data-product-id="{{ product.id }}"
+          data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+        >
+          Add to Cart
+        </button>
+      {% else %}
+        <a 
+          href="{{ product.url }}" 
+          class="product-card__quick-add"
+        >
+          View Options
+        </a>
+      {% endif %}
+    </div>
+  {% endunless %}
+
+</article>

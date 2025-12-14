@@ -1,0 +1,42 @@
+# Shopify Theme Check configuration
+# https://shopify.dev/docs/themes/tools/theme-check
+
+root: .
+
+# Enable all recommended checks
+extends: theme-check:recommended
+
+# Custom rules
+DeprecatedTags:
+  enabled: true
+  
+UnknownFilter:
+  enabled: true
+  
+MissingTemplate:
+  enabled: true
+
+RemoteAsset:
+  enabled: true
+
+# Accessibility checks
+ImgLazyLoading:
+  enabled: true
+
+ImgWidthAndHeight:
+  enabled: true
+
+# Performance
+AssetSizeCSS:
+  enabled: true
+  threshold_in_bytes: 100000
+
+AssetSizeJavaScript:
+  enabled: true
+  threshold_in_bytes: 100000
+
+# Ignore patterns
+ignore:
+  - node_modules
+  - dist
+  - src

@@ -1,0 +1,104 @@
+/* Base styles for the theme */
+
+/* Reset and base elements */
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  display: block;
+  vertical-align: middle;
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: rgb(var(--color-base-text));
+  text-decoration: underline;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+/* Buttons */
+.button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.2rem 3rem;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1.5rem;
+  text-decoration: none;
+  color: rgb(var(--color-base-solid-button-labels));
+  background-color: rgb(var(--color-base-accent-1));
+  border: 0.1rem solid transparent;
+  transition: box-shadow var(--duration-short) ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.button:hover {
+  box-shadow: 0 0 0 0.2rem rgb(var(--color-base-accent-1));
+}
+
+.button--secondary {
+  color: rgb(var(--color-base-outline-button-labels));
+  background-color: transparent;
+  border: 0.1rem solid rgb(var(--color-base-accent-1));
+}
+
+/* Layout */
+.page-width {
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+@media screen and (min-width: 750px) {
+  .page-width {
+    padding: 0 5rem;
+  }
+}
+
+/* Skip to content */
+.skip-to-content-link {
+  position: absolute;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+}
+
+.skip-to-content-link:not(:focus) {
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+/* Utilities */
+.visually-hidden {
+  position: absolute !important;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip: rect(0 0 0 0);
+  word-wrap: normal !important;
+}
+
+.gradient {
+  background: linear-gradient(180deg, 
+    rgb(var(--color-base-background-1)), 
+    rgb(var(--color-base-background-2))
+  );
+}

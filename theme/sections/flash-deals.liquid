@@ -1,0 +1,470 @@
+{% comment %}
+  Flash Deals Section
+  Displays limited-time deals with countdown
+{% endcomment %}
+
+<section class="flash-deals" id="flash-deals-{{ section.id }}">
+  <div class="flash-deals__container">
+    <div class="flash-deals__header">
+      <div class="flash-deals__header-left">
+        <svg class="flash-deals__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <div>
+          {% if section.settings.heading != blank %}
+            <h3 class="flash-deals__heading">{{ section.settings.heading }}</h3>
+          {% endif %}
+          {% if section.settings.subheading != blank %}
+            <p class="flash-deals__subheading">{{ section.settings.subheading }}</p>
+          {% endif %}
+        </div>
+      </div>
+      
+      {% if section.settings.show_countdown %}
+        <div class="flash-deals__countdown" data-end-time="{{ section.settings.countdown_end_time }}">
+          <svg class="flash-deals__countdown-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <div class="flash-deals__countdown-time">
+            <div class="flash-deals__countdown-unit">
+              <div class="flash-deals__countdown-value" data-unit="hours">12</div>
+              <div class="flash-deals__countdown-label">Hours</div>
+            </div>
+            <span class="flash-deals__countdown-separator">:</span>
+            <div class="flash-deals__countdown-unit">
+              <div class="flash-deals__countdown-value" data-unit="minutes">33</div>
+              <div class="flash-deals__countdown-label">Min</div>
+            </div>
+            <span class="flash-deals__countdown-separator">:</span>
+            <div class="flash-deals__countdown-unit">
+              <div class="flash-deals__countdown-value" data-unit="seconds">50</div>
+              <div class="flash-deals__countdown-label">Sec</div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="flash-deals__grid">
+      {% for block in section.blocks %}
+        {% if block.type == 'product' %}
+          {% if block.settings.product != blank %}
+            {% assign product = all_products[block.settings.product] %}
+            {% assign product_url = product.url %}
+            {% assign product_title = product.title %}
+            {% assign product_image = product.featured_image %}
+            {% assign sale_price = product.price %}
+            {% assign original_price = product.compare_at_price %}
+          {% else %}
+            {% assign product_url = '#' %}
+            {% assign product_title = block.settings.title | default: 'Aliquip Ex Ea Commodo' %}
+            {% assign product_image = nil %}
+            {% assign sale_price = block.settings.sale_price %}
+            {% assign original_price = block.settings.original_price %}
+          {% endif %}
+          
+          <a href="{{ product_url }}" class="flash-deals__item" {{ block.shopify_attributes }}>
+            <div class="flash-deals__image-wrapper">
+              {% if product_image %}
+                {{ product_image | image_url: width: 400 | image_tag: loading: 'lazy', alt: product_title, class: 'flash-deals__image' }}
+              {% else %}
+                <div class="flash-deals__image-placeholder">Product</div>
+              {% endif %}
+              
+              {% if block.settings.discount_text != blank %}
+                <div class="flash-deals__badge">{{ block.settings.discount_text }}</div>
+              {% endif %}
+            </div>
+            
+            <div class="flash-deals__content">
+              <h4 class="flash-deals__title">{{ product_title }}</h4>
+              
+              <div class="flash-deals__prices">
+                {% if sale_price != blank %}
+                  <span class="flash-deals__sale-price">{{ sale_price }}</span>
+                {% endif %}
+                {% if original_price != blank %}
+                  <span class="flash-deals__original-price">{{ original_price }}</span>
+                {% endif %}
+              </div>
+              
+              <button class="flash-deals__button" type="button">
+                {{ section.settings.button_text | default: 'Grab Deal Now' }}
+              </button>
+            </div>
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<style>
+#flash-deals-{{ section.id }} {
+  padding: 4rem 1.5rem;
+  background: linear-gradient(to right, #fff7ed, #fef2f2);
+  border-top: 1px solid rgba(251, 146, 60, 0.5);
+  border-bottom: 1px solid rgba(251, 146, 60, 0.5);
+}
+
+#flash-deals-{{ section.id }} .flash-deals__container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__icon {
+  color: #ea580c;
+  flex-shrink: 0;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__heading {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.3;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__subheading {
+  margin: 0;
+  font-size: 1rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__countdown {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #ffffff;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #fed7aa;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+#flash-deals-{{ section.id }} .flash-deals__countdown-icon {
+  color: #ea580c;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__countdown-time {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: #0f172a;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__countdown-unit {
+  text-align: center;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__countdown-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__countdown-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  line-height: 1;
+  margin-top: 0.25rem;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__countdown-separator {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  #flash-deals-{{ section.id }} .flash-deals__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+#flash-deals-{{ section.id }} .flash-deals__item {
+  display: flex;
+  background: #ffffff;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid #fed7aa;
+  transition: all 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__item:hover {
+  border-color: #fb923c;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+#flash-deals-{{ section.id }} .flash-deals__image-wrapper {
+  position: relative;
+  width: 33.333%;
+  flex-shrink: 0;
+  background: #f1f5f9;
+  overflow: hidden;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__image,
+#flash-deals-{{ section.id }} .flash-deals__image-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 1.25rem;
+  background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+}
+
+#flash-deals-{{ section.id }} .flash-deals__item:hover .flash-deals__image {
+  transform: scale(1.1);
+}
+
+#flash-deals-{{ section.id }} .flash-deals__badge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  padding: 0.375rem 0.625rem;
+  background: #dc2626;
+  color: white;
+  font-size: 0.75rem;
+  border-radius: 9999px;
+  font-weight: 600;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__content {
+  flex: 1;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__title {
+  margin: 0 0 0.75rem 0;
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.4;
+  transition: color 0.2s;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__item:hover .flash-deals__title {
+  color: #ea580c;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__prices {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__sale-price {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #dc2626;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__original-price {
+  color: #94a3b8;
+  text-decoration: line-through;
+  font-size: 1rem;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__button {
+  padding: 0.5rem 1rem;
+  background: #ea580c;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#flash-deals-{{ section.id }} .flash-deals__button:hover {
+  background: #c2410c;
+}
+
+@media (max-width: 767px) {
+  #flash-deals-{{ section.id }} {
+    padding: 3rem 1rem;
+  }
+  
+  #flash-deals-{{ section.id }} .flash-deals__countdown {
+    padding: 0.5rem 1rem;
+  }
+  
+  #flash-deals-{{ section.id }} .flash-deals__countdown-value {
+    font-size: 1.25rem;
+  }
+}
+</style>
+
+<script>
+(function() {
+  const countdown = document.querySelector('#flash-deals-{{ section.id }} .flash-deals__countdown');
+  if (!countdown) return;
+  
+  function updateCountdown() {
+    const hours = countdown.querySelector('[data-unit="hours"]');
+    const minutes = countdown.querySelector('[data-unit="minutes"]');
+    const seconds = countdown.querySelector('[data-unit="seconds"]');
+    
+    let h = parseInt(hours.textContent);
+    let m = parseInt(minutes.textContent);
+    let s = parseInt(seconds.textContent);
+    
+    s--;
+    if (s < 0) {
+      s = 59;
+      m--;
+      if (m < 0) {
+        m = 59;
+        h--;
+        if (h < 0) {
+          h = 0;
+          m = 0;
+          s = 0;
+        }
+      }
+    }
+    
+    hours.textContent = String(h).padStart(2, '0');
+    minutes.textContent = String(m).padStart(2, '0');
+    seconds.textContent = String(s).padStart(2, '0');
+  }
+  
+  setInterval(updateCountdown, 1000);
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Flash Deals",
+  "max_blocks": 4,
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Deal Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product",
+          "info": "Select a product or fill in manual details below"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Product Title (if no product selected)",
+          "default": "Aliquip Ex Ea Commodo"
+        },
+        {
+          "type": "text",
+          "id": "discount_text",
+          "label": "Discount Badge",
+          "default": "50% OFF"
+        },
+        {
+          "type": "text",
+          "id": "sale_price",
+          "label": "Sale Price",
+          "default": "$79.99",
+          "info": "Used if product not selected or to override product price"
+        },
+        {
+          "type": "text",
+          "id": "original_price",
+          "label": "Original Price",
+          "default": "$159.99",
+          "info": "Used if product not selected or to override compare_at_price"
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Limited-Time Flash Deals"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Hurry! Deals end soon"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "Grab Deal Now"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_countdown",
+      "label": "Show Countdown Timer",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Flash Deals",
+      "blocks": [
+        {
+          "type": "product",
+          "settings": {
+            "title": "Aliquip Ex Ea Commodo",
+            "discount_text": "50% OFF",
+            "sale_price": "$79.99",
+            "original_price": "$159.99"
+          }
+        },
+        {
+          "type": "product",
+          "settings": {
+            "title": "Duis Aute Irure Dolor",
+            "discount_text": "40% OFF",
+            "sale_price": "$179.99",
+            "original_price": "$299.99"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

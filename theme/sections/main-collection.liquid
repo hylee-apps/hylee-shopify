@@ -1,0 +1,92 @@
+{{ 'template-collection.css' | asset_url | stylesheet_tag }}
+
+<div class="collection-page">
+  <div class="collection-page__container">
+    
+    {% if collection.image %}
+      {% render 'collection-hero', collection: collection %}
+    {% else %}
+      <div class="collection-page__header">
+        <h1 class="collection-page__title">{{ collection.title }}</h1>
+        {% if collection.description != blank %}
+          <div class="collection-page__description">{{ collection.description }}</div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% paginate collection.products by 24 %}
+      
+      <div class="collection-page__content">
+        
+        <div class="collection-page__products">
+          <div class="collection-toolbar">
+            <div class="collection-toolbar__results">
+              <p>{{ paginate.items }} products</p>
+            </div>
+            
+            <div class="collection-toolbar__actions">
+              <div class="collection-toolbar__sort">
+                <label for="sort-by">Sort by:</label>
+                <select id="sort-by" onchange="window.location.href=this.value">
+                  <option value="{{ collection.url }}?sort_by=manual">Featured</option>
+                  <option value="{{ collection.url }}?sort_by=best-selling" {% if collection.sort_by == 'best-selling' %}selected{% endif %}>Best Selling</option>
+                  <option value="{{ collection.url }}?sort_by=title-ascending" {% if collection.sort_by == 'title-ascending' %}selected{% endif %}>A-Z</option>
+                  <option value="{{ collection.url }}?sort_by=title-descending" {% if collection.sort_by == 'title-descending' %}selected{% endif %}>Z-A</option>
+                  <option value="{{ collection.url }}?sort_by=price-ascending" {% if collection.sort_by == 'price-ascending' %}selected{% endif %}>Price: Low to High</option>
+                  <option value="{{ collection.url }}?sort_by=price-descending" {% if collection.sort_by == 'price-descending' %}selected{% endif %}>Price: High to Low</option>
+                  <option value="{{ collection.url }}?sort_by=created-descending" {% if collection.sort_by == 'created-descending' %}selected{% endif %}>Newest</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {% if collection.products.size > 0 %}
+            <div class="collection-grid" data-view="grid">
+              {% for product in collection.products %}
+                {% render 'product-card', product: product %}
+              {% endfor %}
+            </div>
+
+            {% if paginate.pages > 1 %}
+              <div class="collection-pagination">
+                {% if paginate.previous %}
+                  <a href="{{ paginate.previous.url }}" class="pagination__item">
+                    Previous
+                  </a>
+                {% endif %}
+
+                {% for part in paginate.parts %}
+                  {% if part.is_link %}
+                    <a href="{{ part.url }}" class="pagination__item">{{ part.title }}</a>
+                  {% else %}
+                    <span class="pagination__item pagination__item--current">{{ part.title }}</span>
+                  {% endif %}
+                {% endfor %}
+
+                {% if paginate.next %}
+                  <a href="{{ paginate.next.url }}" class="pagination__item">
+                    Next
+                  </a>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% else %}
+            <div class="collection-empty">
+              <p>No products found in this collection.</p>
+            </div>
+          {% endif %}
+        </div>
+
+      </div>
+
+    {% endpaginate %}
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Collection Page",
+  "settings": []
+}
+{% endschema %}

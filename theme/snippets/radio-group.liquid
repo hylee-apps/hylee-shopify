@@ -1,0 +1,141 @@
+{% comment %}
+  Radio Group Component Snippet
+  
+  Usage:
+    {% assign size_options = 'S:Small,M:Medium,L:Large,XL:Extra Large' | split: ',' %}
+    {% render 'radio-group',
+      name: 'size',
+      label: 'Select Size',
+      options: size_options,
+      required: true
+    %}
+  
+  Parameters:
+    - name: Radio group name attribute (required)
+    - label: Group label text (optional)
+    - hint: Helper text (optional)
+    - options: Array of options - format 'value:label' or array of objects with 'value' and 'label' keys (required)
+    - value: Selected value (optional)
+    - required: true/false (default: false)
+    - disabled: true/false (default: false)
+    - layout: vertical, horizontal, cards, buttons (default: vertical)
+    - size: default, sm, lg (default: default)
+    - error: Error message text
+    - class: Additional CSS classes
+{% endcomment %}
+
+{% liquid
+  assign radio_size = size | default: 'default'
+  assign layout = layout | default: 'vertical'
+  assign required = required | default: false
+  assign disabled = disabled | default: false
+  
+  assign group_classes = 'radio-group'
+  
+  if layout == 'horizontal'
+    assign group_classes = group_classes | append: ' radio-group--horizontal'
+  elsif layout == 'buttons'
+    assign group_classes = group_classes | append: ' radio-group--buttons'
+  endif
+  
+  if class
+    assign group_classes = group_classes | append: ' ' | append: class
+  endif
+  
+  assign radio_classes = 'radio'
+  assign radio_classes = radio_classes | append: ' radio--' | append: radio_size
+%}
+
+<div class="{{ group_classes }}" role="radiogroup"{% if error and error != blank %} aria-invalid="true"{% endif %}>
+  {% if label and label != blank %}
+    <div class="radio-group__label{% if required %} radio-group__label--required{% endif %}">
+      {{ label }}
+    </div>
+  {% endif %}
+
+  {% if hint and hint != blank %}
+    <div class="radio-group__hint">{{ hint }}</div>
+  {% endif %}
+
+  <div class="radio-group__items">
+    {% if options %}
+      {% for option in options %}
+        {% liquid
+          if option.value
+            assign option_value = option.value
+            assign option_label = option.label
+            assign option_description = option.description
+          else
+            assign option_parts = option | split: ':'
+            assign option_value = option_parts[0]
+            assign option_label = option_parts[1] | default: option_parts[0]
+            assign option_description = nil
+          endif
+          
+          assign option_id = name | append: '-' | append: option_value
+          assign is_checked = false
+          if value == option_value
+            assign is_checked = true
+          endif
+        %}
+
+        {% if layout == 'cards' %}
+          <div class="radio-card">
+            <input
+              type="radio"
+              name="{{ name }}"
+              id="{{ option_id }}"
+              value="{{ option_value }}"
+              class="{{ radio_classes }}"
+              {% if is_checked %}checked{% endif %}
+              {% if required %}required{% endif %}
+              {% if disabled %}disabled{% endif %}
+            >
+            <label for="{{ option_id }}" class="radio-wrapper__label">
+              {{ option_label }}
+              {% if option_description and option_description != blank %}
+                <span class="radio-wrapper__description">{{ option_description }}</span>
+              {% endif %}
+            </label>
+          </div>
+        {% elsif layout == 'buttons' %}
+          <label for="{{ option_id }}" class="radio-button">
+            <input
+              type="radio"
+              name="{{ name }}"
+              id="{{ option_id }}"
+              value="{{ option_value }}"
+              {% if is_checked %}checked{% endif %}
+              {% if required %}required{% endif %}
+              {% if disabled %}disabled{% endif %}
+            >
+            {{ option_label }}
+          </label>
+        {% else %}
+          <div class="radio-wrapper">
+            <input
+              type="radio"
+              name="{{ name }}"
+              id="{{ option_id }}"
+              value="{{ option_value }}"
+              class="{{ radio_classes }}"
+              {% if is_checked %}checked{% endif %}
+              {% if required %}required{% endif %}
+              {% if disabled %}disabled{% endif %}
+            >
+            <label for="{{ option_id }}" class="radio-wrapper__label">
+              {{ option_label }}
+              {% if option_description and option_description != blank %}
+                <span class="radio-wrapper__description">{{ option_description }}</span>
+              {% endif %}
+            </label>
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  {% if error and error != blank %}
+    <div class="radio-group__error">{{ error }}</div>
+  {% endif %}
+</div>

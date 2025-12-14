@@ -1,0 +1,254 @@
+/* Header Section Styles */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  font-family: 'Assistant', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Announcement Bar */
+.header__announcement {
+  background: #2B5CE7;
+  color: white;
+  text-align: center;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.header__inner-wrapper {
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+  padding: 1rem 1.5rem;
+}
+
+.header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+/* Logo */
+.header__logo {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.header__logo:hover {
+  opacity: 0.8;
+}
+
+.header__logo-image {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+}
+
+.header__logo-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: #212529;
+}
+
+/* Navigation */
+.header__nav {
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+@media (min-width: 768px) {
+  .header__nav {
+    display: flex;
+  }
+}
+
+.header__nav-link {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  color: #475569;
+  background: transparent;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  font-weight: 400;
+}
+
+.header__nav-link:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+/* Categories Dropdown */
+.header__categories {
+  position: relative;
+}
+
+.header__categories-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+}
+
+.header__categories-menu {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  margin-top: 0.25rem;
+  width: 16rem;
+  padding: 0.5rem 0;
+  background: white;
+  border: 1px solid rgb(226, 232, 240);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  z-index: 20;
+}
+
+.header__categories-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  color: rgb(51, 65, 85);
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.header__categories-item:hover {
+  background: rgb(248, 250, 252);
+  color: rgb(15, 23, 42);
+}
+
+.header__categories-icon {
+  font-size: 1.5rem;
+}
+
+.header__categories-info {
+  flex: 1;
+}
+
+.header__categories-name {
+  color: rgb(15, 23, 42);
+}
+
+.header__categories-count {
+  font-size: 0.75rem;
+  color: rgb(100, 116, 139);
+}
+
+/* Actions */
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header__action-link {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  color: #475569;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 400;
+}
+
+.header__action-link:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+.header__action-link--outline {
+  padding: 0.375rem 1rem;
+  border: 2px solid #2AC864;
+  border-radius: 0.5rem;
+  background: white;
+  color: #2AC864;
+  transition: all 0.2s;
+}
+
+.header__action-link--outline:hover {
+  background: #2AC864;
+  border-color: #2AC864;
+  color: white;
+}
+
+.header__cta {
+  padding: 0.625rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+  background: #2AC864;
+  border: 2px solid #2AC864;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.header__cta:hover {
+  background: #24B059;
+  border-color: #24B059;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(42, 200, 100, 0.3);
+}
+
+/* Minimal Variant */
+.header--minimal {
+  position: relative;
+  padding: 1rem 1.5rem;
+  background: white;
+  border-bottom: 1px solid rgb(229, 231, 235);
+}
+
+.header--minimal .header__logo-text {
+  font-size: 1.5rem;
+  color: #2AC864;
+}
+
+.header--minimal .header__logo-text:hover {
+  opacity: 0.8;
+}
+
+/* Mobile Menu Toggle (for future implementation) */
+.header__menu-toggle {
+  display: block;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .header__menu-toggle {
+    display: none;
+  }
+}
+
+/* Hidden utility */
+.hidden {
+  display: none;
+}

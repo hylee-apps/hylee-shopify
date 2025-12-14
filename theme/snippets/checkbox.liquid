@@ -1,0 +1,77 @@
+{% comment %}
+  Checkbox Component Snippet
+  
+  Usage:
+    {% render 'checkbox',
+      name: 'agree',
+      label: 'I agree to the terms',
+      value: '1'
+    %}
+  
+  Parameters:
+    - name: Checkbox name attribute (required)
+    - label: Label text (optional)
+    - description: Description text below label (optional)
+    - value: Checkbox value (default: '1')
+    - checked: true/false (default: false)
+    - required: true/false (default: false)
+    - disabled: true/false (default: false)
+    - size: default, sm, lg (default: default)
+    - error: Error message text
+    - card: true/false - render as card style (default: false)
+    - class: Additional CSS classes
+    - id: Element ID (defaults to name if not provided)
+{% endcomment %}
+
+{% liquid
+  assign checkbox_size = size | default: 'default'
+  assign checkbox_value = value | default: '1'
+  assign checked = checked | default: false
+  assign required = required | default: false
+  assign disabled = disabled | default: false
+  assign card = card | default: false
+  assign checkbox_id = id | default: name
+  
+  assign checkbox_classes = 'checkbox'
+  assign checkbox_classes = checkbox_classes | append: ' checkbox--' | append: checkbox_size
+  
+  if error and error != blank
+    assign checkbox_classes = checkbox_classes | append: ' checkbox--error'
+  endif
+  
+  if class
+    assign checkbox_classes = checkbox_classes | append: ' ' | append: class
+  endif
+  
+  assign wrapper_class = 'checkbox-wrapper'
+  if card
+    assign wrapper_class = 'checkbox-card'
+  endif
+%}
+
+<div class="{{ wrapper_class }}">
+  <input
+    type="checkbox"
+    name="{{ name }}"
+    id="{{ checkbox_id }}"
+    value="{{ checkbox_value }}"
+    class="{{ checkbox_classes }}"
+    {% if checked %}checked{% endif %}
+    {% if required %}required{% endif %}
+    {% if disabled %}disabled{% endif %}
+    {% if error and error != blank %}aria-invalid="true" aria-describedby="{{ checkbox_id }}-error"{% endif %}
+  >
+  
+  {% if label and label != blank %}
+    <label for="{{ checkbox_id }}" class="checkbox-wrapper__label">
+      {{ label }}
+      {% if description and description != blank %}
+        <span class="checkbox-wrapper__description">{{ description }}</span>
+      {% endif %}
+    </label>
+  {% endif %}
+</div>
+
+{% if error and error != blank %}
+  <span id="{{ checkbox_id }}-error" class="checkbox-group__error">{{ error }}</span>
+{% endif %}

@@ -1,0 +1,120 @@
+{% comment %}
+  Textarea Component Snippet
+  
+  Usage:
+    {% render 'textarea',
+      name: 'message',
+      label: 'Message',
+      placeholder: 'Enter your message',
+      required: true
+    %}
+  
+  Parameters:
+    - name: Textarea name attribute (required)
+    - label: Label text (optional)
+    - value: Textarea value
+    - placeholder: Placeholder text
+    - required: true/false (default: false)
+    - disabled: true/false (default: false)
+    - readonly: true/false (default: false)
+    - rows: Number of visible rows (default: 4)
+    - size: default, sm, lg (default: default)
+    - resize: vertical, none, horizontal (default: vertical)
+    - error: Error message text
+    - hint: Helper text
+    - maxlength: Maximum character count
+    - show_count: true/false - show character counter (default: false)
+    - class: Additional CSS classes
+    - id: Element ID (defaults to name if not provided)
+{% endcomment %}
+
+{% liquid
+  assign textarea_size = size | default: 'default'
+  assign resize = resize | default: 'vertical'
+  assign rows = rows | default: 4
+  assign required = required | default: false
+  assign disabled = disabled | default: false
+  assign readonly = readonly | default: false
+  assign show_count = show_count | default: false
+  assign textarea_id = id | default: name
+  
+  assign textarea_classes = 'textarea'
+  assign textarea_classes = textarea_classes | append: ' textarea--' | append: textarea_size
+  
+  if resize == 'none'
+    assign textarea_classes = textarea_classes | append: ' textarea--fixed'
+  elsif resize == 'horizontal'
+    assign textarea_classes = textarea_classes | append: ' textarea--horizontal'
+  endif
+  
+  if error and error != blank
+    assign textarea_classes = textarea_classes | append: ' textarea--error'
+  endif
+  
+  if class
+    assign textarea_classes = textarea_classes | append: ' ' | append: class
+  endif
+%}
+
+<div class="textarea-group">
+  {% if label and label != blank %}
+    <label for="{{ textarea_id }}" class="textarea__label{% if required %} textarea__label--required{% endif %}">
+      {{ label }}
+    </label>
+  {% endif %}
+
+  {% if hint and hint != blank and error == blank %}
+    <p id="{{ textarea_id }}-hint" class="textarea__hint">
+      {{ hint }}
+    </p>
+  {% endif %}
+
+  <textarea
+    name="{{ name }}"
+    id="{{ textarea_id }}"
+    class="{{ textarea_classes }}"
+    rows="{{ rows }}"
+    {% if placeholder and placeholder != blank %}placeholder="{{ placeholder }}"{% endif %}
+    {% if required %}required{% endif %}
+    {% if disabled %}disabled{% endif %}
+    {% if readonly %}readonly{% endif %}
+    {% if maxlength %}maxlength="{{ maxlength }}"{% endif %}
+    {% if error and error != blank %}aria-invalid="true" aria-describedby="{{ textarea_id }}-error"{% endif %}
+    {% if hint and hint != blank and error == blank %}aria-describedby="{{ textarea_id }}-hint"{% endif %}
+    {% if show_count and maxlength %}data-maxlength="{{ maxlength }}" oninput="updateCharCount(this)"{% endif %}
+  >{{ value }}</textarea>
+
+  <div class="textarea__footer">
+    {% if error and error != blank %}
+      <span id="{{ textarea_id }}-error" class="textarea__error">{{ error }}</span>
+    {% else %}
+      <span></span>
+    {% endif %}
+    
+    {% if show_count and maxlength %}
+      <span id="{{ textarea_id }}-count" class="textarea__count">
+        <span class="char-current">{{ value | default: '' | size }}</span> / {{ maxlength }}
+      </span>
+    {% endif %}
+  </div>
+</div>
+
+{% if show_count and maxlength %}
+  <script>
+    function updateCharCount(textarea) {
+      const current = textarea.value.length;
+      const max = parseInt(textarea.dataset.maxlength);
+      const countEl = document.getElementById(textarea.id + '-count');
+      const currentEl = countEl.querySelector('.char-current');
+      
+      currentEl.textContent = current;
+      
+      countEl.classList.remove('textarea__count--warning', 'textarea__count--error');
+      if (current >= max) {
+        countEl.classList.add('textarea__count--error');
+      } else if (current >= max * 0.9) {
+        countEl.classList.add('textarea__count--warning');
+      }
+    }
+  </script>
+{% endif %}

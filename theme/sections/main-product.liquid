@@ -1,0 +1,129 @@
+{{ 'template-product.css' | asset_url | stylesheet_tag }}
+
+<div class="product-page">
+  <div class="product-page__container">
+    
+    <div class="product-page__media">
+      {% if product.featured_media %}
+        <div class="product-gallery">
+          <div class="product-gallery__main">
+            <img
+              src="{{ product.featured_media | image_url: width: 1200 }}"
+              alt="{{ product.featured_media.alt | default: product.title }}"
+              loading="eager"
+              width="1200"
+              height="1200"
+              id="main-product-image"
+            >
+          </div>
+          
+          {% if product.media.size > 1 %}
+            <div class="product-gallery__thumbnails">
+              {% for media in product.media limit: 5 %}
+                <button 
+                  class="product-gallery__thumbnail {% if forloop.first %}active{% endif %}"
+                  onclick="changeImage('{{ media | image_url: width: 1200 }}', this)"
+                >
+                  <img
+                    src="{{ media | image_url: width: 150 }}"
+                    alt="{{ media.alt | default: product.title }}"
+                    loading="lazy"
+                  >
+                </button>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="product-page__info">
+      {% if product.vendor %}
+        <p class="product-vendor">{{ product.vendor }}</p>
+      {% endif %}
+
+      <h1 class="product-title">{{ product.title }}</h1>
+
+      <div class="product-price">
+        {% if product.compare_at_price > product.price %}
+          <span class="product-price__sale">{{ product.price | money }}</span>
+          <span class="product-price__compare">{{ product.compare_at_price | money }}</span>
+        {% else %}
+          <span class="product-price__regular">{{ product.price | money }}</span>
+        {% endif %}
+      </div>
+
+      {% if product.description != blank %}
+        <div class="product-description">
+          {{ product.description }}
+        </div>
+      {% endif %}
+
+      <form method="post" action="/cart/add" id="product-form" accept-charset="UTF-8" enctype="multipart/form-data">
+        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+        
+        {% unless product.has_only_default_variant %}
+          {% for option in product.options_with_values %}
+            <div class="product-option">
+              <label>{{ option.name }}</label>
+              <div class="product-option__values">
+                {% for value in option.values %}
+                  <input
+                    type="radio"
+                    name="option{{ option.position }}"
+                    value="{{ value }}"
+                    id="option{{ option.position }}-{{ forloop.index }}"
+                    {% if option.selected_value == value %}checked{% endif %}
+                  >
+                  <label for="option{{ option.position }}-{{ forloop.index }}">
+                    {{ value }}
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        {% endunless %}
+
+        <div class="product-quantity">
+          <label for="quantity">Quantity</label>
+          <input
+            type="number"
+            id="quantity"
+            name="quantity"
+            value="1"
+            min="1"
+          >
+        </div>
+
+        <button
+          type="submit"
+          name="add"
+          class="product-form__submit"
+          {% unless product.available %}disabled{% endunless %}
+        >
+          {% if product.available %}
+            Add to Cart
+          {% else %}
+            Sold Out
+          {% endif %}
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function changeImage(imageUrl, thumbnail) {
+  document.getElementById('main-product-image').src = imageUrl;
+  document.querySelectorAll('.product-gallery__thumbnail').forEach(el => el.classList.remove('active'));
+  thumbnail.classList.add('active');
+}
+</script>
+
+{% schema %}
+{
+  "name": "Product Page",
+  "settings": []
+}
+{% endschema %}

@@ -1,0 +1,101 @@
+{% comment %}
+  Select Component Snippet
+  
+  Usage:
+    {% render 'select',
+      name: 'country',
+      label: 'Country',
+      options: countries_array,
+      required: true
+    %}
+  
+  Parameters:
+    - name: Select name attribute (required)
+    - label: Label text (optional)
+    - options: Array of option objects with 'value' and 'label' keys (required)
+    - value: Selected value
+    - placeholder: Placeholder text for first option
+    - required: true/false (default: false)
+    - disabled: true/false (default: false)
+    - multiple: true/false (default: false)
+    - size: default, sm (default: default)
+    - error: Error message text
+    - hint: Helper text
+    - class: Additional CSS classes
+    - id: Element ID (defaults to name if not provided)
+{% endcomment %}
+
+{% liquid
+  assign select_size = size | default: 'default'
+  assign required = required | default: false
+  assign disabled = disabled | default: false
+  assign multiple = multiple | default: false
+  assign select_id = id | default: name
+  
+  assign select_classes = 'select__native'
+  
+  if error and error != blank
+    assign select_classes = select_classes | append: ' select--error'
+  endif
+  
+  if class
+    assign select_classes = select_classes | append: ' ' | append: class
+  endif
+%}
+
+<div class="select-group">
+  {% if label and label != blank %}
+    <label for="{{ select_id }}" class="select__label{% if required %} select__label--required{% endif %}">
+      {{ label }}
+    </label>
+  {% endif %}
+
+  <div class="select">
+    <select
+      name="{{ name }}"
+      id="{{ select_id }}"
+      class="{{ select_classes }}"
+      {% if required %}required{% endif %}
+      {% if disabled %}disabled{% endif %}
+      {% if multiple %}multiple{% endif %}
+      {% if error and error != blank %}aria-invalid="true" aria-describedby="{{ select_id }}-error"{% endif %}
+      {% if hint and hint != blank and error == blank %}aria-describedby="{{ select_id }}-hint"{% endif %}
+    >
+      {% if placeholder and placeholder != blank and multiple == false %}
+        <option value="">{{ placeholder }}</option>
+      {% endif %}
+
+      {% if options %}
+        {% for option in options %}
+          {% if option.group %}
+            <optgroup label="{{ option.group }}">
+              {% for grouped_option in option.options %}
+                <option
+                  value="{{ grouped_option.value }}"
+                  {% if value == grouped_option.value %}selected{% endif %}
+                  {% if grouped_option.disabled %}disabled{% endif %}
+                >
+                  {{ grouped_option.label }}
+                </option>
+              {% endfor %}
+            </optgroup>
+          {% else %}
+            <option
+              value="{{ option.value }}"
+              {% if value == option.value %}selected{% endif %}
+              {% if option.disabled %}disabled{% endif %}
+            >
+              {{ option.label }}
+            </option>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    </select>
+  </div>
+
+  {% if error and error != blank %}
+    <span id="{{ select_id }}-error" class="select__error">{{ error }}</span>
+  {% elsif hint and hint != blank %}
+    <span id="{{ select_id }}-hint" class="select__hint">{{ hint }}</span>
+  {% endif %}
+</div>

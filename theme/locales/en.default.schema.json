@@ -1,0 +1,17 @@
+{
+  "en": {
+    "header": {
+      "navigation": {
+        "home": "Home",
+        "products": "Products",
+        "categories": "Categories",
+        "about": "About"
+      },
+      "actions": {
+        "track_order": "Track Order",
+        "sign_in": "Sign In",
+        "account": "Account"
+      }
+    }
+  }
+}

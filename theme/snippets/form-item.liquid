@@ -1,0 +1,172 @@
+{% comment %}
+  Form Component Snippet
+  
+  Usage:
+    <form action="/contact" method="post" class="form">
+      {% render 'form-item',
+        label: 'Email',
+        name: 'email',
+        type: 'email',
+        required: true,
+        description: 'We'll never share your email'
+      %}
+      
+      {% render 'form-item',
+        label: 'Message',
+        name: 'message',
+        type: 'textarea',
+        required: true
+      %}
+      
+      <div class="form__actions form__actions--end">
+        {% render 'button', text: 'Submit', type: 'submit', variant: 'primary' %}
+      </div>
+    </form>
+  
+  Or create a complete form wrapper:
+    {% render 'form',
+      action: '/contact',
+      method: 'post',
+      content: form_fields_html
+    %}
+  
+  Parameters for form-item:
+    - label: Field label text (optional)
+    - name: Field name attribute (required)
+    - type: text, email, password, textarea, select, checkbox, radio (default: text)
+    - value: Field value
+    - placeholder: Placeholder text
+    - required: true/false (default: false)
+    - description: Helper text below field
+    - error: Error message text
+    - size: default, sm, lg (default: default)
+    - options: For select/radio - array of {value, label} objects
+    - class: Additional CSS classes
+{% endcomment %}
+
+{% comment %} Form Item Snippet {% endcomment %}
+{% liquid
+  assign field_type = type | default: 'text'
+  assign field_size = size | default: 'default'
+  assign required = required | default: false
+  assign disabled = disabled | default: false
+  
+  assign item_classes = 'form__item'
+  assign item_classes = item_classes | append: ' form__item--' | append: field_size
+  
+  if class
+    assign item_classes = item_classes | append: ' ' | append: class
+  endif
+  
+  assign label_classes = 'form__label'
+  if required
+    assign label_classes = label_classes | append: ' form__label--required'
+  endif
+  if error and error != blank
+    assign label_classes = label_classes | append: ' form__label--error'
+  endif
+  
+  assign field_id = id | default: name
+%}
+
+<div class="{{ item_classes }}">
+  {% if label and label != blank %}
+    <label for="{{ field_id }}" class="{{ label_classes }}">
+      {{ label }}
+    </label>
+  {% endif %}
+
+  {% if description and description != blank and error == blank %}
+    <p id="{{ field_id }}-description" class="form__description">
+      {{ description }}
+    </p>
+  {% endif %}
+
+  {% case field_type %}
+    {% when 'textarea' %}
+      <textarea
+        name="{{ name }}"
+        id="{{ field_id }}"
+        class="input input--textarea{% if error and error != blank %} input--error{% endif %}"
+        {% if placeholder and placeholder != blank %}placeholder="{{ placeholder }}"{% endif %}
+        {% if required %}required{% endif %}
+        {% if disabled %}disabled{% endif %}
+        {% if error and error != blank %}aria-invalid="true" aria-describedby="{{ field_id }}-error"{% endif %}
+        {% if description and description != blank and error == blank %}aria-describedby="{{ field_id }}-description"{% endif %}
+      >{{ value }}</textarea>
+
+    {% when 'select' %}
+      <select
+        name="{{ name }}"
+        id="{{ field_id }}"
+        class="input{% if error and error != blank %} input--error{% endif %}"
+        {% if required %}required{% endif %}
+        {% if disabled %}disabled{% endif %}
+        {% if error and error != blank %}aria-invalid="true" aria-describedby="{{ field_id }}-error"{% endif %}
+        {% if description and description != blank and error == blank %}aria-describedby="{{ field_id }}-description"{% endif %}
+      >
+        {% if placeholder and placeholder != blank %}
+          <option value="">{{ placeholder }}</option>
+        {% endif %}
+        {% if options %}
+          {% for option in options %}
+            <option value="{{ option.value }}"{% if value == option.value %} selected{% endif %}>
+              {{ option.label }}
+            </option>
+          {% endfor %}
+        {% endif %}
+      </select>
+
+    {% when 'checkbox' %}
+      <label class="form__checkbox-label">
+        <input
+          type="checkbox"
+          name="{{ name }}"
+          id="{{ field_id }}"
+          value="{{ value | default: '1' }}"
+          {% if checked %}checked{% endif %}
+          {% if required %}required{% endif %}
+          {% if disabled %}disabled{% endif %}
+        >
+        <span>{{ checkbox_label }}</span>
+      </label>
+
+    {% when 'radio' %}
+      {% if options %}
+        <div class="form__radio-group">
+          {% for option in options %}
+            <label class="form__radio-label">
+              <input
+                type="radio"
+                name="{{ name }}"
+                value="{{ option.value }}"
+                {% if value == option.value %}checked{% endif %}
+                {% if required %}required{% endif %}
+                {% if disabled %}disabled{% endif %}
+              >
+              <span>{{ option.label }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+    {% else %}
+      {% render 'input',
+        name: name,
+        id: field_id,
+        type: field_type,
+        value: value,
+        placeholder: placeholder,
+        required: required,
+        disabled: disabled,
+        error: error,
+        size: field_size
+      %}
+  {% endcase %}
+
+  {% if error and error != blank %}
+    <p id="{{ field_id }}-error" class="form__message form__message--error">
+      {{ error }}
+    </p>
+  {% endif %}
+</div>

@@ -1,0 +1,47 @@
+{
+  "general": {
+    "404": {
+      "title": "Page not found",
+      "subtext": "The page you requested does not exist."
+    }
+  },
+  "accessibility": {
+    "skip_to_text": "Skip to content",
+    "refresh_page": "Choosing a selection results in a full page refresh.",
+    "link_messages": {
+      "new_window": "Opens in a new window."
+    }
+  },
+  "header": {
+    "navigation": {
+      "home": "Home",
+      "products": "Products",
+      "categories": "Categories",
+      "about": "About"
+    },
+    "actions": {
+      "track_order": "Track Order",
+      "sign_in": "Sign In",
+      "account": "Account"
+    }
+  },
+  "footer": {
+    "all_rights_reserved": "All rights reserved."
+  },
+  "sections": {
+    "cart": {
+      "cart_error": "There was an error updating your cart. Please try again.",
+      "cart_quantity_error_html": "You can only add [quantity] of this item to your cart."
+    }
+  },
+  "products": {
+    "product": {
+      "add_to_cart": "Add to cart",
+      "sold_out": "Sold Out",
+      "unavailable": "Unavailable",
+      "on_sale": "Sale",
+      "new": "New",
+      "view_options": "View Options"
+    }
+  }
+}

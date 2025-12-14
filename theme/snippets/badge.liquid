@@ -1,0 +1,89 @@
+{% comment %}
+  Badge Component Snippet
+  
+  Usage:
+    {% render 'badge', text: 'New', variant: 'default' %}
+    
+    {% render 'badge',
+      text: 'Sale',
+      variant: 'destructive',
+      icon: '<svg>...</svg>'
+    %}
+  
+  Parameters:
+    - text: Badge text content (required)
+    - variant: default, secondary, destructive, outline, success, warning, info (default: default)
+    - size: default, sm, lg (default: default)
+    - icon: Icon HTML or SVG (optional)
+    - dot: true/false - show dot indicator (default: false)
+    - pill: true/false - pill shape (default: false)
+    - closable: true/false - show close button (default: false)
+    - url: Make badge clickable with this URL (optional)
+    - class: Additional CSS classes
+    - id: Element ID
+{% endcomment %}
+
+{% liquid
+  assign badge_variant = variant | default: 'default'
+  assign badge_size = size | default: 'default'
+  assign dot = dot | default: false
+  assign pill = pill | default: false
+  assign closable = closable | default: false
+  
+  assign badge_classes = 'badge'
+  assign badge_classes = badge_classes | append: ' badge--' | append: badge_variant
+  assign badge_classes = badge_classes | append: ' badge--' | append: badge_size
+  
+  if dot
+    assign badge_classes = badge_classes | append: ' badge--dot'
+  endif
+  
+  if pill
+    assign badge_classes = badge_classes | append: ' badge--pill'
+  endif
+  
+  if closable
+    assign badge_classes = badge_classes | append: ' badge--closable'
+  endif
+  
+  if url and url != blank
+    assign badge_classes = badge_classes | append: ' badge--interactive'
+  endif
+  
+  if class
+    assign badge_classes = badge_classes | append: ' ' | append: class
+  endif
+%}
+
+{% if url and url != blank %}
+  <a
+    href="{{ url }}"
+    class="{{ badge_classes }}"
+    {% if id %}id="{{ id }}"{% endif %}
+  >
+    {% if icon and icon != blank %}{{ icon }}{% endif %}
+    {{ text }}
+    {% if closable %}
+      <button type="button" class="badge__close" aria-label="Remove {{ text }}">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+        </svg>
+      </button>
+    {% endif %}
+  </a>
+{% else %}
+  <span
+    class="{{ badge_classes }}"
+    {% if id %}id="{{ id }}"{% endif %}
+  >
+    {% if icon and icon != blank %}{{ icon }}{% endif %}
+    {{ text }}
+    {% if closable %}
+      <button type="button" class="badge__close" aria-label="Remove {{ text }}">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+        </svg>
+      </button>
+    {% endif %}
+  </span>
+{% endif %}

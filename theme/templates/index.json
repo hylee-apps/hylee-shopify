@@ -1,0 +1,192 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "blocks": {
+        "slide-1": {
+          "type": "slide",
+          "settings": {
+            "heading": "Lorem Ipsum Dolor Sit Amet",
+            "subheading": "Consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
+            "button_label": "Shop Now",
+            "button_link": "/collections/all"
+          }
+        },
+        "slide-2": {
+          "type": "slide",
+          "settings": {
+            "heading": "Ut Labore Et Dolore Magna",
+            "subheading": "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat",
+            "button_label": "Explore Collection",
+            "button_link": "/collections"
+          }
+        },
+        "slide-3": {
+          "type": "slide",
+          "settings": {
+            "heading": "Excepteur Sint Occaecat",
+            "subheading": "Cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum",
+            "button_label": "Learn More",
+            "button_link": "/pages/about"
+          }
+        }
+      },
+      "block_order": ["slide-1", "slide-2", "slide-3"],
+      "settings": {}
+    },
+    "search-bar": {
+      "type": "search-bar",
+      "settings": {
+        "heading": "Find the perfect products for your business",
+        "placeholder": "Search thousands of products...",
+        "button_text": "Search",
+        "background_color": "#ffffff",
+        "heading_color": "#0f172a",
+        "button_border_color": "#2AC864",
+        "button_text_color": "#2AC864"
+      }
+    },
+    "featured-categories": {
+      "type": "featured-categories",
+      "blocks": {
+        "category-1": {
+          "type": "category",
+          "settings": {
+            "icon": "📱",
+            "title": "Lorem Ipsum",
+            "count": "2,450+ items",
+            "link": "/collections/electronics"
+          }
+        },
+        "category-2": {
+          "type": "category",
+          "settings": {
+            "icon": "👔",
+            "title": "Dolor Sit",
+            "count": "3,200+ items",
+            "link": "/collections/fashion"
+          }
+        },
+        "category-3": {
+          "type": "category",
+          "settings": {
+            "icon": "🏠",
+            "title": "Amet Consectetur",
+            "count": "1,800+ items",
+            "link": "/collections/home"
+          }
+        },
+        "category-4": {
+          "type": "category",
+          "settings": {
+            "icon": "⚽",
+            "title": "Adipiscing Elit",
+            "count": "1,500+ items",
+            "link": "/collections/sports"
+          }
+        },
+        "category-5": {
+          "type": "category",
+          "settings": {
+            "icon": "💄",
+            "title": "Sed Do Eiusmod",
+            "count": "2,100+ items",
+            "link": "/collections/beauty"
+          }
+        },
+        "category-6": {
+          "type": "category",
+          "settings": {
+            "icon": "🔍",
+            "title": "Tempor Incididunt",
+            "count": "980+ items",
+            "link": "/collections/kitchen"
+          }
+        }
+      },
+      "block_order": ["category-1", "category-2", "category-3", "category-4", "category-5", "category-6"],
+      "settings": {
+        "heading": "Featured Categories",
+        "description": "Explore our most popular product categories",
+        "show_view_all": true,
+        "view_all_text": "View All",
+        "view_all_link": "/collections",
+        "background_color": "#ffffff",
+        "heading_color": "#0f172a",
+        "description_color": "#64748b"
+      }
+    },
+    "best-sellers": {
+      "type": "best-sellers",
+      "settings": {
+        "heading": "Best Sellers",
+        "products_to_show": 4,
+        "badge_text": "Bestseller",
+        "badge_color": "#2699A6",
+        "background_color": "rgba(248, 250, 252, 0.5)"
+      }
+    },
+    "flash-deals": {
+      "type": "flash-deals",
+      "blocks": {
+        "deal-1": {
+          "type": "product",
+          "settings": {
+            "title": "Aliquip Ex Ea Commodo",
+            "discount_text": "50% OFF",
+            "sale_price": "$79.99",
+            "original_price": "$159.99"
+          }
+        },
+        "deal-2": {
+          "type": "product",
+          "settings": {
+            "title": "Duis Aute Irure Dolor",
+            "discount_text": "40% OFF",
+            "sale_price": "$179.99",
+            "original_price": "$299.99"
+          }
+        }
+      },
+      "block_order": ["deal-1", "deal-2"],
+      "settings": {
+        "heading": "Limited-Time Flash Deals",
+        "subheading": "Hurry! Deals end soon",
+        "button_text": "Grab Deal Now",
+        "show_countdown": true
+      }
+    },
+    "new-arrivals": {
+      "type": "new-arrivals",
+      "settings": {
+        "heading": "New Arrivals",
+        "products_to_show": 4,
+        "badge_text": "New",
+        "badge_color": "#059669",
+        "icon_color": "#059669",
+        "hover_border_color": "#a7f3d0",
+        "background_color": "#ffffff"
+      }
+    },
+    "recommended": {
+      "type": "recommended",
+      "settings": {
+        "heading": "Recommended For You",
+        "description": "Based on your browsing history",
+        "products_to_show": 4,
+        "badge_text": "For You",
+        "badge_color": "#9333ea",
+        "background_color": "rgba(248, 250, 252, 0.5)"
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "search-bar",
+    "featured-categories",
+    "best-sellers",
+    "flash-deals",
+    "new-arrivals",
+    "recommended"
+  ]
+}

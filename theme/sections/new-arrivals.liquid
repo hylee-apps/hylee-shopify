@@ -1,0 +1,259 @@
+{% comment %}
+  New Arrivals Section
+  Displays newest products with "New" badges
+{% endcomment %}
+
+<section class="new-arrivals" id="new-arrivals-{{ section.id }}">
+  <div class="new-arrivals__container">
+    <div class="new-arrivals__header">
+      <svg class="new-arrivals__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/>
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+        <line x1="12" y1="22.08" x2="12" y2="12"/>
+      </svg>
+      {% if section.settings.heading != blank %}
+        <h3 class="new-arrivals__heading">{{ section.settings.heading }}</h3>
+      {% endif %}
+    </div>
+
+    <div class="new-arrivals__grid">
+      {% if section.settings.collection != blank %}
+        {% assign collection = collections[section.settings.collection] %}
+        {% assign products_to_show = section.settings.products_to_show | default: 4 %}
+        
+        {% for product in collection.products limit: products_to_show %}
+          <a href="{{ product.url }}" class="new-arrivals__item">
+            <div class="new-arrivals__image-wrapper">
+              {% if product.featured_image %}
+                {{ product.featured_image | image_url: width: 400 | image_tag: loading: 'lazy', alt: product.title, class: 'new-arrivals__image' }}
+              {% else %}
+                <div class="new-arrivals__image-placeholder">Product</div>
+              {% endif %}
+              
+              <div class="new-arrivals__badge">{{ section.settings.badge_text | default: 'New' }}</div>
+            </div>
+            
+            <div class="new-arrivals__content">
+              <h4 class="new-arrivals__title">{{ product.title }}</h4>
+              <div class="new-arrivals__price">{{ product.price | money }}</div>
+            </div>
+          </a>
+        {% endfor %}
+      {% else %}
+        {% comment %} Fallback if no collection is selected {% endcomment %}
+        {% for i in (1..4) %}
+          <div class="new-arrivals__item">
+            <div class="new-arrivals__image-wrapper">
+              <div class="new-arrivals__image-placeholder">Product</div>
+              <div class="new-arrivals__badge">{{ section.settings.badge_text | default: 'New' }}</div>
+            </div>
+            <div class="new-arrivals__content">
+              <h4 class="new-arrivals__title">Dolore Magna Aliqua</h4>
+              <div class="new-arrivals__price">$45.99</div>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<style>
+#new-arrivals-{{ section.id }} {
+  padding: 4rem 1.5rem;
+  background: {{ section.settings.background_color | default: '#ffffff' }};
+}
+
+#new-arrivals-{{ section.id }} .new-arrivals__container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+#new-arrivals-{{ section.id }} .new-arrivals__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+#new-arrivals-{{ section.id }} .new-arrivals__icon {
+  color: {{ section.settings.icon_color | default: '#059669' }};
+  flex-shrink: 0;
+}
+
+#new-arrivals-{{ section.id }} .new-arrivals__heading {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.3;
+}
+
+#new-arrivals-{{ section.id }} .new-arrivals__grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  #new-arrivals-{{ section.id }} .new-arrivals__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  #new-arrivals-{{ section.id }} .new-arrivals__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+#new-arrivals-{{ section.id }} .new-arrivals__item {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+}
+
+#new-arrivals-{{ section.id }} .new-arrivals__item:hover {
+  border-color: {{ section.settings.hover_border_color | default: '#a7f3d0' }};
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+#new-arrivals-{{ section.id }} .new-arrivals__image-wrapper {
+  position: relative;
+  height: 12rem;
+  overflow: hidden;
+  background: #f1f5f9;
+}
+
+#new-arrivals-{{ section.id }} .new-arrivals__image,
+#new-arrivals-{{ section.id }} .new-arrivals__image-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+#new-arrivals-{{ section.id }} .new-arrivals__image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 1.25rem;
+  background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+}
+
+#new-arrivals-{{ section.id }} .new-arrivals__item:hover .new-arrivals__image {
+  transform: scale(1.1);
+}
+
+#new-arrivals-{{ section.id }} .new-arrivals__badge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.375rem 0.625rem;
+  background: {{ section.settings.badge_color | default: '#059669' }};
+  color: white;
+  font-size: 0.75rem;
+  border-radius: 9999px;
+  font-weight: 500;
+}
+
+#new-arrivals-{{ section.id }} .new-arrivals__content {
+  padding: 1rem;
+}
+
+#new-arrivals-{{ section.id }} .new-arrivals__title {
+  margin: 0 0 0.5rem 0;
+  color: #0f172a;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  transition: color 0.2s;
+}
+
+#new-arrivals-{{ section.id }} .new-arrivals__item:hover .new-arrivals__title {
+  color: {{ section.settings.icon_color | default: '#059669' }};
+}
+
+#new-arrivals-{{ section.id }} .new-arrivals__price {
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+@media (max-width: 767px) {
+  #new-arrivals-{{ section.id }} {
+    padding: 3rem 1rem;
+  }
+}
+</style>
+
+{% schema %}
+{
+  "name": "New Arrivals",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "New Arrivals"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "label": "Products to Show",
+      "default": 4
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge Text",
+      "default": "New"
+    },
+    {
+      "type": "color",
+      "id": "badge_color",
+      "label": "Badge Color",
+      "default": "#059669"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon Color",
+      "default": "#059669"
+    },
+    {
+      "type": "color",
+      "id": "hover_border_color",
+      "label": "Hover Border Color",
+      "default": "#a7f3d0"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "New Arrivals"
+    }
+  ]
+}
+{% endschema %}

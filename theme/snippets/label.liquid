@@ -1,0 +1,66 @@
+{% comment %}
+  Label Component Snippet
+  
+  Usage:
+    {% render 'label', text: 'Email', for: 'email-input' %}
+    
+    {% render 'label',
+      text: 'Password',
+      for: 'password',
+      required: true
+    %}
+  
+  Parameters:
+    - text: Label text content (required)
+    - for: ID of the input this label is for (required)
+    - required: true/false - show required indicator (default: false)
+    - optional: true/false - show optional indicator (default: false)
+    - icon: Icon HTML or SVG (optional)
+    - help: Help text to display below label (optional)
+    - size: default, sm, lg (default: default)
+    - error: true/false - error state styling (default: false)
+    - class: Additional CSS classes
+    - id: Element ID
+{% endcomment %}
+
+{% liquid
+  assign label_size = size | default: 'default'
+  assign required = required | default: false
+  assign optional = optional | default: false
+  assign error = error | default: false
+  
+  assign label_classes = 'label'
+  assign label_classes = label_classes | append: ' label--' | append: label_size
+  
+  if required
+    assign label_classes = label_classes | append: ' label--required'
+  endif
+  
+  if optional
+    assign label_classes = label_classes | append: ' label--optional'
+  endif
+  
+  if error
+    assign label_classes = label_classes | append: ' label--error'
+  endif
+  
+  if class
+    assign label_classes = label_classes | append: ' ' | append: class
+  endif
+%}
+
+<label
+  for="{{ for }}"
+  class="{{ label_classes }}"
+  {% if id %}id="{{ id }}"{% endif %}
+>
+  {% if icon and icon != blank %}
+    <span class="label__icon">{{ icon }}</span>
+  {% endif %}
+  
+  {{ text }}
+  
+  {% if help and help != blank %}
+    <span class="label__help">{{ help }}</span>
+  {% endif %}
+</label>

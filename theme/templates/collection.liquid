@@ -1,0 +1,292 @@
+<!-- Collection Template -->
+{% comment %}
+  Product Collection/Listing Page
+  Displays products with filtering, sorting, and search
+{% endcomment %}
+
+{% paginate collection.products by 24 %}
+<div class="collection-page">
+  
+  {%- render 'collection-hero',
+    title: collection.title,
+    description: collection.description,
+    image: collection.image
+  -%}
+
+  <div class="collection-container">
+    <div class="collection-layout">
+      
+      <!-- Filters Sidebar -->
+      <aside class="collection-filters" id="collection-filters">
+        <div class="collection-filters__header">
+          <h3>Filters</h3>
+          <button type="button" class="collection-filters__close" aria-label="Close filters">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div class="collection-filters__content">
+          
+          <!-- Active Filters -->
+          {% if collection.current_tags.size > 0 or collection.current_vendor or collection.current_type %}
+            <div class="active-filters">
+              <div class="active-filters__header">
+                <span class="active-filters__label">Active Filters</span>
+                <a href="{{ collection.url }}" class="active-filters__clear">Clear All</a>
+              </div>
+              <div class="active-filters__list">
+                {% for tag in collection.current_tags %}
+                  {% render 'badge',
+                    text: tag,
+                    variant: 'outline',
+                    closable: true,
+                    url: collection.url | tag_remove: tag
+                  %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          <!-- Price Range Filter -->
+          <div class="filter-group">
+            <h4 class="filter-group__title">Price Range</h4>
+            <div class="filter-group__content">
+              <div class="price-range">
+                <div class="price-range__inputs">
+                  {% render 'input',
+                    name: 'price_min',
+                    type: 'number',
+                    placeholder: 'Min',
+                    size: 'sm'
+                  %}
+                  <span class="price-range__separator">-</span>
+                  {% render 'input',
+                    name: 'price_max',
+                    type: 'number',
+                    placeholder: 'Max',
+                    size: 'sm'
+                  %}
+                </div>
+                {% render 'button',
+                  text: 'Apply',
+                  variant: 'primary',
+                  size: 'sm'
+                %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Category Filter -->
+          {% if collection.all_tags.size > 0 %}
+            <div class="filter-group">
+              <h4 class="filter-group__title">Categories</h4>
+              <div class="filter-group__content">
+                {% for tag in collection.all_tags limit: 10 %}
+                  {% render 'checkbox',
+                    name: 'tag[]',
+                    label: tag,
+                    value: tag,
+                    checked: collection.current_tags contains tag
+                  %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          <!-- Availability Filter -->
+          <div class="filter-group">
+            <h4 class="filter-group__title">Availability</h4>
+            <div class="filter-group__content">
+              {% render 'checkbox',
+                name: 'in_stock',
+                label: 'In Stock Only',
+                value: '1'
+              %}
+              {% render 'checkbox',
+                name: 'on_sale',
+                label: 'On Sale',
+                value: '1'
+              %}
+            </div>
+          </div>
+
+          <!-- Vendor Filter -->
+          {% if collection.all_vendors.size > 0 %}
+            <div class="filter-group">
+              <h4 class="filter-group__title">Brand</h4>
+              <div class="filter-group__content">
+                {% for vendor in collection.all_vendors %}
+                  {% render 'checkbox',
+                    name: 'vendor[]',
+                    label: vendor,
+                    value: vendor,
+                    checked: collection.current_vendor == vendor
+                  %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+        </div>
+      </aside>
+
+      <!-- Products Grid -->
+      <div class="collection-main">
+        
+        <!-- Toolbar -->
+        <div class="collection-toolbar">
+          <div class="collection-toolbar__left">
+            <button type="button" class="collection-toolbar__filters-toggle" aria-label="Toggle filters">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="4" y1="21" x2="4" y2="14"></line>
+                <line x1="4" y1="10" x2="4" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12" y2="3"></line>
+                <line x1="20" y1="21" x2="20" y2="16"></line>
+                <line x1="20" y1="12" x2="20" y2="3"></line>
+              </svg>
+              Filters
+            </button>
+            
+            <span class="collection-toolbar__count">
+              {{ collection.products_count }} 
+              {% if collection.products_count == 1 %}product{% else %}products{% endif %}
+            </span>
+          </div>
+
+          <div class="collection-toolbar__right">
+            <!-- Sort Dropdown -->
+            {% assign sort_options = 'manual:Featured,best-selling:Best Selling,title-ascending:A-Z,title-descending:Z-A,price-ascending:Price Low to High,price-descending:Price High to Low,created-descending:Newest' | split: ',' %}
+            {% render 'select',
+              name: 'sort_by',
+              options: sort_options,
+              value: collection.sort_by,
+              size: 'sm',
+              placeholder: 'Sort by'
+            %}
+
+            <!-- View Toggle -->
+            <div class="view-toggle">
+              <button type="button" class="view-toggle__button view-toggle__button--active" data-view="grid" aria-label="Grid view">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="14" width="7" height="7"></rect>
+                  <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+              </button>
+              <button type="button" class="view-toggle__button" data-view="list" aria-label="List view">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="8" y1="6" x2="21" y2="6"></line>
+                  <line x1="8" y1="12" x2="21" y2="12"></line>
+                  <line x1="8" y1="18" x2="21" y2="18"></line>
+                  <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                  <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                  <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Products Grid -->
+        {% if collection.products.size > 0 %}
+          <div class="products-grid" id="products-grid">
+            {% for product in collection.products %}
+              {% render 'product-card',
+                product: product,
+                show_vendor: true,
+                show_quick_view: true
+              %}
+            {% endfor %}
+          </div>
+
+          <!-- Pagination -->
+          {% if paginate.pages > 1 %}
+            <div class="pagination">
+              {% if paginate.previous %}
+                <a href="{{ paginate.previous.url }}" class="pagination__link pagination__link--prev">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                  Previous
+                </a>
+              {% endif %}
+
+              <div class="pagination__numbers">
+                {% for part in paginate.parts %}
+                  {% if part.is_link %}
+                    <a href="{{ part.url }}" class="pagination__number">{{ part.title }}</a>
+                  {% else %}
+                    {% if part.title == paginate.current_page %}
+                      <span class="pagination__number pagination__number--current">{{ part.title }}</span>
+                    {% else %}
+                      <span class="pagination__ellipsis">{{ part.title }}</span>
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+              </div>
+
+              {% if paginate.next %}
+                <a href="{{ paginate.next.url }}" class="pagination__link pagination__link--next">
+                  Next
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </a>
+              {% endif %}
+            </div>
+          {% endif %}
+
+        {% else %}
+          <!-- Empty State -->
+          <div class="collection-empty">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <h3>No products found</h3>
+            <p>Try adjusting your filters or search terms</p>
+            <a href="{{ collection.url }}" class="button button--primary">Clear Filters</a>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endpaginate %}
+
+<script>
+  // Filter toggle for mobile
+  document.querySelector('.collection-toolbar__filters-toggle')?.addEventListener('click', () => {
+    document.getElementById('collection-filters')?.classList.toggle('collection-filters--open');
+  });
+
+  document.querySelector('.collection-filters__close')?.addEventListener('click', () => {
+    document.getElementById('collection-filters')?.classList.remove('collection-filters--open');
+  });
+
+  // View toggle
+  document.querySelectorAll('.view-toggle__button').forEach(button => {
+    button.addEventListener('click', () => {
+      const view = button.dataset.view;
+      document.querySelectorAll('.view-toggle__button').forEach(btn => {
+        btn.classList.remove('view-toggle__button--active');
+      });
+      button.classList.add('view-toggle__button--active');
+      document.getElementById('products-grid')?.setAttribute('data-view', view);
+    });
+  });
+
+  // Sort change
+  document.querySelector('select[name="sort_by"]')?.addEventListener('change', (e) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('sort_by', e.target.value);
+    window.location.href = url.toString();
+  });
+</script>

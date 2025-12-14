@@ -1,0 +1,249 @@
+{% comment %}
+  Recommended For You Section
+  Displays personalized product recommendations
+{% endcomment %}
+
+<section class="recommended" id="recommended-{{ section.id }}">
+  <div class="recommended__container">
+    <div class="recommended__header">
+      {% if section.settings.heading != blank %}
+        <h3 class="recommended__heading">{{ section.settings.heading }}</h3>
+      {% endif %}
+      {% if section.settings.description != blank %}
+        <p class="recommended__description">{{ section.settings.description }}</p>
+      {% endif %}
+    </div>
+
+    <div class="recommended__grid">
+      {% if section.settings.collection != blank %}
+        {% assign collection = collections[section.settings.collection] %}
+        {% assign products_to_show = section.settings.products_to_show | default: 4 %}
+        
+        {% for product in collection.products limit: products_to_show %}
+          <a href="{{ product.url }}" class="recommended__item">
+            <div class="recommended__image-wrapper">
+              {% if product.featured_image %}
+                {{ product.featured_image | image_url: width: 400 | image_tag: loading: 'lazy', alt: product.title, class: 'recommended__image' }}
+              {% else %}
+                <div class="recommended__image-placeholder">Product</div>
+              {% endif %}
+              
+              <div class="recommended__badge">{{ section.settings.badge_text | default: 'For You' }}</div>
+            </div>
+            
+            <div class="recommended__content">
+              <h4 class="recommended__title">{{ product.title }}</h4>
+              <div class="recommended__price">{{ product.price | money }}</div>
+            </div>
+          </a>
+        {% endfor %}
+      {% else %}
+        {% comment %} Fallback if no collection is selected {% endcomment %}
+        {% for i in (1..4) %}
+          <div class="recommended__item">
+            <div class="recommended__image-wrapper">
+              <div class="recommended__image-placeholder">Product</div>
+              <div class="recommended__badge">{{ section.settings.badge_text | default: 'For You' }}</div>
+            </div>
+            <div class="recommended__content">
+              <h4 class="recommended__title">Reprehenderit In Voluptate</h4>
+              <div class="recommended__price">$34.99</div>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<style>
+#recommended-{{ section.id }} {
+  padding: 4rem 1.5rem;
+  background: {{ section.settings.background_color | default: 'rgba(248, 250, 252, 0.5)' }};
+}
+
+#recommended-{{ section.id }} .recommended__container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+#recommended-{{ section.id }} .recommended__header {
+  margin-bottom: 2rem;
+}
+
+#recommended-{{ section.id }} .recommended__heading {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.3;
+}
+
+#recommended-{{ section.id }} .recommended__description {
+  margin: 0;
+  font-size: 1rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+#recommended-{{ section.id }} .recommended__grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  #recommended-{{ section.id }} .recommended__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  #recommended-{{ section.id }} .recommended__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+#recommended-{{ section.id }} .recommended__item {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+}
+
+#recommended-{{ section.id }} .recommended__item:hover {
+  border-color: #bfdbfe;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+#recommended-{{ section.id }} .recommended__image-wrapper {
+  position: relative;
+  height: 12rem;
+  overflow: hidden;
+  background: #f1f5f9;
+}
+
+#recommended-{{ section.id }} .recommended__image,
+#recommended-{{ section.id }} .recommended__image-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+#recommended-{{ section.id }} .recommended__image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 1.25rem;
+  background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+}
+
+#recommended-{{ section.id }} .recommended__item:hover .recommended__image {
+  transform: scale(1.1);
+}
+
+#recommended-{{ section.id }} .recommended__badge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.375rem 0.625rem;
+  background: {{ section.settings.badge_color | default: '#9333ea' }};
+  color: white;
+  font-size: 0.75rem;
+  border-radius: 9999px;
+  font-weight: 500;
+}
+
+#recommended-{{ section.id }} .recommended__content {
+  padding: 1rem;
+}
+
+#recommended-{{ section.id }} .recommended__title {
+  margin: 0 0 0.5rem 0;
+  color: #0f172a;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  transition: color 0.2s;
+}
+
+#recommended-{{ section.id }} .recommended__item:hover .recommended__title {
+  color: #2563eb;
+}
+
+#recommended-{{ section.id }} .recommended__price {
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+@media (max-width: 767px) {
+  #recommended-{{ section.id }} {
+    padding: 3rem 1rem;
+  }
+}
+</style>
+
+{% schema %}
+{
+  "name": "Recommended For You",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Recommended For You"
+    },
+    {
+      "type": "text",
+      "id": "description",
+      "label": "Description",
+      "default": "Based on your browsing history"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "label": "Products to Show",
+      "default": 4
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge Text",
+      "default": "For You"
+    },
+    {
+      "type": "color",
+      "id": "badge_color",
+      "label": "Badge Color",
+      "default": "#9333ea"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "rgba(248, 250, 252, 0.5)"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Recommended For You"
+    }
+  ]
+}
+{% endschema %}

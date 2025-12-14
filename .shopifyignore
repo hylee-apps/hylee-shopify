@@ -1,0 +1,30 @@
+# Build tools and configs
+node_modules/
+.git/
+.github/
+.vscode/
+*.md
+!README.md
+
+# Source files (only compiled assets should be uploaded)
+src/
+*.tsx
+*.ts
+!*.d.ts
+tsconfig.json
+vite.config.ts
+
+# Testing
+__tests__/
+*.test.*
+*.spec.*
+
+# Documentation
+docs/
+SHOPIFY_THEME_PLAN.md
+
+# Environment and configs
+.env*
+.eslintrc*
+.prettierrc*
+.husky/

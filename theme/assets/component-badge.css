@@ -1,0 +1,202 @@
+/* Badge Component Styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid transparent;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+  gap: 0.25rem;
+  transition: all 0.2s;
+}
+
+.badge svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  pointer-events: none;
+}
+
+/* Badge Variants */
+.badge--default {
+  background-color: rgb(15, 23, 42);
+  color: white;
+  border-color: transparent;
+}
+
+a.badge--default:hover {
+  background-color: rgba(15, 23, 42, 0.9);
+}
+
+.badge--secondary {
+  background-color: rgb(241, 245, 249);
+  color: rgb(15, 23, 42);
+  border-color: transparent;
+}
+
+a.badge--secondary:hover {
+  background-color: rgba(241, 245, 249, 0.9);
+}
+
+.badge--destructive {
+  background-color: rgb(239, 68, 68);
+  color: white;
+  border-color: transparent;
+}
+
+a.badge--destructive:hover {
+  background-color: rgba(239, 68, 68, 0.9);
+}
+
+.badge--outline {
+  background-color: transparent;
+  color: rgb(15, 23, 42);
+  border-color: rgb(226, 232, 240);
+}
+
+a.badge--outline:hover {
+  background-color: rgb(241, 245, 249);
+}
+
+.badge--success {
+  background-color: rgb(34, 197, 94);
+  color: white;
+  border-color: transparent;
+}
+
+a.badge--success:hover {
+  background-color: rgba(34, 197, 94, 0.9);
+}
+
+.badge--warning {
+  background-color: rgb(234, 179, 8);
+  color: white;
+  border-color: transparent;
+}
+
+a.badge--warning:hover {
+  background-color: rgba(234, 179, 8, 0.9);
+}
+
+.badge--info {
+  background-color: rgb(59, 130, 246);
+  color: white;
+  border-color: transparent;
+}
+
+a.badge--info:hover {
+  background-color: rgba(59, 130, 246, 0.9);
+}
+
+/* Badge Sizes */
+.badge--sm {
+  padding: 0.0625rem 0.375rem;
+  font-size: 0.6875rem;
+}
+
+.badge--sm svg {
+  width: 0.625rem;
+  height: 0.625rem;
+}
+
+.badge--lg {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.badge--lg svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Badge States */
+.badge--interactive {
+  cursor: pointer;
+}
+
+.badge--interactive:hover {
+  opacity: 0.9;
+}
+
+.badge--interactive:active {
+  transform: scale(0.95);
+}
+
+.badge--disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Badge with Dot */
+.badge--dot {
+  padding-left: 0.375rem;
+}
+
+.badge--dot::before {
+  content: "";
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-right: 0.25rem;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+/* Badge with Close Button */
+.badge--closable {
+  padding-right: 0.25rem;
+}
+
+.badge__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  margin-left: 0.25rem;
+  border: none;
+  background: none;
+  color: currentColor;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.badge__close:hover {
+  opacity: 1;
+}
+
+.badge__close svg {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+/* Badge Pill */
+.badge--pill {
+  border-radius: 9999px;
+}
+
+/* Badge with Icon Only */
+.badge--icon-only {
+  padding: 0.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.badge--icon-only svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Badge Group */
+.badge-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}

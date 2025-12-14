@@ -1,0 +1,99 @@
+name: Theme Validation
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Type check
+        run: npm run type-check
+      
+      - name: Lint code
+        run: npm run lint
+      
+      - name: Check formatting
+        run: npm run format:check
+      
+      - name: Run Shopify Theme Check
+        run: npm run theme-check
+      
+      - name: Run tests
+        run: npm test
+        continue-on-error: true
+      
+      - name: Check for console.log statements
+        run: |
+          if grep -r "console\.log" src/ --include="*.ts" --include="*.tsx" --exclude="*.test.*"; then
+            echo "❌ Found console.log statements in source files"
+            exit 1
+          fi
+          echo "✅ No console.log statements found"
+
+  accessibility:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build theme
+        run: npm run build
+      
+      - name: Run accessibility checks
+        run: npm run a11y-check
+        continue-on-error: true
+
+  visual-regression:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Check for screenshots in PR
+        run: |
+          if git diff --name-only origin/${{ github.base_ref }} | grep -q "src/components"; then
+            if ! git diff --name-only origin/${{ github.base_ref }} | grep -q "docs/screenshots"; then
+              echo "⚠️  Warning: Component changes detected but no screenshots found"
+              echo "Please add before/after screenshots to docs/screenshots/"
+              exit 1
+            fi
+          fi
+          echo "✅ Screenshot check passed"

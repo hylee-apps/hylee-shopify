@@ -1,0 +1,102 @@
+{
+  "current": {
+    "color_primary": "#2AC864",
+    "color_secondary": "#2699A6",
+    "type_header_font": "assistant_n4",
+    "type_body_font": "assistant_n4",
+    "body_scale": 100,
+    "heading_scale": 130,
+    "colors_text": "#333333",
+    "colors_background_1": "#ffffff",
+    "colors_background_2": "#f8fafc",
+    "colors_solid_button_labels": "#ffffff",
+    "colors_outline_button_labels": "#666666",
+    "colors_accent_1": "#2AC864",
+    "colors_accent_2": "#2B5CE7",
+    "page_width": "1200",
+    "sections": {
+      "header": {
+        "type": "header",
+        "settings": {
+          "variant": "default",
+          "show_announcement": true,
+          "announcement_text": "Free Shipping on Orders Over $50 | Use Code: FREESHIP",
+          "logo_text": "Hylee",
+          "show_categories": true,
+          "categories_menu": "main-menu",
+          "show_about": true,
+          "show_track_order": true,
+          "cta_text": "Get Started"
+        }
+      },
+      "hero-carousel": {
+        "type": "hero",
+        "blocks": {
+          "slide-1": {
+            "type": "slide",
+            "settings": {
+              "heading": "Lorem Ipsum Dolor Sit Amet",
+              "subheading": "Consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
+              "button_label": "Shop Now",
+              "button_link": "/collections/all"
+            }
+          },
+          "slide-2": {
+            "type": "slide",
+            "settings": {
+              "heading": "Ut Labore Et Dolore Magna",
+              "subheading": "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat",
+              "button_label": "Explore Collection",
+              "button_link": "/collections"
+            }
+          },
+          "slide-3": {
+            "type": "slide",
+            "settings": {
+              "heading": "Excepteur Sint Occaecat",
+              "subheading": "Cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum",
+              "button_label": "Learn More",
+              "button_link": "/pages/about"
+            }
+          }
+        },
+        "block_order": ["slide-1", "slide-2", "slide-3"],
+        "settings": {}
+      },
+      "footer": {
+        "type": "footer",
+        "settings": {
+          "variant": "default",
+          "show_brand": true,
+          "logo_text": "Hylee",
+          "description": "Premium wholesale marketplace for small businesses worldwide",
+          "copyright_text": "Connecting small businesses with verified suppliers worldwide."
+        },
+        "blocks": {
+          "footer-0": {
+            "type": "link_list",
+            "settings": {
+              "heading": "Products",
+              "menu": "footer-products"
+            }
+          },
+          "footer-1": {
+            "type": "link_list",
+            "settings": {
+              "heading": "Company",
+              "menu": "footer-company"
+            }
+          },
+          "footer-2": {
+            "type": "link_list",
+            "settings": {
+              "heading": "Support",
+              "menu": "footer-support"
+            }
+          }
+        },
+        "block_order": ["footer-0", "footer-1", "footer-2"]
+      }
+    }
+  }
+}

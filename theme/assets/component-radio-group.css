@@ -1,0 +1,223 @@
+/* Radio Group Component Styles */
+.radio {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid rgb(226, 232, 240);
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  appearance: none;
+  outline: none;
+  position: relative;
+}
+
+.radio:hover {
+  border-color: rgb(203, 213, 225);
+}
+
+.radio:focus {
+  border-color: rgb(59, 130, 246);
+  ring: 3px;
+  ring-color: rgba(59, 130, 246, 0.5);
+}
+
+.radio:checked {
+  border-color: rgb(15, 23, 42);
+}
+
+.radio:checked::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: rgb(15, 23, 42);
+  border-radius: 50%;
+}
+
+.radio:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.radio[aria-invalid="true"] {
+  border-color: rgb(239, 68, 68);
+  ring-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Radio Sizes */
+.radio--sm {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.radio--sm:checked::after {
+  width: 0.4375rem;
+  height: 0.4375rem;
+}
+
+.radio--lg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.radio--lg:checked::after {
+  width: 0.625rem;
+  height: 0.625rem;
+}
+
+/* Radio with Label */
+.radio-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.radio-wrapper input[type="radio"] {
+  margin-top: 0.125rem;
+}
+
+.radio-wrapper__label {
+  flex: 1;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: rgb(15, 23, 42);
+  cursor: pointer;
+  user-select: none;
+}
+
+.radio-wrapper__description {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: rgb(100, 116, 139);
+}
+
+.radio-wrapper:hover .radio {
+  border-color: rgb(203, 213, 225);
+}
+
+.radio-wrapper input[type="radio"]:disabled ~ .radio-wrapper__label {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Radio Group */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.radio-group__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgb(51, 65, 85);
+  margin-bottom: 0.5rem;
+}
+
+.radio-group__label--required::after {
+  content: "*";
+  color: rgb(239, 68, 68);
+  margin-left: 0.25rem;
+}
+
+.radio-group__hint {
+  font-size: 0.8125rem;
+  color: rgb(100, 116, 139);
+  margin-bottom: 0.5rem;
+}
+
+.radio-group__error {
+  font-size: 0.8125rem;
+  color: rgb(239, 68, 68);
+  margin-top: 0.5rem;
+}
+
+.radio-group__items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Radio Group - Horizontal Layout */
+.radio-group--horizontal .radio-group__items {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* Radio Card (Selectable Card) */
+.radio-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgb(226, 232, 240);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.radio-card:hover {
+  border-color: rgb(203, 213, 225);
+  background-color: rgb(248, 250, 252);
+}
+
+.radio-card:has(input:checked) {
+  border-color: rgb(15, 23, 42);
+  background-color: rgb(248, 250, 252);
+}
+
+.radio-card input[type="radio"] {
+  margin-top: 0.125rem;
+}
+
+/* Radio Button Style */
+.radio-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgb(226, 232, 240);
+  border-radius: 0.375rem;
+  background-color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgb(15, 23, 42);
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.radio-button:hover {
+  border-color: rgb(203, 213, 225);
+  background-color: rgb(248, 250, 252);
+}
+
+.radio-button:has(input:checked) {
+  border-color: rgb(15, 23, 42);
+  background-color: rgb(15, 23, 42);
+  color: white;
+}
+
+.radio-button input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Radio Group - Button Layout */
+.radio-group--buttons .radio-group__items {
+  flex-direction: row;
+  gap: 0.5rem;
+}
