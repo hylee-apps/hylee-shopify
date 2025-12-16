@@ -417,6 +417,27 @@
   text-decoration: underline;
 }
 
+/* ========== hCaptcha Disclaimer ========== */
+.customer-register__captcha-disclaimer {
+  margin-bottom: 1.5rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.customer-register__captcha-disclaimer a {
+  color: #0ea5e9;
+  text-decoration: none;
+}
+
+.customer-register__captcha-disclaimer a:hover {
+  text-decoration: underline;
+}
+
 /* ========== Submit Button ========== */
 .customer-register__submit {
   display: flex;

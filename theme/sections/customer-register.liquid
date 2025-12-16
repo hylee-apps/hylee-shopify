@@ -67,7 +67,7 @@
 
         {%- comment %-%} Email & Password Form {%- endcomment -%}
         <div class="customer-register__form-content customer-register__form-content--active" data-tab-content="email">
-          {% form 'create_customer' %}
+          {% form 'create_customer', data-shopify-captcha: 'true' %}
             {{ form.errors | default_errors }}
             
             <div class="customer-register__form-grid">
@@ -196,6 +196,11 @@
                   Send me promotional emails and product updates (GDPR compliant)
                 </label>
               </div>
+            </div>
+
+            {%- comment %-%} hCaptcha Disclaimer {%- endcomment -%}
+            <div class="customer-register__captcha-disclaimer">
+              {{ 'shopify.online_store.spam_detection.disclaimer_html' | t }}
             </div>
 
             <button type="submit" class="customer-register__submit">

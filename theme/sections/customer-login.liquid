@@ -55,7 +55,7 @@
         </div>
 
         {%- comment %-%} Login Form {%- endcomment -%}
-        {% form 'customer_login' %}
+        {% form 'customer_login', data-shopify-captcha: 'true' %}
           {{ form.errors | default_errors }}
           
           <div class="customer-login__field">
@@ -115,6 +115,11 @@
             <a href="{{ routes.account_recover_url }}" class="customer-login__link">
               Forgot password?
             </a>
+          </div>
+
+          {%- comment %-%} hCaptcha Disclaimer {%- endcomment -%}
+          <div class="customer-login__captcha-disclaimer">
+            {{ 'shopify.online_store.spam_detection.disclaimer_html' | t }}
           </div>
 
           <button type="submit" class="customer-login__submit">
