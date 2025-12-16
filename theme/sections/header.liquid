@@ -147,13 +147,15 @@
       {%- endif -%}
 
       {%- if shop.customer_accounts_enabled -%}
-        <a href="{{ routes.account_url }}" class="header__action-link header__action-link--outline">
-          {%- if customer -%}
+        {%- if customer -%}
+          <a href="{{ routes.account_url }}" class="header__action-link header__action-link--outline">
             {{ 'header.actions.account' | t }}
-          {%- else -%}
+          </a>
+        {%- else -%}
+          <a href="{{ routes.account_login_url }}" class="header__action-link header__action-link--outline">
             {{ 'header.actions.sign_in' | t }}
-          {%- endif -%}
-        </a>
+          </a>
+        {%- endif -%}
       {%- endif -%}
 
       {%- if cta_text != blank and cta_link != blank -%}
@@ -239,13 +241,15 @@
         </a>
       {%- endif -%}
       
-      <a href="{{ routes.account_url }}" class="header__mobile-link">
-        {% if customer %}
+      {% if customer %}
+        <a href="{{ routes.account_url }}" class="header__mobile-link">
           {{ 'header.actions.account' | t }}
-        {% else %}
+        </a>
+      {% else %}
+        <a href="{{ routes.account_login_url }}" class="header__mobile-link">
           {{ 'header.actions.sign_in' | t }}
-        {% endif %}
-      </a>
+        </a>
+      {% endif %}
     </nav>
   </div>
 </header>

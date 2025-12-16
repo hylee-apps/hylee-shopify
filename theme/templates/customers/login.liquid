@@ -1,0 +1,200 @@
+{% comment %}
+  Customer Login Page Template
+{% endcomment %}
+
+<div class="customer-login">
+  <div class="customer-login__container">
+    <div class="customer-login__form-wrapper">
+      <h1 class="customer-login__title">Sign In</h1>
+      <p class="customer-login__subtitle">Welcome back! Please sign in to your account.</p>
+
+      {% form 'customer_login' %}
+        {{ form.errors | default_errors }}
+
+        <div class="customer-login__field">
+          <label for="CustomerEmail" class="customer-login__label">Email</label>
+          <input
+            type="email"
+            name="customer[email]"
+            id="CustomerEmail"
+            autocomplete="email"
+            class="customer-login__input"
+            {% if form.errors %}
+              autofocus
+            {% endif %}
+            placeholder="your@email.com"
+          >
+        </div>
+
+        <div class="customer-login__field">
+          <label for="CustomerPassword" class="customer-login__label">Password</label>
+          <input
+            type="password"
+            name="customer[password]"
+            id="CustomerPassword"
+            class="customer-login__input"
+            placeholder="••••••••"
+          >
+        </div>
+
+        <div class="customer-login__actions">
+          <a href="{{ routes.account_recover_url }}" class="customer-login__recover-link">
+            Forgot your password?
+          </a>
+        </div>
+
+        <button type="submit" class="customer-login__submit">
+          Sign In
+        </button>
+      {% endform %}
+
+      <div class="customer-login__register">
+        <p>Don't have an account?</p>
+        <a href="{{ routes.account_register_url }}" class="customer-login__register-link">
+          Create Account
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .customer-login {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    background: linear-gradient(to bottom, #f8fafc, white);
+  }
+
+  .customer-login__container {
+    width: 100%;
+    max-width: 28rem;
+  }
+
+  .customer-login__form-wrapper {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  .customer-login__title {
+    font-size: 1.875rem;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  .customer-login__subtitle {
+    color: #475569;
+    margin-bottom: 2rem;
+  }
+
+  .customer-login__field {
+    margin-bottom: 1.5rem;
+  }
+
+  .customer-login__label {
+    display: block;
+    font-size: 0.875rem;
+    color: #334155;
+    margin-bottom: 0.375rem;
+    font-weight: 500;
+  }
+
+  .customer-login__input {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+  }
+
+  .customer-login__input:focus {
+    outline: none;
+    border-color: #2AC864;
+    box-shadow: 0 0 0 3px rgba(42, 200, 100, 0.1);
+  }
+
+  .customer-login__actions {
+    margin-bottom: 1.5rem;
+    text-align: right;
+  }
+
+  .customer-login__recover-link {
+    font-size: 0.875rem;
+    color: #2AC864;
+    text-decoration: none;
+  }
+
+  .customer-login__recover-link:hover {
+    text-decoration: underline;
+  }
+
+  .customer-login__submit {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    background: #2AC864;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .customer-login__submit:hover {
+    background: #24b056;
+  }
+
+  .customer-login__register {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+  }
+
+  .customer-login__register p {
+    color: #475569;
+    margin-bottom: 1rem;
+  }
+
+  .customer-login__register-link {
+    display: inline-block;
+    padding: 0.625rem 1.5rem;
+    border: 2px solid #2AC864;
+    color: #2AC864;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .customer-login__register-link:hover {
+    background: #2AC864;
+    color: white;
+  }
+
+  .errors {
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .errors ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    color: #991b1b;
+  }
+
+  .errors li {
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+  }
+</style>
