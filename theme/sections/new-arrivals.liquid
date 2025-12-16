@@ -18,43 +18,27 @@
     </div>
 
     <div class="new-arrivals__grid">
-      {% if section.settings.collection != blank %}
-        {% assign collection = collections[section.settings.collection] %}
-        {% assign products_to_show = section.settings.products_to_show | default: 4 %}
-        
-        {% for product in collection.products limit: products_to_show %}
-          <a href="{{ product.url }}" class="new-arrivals__item">
-            <div class="new-arrivals__image-wrapper">
-              {% if product.featured_image %}
-                {{ product.featured_image | image_url: width: 400 | image_tag: loading: 'lazy', alt: product.title, class: 'new-arrivals__image' }}
-              {% else %}
-                <div class="new-arrivals__image-placeholder">Product</div>
-              {% endif %}
-              
-              <div class="new-arrivals__badge">{{ section.settings.badge_text | default: 'New' }}</div>
-            </div>
-            
-            <div class="new-arrivals__content">
-              <h4 class="new-arrivals__title">{{ product.title }}</h4>
-              <div class="new-arrivals__price">{{ product.price | money }}</div>
-            </div>
-          </a>
-        {% endfor %}
-      {% else %}
-        {% comment %} Fallback if no collection is selected {% endcomment %}
-        {% for i in (1..4) %}
-          <div class="new-arrivals__item">
-            <div class="new-arrivals__image-wrapper">
+      {% assign collection = collections[section.settings.collection] %}
+      {% assign products_to_show = section.settings.products_to_show | default: 4 %}
+      
+      {% for product in collection.products limit: products_to_show %}
+        <a href="{{ product.url }}" class="new-arrivals__item">
+          <div class="new-arrivals__image-wrapper">
+            {% if product.featured_image %}
+              {{ product.featured_image | image_url: width: 400 | image_tag: loading: 'lazy', alt: product.title, class: 'new-arrivals__image' }}
+            {% else %}
               <div class="new-arrivals__image-placeholder">Product</div>
-              <div class="new-arrivals__badge">{{ section.settings.badge_text | default: 'New' }}</div>
-            </div>
-            <div class="new-arrivals__content">
-              <h4 class="new-arrivals__title">Dolore Magna Aliqua</h4>
-              <div class="new-arrivals__price">$45.99</div>
-            </div>
+            {% endif %}
+            
+            <div class="new-arrivals__badge">{{ section.settings.badge_text | default: 'New' }}</div>
           </div>
-        {% endfor %}
-      {% endif %}
+          
+          <div class="new-arrivals__content">
+            <h4 class="new-arrivals__title">{{ product.title }}</h4>
+            <div class="new-arrivals__price">{{ product.price | money }}</div>
+          </div>
+        </a>
+      {% endfor %}
     </div>
   </div>
 </section>
