@@ -75,17 +75,17 @@
 
 .customer-register__signin-btn {
   padding: 0.5rem 1rem;
-  border: 2px solid var(--color-green-primary);
+  background: var(--color-green-primary);
+  color: white;
   border-radius: 0.375rem;
-  color: var(--color-green-primary);
   font-weight: 500;
+  font-size: 0.875rem;
   text-decoration: none;
-  transition: all 0.2s;
+  transition: background 0.2s;
 }
 
 .customer-register__signin-btn:hover {
-  background: var(--color-green-primary);
-  color: white;
+  background: var(--color-green-hover);
 }
 
 /* ========== Container and Grid ========== */
