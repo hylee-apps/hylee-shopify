@@ -37,8 +37,9 @@
               <div class="collection-grid__filter-group">
                 <h4 class="collection-grid__filter-heading">Category</h4>
                 <div class="collection-grid__filter-options">
+                  {% assign excluded_handles = 'frontpage,deals-promotions,seasonal,new-arrivals,special-events' | split: ',' %}
                   {% for collection_item in collections %}
-                    {% unless collection_item.handle == 'frontpage' %}
+                    {% unless excluded_handles contains collection_item.handle %}
                       <label class="collection-grid__filter-option">
                         <input 
                           type="radio" 
