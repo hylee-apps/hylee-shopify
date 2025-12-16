@@ -193,7 +193,7 @@
 
             <div class="customer-register__checkboxes">
               <div class="customer-register__checkbox-wrapper">
-                <input type="checkbox" id="AcceptTerms" name="customer[accepts_marketing]" class="customer-register__checkbox" required>
+                <input type="checkbox" id="AcceptTerms" name="customer[note][terms_accepted]" class="customer-register__checkbox" required>
                 <label for="AcceptTerms" class="customer-register__checkbox-label">
                   I agree to the 
                   <a href="/pages/terms" class="customer-register__link">Terms of Service</a> 
@@ -203,16 +203,18 @@
               </div>
 
               <div class="customer-register__checkbox-wrapper">
-                <input type="checkbox" id="MarketingEmails" name="customer[email_marketing_consent]" class="customer-register__checkbox">
+                <input type="checkbox" id="MarketingEmails" name="customer[accepts_marketing]" class="customer-register__checkbox">
                 <label for="MarketingEmails" class="customer-register__checkbox-label">
                   Send me promotional emails and product updates (GDPR compliant)
                 </label>
               </div>
             </div>
 
-            <div class="customer-register__captcha" style="margin-bottom: 1.5rem;">
-              <div class="g-recaptcha"></div>
-            </div>
+            {% if form.recaptcha %}
+              <div class="customer-register__captcha" style="margin-bottom: 1.5rem;">
+                {{ form.recaptcha }}
+              </div>
+            {% endif %}
 
             <button type="submit" class="customer-register__submit">
               Create Account
