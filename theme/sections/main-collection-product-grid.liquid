@@ -863,6 +863,16 @@
       localStorage.setItem('collection-filters-visible', filtersVisible);
     });
   }
+  
+  // Price slider real-time update
+  const priceSlider = document.querySelector('.collection-grid__price-slider');
+  const priceMaxDisplay = document.getElementById('price-max-' + sectionId);
+  
+  if (priceSlider && priceMaxDisplay) {
+    priceSlider.addEventListener('input', function() {
+      priceMaxDisplay.textContent = '$' + this.value;
+    });
+  }
 })();
 </script>
 
