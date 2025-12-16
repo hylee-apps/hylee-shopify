@@ -343,10 +343,10 @@
 
                 {%- comment %-%} Hidden Delete Form {%- endcomment -%}
                 <div style="display: none;">
-                  {% form 'customer_address', address %}
+                  <form method="post" action="{{ routes.account_addresses_url }}/{{ address.id }}">
                     <input type="hidden" name="_method" value="delete">
                     <button type="submit" id="delete-address-{{ address.id }}"></button>
-                  {% endform %}
+                  </form>
                 </div>
               </div>
             {% endfor %}
