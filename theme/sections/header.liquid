@@ -18,6 +18,15 @@
   
   <div class="header__inner-wrapper">
     <div class="header__inner">
+    {%- comment -%} Mobile Menu Toggle {%- endcomment -%}
+    <button class="header__mobile-toggle" aria-label="Toggle menu" data-mobile-menu-toggle>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+
     {%- comment -%} Logo {%- endcomment -%}
     <a href="{{ routes.root_url }}" class="header__logo">
       {% if section.settings.logo != blank %}
@@ -155,6 +164,90 @@
     </div>
     </div>
   </div>
+
+  {%- comment -%} Mobile Menu Overlay {%- endcomment -%}
+  <div class="header__mobile-overlay hidden" data-mobile-overlay></div>
+
+  {%- comment -%} Mobile Menu {%- endcomment -%}
+  <div class="header__mobile-menu hidden" data-mobile-menu>
+    <div class="header__mobile-header">
+      <span class="header__mobile-title">Menu</span>
+      <button class="header__mobile-close" aria-label="Close menu" data-mobile-menu-close>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <nav class="header__mobile-nav">
+      {%- comment -%} Product Category Section {%- endcomment -%}
+      {%- if show_categories -%}
+        <div class="header__mobile-section">
+          <button class="header__mobile-section-toggle" data-mobile-section="categories">
+            <span>Product Category</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+          <div class="header__mobile-submenu hidden" data-mobile-submenu="categories">
+            {%- assign l1_categories = collections | where: "metafields.custom.category_level", "L1" -%}
+            {%- if l1_categories.size > 0 -%}
+              {%- for collection in l1_categories limit: 20 -%}
+                <a href="{{ collection.url }}" class="header__mobile-link">{{ collection.title }}</a>
+              {%- endfor -%}
+            {%- else -%}
+              {%- for collection in collections limit: 20 -%}
+                {%- unless collection.handle == 'all' -%}
+                  <a href="{{ collection.url }}" class="header__mobile-link">{{ collection.title }}</a>
+                {%- endunless -%}
+              {%- endfor -%}
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} What's New Section {%- endcomment -%}
+      <div class="header__mobile-section">
+        <button class="header__mobile-section-toggle" data-mobile-section="whats-new">
+          <span>What's New</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+        <div class="header__mobile-submenu hidden" data-mobile-submenu="whats-new">
+          <a href="/collections/deals-promotions" class="header__mobile-link">Deals & Promotions</a>
+          <a href="/collections/new-arrivals" class="header__mobile-link">New Additions</a>
+          <a href="/collections/seasonal" class="header__mobile-link">Season Item Spotlights</a>
+          <a href="/collections/special-events" class="header__mobile-link">Special Events</a>
+        </div>
+      </div>
+
+      {%- comment -%} Blog Link {%- endcomment -%}
+      <a href="{{ blog.url | default: '/blogs/news' }}" class="header__mobile-link header__mobile-link--top">Blog</a>
+
+      {%- if section.settings.show_about -%}
+        <a href="{{ section.settings.about_link }}" class="header__mobile-link header__mobile-link--top">{{ 'header.navigation.about' | t }}</a>
+      {%- endif -%}
+
+      {%- comment -%} Account Actions {%- endcomment -%}
+      <div class="header__mobile-divider"></div>
+      
+      {%- if show_track_order -%}
+        <a href="{{ section.settings.track_order_link | default: '/pages/track-order' }}" class="header__mobile-link">
+          {{ 'header.actions.track_order' | t }}
+        </a>
+      {%- endif -%}
+      
+      <a href="{{ routes.account_url }}" class="header__mobile-link">
+        {% if customer %}
+          {{ 'header.actions.account' | t }}
+        {% else %}
+          {{ 'header.actions.sign_in' | t }}
+        {% endif %}
+      </a>
+    </nav>
+  </div>
 </header>
 
 <script>
@@ -258,6 +351,55 @@
           menu.classList.add('hidden');
         });
       }
+    });
+  })();
+
+  // Mobile menu functionality
+  (function() {
+    const mobileToggle = document.querySelector('[data-mobile-menu-toggle]');
+    const mobileMenu = document.querySelector('[data-mobile-menu]');
+    const mobileOverlay = document.querySelector('[data-mobile-overlay]');
+    const mobileClose = document.querySelector('[data-mobile-menu-close]');
+
+    function openMobileMenu() {
+      mobileMenu.classList.remove('hidden');
+      mobileOverlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileMenu() {
+      mobileMenu.classList.add('hidden');
+      mobileOverlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    if (mobileToggle && mobileMenu && mobileOverlay) {
+      mobileToggle.addEventListener('click', openMobileMenu);
+      mobileClose.addEventListener('click', closeMobileMenu);
+      mobileOverlay.addEventListener('click', closeMobileMenu);
+    }
+
+    // Mobile submenu toggles
+    document.querySelectorAll('[data-mobile-section]').forEach(button => {
+      button.addEventListener('click', function() {
+        const section = this.getAttribute('data-mobile-section');
+        const submenu = document.querySelector(`[data-mobile-submenu="${section}"]`);
+        const isOpen = !submenu.classList.contains('hidden');
+        
+        // Close all other submenus
+        document.querySelectorAll('.header__mobile-submenu').forEach(menu => {
+          menu.classList.add('hidden');
+        });
+        document.querySelectorAll('.header__mobile-section-toggle').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        
+        // Toggle current submenu
+        if (!isOpen) {
+          submenu.classList.remove('hidden');
+          this.classList.add('active');
+        }
+      });
     });
   })();
 </script>
