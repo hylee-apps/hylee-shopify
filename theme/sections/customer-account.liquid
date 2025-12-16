@@ -10,12 +10,14 @@
   <header class="customer-account__header">
     <div class="customer-account__header-inner">
       <a href="{{ routes.root_url }}" class="customer-account__logo">
-        {% if section.settings.logo %}
-          <img src="{{ section.settings.logo | image_url: width: 28 }}" alt="{{ shop.name }}" width="28" height="28" class="customer-account__logo-img">
-        {% else %}
-          <div class="customer-account__logo-placeholder">H</div>
-        {% endif %}
-        <span class="customer-account__logo-text">{{ shop.name }}</span>
+        <img 
+          src="https://placehold.co/28x28/71717a/ffffff?text=H" 
+          alt="{{ shop.name }}"
+          class="customer-account__logo-img"
+          width="28"
+          height="28"
+        >
+        <span class="customer-account__logo-text">Hylee</span>
       </a>
       <nav class="customer-account__nav">
         <a href="{{ routes.root_url }}" class="customer-account__nav-link">Home</a>

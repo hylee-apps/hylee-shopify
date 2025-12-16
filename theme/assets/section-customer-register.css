@@ -45,31 +45,21 @@
 .customer-register__logo {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.625rem;
   text-decoration: none;
   cursor: pointer;
 }
 
-.customer-register__logo-placeholder {
+.customer-register__logo-img {
   width: 1.75rem;
   height: 1.75rem;
-  background: var(--color-slate-900);
-  color: white;
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-}
-
-.customer-register__logo-img {
-  border-radius: 0.5rem;
+  border-radius: 50%;
 }
 
 .customer-register__logo-text {
   font-size: 1.25rem;
-  letter-spacing: -0.025em;
-  color: var(--color-slate-900);
+  font-weight: 600;
+  color: #0f172a;
 }
 
 .customer-register__header-actions {
