@@ -42,7 +42,7 @@
 .footer__logo-image {
   width: 2.25rem;
   height: 2.25rem;
-  border-radius: 0.5rem;
+  border-radius: 50%;
   background: #495057;
 }
 
