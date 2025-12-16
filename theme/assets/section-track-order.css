@@ -230,6 +230,16 @@
   margin-top: 0.375rem;
 }
 
+.track-order__error {
+  padding: 0.75rem 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.375rem;
+  color: #991b1b;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
 .track-order__submit {
   width: 100%;
   display: flex;
