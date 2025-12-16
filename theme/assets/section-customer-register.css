@@ -427,6 +427,16 @@
   text-decoration: underline;
 }
 
+/* ========== reCAPTCHA Wrapper ========== */
+.customer-register__recaptcha-wrapper {
+  margin-bottom: 1.5rem;
+}
+
+.customer-register__recaptcha-wrapper > div {
+  display: flex;
+  justify-content: center;
+}
+
 /* ========== Submit Button ========== */
 .customer-register__submit {
   display: flex;

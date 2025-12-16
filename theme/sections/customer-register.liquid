@@ -210,6 +210,11 @@
               </div>
             </div>
 
+            {% comment %} Shopify reCAPTCHA - automatically rendered when spam protection is enabled {% endcomment %}
+            <div class="customer-register__recaptcha-wrapper">
+              {{ form.recaptcha }}
+            </div>
+
             <button type="submit" class="customer-register__submit">
               Create Account
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
