@@ -372,6 +372,42 @@
       }
     });
   });
+
+  // Handle Shopify reCAPTCHA
+  // Shopify uses invisible reCAPTCHA v3 which auto-executes on form submission
+  // Ensure the form waits for reCAPTCHA to be ready
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form[action*="account"]');
+    if (form) {
+      const originalSubmit = form.submit.bind(form);
+      
+      form.addEventListener('submit', function(e) {
+        const recaptchaInput = form.querySelector('input[name="g-recaptcha-response"]');
+        
+        // If reCAPTCHA input exists and is empty, wait for it
+        if (recaptchaInput && !recaptchaInput.value) {
+          e.preventDefault();
+          
+          // Try to trigger reCAPTCHA execution
+          if (typeof grecaptcha !== 'undefined' && grecaptcha.execute) {
+            grecaptcha.ready(function() {
+              grecaptcha.execute().then(function() {
+                // Submit after reCAPTCHA completes
+                form.submit();
+              }).catch(function(error) {
+                console.error('reCAPTCHA error:', error);
+                // Submit anyway and let Shopify handle the error
+                form.submit();
+              });
+            });
+          } else {
+            // No reCAPTCHA loaded, submit anyway
+            setTimeout(() => form.submit(), 100);
+          }
+        }
+      });
+    }
+  });
 </script>
 
 {% schema %}
