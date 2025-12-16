@@ -268,6 +268,7 @@
                 </button>
               </div>
               {% form 'customer_address', customer.new_address, data-shopify-captcha: 'true' %}
+                <input type="hidden" name="return_to" value="/account">
                 <div class="customer-account__form-grid">
                   <div class="customer-account__form-field">
                     <label for="AddressFirstNameNew" class="customer-account__form-label">First Name</label>
@@ -381,6 +382,7 @@
                   {%- comment %-%} Edit Form {%- endcomment -%}
                   <div class="customer-account__address-edit-form" id="address-edit-{{ address.id }}" style="display: none;">
                     {% form 'customer_address', address, data-shopify-captcha: 'true' %}
+                      <input type="hidden" name="return_to" value="/account">
                       <div class="customer-account__form-grid">
                         <div class="customer-account__form-field">
                           <label for="AddressFirstName{{ address.id }}" class="customer-account__form-label">First Name</label>
