@@ -37,14 +37,21 @@
               <div class="collection-grid__filter-group">
                 <h4 class="collection-grid__filter-heading">Category</h4>
                 <div class="collection-grid__filter-options">
-                  {% for link in linklists[section.settings.collection_menu].links %}
-                    <label class="collection-grid__filter-option">
-                      <input type="radio" name="collection" value="{{ link.url }}" class="collection-grid__radio">
-                      <span class="collection-grid__filter-label">{{ link.title }}</span>
-                      {% if link.object.products_count %}
-                        <span class="collection-grid__filter-count">({{ link.object.products_count }})</span>
-                      {% endif %}
-                    </label>
+                  {% for collection_item in collections %}
+                    {% unless collection_item.handle == 'frontpage' %}
+                      <label class="collection-grid__filter-option">
+                        <input 
+                          type="radio" 
+                          name="collection" 
+                          value="{{ collection_item.url }}"
+                          {% if collection.handle == collection_item.handle %}checked{% endif %}
+                          onchange="window.location.href=this.value"
+                          class="collection-grid__radio"
+                        >
+                        <span class="collection-grid__filter-label">{{ collection_item.title }}</span>
+                        <span class="collection-grid__filter-count">({{ collection_item.products_count }})</span>
+                      </label>
+                    {% endunless %}
                   {% endfor %}
                 </div>
               </div>
@@ -209,17 +216,26 @@
                   {{ product.title }}
                 </a>
 
-                {%- comment -%} Rating {%- endcomment -%}
-                <div class="collection-grid__rating">
-                  <div class="collection-grid__stars">
-                    {% for i in (1..5) %}
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                      </svg>
-                    {% endfor %}
+                {%- comment -%} Rating - Check for product reviews metafield or app data {%- endcomment -%}
+                {% if product.metafields.reviews.rating %}
+                  <div class="collection-grid__rating">
+                    <div class="collection-grid__stars">
+                      {% assign rating = product.metafields.reviews.rating | round %}
+                      {% for i in (1..5) %}
+                        {% if i <= rating %}
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                          </svg>
+                        {% else %}
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                          </svg>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                    <span class="collection-grid__rating-text">{{ product.metafields.reviews.rating }} ({{ product.metafields.reviews.rating_count }})</span>
                   </div>
-                  <span class="collection-grid__rating-text">4.8 (1,253)</span>
-                </div>
+                {% endif %}
 
                 {%- comment -%} Price {%- endcomment -%}
                 <div class="collection-grid__price-wrapper">
@@ -231,21 +247,27 @@
                   {% endif %}
                 </div>
 
-                {%- comment -%} Bulk Pricing {%- endcomment -%}
-                <div class="collection-grid__bulk-price">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
-                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                  </svg>
-                  <span>Bulk: {% assign bulk_price = product.price | times: 0.5 %}{{ bulk_price | money }}/unit</span>
-                </div>
+                {%- comment -%} Bulk Pricing - Use metafield if available {%- endcomment -%}
+                {% if product.metafields.bulk.price or product.metafields.custom.bulk_price %}
+                  <div class="collection-grid__bulk-price">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
+                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                      <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                      <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                    <span>Bulk: {{ product.metafields.bulk.price | default: product.metafields.custom.bulk_price | money }}/unit</span>
+                  </div>
+                {% endif %}
 
                 {%- comment -%} Footer {%- endcomment -%}
                 <div class="collection-grid__product-footer">
-                  <span class="collection-grid__min-order">Min: 10 units</span>
-                  <span class="collection-grid__supplier">{{ product.vendor }}</span>
+                  {% if product.metafields.bulk.minimum_order or product.metafields.custom.min_order %}
+                    <span class="collection-grid__min-order">Min: {{ product.metafields.bulk.minimum_order | default: product.metafields.custom.min_order }} units</span>
+                  {% endif %}
+                  {% if product.vendor != blank %}
+                    <span class="collection-grid__supplier">{{ product.vendor }}</span>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -869,12 +891,6 @@
       "id": "show_category_filter",
       "label": "Show category filter",
       "default": true
-    },
-    {
-      "type": "link_list",
-      "id": "collection_menu",
-      "label": "Collection menu",
-      "default": "main-menu"
     },
     {
       "type": "checkbox",
