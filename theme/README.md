@@ -58,6 +58,12 @@ theme/
 3. Test changes in browser
 4. Deploy to production: `shopify theme push`
 
+## Guest Returns (Stub)
+
+This theme includes a guest returns initiation page stub ("Returns are coming soon") that matches the Track Order layout.
+
+- Setup and verification steps: see [../docs/RETURNS_GUEST_STUB.md](../docs/RETURNS_GUEST_STUB.md)
+
 ## References
 
 - [Shopify Theme Architecture](https://shopify.dev/docs/themes/architecture)
