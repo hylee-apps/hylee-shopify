@@ -22,8 +22,12 @@ Thumbs.db
 .env
 .env.*
 
-# IDE files
-.vscode/
+# IDE files - but keep shared settings
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+!.vscode/launch.json
 .idea/
 *.suo
 *.ntvs*

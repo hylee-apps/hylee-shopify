@@ -1,23 +1,18 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
 
 # Run linting and formatting checks before commit
 echo "🔍 Running pre-commit checks..."
 
-# Check TypeScript types
-echo "📝 Checking TypeScript types..."
-npm run type-check || exit 1
-
-# Run ESLint
-echo "🔍 Running ESLint..."
-npm run lint || exit 1
+# Run Shopify Theme Check
+echo "🛍️  Running Shopify Theme Check..."
+pnpm theme-check || exit 1
 
 # Run Prettier check
 echo "💅 Checking code formatting..."
-npm run format:check || exit 1
+pnpm format:check || exit 1
 
-# Run Shopify Theme Check
-echo "🛍️  Running Shopify Theme Check..."
-npm run theme-check || exit 1
+# Validate project structure
+echo "📂 Validating project structure..."
+pnpm validate:structure || exit 1
 
 echo "✅ Pre-commit checks passed!"
