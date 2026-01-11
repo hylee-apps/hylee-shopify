@@ -2,9 +2,11 @@
 /* Radio/checkbox style selectable cards - like fulfillment options */
 
 .selection-card {
+  --selection-card-min-height: auto;
+  --selection-card-min-height-mobile: auto;
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   border: 2px solid var(--color-border, #e2e8f0);
@@ -12,6 +14,15 @@
   background: #ffffff;
   cursor: pointer;
   transition: all 0.2s;
+  min-height: var(--selection-card-min-height);
+  box-sizing: border-box;
+}
+
+/* Responsive min-height for mobile */
+@media (max-width: 767px) {
+  .selection-card {
+    min-height: var(--selection-card-min-height-mobile, var(--selection-card-min-height));
+  }
 }
 
 .selection-card:hover:not(.selection-card--disabled) {
@@ -48,7 +59,7 @@
 /* Content wrapper */
 .selection-card__content {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   flex: 1;
   gap: 0.75rem;
   min-width: 0;
@@ -178,4 +189,20 @@
 
 .selection-card-group--vertical .selection-card {
   flex: none;
+}
+
+/* Equal height cards - use on group wrapper with a CSS variable */
+.selection-card-group--equal-height {
+  --selection-card-group-height: auto;
+  --selection-card-group-height-mobile: auto;
+}
+
+.selection-card-group--equal-height .selection-card {
+  min-height: var(--selection-card-group-height);
+}
+
+@media (max-width: 767px) {
+  .selection-card-group--equal-height .selection-card {
+    min-height: var(--selection-card-group-height-mobile, var(--selection-card-group-height));
+  }
 }

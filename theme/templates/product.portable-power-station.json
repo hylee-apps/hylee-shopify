@@ -1,7 +1,7 @@
 {
   "sections": {
     "main": {
-      "type": "product-mock-5",
+      "type": "main-product",
       "settings": {}
     }
   },

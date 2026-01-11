@@ -11,13 +11,78 @@
     
     <!-- Breadcrumbs -->
     <nav class="breadcrumbs" aria-label="Breadcrumb">
-      <a href="/" class="breadcrumbs__link">Home</a>
-      <span class="breadcrumbs__separator">/</span>
-      {% if collection %}
-        <a href="{{ collection.url }}" class="breadcrumbs__link">{{ collection.title }}</a>
+      {%- liquid
+        assign max_chars = 60
+        assign has_product_category = false
+        assign has_collection_fallback = false
+        
+        comment
+          Try to use product.product_category for breadcrumb hierarchy
+          This provides the Shopify standard taxonomy path
+        endcomment
+        if product.product_category != blank and product.product_category.name != blank
+          assign has_product_category = true
+          assign category_ancestors = product.product_category.ancestors
+        elsif product.collections.size > 0
+          comment
+            Fallback to product's first collection
+          endcomment
+          assign has_collection_fallback = true
+          assign fallback_collection = product.collections.first
+        endif
+      -%}
+      
+      {% if has_product_category %}
+        {%- liquid
+          comment
+            Show ancestor categories first
+          endcomment
+          for ancestor in category_ancestors
+            assign ancestor_name = ancestor.name
+            assign ancestor_length = ancestor_name | size
+            if ancestor_length > max_chars
+              assign ancestor_name = ancestor_name | truncate: max_chars, '...'
+            endif
+            
+            echo '<span class="breadcrumbs__link">' | append: ancestor_name | append: '</span>'
+            echo '<span class="breadcrumbs__separator">/</span>'
+          endfor
+          
+          comment
+            Show the current product category (leaf node)
+          endcomment
+          assign current_category = product.product_category.name
+          assign current_length = current_category | size
+          if current_length > max_chars
+            assign current_category = current_category | truncate: max_chars, '...'
+          endif
+          
+          echo '<span class="breadcrumbs__link">' | append: current_category | append: '</span>'
+          echo '<span class="breadcrumbs__separator">/</span>'
+        -%}
+      {% elsif has_collection_fallback %}
+        {%- liquid
+          assign collection_title = fallback_collection.title
+          assign collection_length = collection_title | size
+          if collection_length > max_chars
+            assign collection_title = collection_title | truncate: max_chars, '...'
+          endif
+          
+          echo '<a href="' | append: fallback_collection.url | append: '" class="breadcrumbs__link">' | append: collection_title | append: '</a>'
+          echo '<span class="breadcrumbs__separator">/</span>'
+        -%}
+      {% else %}
+        <a href="/" class="breadcrumbs__link">Home</a>
         <span class="breadcrumbs__separator">/</span>
       {% endif %}
-      <span class="breadcrumbs__current">{{ product.title }}</span>
+      {%- liquid
+        assign product_title_display = product.title
+        assign title_length = product_title_display | size
+        if title_length > max_chars
+          assign product_title_display = product_title_display | truncate: max_chars, '...'
+        endif
+      -%}
+      <span class="breadcrumbs__current" title="{{ product.title }}">{{ product_title_display }}</span>
     </nav>
 
     <!-- Product Main - 3 Column Layout -->
@@ -89,9 +154,7 @@
 
               <!-- Badges -->
               <div class="pdp-badges">
-                {% if product.available == false %}
-                  <span class="pdp-badge pdp-badge--soldout">Sold Out</span>
-                {% elsif product.compare_at_price > product.price %}
+                {% if product.compare_at_price > product.price and product.available %}
                   {% assign discount = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price %}
                   <span class="pdp-badge pdp-badge--sale">{{ discount }}% Off</span>
                 {% endif %}
@@ -143,55 +206,13 @@
 
       <!-- Column 2: Product Info -->
       <div class="pdp-info">
-        <!-- Badges Row -->
-        <div class="pdp-info__badges">
-          {% if product.tags contains 'bestseller' %}
-            <span class="pdp-info-badge pdp-info-badge--outline">Bestseller</span>
-          {% endif %}
-          <span class="pdp-info-badge">Free Shipping</span>
-        </div>
-
-        <!-- Brand Link -->
-        {% if product.vendor %}
-          <a href="/collections/vendors?q={{ product.vendor | url_encode }}" class="pdp-info__vendor">
-            Visit the {{ product.vendor }} Store
-          </a>
-        {% endif %}
-
         <!-- Title -->
         <h1 class="pdp-info__title">{{ product.title }}</h1>
 
-        <!-- Rating -->
-        <div class="pdp-info__rating">
-          <div class="pdp-stars">
-            {% assign rating = product.metafields.reviews.rating.value | default: 4.5 %}
-            {% for i in (1..5) %}
-              {% if i <= rating %}
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="#ffc220" stroke="#ffc220">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                </svg>
-              {% else %}
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d1d5db">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                </svg>
-              {% endif %}
-            {% endfor %}
-          </div>
-          <span class="pdp-info__rating-score">({{ rating }})</span>
-          <span class="pdp-info__rating-sep">|</span>
-          <a href="#reviews" class="pdp-info__rating-link">
-            {% if product.metafields.reviews.count.value %}
-              {{ product.metafields.reviews.count.value }} ratings
-            {% else %}
-              Be the first to review
-            {% endif %}
-          </a>
-        </div>
-
-        <!-- Key Features Section -->
+        <!-- Description Section -->
         <div class="pdp-section">
           <button type="button" class="pdp-section__header" aria-expanded="true" data-section="features">
-            <span class="pdp-section__title">Key item features</span>
+            <span class="pdp-section__title">Description</span>
             <svg class="pdp-section__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="18 15 12 9 6 15"></polyline>
             </svg>
@@ -356,31 +377,25 @@
               <!-- Fulfillment Options -->
               <div class="pdp-fulfillment">
                 <h2 class="pdp-fulfillment__title">How you'll get this item:</h2>
-                <div class="pdp-fulfillment__options">
-                  <label class="pdp-fulfillment-option pdp-fulfillment-option--active">
-                    <input type="radio" name="fulfillment" value="shipping" checked>
-                    <div class="pdp-fulfillment-option__content">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="1" y="3" width="15" height="13"></rect>
-                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-                        <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                        <circle cx="18.5" cy="18.5" r="2.5"></circle>
-                      </svg>
-                      <span class="pdp-fulfillment-option__label">Shipping</span>
-                      <span class="pdp-fulfillment-option__detail">Arrives in 2-4 days</span>
-                      <span class="pdp-fulfillment-option__price">Free</span>
-                    </div>
-                  </label>
-                  <label class="pdp-fulfillment-option">
-                    <input type="radio" name="fulfillment" value="pickup">
-                    <div class="pdp-fulfillment-option__content">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                      </svg>
-                      <span class="pdp-fulfillment-option__label">Pickup</span>
-                      <span class="pdp-fulfillment-option__detail">Check nearby</span>
-                    </div>
-                  </label>
+                <div class="pdp-fulfillment__options selection-card-group selection-card-group--equal-height" style="--selection-card-group-height: 5rem; --selection-card-group-height-mobile: 4.5rem;">
+                  {% render 'selection-card',
+                    id: 'fulfillment-shipping',
+                    name: 'fulfillment',
+                    value: 'shipping',
+                    checked: true,
+                    icon: 'truck',
+                    label: 'Shipping',
+                    description: 'Arrives in 2-4 days',
+                    detail: 'Free'
+                  %}
+                  {% render 'selection-card',
+                    id: 'fulfillment-pickup',
+                    name: 'fulfillment',
+                    value: 'pickup',
+                    icon: 'store',
+                    label: 'Pickup',
+                    description: 'Check nearby'
+                  %}
                 </div>
               </div>
 
@@ -547,13 +562,13 @@
     });
   });
 
-  // Fulfillment options
-  document.querySelectorAll('.pdp-fulfillment-option input').forEach(input => {
+  // Fulfillment options (selection-card component)
+  document.querySelectorAll('.pdp-fulfillment__options .selection-card__input').forEach(input => {
     input.addEventListener('change', () => {
-      document.querySelectorAll('.pdp-fulfillment-option').forEach(opt => {
-        opt.classList.remove('pdp-fulfillment-option--active');
+      document.querySelectorAll('.pdp-fulfillment__options .selection-card').forEach(card => {
+        card.classList.remove('selection-card--checked');
       });
-      input.closest('.pdp-fulfillment-option').classList.add('pdp-fulfillment-option--active');
+      input.closest('.selection-card').classList.add('selection-card--checked');
     });
   });
 

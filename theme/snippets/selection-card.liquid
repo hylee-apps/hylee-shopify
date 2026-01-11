@@ -11,7 +11,8 @@
     icon: 'truck',
     label: 'Shipping',
     description: 'Free',
-    detail: 'Arrives Thu, Jan 15'
+    detail: 'Arrives Thu, Jan 15',
+    min_height: '80px'
   %}
   
   Parameters:
@@ -26,6 +27,7 @@
   - description: string - Secondary description (e.g., "Free")
   - detail: string - Additional detail line (e.g., "Arrives Thu, Jan 15")
   - variant: string (default: 'default') - 'default', 'compact', 'horizontal'
+  - min_height: string - Minimum height (e.g., '80px', '5rem') for equal-height cards
   - class: string - Additional CSS classes
 {% endcomment %}
 
@@ -35,6 +37,7 @@
   assign is_disabled = disabled | default: false
   assign card_variant = variant | default: 'default'
   assign extra_class = class | default: ''
+  assign card_min_height = min_height | default: ''
   
   assign card_classes = 'selection-card'
   assign card_classes = card_classes | append: ' selection-card--' | append: card_variant
@@ -51,6 +54,12 @@
     assign card_classes = card_classes | append: ' ' | append: extra_class
   endif
 -%}
+
+{%- capture inline_style -%}
+  {%- if card_min_height != blank -%}
+    --selection-card-min-height: {{ card_min_height }};
+  {%- endif -%}
+{%- endcapture -%}
 
 {%- capture icon_svg -%}
   {%- case icon -%}
@@ -87,7 +96,7 @@
   {%- endcase -%}
 {%- endcapture -%}
 
-<label class="{{ card_classes }}" for="{{ id }}">
+<label class="{{ card_classes }}" for="{{ id }}"{% if inline_style != blank %} style="{{ inline_style | strip }}"{% endif %}>
   <input
     type="{{ input_type }}"
     id="{{ id }}"
