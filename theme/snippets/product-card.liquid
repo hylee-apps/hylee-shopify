@@ -3,41 +3,114 @@
   Reusable product card for grid/list views
   
   Parameters:
-    - product: Product object (required)
+    - product: Product object (required unless placeholder is true)
     - show_vendor: Display vendor name (default: false)
-    - show_quick_view: Show quick view button (default: false)
+    - show_quick_add: Show quick add to cart button (default: true)
+    - show_rating: Show product rating (default: true)
+    - show_secondary_image: Show secondary image on hover (default: true)
+    - show_discount_percentage: Show percentage off badge (default: true)
     - lazy_load: Lazy load images (default: true)
+    - custom_badge: Custom badge text (e.g., 'Bestseller', 'New Arrival')
+    - custom_badge_color: Custom badge background color (default: #2699A6)
+    - card_class: Additional CSS classes for the card
+    - placeholder: Render placeholder card (default: false)
+    - placeholder_title: Title for placeholder card
+    - placeholder_price: Price text for placeholder card
+    - placeholder_image: Image URL for placeholder card
 {% endcomment %}
 
 {% liquid
   assign show_vendor = show_vendor | default: false
-  assign show_quick_view = show_quick_view | default: false
+  assign show_quick_add = show_quick_add | default: true
+  assign show_rating = show_rating | default: true
+  assign show_secondary_image = show_secondary_image | default: true
+  assign show_discount_percentage = show_discount_percentage | default: true
   assign lazy_load = lazy_load | default: true
+  assign custom_badge = custom_badge | default: nil
+  assign custom_badge_color = custom_badge_color | default: '#2699A6'
+  assign card_class = card_class | default: ''
+  assign placeholder = placeholder | default: false
   
-  assign on_sale = false
-  if product.compare_at_price > product.price
-    assign on_sale = true
-  endif
-  
-  assign sold_out = true
-  if product.available
-    assign sold_out = false
-  endif
+  unless placeholder
+    assign on_sale = false
+    if product.compare_at_price > product.price
+      assign on_sale = true
+    endif
+    
+    assign sold_out = true
+    if product.available
+      assign sold_out = false
+    endif
+    
+    assign discount_percentage = 0
+    if on_sale and show_discount_percentage
+      assign discount = product.compare_at_price | minus: product.price
+      assign discount_percentage = discount | times: 100.0 | divided_by: product.compare_at_price | round
+    endif
+    
+    assign has_secondary_image = false
+    if show_secondary_image and product.images.size > 1
+      assign has_secondary_image = true
+    endif
+    
+    assign first_available_variant = product.selected_or_first_available_variant
+  endunless
 %}
 
-<article class="product-card">
+{% if placeholder %}
+  {%- comment -%} Placeholder card when no product selected {%- endcomment -%}
+  <article class="product-card product-card--placeholder {{ card_class }}">
+    <div class="product-card__image">
+      <a href="#">
+        <img 
+          src="{{ placeholder_image | default: 'https://placehold.co/600x600/f1f5f9/64748b?text=Product' }}" 
+          alt="{{ placeholder_title | default: 'Product' }}" 
+          loading="lazy" 
+          width="600" 
+          height="600"
+        >
+      </a>
+      {% if custom_badge %}
+        <div class="product-card__badges">
+          <span class="product-card__badge" style="background: {{ custom_badge_color }};">{{ custom_badge }}</span>
+        </div>
+      {% endif %}
+    </div>
+    <div class="product-card__info">
+      <h3 class="product-card__title">
+        <a href="#">{{ placeholder_title | default: 'Product Title' }}</a>
+      </h3>
+      <div class="product-card__price">
+        <span class="product-card__price-current">{{ placeholder_price | default: '$0.00' }}</span>
+      </div>
+    </div>
+  </article>
+{% else %}
+
+<article class="product-card {{ card_class }}{% if has_secondary_image %} product-card--has-secondary{% endif %}" data-product-id="{{ product.id }}">
   
   <!-- Product Image -->
   <div class="product-card__image">
     <a href="{{ product.url }}">
       {% if product.featured_image %}
         <img
+          class="product-card__image-primary"
           src="{{ product.featured_image | image_url: width: 600 }}"
           alt="{{ product.featured_image.alt | default: product.title }}"
           {% if lazy_load %}loading="lazy"{% else %}loading="eager"{% endif %}
           width="600"
           height="600"
         >
+        {% if has_secondary_image %}
+          <img
+            class="product-card__image-secondary"
+            src="{{ product.images[1] | image_url: width: 600 }}"
+            alt="{{ product.images[1].alt | default: product.title }}"
+            loading="lazy"
+            width="600"
+            height="600"
+          >
+        {% endif %}
       {% else %}
         <img
           src="https://placehold.co/600x600/f1f5f9/64748b?text={{ product.title | slice: 0 }}"
@@ -50,15 +123,21 @@
     </a>
 
     <!-- Badges -->
-    {% if on_sale or sold_out or product.tags contains 'new' %}
+    {% if on_sale or sold_out or product.tags contains 'new' or custom_badge %}
       <div class="product-card__badges">
         {% if sold_out %}
           <span class="product-card__badge product-card__badge--sold-out">Sold Out</span>
+        {% elsif on_sale and show_discount_percentage and discount_percentage > 0 %}
+          <span class="product-card__badge product-card__badge--sale">{{ discount_percentage }}% OFF</span>
         {% elsif on_sale %}
           <span class="product-card__badge product-card__badge--sale">Sale</span>
         {% endif %}
         
-        {% if product.tags contains 'new' %}
+        {% if custom_badge %}
+          <span class="product-card__badge" style="background: {{ custom_badge_color }};">{{ custom_badge }}</span>
+        {% endif %}
+        
+        {% if product.tags contains 'new' and sold_out == false %}
           <span class="product-card__badge product-card__badge--new">New</span>
         {% endif %}
       </div>
@@ -83,52 +162,124 @@
       {% endif %}
     </div>
 
-      <!-- Rating (if available) -->
-      {% if product.metafields.reviews.rating.value %}
-        <div class="product-card__rating">
-          <div class="product-card__stars">
-            {% assign rating = product.metafields.reviews.rating.value %}
-            {% for i in (1..5) %}
-              {% if i <= rating %}
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                </svg>
-              {% else %}
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                </svg>
-              {% endif %}
-            {% endfor %}
-          </div>
-          {% if product.metafields.reviews.count.value %}
-            <span class="product-card__review-count">({{ product.metafields.reviews.count.value }})</span>
-          {% endif %}
+    <!-- Rating (if available and enabled) -->
+    {% if show_rating and product.metafields.reviews.rating.value %}
+      <div class="product-card__rating">
+        <div class="product-card__stars">
+          {% assign rating = product.metafields.reviews.rating.value %}
+          {% for i in (1..5) %}
+            {% if i <= rating %}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            {% else %}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            {% endif %}
+          {% endfor %}
         </div>
-      {% endif %}
-    </div>
+        {% if product.metafields.reviews.count.value %}
+          <span class="product-card__rating-count">({{ product.metafields.reviews.count.value }})</span>
+        {% endif %}
+      </div>
+    {% endif %}
   </div>
 
+  <!-- Variant Picker (for products with variants) -->
+  {% if product.has_only_default_variant == false and show_quick_add %}
+    <div class="product-card__variants" data-variants-container>
+      {% for option in product.options_with_values %}
+        {% if option.name == 'Color' or option.name == 'Colour' %}
+          <div class="product-card__variant-group" data-option-index="{{ forloop.index0 }}">
+            <div class="product-card__swatches">
+              {% for value in option.values %}
+                {% assign variant_available = false %}
+                {% for variant in product.variants %}
+                  {% if variant.options contains value and variant.available %}
+                    {% assign variant_available = true %}
+                    {% break %}
+                  {% endif %}
+                {% endfor %}
+                <button 
+                  type="button"
+                  class="product-card__swatch{% if forloop.first %} product-card__swatch--active{% endif %}{% unless variant_available %} product-card__swatch--disabled{% endunless %}"
+                  data-option-value="{{ value }}"
+                  data-option-index="{{ forloop.index0 }}"
+                  style="background-color: {{ value | handleize }};"
+                  title="{{ value }}{% unless variant_available %} (Out of Stock){% endunless %}"
+                  {% unless variant_available %}disabled{% endunless %}
+                  aria-label="{{ value }}"
+                >
+                  <span class="visually-hidden">{{ value }}</span>
+                </button>
+              {% endfor %}
+            </div>
+          </div>
+        {% elsif option.name == 'Size' %}
+          <div class="product-card__variant-group product-card__variant-group--sizes" data-option-index="{{ forloop.index0 }}">
+            <div class="product-card__size-options">
+              {% for value in option.values %}
+                {% assign variant_available = false %}
+                {% for variant in product.variants %}
+                  {% if variant.options contains value and variant.available %}
+                    {% assign variant_available = true %}
+                    {% break %}
+                  {% endif %}
+                {% endfor %}
+                <button 
+                  type="button"
+                  class="product-card__size{% if forloop.first %} product-card__size--active{% endif %}{% unless variant_available %} product-card__size--disabled{% endunless %}"
+                  data-option-value="{{ value }}"
+                  data-option-index="{{ forloop.index0 }}"
+                  title="{{ value }}{% unless variant_available %} (Out of Stock){% endunless %}"
+                  {% unless variant_available %}disabled{% endunless %}
+                >
+                  {{ value }}
+                </button>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+
   <!-- Quick Add Button -->
-  {% unless sold_out %}
-    <div class="product-card__actions">
-      {% if product.has_only_default_variant %}
+  {% if show_quick_add %}
+    {% unless sold_out %}
+      <div class="product-card__actions">
         <button 
           type="button" 
           class="product-card__quick-add"
           data-product-id="{{ product.id }}"
-          data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+          data-variant-id="{{ first_available_variant.id }}"
+          data-product-url="{{ product.url }}"
+          aria-label="Add {{ product.title }} to cart"
         >
-          Add to Cart
+          <span class="product-card__quick-add-text">Add to Cart</span>
+          <span class="product-card__quick-add-loading" aria-hidden="true">
+            <svg class="product-card__spinner" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="32"></circle>
+            </svg>
+          </span>
+          <span class="product-card__quick-add-success" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Added!
+          </span>
         </button>
-      {% else %}
-        <a 
-          href="{{ product.url }}" 
-          class="product-card__quick-add"
-        >
-          View Options
-        </a>
-      {% endif %}
-    </div>
-  {% endunless %}
+      </div>
+    {% else %}
+      <div class="product-card__actions">
+        <button type="button" class="product-card__quick-add product-card__quick-add--sold-out" disabled>
+          Sold Out
+        </button>
+      </div>
+    {% endunless %}
+  {% endif %}
 
 </article>
+
+{% endif %}

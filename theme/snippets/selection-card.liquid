@@ -1,0 +1,115 @@
+{% comment %}
+  Selection Card Component
+  (Radio/checkbox style selectable cards - like fulfillment options)
+  
+  Usage:
+  {% render 'selection-card',
+    id: 'shipping',
+    name: 'fulfillment',
+    value: 'shipping',
+    checked: true,
+    icon: 'truck',
+    label: 'Shipping',
+    description: 'Free',
+    detail: 'Arrives Thu, Jan 15'
+  %}
+  
+  Parameters:
+  - id: string (required) - Unique ID for the input
+  - name: string (required) - Input name for grouping
+  - value: string (required) - Input value
+  - type: string (default: 'radio') - 'radio' or 'checkbox'
+  - checked: boolean (default: false) - Whether selected
+  - disabled: boolean (default: false) - Whether disabled
+  - icon: string - Icon name ('truck', 'store', 'box', 'clock') or raw HTML/SVG
+  - label: string (required) - Primary label text
+  - description: string - Secondary description (e.g., "Free")
+  - detail: string - Additional detail line (e.g., "Arrives Thu, Jan 15")
+  - variant: string (default: 'default') - 'default', 'compact', 'horizontal'
+  - class: string - Additional CSS classes
+{% endcomment %}
+
+{%- liquid
+  assign input_type = type | default: 'radio'
+  assign is_checked = checked | default: false
+  assign is_disabled = disabled | default: false
+  assign card_variant = variant | default: 'default'
+  assign extra_class = class | default: ''
+  
+  assign card_classes = 'selection-card'
+  assign card_classes = card_classes | append: ' selection-card--' | append: card_variant
+  
+  if is_checked
+    assign card_classes = card_classes | append: ' selection-card--checked'
+  endif
+  
+  if is_disabled
+    assign card_classes = card_classes | append: ' selection-card--disabled'
+  endif
+  
+  if extra_class != blank
+    assign card_classes = card_classes | append: ' ' | append: extra_class
+  endif
+-%}
+
+{%- capture icon_svg -%}
+  {%- case icon -%}
+    {%- when 'truck' -%}
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="1" y="3" width="15" height="13"></rect>
+        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+        <circle cx="5.5" cy="18.5" r="2.5"></circle>
+        <circle cx="18.5" cy="18.5" r="2.5"></circle>
+      </svg>
+    {%- when 'store' -%}
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+    {%- when 'box' -%}
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+      </svg>
+    {%- when 'clock' -%}
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+    {%- when 'location' -%}
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+        <circle cx="12" cy="10" r="3"></circle>
+      </svg>
+    {%- else -%}
+      {{ icon }}
+  {%- endcase -%}
+{%- endcapture -%}
+
+<label class="{{ card_classes }}" for="{{ id }}">
+  <input
+    type="{{ input_type }}"
+    id="{{ id }}"
+    name="{{ name }}"
+    value="{{ value }}"
+    class="selection-card__input"
+    {% if is_checked %}checked{% endif %}
+    {% if is_disabled %}disabled{% endif %}
+  >
+  <span class="selection-card__content">
+    {%- if icon != blank -%}
+      <span class="selection-card__icon">{{ icon_svg }}</span>
+    {%- endif -%}
+    <span class="selection-card__text">
+      <span class="selection-card__label">{{ label }}</span>
+      {%- if description -%}
+        <span class="selection-card__description">{{ description }}</span>
+      {%- endif -%}
+      {%- if detail -%}
+        <span class="selection-card__detail">{{ detail }}</span>
+      {%- endif -%}
+    </span>
+  </span>
+  <span class="selection-card__indicator"></span>
+</label>

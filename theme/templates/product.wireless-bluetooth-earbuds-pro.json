@@ -1,0 +1,9 @@
+{
+  "sections": {
+    "main": {
+      "type": "product-mock-3",
+      "settings": {}
+    }
+  },
+  "order": ["main"]
+}

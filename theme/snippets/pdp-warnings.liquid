@@ -1,0 +1,88 @@
+{% comment %}
+  PDP Warnings Section
+  
+  Displays product safety warnings and compliance notices in a collapsible accordion.
+  Pulls data from product.metafields.custom.warnings metafield.
+  Styled with caution icon and amber alert styling.
+  
+  Usage:
+  {% render 'pdp-warnings', product: product %}
+  
+  Parameters:
+  - product: product object (required) - The product to display warnings for
+  - expanded: boolean (default: false) - Whether section starts expanded
+  - class: string - Additional CSS classes
+{% endcomment %}
+
+{%- liquid
+  assign is_expanded = expanded | default: false
+  assign extra_class = class | default: ''
+  assign section_id = 'pdp-warnings-' | append: product.id
+  
+  assign has_warnings = false
+  if product.metafields.custom.warnings and product.metafields.custom.warnings != blank
+    assign has_warnings = true
+  endif
+-%}
+
+<div class="pdp-warnings {{ extra_class }}">
+  <button 
+    type="button" 
+    class="pdp-warnings__header"
+    aria-expanded="{{ is_expanded }}"
+    aria-controls="{{ section_id }}"
+    data-section="warnings"
+  >
+    <div class="pdp-warnings__header-content">
+      <svg class="pdp-warnings__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+        <line x1="12" y1="9" x2="12" y2="13"></line>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+      <h2 class="pdp-warnings__title">Warnings</h2>
+    </div>
+    <svg 
+      class="pdp-warnings__chevron {% unless is_expanded %}pdp-warnings__chevron--collapsed{% endunless %}" 
+      width="20" 
+      height="20" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      stroke-width="2"
+    >
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </button>
+
+  <div 
+    id="{{ section_id }}" 
+    class="pdp-warnings__content {% if is_expanded %}pdp-warnings__content--open{% endif %}"
+  >
+    {%- if has_warnings -%}
+      <div class="pdp-warnings__alert">
+        <div class="pdp-warnings__alert-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <span class="pdp-warnings__alert-title">Safety Information</span>
+        </div>
+        <div class="pdp-warnings__alert-body">
+          {{ product.metafields.custom.warnings }}
+        </div>
+      </div>
+    {%- else -%}
+      <!-- Placeholder when no warnings available -->
+      <div class="pdp-warnings__empty">
+        <svg class="pdp-warnings__empty-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <p class="pdp-warnings__empty-text">No warnings or safety notices</p>
+        <p class="pdp-warnings__empty-hint">Safety information will appear here when available.</p>
+      </div>
+    {%- endif -%}
+  </div>
+</div>

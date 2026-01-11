@@ -190,86 +190,22 @@
 
         {%- comment -%} Product Grid {%- endcomment -%}
         {% paginate collections.all.products by section.settings.products_per_page %}
-          <div class="product-listing__products" data-product-grid>
+          <div class="product-listing__products product-grid-uniform" data-product-grid>
             {% for product in collections.all.products %}
-              <div class="product-listing__product-card">
-                
-                {%- comment -%} Product Image {%- endcomment -%}
-                <a href="{{ product.url }}" class="product-listing__product-image-wrapper">
-                  {% if product.featured_image %}
-                    <img 
-                      src="{{ product.featured_image | image_url: width: 600 }}"
-                      alt="{{ product.featured_image.alt | escape }}"
-                      class="product-listing__product-image"
-                      loading="lazy"
-                    >
-                  {% else %}
-                    <div class="product-listing__product-placeholder">
-                      {{ 'product-1' | placeholder_svg_tag: 'product-listing__placeholder-svg' }}
-                    </div>
-                  {% endif %}
-
-                  {%- comment -%} Badges {%- endcomment -%}
-                  <div class="product-listing__badges">
-                    {% if product.compare_at_price > product.price %}
-                      {% assign discount = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price %}
-                      <span class="product-listing__badge product-listing__badge--sale">{{ discount }}% OFF</span>
-                    {% endif %}
-                    {% if product.tags contains 'bestseller' %}
-                      <span class="product-listing__badge product-listing__badge--bestseller">Bestseller</span>
-                    {% endif %}
-                    {% if product.tags contains 'free-shipping' %}
-                      <span class="product-listing__badge product-listing__badge--shipping">Free Shipping</span>
-                    {% endif %}
-                  </div>
-                </a>
-
-                {%- comment -%} Product Info {%- endcomment -%}
-                <div class="product-listing__product-info">
-                  <a href="{{ product.url }}" class="product-listing__product-title">
-                    {{ product.title }}
-                  </a>
-
-                  {%- comment -%} Rating {%- endcomment -%}
-                  <div class="product-listing__rating">
-                    <div class="product-listing__stars">
-                      {% for i in (1..5) %}
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                        </svg>
-                      {% endfor %}
-                    </div>
-                    <span class="product-listing__rating-text">4.8 (1,253)</span>
-                  </div>
-
-                  {%- comment -%} Price {%- endcomment -%}
-                  <div class="product-listing__price-wrapper">
-                    {% if product.compare_at_price > product.price %}
-                      <span class="product-listing__price-sale">{{ product.price | money }}</span>
-                      <span class="product-listing__price-compare">{{ product.compare_at_price | money }}</span>
-                    {% else %}
-                      <span class="product-listing__price">{{ product.price | money }}</span>
-                    {% endif %}
-                  </div>
-
-                  {%- comment -%} Bulk Pricing {%- endcomment -%}
-                  <div class="product-listing__bulk-price">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
-                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                      <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                      <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                    </svg>
-                    <span>Bulk: {% assign bulk_price = product.price | times: 0.5 %}{{ bulk_price | money }}/unit</span>
-                  </div>
-
-                  {%- comment -%} Footer {%- endcomment -%}
-                  <div class="product-listing__product-footer">
-                    <span class="product-listing__min-order">Min: 10 units</span>
-                    <span class="product-listing__supplier">{{ product.vendor }}</span>
-                  </div>
-                </div>
-              </div>
+              {% render 'product-card-b2b',
+                product: product,
+                show_vendor: true,
+                show_quick_add: true,
+                show_rating: true,
+                show_secondary_image: true,
+                show_discount_percentage: true,
+                show_bulk_pricing: true,
+                bulk_threshold: 10,
+                bulk_discount: 50,
+                min_order_qty: 10,
+                show_supplier: true,
+                show_free_shipping: true
+              %}
             {% else %}
               <div class="product-listing__empty">
                 <p>No products available.</p>

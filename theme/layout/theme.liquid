@@ -35,10 +35,25 @@
   <script src="{{ 'constants.js' | asset_url }}" defer="defer"></script>
   <script src="{{ 'pubsub.js' | asset_url }}" defer="defer"></script>
   <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'component-scripts.js' | asset_url }}" defer="defer"></script>
 
   {{ 'theme-variables.css' | asset_url | stylesheet_tag }}
+  {{ 'base.css' | asset_url | stylesheet_tag }}
   {{ 'component-button.css' | asset_url | stylesheet_tag }}
+  {{ 'component-badge.css' | asset_url | stylesheet_tag }}
+  {{ 'component-pill.css' | asset_url | stylesheet_tag }}
+  {{ 'component-card.css' | asset_url | stylesheet_tag }}
   {{ 'component-product-card.css' | asset_url | stylesheet_tag }}
+  {{ 'component-accordion.css' | asset_url | stylesheet_tag }}
+  {{ 'component-alert.css' | asset_url | stylesheet_tag }}
+  {{ 'component-modal.css' | asset_url | stylesheet_tag }}
+  {{ 'component-tabs.css' | asset_url | stylesheet_tag }}
+  {{ 'component-pagination.css' | asset_url | stylesheet_tag }}
+  {{ 'component-breadcrumb.css' | asset_url | stylesheet_tag }}
+  {{ 'component-skeleton.css' | asset_url | stylesheet_tag }}
+  {{ 'component-helper-text.css' | asset_url | stylesheet_tag }}
+  {{ 'component-link.css' | asset_url | stylesheet_tag }}
+  {{ 'component-selection-card.css' | asset_url | stylesheet_tag }}
 
   {{ content_for_header }}
 
@@ -154,5 +169,8 @@
       unavailable: `{{ 'products.product.unavailable' | t }}`,
     }
   </script>
+  
+  <!-- Product Card AJAX Add to Cart -->
+  <script src="{{ 'product-card.js' | asset_url }}" defer></script>
 </body>
 </html>

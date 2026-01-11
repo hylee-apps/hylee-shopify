@@ -1,0 +1,132 @@
+/* Skeleton Loading Component */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-skeleton-base, #e2e8f0) 25%,
+    var(--color-skeleton-highlight, #f1f5f9) 50%,
+    var(--color-skeleton-base, #e2e8f0) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.25rem;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Text skeleton */
+.skeleton--text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.skeleton__line {
+  height: 1rem;
+  background: inherit;
+  background-size: inherit;
+  animation: inherit;
+  border-radius: 0.25rem;
+}
+
+/* Card skeleton */
+.skeleton--card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0;
+  background: #ffffff;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.skeleton--card .skeleton__image {
+  background: linear-gradient(
+    90deg,
+    var(--color-skeleton-base, #e2e8f0) 25%,
+    var(--color-skeleton-highlight, #f1f5f9) 50%,
+    var(--color-skeleton-base, #e2e8f0) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton--card .skeleton__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+}
+
+.skeleton--card .skeleton__line {
+  height: 0.875rem;
+}
+
+/* Product card skeleton */
+.skeleton--product-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0;
+  background: #ffffff;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.skeleton--product-card .skeleton__image {
+  background: linear-gradient(
+    90deg,
+    var(--color-skeleton-base, #e2e8f0) 25%,
+    var(--color-skeleton-highlight, #f1f5f9) 50%,
+    var(--color-skeleton-base, #e2e8f0) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton--product-card .skeleton__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 1rem;
+}
+
+/* Image skeleton */
+.skeleton--image {
+  aspect-ratio: 1 / 1;
+  border-radius: 0.5rem;
+}
+
+/* Avatar skeleton */
+.skeleton--avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+/* Button skeleton */
+.skeleton--button {
+  width: 120px;
+  height: 40px;
+  border-radius: 0.375rem;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton,
+  .skeleton__line,
+  .skeleton--card .skeleton__image,
+  .skeleton--product-card .skeleton__image {
+    animation: none;
+    background: var(--color-skeleton-base, #e2e8f0);
+  }
+}

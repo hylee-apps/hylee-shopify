@@ -1,0 +1,98 @@
+{% comment %}
+  Breadcrumb Component
+  
+  Usage:
+  {% render 'breadcrumb', items: breadcrumb_items %}
+  
+  Or automatic product/collection breadcrumbs:
+  {% render 'breadcrumb', product: product, collection: collection %}
+  
+  Items format:
+  [
+    { "label": "Home", "url": "/" },
+    { "label": "Category", "url": "/collections/category" },
+    { "label": "Current Page" }
+  ]
+  
+  Parameters:
+  - items: array - Array of breadcrumb objects with label and optional url
+  - product: object - Shopify product object (auto-generates breadcrumb)
+  - collection: object - Shopify collection object
+  - class: string - Additional CSS classes
+{% endcomment %}
+
+{%- liquid
+  assign extra_class = class | default: ''
+-%}
+
+<nav class="breadcrumb {{ extra_class }}" aria-label="Breadcrumb">
+  <ol class="breadcrumb__list" itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    {% comment %} Home link (always first) {% endcomment %}
+    <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+      <a href="/" class="breadcrumb__link" itemprop="item">
+        <span itemprop="name">Home</span>
+      </a>
+      <meta itemprop="position" content="1">
+      <span class="breadcrumb__separator" aria-hidden="true">/</span>
+    </li>
+    
+    {% if items %}
+      {% comment %} Custom items (skip first if it's Home) {% endcomment %}
+      {% assign position = 2 %}
+      {% for item in items %}
+        {% unless item.label == 'Home' %}
+          <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            {% if item.url and forloop.last == false %}
+              <a href="{{ item.url }}" class="breadcrumb__link" itemprop="item">
+                <span itemprop="name">{{ item.label }}</span>
+              </a>
+              <span class="breadcrumb__separator" aria-hidden="true">/</span>
+            {% else %}
+              <span class="breadcrumb__current" itemprop="item" aria-current="page">
+                <span itemprop="name">{{ item.label }}</span>
+              </span>
+            {% endif %}
+            <meta itemprop="position" content="{{ position }}">
+          </li>
+          {% assign position = position | plus: 1 %}
+        {% endunless %}
+      {% endfor %}
+      
+    {% elsif product %}
+      {% comment %} Auto-generate product breadcrumb {% endcomment %}
+      {% if collection %}
+        <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="{{ collection.url }}" class="breadcrumb__link" itemprop="item">
+            <span itemprop="name">{{ collection.title }}</span>
+          </a>
+          <meta itemprop="position" content="2">
+          <span class="breadcrumb__separator" aria-hidden="true">/</span>
+        </li>
+        <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <span class="breadcrumb__current" itemprop="item" aria-current="page">
+            <span itemprop="name">{{ product.title }}</span>
+          </span>
+          <meta itemprop="position" content="3">
+        </li>
+      {% else %}
+        <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <span class="breadcrumb__current" itemprop="item" aria-current="page">
+            <span itemprop="name">{{ product.title }}</span>
+          </span>
+          <meta itemprop="position" content="2">
+        </li>
+      {% endif %}
+      
+    {% elsif collection %}
+      {% comment %} Collection breadcrumb {% endcomment %}
+      <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <span class="breadcrumb__current" itemprop="item" aria-current="page">
+          <span itemprop="name">{{ collection.title }}</span>
+        </span>
+        <meta itemprop="position" content="2">
+      </li>
+    {% endif %}
+    
+  </ol>
+</nav>

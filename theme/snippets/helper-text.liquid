@@ -1,0 +1,37 @@
+{% comment %}
+  Helper Text Component
+  
+  Usage:
+  {% render 'helper-text', text: 'Price when purchased online' %}
+  {% render 'helper-text', text: 'Required field', type: 'error' %}
+  
+  Parameters:
+  - text: string (required) - The helper text content
+  - type: string (default: 'default') - 'default', 'muted', 'success', 'warning', 'error'
+  - icon: string - Optional icon HTML/SVG
+  - class: string - Additional CSS classes
+  - id: string - Element ID
+{% endcomment %}
+
+{%- liquid
+  assign helper_type = type | default: 'default'
+  assign extra_class = class | default: ''
+  
+  assign helper_classes = 'helper-text'
+  assign helper_classes = helper_classes | append: ' helper-text--' | append: helper_type
+  
+  if extra_class != blank
+    assign helper_classes = helper_classes | append: ' ' | append: extra_class
+  endif
+-%}
+
+<p 
+  class="{{ helper_classes }}"
+  {% if id %}id="{{ id }}"{% endif %}
+  {% if type == 'error' %}role="alert"{% endif %}
+>
+  {%- if icon -%}
+    <span class="helper-text__icon">{{ icon }}</span>
+  {%- endif -%}
+  <span class="helper-text__content">{{ text }}</span>
+</p>

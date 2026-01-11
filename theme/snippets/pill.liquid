@@ -1,0 +1,83 @@
+{% comment %}
+  Pill Component
+  Lightweight, less blocky tag/chip for filters and selections
+  
+  Parameters:
+    - text: Pill text (required)
+    - variant: default, primary, secondary, info, success, warning, error (default: 'default')
+    - size: default, sm (default: 'default')
+    - icon: Icon SVG/HTML (optional)
+    - closable: Show close button (default: false)
+    - selected: Selected state (default: false)
+    - interactive: Clickable/hoverable (default: false)
+    - disabled: Disabled state (default: false)
+    - url: Makes pill a link (optional)
+    - class: Additional CSS classes (optional)
+    - data_attributes: Additional data attributes (optional)
+{% endcomment %}
+
+{% liquid
+  assign variant = variant | default: 'default'
+  assign size = size | default: 'default'
+  assign closable = closable | default: false
+  assign selected = selected | default: false
+  assign interactive = interactive | default: false
+  assign disabled = disabled | default: false
+  
+  assign pill_classes = 'pill'
+  
+  unless variant == 'default'
+    assign pill_classes = pill_classes | append: ' pill--' | append: variant
+  endunless
+  
+  if size == 'sm'
+    assign pill_classes = pill_classes | append: ' pill--sm'
+  endif
+  
+  if interactive or url != blank
+    assign pill_classes = pill_classes | append: ' pill--interactive'
+  endif
+  
+  if selected
+    assign pill_classes = pill_classes | append: ' pill--selected'
+  endif
+  
+  if disabled
+    assign pill_classes = pill_classes | append: ' pill--disabled'
+  endif
+  
+  if closable
+    assign pill_classes = pill_classes | append: ' pill--closable'
+  endif
+  
+  if class != blank
+    assign pill_classes = pill_classes | append: ' ' | append: class
+  endif
+%}
+
+{% if url != blank %}
+  <a href="{{ url }}" class="{{ pill_classes }}" {{ data_attributes }}>
+{% else %}
+  <span class="{{ pill_classes }}" {{ data_attributes }}>
+{% endif %}
+
+  {% if icon %}
+    <span class="pill__icon">{{ icon }}</span>
+  {% endif %}
+  
+  <span class="pill__text">{{ text }}</span>
+  
+  {% if closable %}
+    <button type="button" class="pill__close" aria-label="Remove {{ text }}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  {% endif %}
+
+{% if url != blank %}
+  </a>
+{% else %}
+  </span>
+{% endif %}

@@ -33,6 +33,7 @@
   assign loading = loading | default: false
   assign icon_position = icon_position | default: 'left'
   assign full_width = full_width | default: false
+  assign pill = pill | default: false
   
   assign btn_classes = 'btn'
   assign btn_classes = btn_classes | append: ' btn--' | append: variant
@@ -40,6 +41,10 @@
   
   if full_width
     assign btn_classes = btn_classes | append: ' btn--full-width'
+  endif
+  
+  if pill
+    assign btn_classes = btn_classes | append: ' btn--pill'
   endif
   
   if loading

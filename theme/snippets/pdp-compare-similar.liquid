@@ -1,0 +1,264 @@
+{% comment %}
+  PDP Compare with Similar Products Section
+  
+  Displays a horizontal comparison table showing the current product alongside
+  similar products from recommendations. Compares key attributes.
+  
+  Supports two mobile layouts via theme settings:
+  - "scroll": Horizontal scroll with sticky first column
+  - "stack": Collapse to stacked product cards
+  
+  Usage:
+  {% render 'pdp-compare-similar', product: product %}
+  
+  Parameters:
+  - product: product object (required) - The current product
+  - max_products: number (default: 3) - Maximum comparison products to show
+  - class: string - Additional CSS classes
+{% endcomment %}
+
+{%- liquid
+  assign max_compare = max_products | default: 3
+  assign extra_class = class | default: ''
+  assign mobile_layout = settings.pdp_compare_mobile_layout | default: 'scroll'
+  
+  # Get comparison products from recommendations
+  assign compare_products = recommendations.products | slice: 0, max_compare
+  assign has_compare_products = false
+  if compare_products.size > 0
+    assign has_compare_products = true
+  endif
+  
+  # Build layout modifier class
+  assign layout_class = 'pdp-compare-table--' | append: mobile_layout
+-%}
+
+<div class="pdp-compare-similar {{ extra_class }}">
+  <div class="pdp-compare-similar__header">
+    <svg class="pdp-compare-similar__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="20" x2="18" y2="10"></line>
+      <line x1="12" y1="20" x2="12" y2="4"></line>
+      <line x1="6" y1="20" x2="6" y2="14"></line>
+    </svg>
+    <h2 class="pdp-compare-similar__title">Compare with Similar Items</h2>
+  </div>
+
+  <div class="pdp-compare-similar__content">
+    {%- if has_compare_products -%}
+      <!-- Scroll Layout (default) -->
+      <div class="pdp-compare-table {{ layout_class }}">
+        <table class="pdp-compare-table__table">
+          <thead>
+            <tr class="pdp-compare-table__header-row">
+              <th class="pdp-compare-table__label-cell">Product</th>
+              <!-- Current product -->
+              <th class="pdp-compare-table__product-cell pdp-compare-table__product-cell--current">
+                <div class="pdp-compare-table__product">
+                  <div class="pdp-compare-table__badge">Viewing</div>
+                  {%- if product.featured_image -%}
+                    <img 
+                      src="{{ product.featured_image | image_url: width: 150 }}" 
+                      alt="{{ product.featured_image.alt | default: product.title }}"
+                      class="pdp-compare-table__image"
+                      loading="lazy"
+                    >
+                  {%- else -%}
+                    <div class="pdp-compare-table__image-placeholder">No image</div>
+                  {%- endif -%}
+                  <span class="pdp-compare-table__product-title">{{ product.title | truncate: 50 }}</span>
+                </div>
+              </th>
+              <!-- Comparison products -->
+              {%- for compare_product in compare_products -%}
+                <th class="pdp-compare-table__product-cell">
+                  <a href="{{ compare_product.url }}" class="pdp-compare-table__product pdp-compare-table__product--link">
+                    {%- if compare_product.featured_image -%}
+                      <img 
+                        src="{{ compare_product.featured_image | image_url: width: 150 }}" 
+                        alt="{{ compare_product.featured_image.alt | default: compare_product.title }}"
+                        class="pdp-compare-table__image"
+                        loading="lazy"
+                      >
+                    {%- else -%}
+                      <div class="pdp-compare-table__image-placeholder">No image</div>
+                    {%- endif -%}
+                    <span class="pdp-compare-table__product-title">{{ compare_product.title | truncate: 50 }}</span>
+                  </a>
+                </th>
+              {%- endfor -%}
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Price Row -->
+            <tr class="pdp-compare-table__row">
+              <td class="pdp-compare-table__label-cell">Price</td>
+              <td class="pdp-compare-table__value-cell pdp-compare-table__value-cell--current">
+                <span class="pdp-compare-table__price">{{ product.price | money }}</span>
+                {%- if product.compare_at_price > product.price -%}
+                  <span class="pdp-compare-table__compare-price">{{ product.compare_at_price | money }}</span>
+                {%- endif -%}
+              </td>
+              {%- for compare_product in compare_products -%}
+                <td class="pdp-compare-table__value-cell">
+                  <span class="pdp-compare-table__price">{{ compare_product.price | money }}</span>
+                  {%- if compare_product.compare_at_price > compare_product.price -%}
+                    <span class="pdp-compare-table__compare-price">{{ compare_product.compare_at_price | money }}</span>
+                  {%- endif -%}
+                </td>
+              {%- endfor -%}
+            </tr>
+
+            <!-- Vendor/Brand Row -->
+            <tr class="pdp-compare-table__row">
+              <td class="pdp-compare-table__label-cell">Brand</td>
+              <td class="pdp-compare-table__value-cell pdp-compare-table__value-cell--current">
+                {{ product.vendor | default: '—' }}
+              </td>
+              {%- for compare_product in compare_products -%}
+                <td class="pdp-compare-table__value-cell">
+                  {{ compare_product.vendor | default: '—' }}
+                </td>
+              {%- endfor -%}
+            </tr>
+
+            <!-- Product Type Row -->
+            <tr class="pdp-compare-table__row">
+              <td class="pdp-compare-table__label-cell">Type</td>
+              <td class="pdp-compare-table__value-cell pdp-compare-table__value-cell--current">
+                {{ product.type | default: '—' }}
+              </td>
+              {%- for compare_product in compare_products -%}
+                <td class="pdp-compare-table__value-cell">
+                  {{ compare_product.type | default: '—' }}
+                </td>
+              {%- endfor -%}
+            </tr>
+
+            <!-- Weight Row -->
+            <tr class="pdp-compare-table__row">
+              <td class="pdp-compare-table__label-cell">Weight</td>
+              <td class="pdp-compare-table__value-cell pdp-compare-table__value-cell--current">
+                {%- if product.variants.first.weight > 0 -%}
+                  {{ product.variants.first.weight | weight_with_unit }}
+                {%- else -%}
+                  —
+                {%- endif -%}
+              </td>
+              {%- for compare_product in compare_products -%}
+                <td class="pdp-compare-table__value-cell">
+                  {%- if compare_product.variants.first.weight > 0 -%}
+                    {{ compare_product.variants.first.weight | weight_with_unit }}
+                  {%- else -%}
+                    —
+                  {%- endif -%}
+                </td>
+              {%- endfor -%}
+            </tr>
+
+            <!-- Dimensions Row (from metafields) -->
+            <tr class="pdp-compare-table__row">
+              <td class="pdp-compare-table__label-cell">Dimensions</td>
+              <td class="pdp-compare-table__value-cell pdp-compare-table__value-cell--current">
+                {%- if product.metafields.custom.dimensions -%}
+                  {{ product.metafields.custom.dimensions }}
+                {%- else -%}
+                  —
+                {%- endif -%}
+              </td>
+              {%- for compare_product in compare_products -%}
+                <td class="pdp-compare-table__value-cell">
+                  {%- if compare_product.metafields.custom.dimensions -%}
+                    {{ compare_product.metafields.custom.dimensions }}
+                  {%- else -%}
+                    —
+                  {%- endif -%}
+                </td>
+              {%- endfor -%}
+            </tr>
+
+            <!-- Material Row (from metafields) -->
+            <tr class="pdp-compare-table__row">
+              <td class="pdp-compare-table__label-cell">Material</td>
+              <td class="pdp-compare-table__value-cell pdp-compare-table__value-cell--current">
+                {%- if product.metafields.custom.material -%}
+                  {{ product.metafields.custom.material }}
+                {%- else -%}
+                  —
+                {%- endif -%}
+              </td>
+              {%- for compare_product in compare_products -%}
+                <td class="pdp-compare-table__value-cell">
+                  {%- if compare_product.metafields.custom.material -%}
+                    {{ compare_product.metafields.custom.material }}
+                  {%- else -%}
+                    —
+                  {%- endif -%}
+                </td>
+              {%- endfor -%}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Stack Layout (mobile cards) -->
+      <div class="pdp-compare-cards {{ layout_class }}">
+        {%- for compare_product in compare_products -%}
+          <a href="{{ compare_product.url }}" class="pdp-compare-card">
+            <div class="pdp-compare-card__image-wrapper">
+              {%- if compare_product.featured_image -%}
+                <img 
+                  src="{{ compare_product.featured_image | image_url: width: 200 }}" 
+                  alt="{{ compare_product.featured_image.alt | default: compare_product.title }}"
+                  class="pdp-compare-card__image"
+                  loading="lazy"
+                >
+              {%- else -%}
+                <div class="pdp-compare-card__image-placeholder">No image</div>
+              {%- endif -%}
+            </div>
+            <div class="pdp-compare-card__details">
+              <h3 class="pdp-compare-card__title">{{ compare_product.title | truncate: 60 }}</h3>
+              <div class="pdp-compare-card__price">
+                <span class="pdp-compare-card__current-price">{{ compare_product.price | money }}</span>
+                {%- if compare_product.compare_at_price > compare_product.price -%}
+                  <span class="pdp-compare-card__compare-price">{{ compare_product.compare_at_price | money }}</span>
+                {%- endif -%}
+              </div>
+              <dl class="pdp-compare-card__specs">
+                {%- if compare_product.vendor -%}
+                  <div class="pdp-compare-card__spec">
+                    <dt>Brand</dt>
+                    <dd>{{ compare_product.vendor }}</dd>
+                  </div>
+                {%- endif -%}
+                {%- if compare_product.type -%}
+                  <div class="pdp-compare-card__spec">
+                    <dt>Type</dt>
+                    <dd>{{ compare_product.type }}</dd>
+                  </div>
+                {%- endif -%}
+                {%- if compare_product.variants.first.weight > 0 -%}
+                  <div class="pdp-compare-card__spec">
+                    <dt>Weight</dt>
+                    <dd>{{ compare_product.variants.first.weight | weight_with_unit }}</dd>
+                  </div>
+                {%- endif -%}
+              </dl>
+            </div>
+          </a>
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      <!-- Placeholder when no similar products available -->
+      <div class="pdp-compare-similar__empty">
+        <svg class="pdp-compare-similar__empty-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+        <p class="pdp-compare-similar__empty-text">No similar products available</p>
+        <p class="pdp-compare-similar__empty-hint">Similar product comparisons will appear here when available.</p>
+      </div>
+    {%- endif -%}
+  </div>
+</div>

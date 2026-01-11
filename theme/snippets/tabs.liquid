@@ -1,0 +1,189 @@
+{% comment %}
+  Tabs Component
+  
+  Usage (Simple - up to 4 tabs):
+  {% render 'tabs',
+    id: 'product-tabs',
+    tab1_label: 'Description',
+    tab1_content: description_html,
+    tab2_label: 'Reviews',
+    tab2_content: reviews_html
+  %}
+  
+  Or with array:
+  {% render 'tabs',
+    id: 'product-tabs',
+    tabs: tab_items,
+    default_tab: 0
+  %}
+  
+  Parameters:
+  - id: string (required) - Unique identifier
+  - tabs: array - Array of tab objects with label and content
+  - tab1_label, tab1_content through tab4_label, tab4_content - Simple tab definition
+  - default_tab: number (default: 0) - Index of initially active tab
+  - class: string - Additional CSS classes
+{% endcomment %}
+
+{%- liquid
+  assign tabs_id = id | default: 'tabs-1'
+  assign active_index = default_tab | default: 0
+  assign extra_class = class | default: ''
+  
+  comment
+    Determine if we're using simple tab parameters or array
+  endcomment
+  
+  if tabs == blank or tabs.size == 0
+    assign use_simple_tabs = true
+  else
+    assign use_simple_tabs = false
+  endif
+-%}
+
+<div class="tabs {{ extra_class }}" data-tabs>
+  <div class="tabs__list" role="tablist" aria-label="Tabs">
+    {% if use_simple_tabs %}
+      {% if tab1_label != blank %}
+        <button
+          type="button"
+          class="tabs__trigger {% if active_index == 0 %}tabs__trigger--active{% endif %}"
+          id="{{ tabs_id }}-tab-0"
+          role="tab"
+          aria-selected="{% if active_index == 0 %}true{% else %}false{% endif %}"
+          aria-controls="{{ tabs_id }}-panel-0"
+          tabindex="{% if active_index == 0 %}0{% else %}-1{% endif %}"
+          data-tab-trigger="0"
+        >
+          {{ tab1_label }}
+        </button>
+      {% endif %}
+      {% if tab2_label != blank %}
+        <button
+          type="button"
+          class="tabs__trigger {% if active_index == 1 %}tabs__trigger--active{% endif %}"
+          id="{{ tabs_id }}-tab-1"
+          role="tab"
+          aria-selected="{% if active_index == 1 %}true{% else %}false{% endif %}"
+          aria-controls="{{ tabs_id }}-panel-1"
+          tabindex="{% if active_index == 1 %}0{% else %}-1{% endif %}"
+          data-tab-trigger="1"
+        >
+          {{ tab2_label }}
+        </button>
+      {% endif %}
+      {% if tab3_label != blank %}
+        <button
+          type="button"
+          class="tabs__trigger {% if active_index == 2 %}tabs__trigger--active{% endif %}"
+          id="{{ tabs_id }}-tab-2"
+          role="tab"
+          aria-selected="{% if active_index == 2 %}true{% else %}false{% endif %}"
+          aria-controls="{{ tabs_id }}-panel-2"
+          tabindex="{% if active_index == 2 %}0{% else %}-1{% endif %}"
+          data-tab-trigger="2"
+        >
+          {{ tab3_label }}
+        </button>
+      {% endif %}
+      {% if tab4_label != blank %}
+        <button
+          type="button"
+          class="tabs__trigger {% if active_index == 3 %}tabs__trigger--active{% endif %}"
+          id="{{ tabs_id }}-tab-3"
+          role="tab"
+          aria-selected="{% if active_index == 3 %}true{% else %}false{% endif %}"
+          aria-controls="{{ tabs_id }}-panel-3"
+          tabindex="{% if active_index == 3 %}0{% else %}-1{% endif %}"
+          data-tab-trigger="3"
+        >
+          {{ tab4_label }}
+        </button>
+      {% endif %}
+    {% else %}
+      {% for tab in tabs %}
+        <button
+          type="button"
+          class="tabs__trigger {% if forloop.index0 == active_index %}tabs__trigger--active{% endif %}"
+          id="{{ tabs_id }}-tab-{{ forloop.index0 }}"
+          role="tab"
+          aria-selected="{% if forloop.index0 == active_index %}true{% else %}false{% endif %}"
+          aria-controls="{{ tabs_id }}-panel-{{ forloop.index0 }}"
+          tabindex="{% if forloop.index0 == active_index %}0{% else %}-1{% endif %}"
+          data-tab-trigger="{{ forloop.index0 }}"
+        >
+          {{ tab.label }}
+        </button>
+      {% endfor %}
+    {% endif %}
+  </div>
+  
+  {% if use_simple_tabs %}
+    {% if tab1_content != blank %}
+      <div
+        class="tabs__panel {% if active_index == 0 %}tabs__panel--active{% endif %}"
+        id="{{ tabs_id }}-panel-0"
+        role="tabpanel"
+        aria-labelledby="{{ tabs_id }}-tab-0"
+        tabindex="0"
+        {% unless active_index == 0 %}hidden{% endunless %}
+        data-tab-panel="0"
+      >
+        {{ tab1_content }}
+      </div>
+    {% endif %}
+    {% if tab2_content != blank %}
+      <div
+        class="tabs__panel {% if active_index == 1 %}tabs__panel--active{% endif %}"
+        id="{{ tabs_id }}-panel-1"
+        role="tabpanel"
+        aria-labelledby="{{ tabs_id }}-tab-1"
+        tabindex="0"
+        {% unless active_index == 1 %}hidden{% endunless %}
+        data-tab-panel="1"
+      >
+        {{ tab2_content }}
+      </div>
+    {% endif %}
+    {% if tab3_content != blank %}
+      <div
+        class="tabs__panel {% if active_index == 2 %}tabs__panel--active{% endif %}"
+        id="{{ tabs_id }}-panel-2"
+        role="tabpanel"
+        aria-labelledby="{{ tabs_id }}-tab-2"
+        tabindex="0"
+        {% unless active_index == 2 %}hidden{% endunless %}
+        data-tab-panel="2"
+      >
+        {{ tab3_content }}
+      </div>
+    {% endif %}
+    {% if tab4_content != blank %}
+      <div
+        class="tabs__panel {% if active_index == 3 %}tabs__panel--active{% endif %}"
+        id="{{ tabs_id }}-panel-3"
+        role="tabpanel"
+        aria-labelledby="{{ tabs_id }}-tab-3"
+        tabindex="0"
+        {% unless active_index == 3 %}hidden{% endunless %}
+        data-tab-panel="3"
+      >
+        {{ tab4_content }}
+      </div>
+    {% endif %}
+  {% else %}
+    {% for tab in tabs %}
+      <div
+        class="tabs__panel {% if forloop.index0 == active_index %}tabs__panel--active{% endif %}"
+        id="{{ tabs_id }}-panel-{{ forloop.index0 }}"
+        role="tabpanel"
+        aria-labelledby="{{ tabs_id }}-tab-{{ forloop.index0 }}"
+        tabindex="0"
+        {% unless forloop.index0 == active_index %}hidden{% endunless %}
+        data-tab-panel="{{ forloop.index0 }}"
+      >
+        {{ tab.content }}
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>

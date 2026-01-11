@@ -86,10 +86,29 @@
         "description_color": "#64748b"
       }
     },
+    "featured-products": {
+      "type": "featured-products",
+      "settings": {
+        "heading": "Featured Products",
+        "description": "Discover our handpicked selection of top-rated products",
+        "collection": "all",
+        "products_to_show": 8,
+        "products_per_row": 4,
+        "show_vendor": true,
+        "show_quick_view": false,
+        "show_view_all": true,
+        "button_label": "View All Products",
+        "padding_top": 60,
+        "padding_bottom": 60,
+        "background_color": "#ffffff",
+        "heading_color": "#0f172a"
+      }
+    },
     "new-arrivals": {
       "type": "new-arrivals",
       "settings": {
         "heading": "New Arrivals",
+        "collection": "all",
         "products_to_show": 4,
         "badge_text": "New",
         "badge_color": "#059669",
@@ -231,6 +250,7 @@
   "order": [
     "hero-search",
     "featured-categories",
+    "featured-products",
     "new-arrivals",
     "why-choose-us",
     "newsletter"

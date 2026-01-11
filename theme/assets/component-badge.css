@@ -93,6 +93,17 @@ a.badge--info:hover {
   background-color: rgba(59, 130, 246, 0.9);
 }
 
+/* Error variant (alias for destructive) */
+.badge--error {
+  background-color: rgb(239, 68, 68);
+  color: white;
+  border-color: transparent;
+}
+
+a.badge--error:hover {
+  background-color: rgba(239, 68, 68, 0.9);
+}
+
 /* Badge Sizes */
 .badge--sm {
   padding: 0.0625rem 0.375rem;

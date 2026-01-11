@@ -27,5 +27,41 @@
         "default": "#ffffff"
       }
     ]
+  },
+  {
+    "name": "Product Page",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Compare with Similar Items"
+      },
+      {
+        "type": "select",
+        "id": "pdp_compare_mobile_layout",
+        "label": "Mobile Comparison Layout",
+        "info": "Choose how the comparison table displays on mobile devices.",
+        "options": [
+          {
+            "value": "scroll",
+            "label": "Horizontal Scroll (sticky first column)"
+          },
+          {
+            "value": "stack",
+            "label": "Stacked Cards"
+          }
+        ],
+        "default": "scroll"
+      },
+      {
+        "type": "range",
+        "id": "pdp_compare_max_products",
+        "label": "Maximum Products to Compare",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "default": 3,
+        "info": "Number of similar products to display in comparison table."
+      }
+    ]
   }
 ]

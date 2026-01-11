@@ -1,0 +1,103 @@
+/* Accordion Component */
+
+.accordion {
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.accordion + .accordion {
+  margin-top: -1px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.accordion:first-child {
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.accordion:last-child {
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+
+.accordion__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: #ffffff;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text, #0f172a);
+  transition: background-color 0.2s;
+}
+
+.accordion__trigger:hover {
+  background: var(--color-background-subtle, #f8fafc);
+}
+
+.accordion__trigger:focus-visible {
+  outline: 2px solid var(--color-primary, #0071dc);
+  outline-offset: -2px;
+}
+
+.accordion__title {
+  flex: 1;
+  margin-right: 1rem;
+}
+
+.accordion__icon {
+  flex-shrink: 0;
+  color: var(--color-text-muted, #64748b);
+  transition: transform 0.3s ease;
+}
+
+.accordion__icon--open {
+  transform: rotate(180deg);
+}
+
+.accordion__content {
+  overflow: hidden;
+  transition: height 0.3s ease;
+}
+
+.accordion__content[hidden] {
+  display: none;
+}
+
+.accordion__content--open {
+  display: block;
+}
+
+.accordion__body {
+  padding: 0 1.25rem 1.25rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary, #475569);
+}
+
+/* Accordion Group - for multiple accordions together */
+.accordion-group .accordion {
+  border-radius: 0;
+}
+
+.accordion-group .accordion:first-child {
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.accordion-group .accordion:last-child {
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+
+.accordion-group .accordion + .accordion {
+  border-top: none;
+}

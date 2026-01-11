@@ -1,0 +1,108 @@
+{% comment %}
+  Pagination Component
+  
+  Usage:
+  {% render 'pagination', paginate: paginate %}
+  
+  Parameters:
+  - paginate: object (required) - Shopify paginate object
+  - class: string - Additional CSS classes
+  - show_page_numbers: boolean (default: true) - Show page number buttons
+  - show_prev_next: boolean (default: true) - Show prev/next arrows
+{% endcomment %}
+
+{%- liquid
+  assign extra_class = class | default: ''
+  assign show_numbers = show_page_numbers | default: true
+  assign show_arrows = show_prev_next | default: true
+-%}
+
+{% if paginate.pages > 1 %}
+  <nav class="pagination {{ extra_class }}" role="navigation" aria-label="Pagination">
+    <ul class="pagination__list">
+      
+      {% comment %} Previous Page {% endcomment %}
+      {% if show_arrows %}
+        <li class="pagination__item">
+          {% if paginate.previous %}
+            <a 
+              href="{{ paginate.previous.url }}" 
+              class="pagination__link pagination__link--prev"
+              aria-label="Previous page"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+              <span class="pagination__link-text">Previous</span>
+            </a>
+          {% else %}
+            <span class="pagination__link pagination__link--prev pagination__link--disabled" aria-disabled="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+              <span class="pagination__link-text">Previous</span>
+            </span>
+          {% endif %}
+        </li>
+      {% endif %}
+      
+      {% comment %} Page Numbers {% endcomment %}
+      {% if show_numbers %}
+        {% for part in paginate.parts %}
+          <li class="pagination__item">
+            {% if part.is_link %}
+              <a 
+                href="{{ part.url }}" 
+                class="pagination__link pagination__link--number"
+                aria-label="Page {{ part.title }}"
+              >
+                {{ part.title }}
+              </a>
+            {% elsif part.title == paginate.current_page %}
+              <span 
+                class="pagination__link pagination__link--number pagination__link--current"
+                aria-current="page"
+              >
+                {{ part.title }}
+              </span>
+            {% else %}
+              <span class="pagination__ellipsis">{{ part.title }}</span>
+            {% endif %}
+          </li>
+        {% endfor %}
+      {% else %}
+        <li class="pagination__item">
+          <span class="pagination__info">
+            Page {{ paginate.current_page }} of {{ paginate.pages }}
+          </span>
+        </li>
+      {% endif %}
+      
+      {% comment %} Next Page {% endcomment %}
+      {% if show_arrows %}
+        <li class="pagination__item">
+          {% if paginate.next %}
+            <a 
+              href="{{ paginate.next.url }}" 
+              class="pagination__link pagination__link--next"
+              aria-label="Next page"
+            >
+              <span class="pagination__link-text">Next</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </a>
+          {% else %}
+            <span class="pagination__link pagination__link--next pagination__link--disabled" aria-disabled="true">
+              <span class="pagination__link-text">Next</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </span>
+          {% endif %}
+        </li>
+      {% endif %}
+      
+    </ul>
+  </nav>
+{% endif %}

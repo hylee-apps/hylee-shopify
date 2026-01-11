@@ -1,0 +1,119 @@
+/* Pagination Component */
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.pagination__list {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pagination__item {
+  display: flex;
+}
+
+.pagination__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 0.5rem;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 0.375rem;
+  background: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text, #0f172a);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.pagination__link:hover:not(.pagination__link--disabled):not(.pagination__link--current) {
+  background: var(--color-background-subtle, #f8fafc);
+  border-color: var(--color-border-hover, #cbd5e1);
+}
+
+.pagination__link:focus-visible {
+  outline: 2px solid var(--color-primary, #0071dc);
+  outline-offset: 2px;
+}
+
+.pagination__link--current {
+  background: var(--color-primary, #0071dc);
+  border-color: var(--color-primary, #0071dc);
+  color: #ffffff;
+}
+
+.pagination__link--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination__link--prev,
+.pagination__link--next {
+  padding: 0 0.75rem;
+}
+
+.pagination__link-text {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .pagination__link-text {
+    display: inline;
+  }
+}
+
+.pagination__ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  color: var(--color-text-muted, #64748b);
+}
+
+.pagination__info {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 1rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #475569);
+}
+
+/* Compact variant */
+.pagination--compact .pagination__link--number {
+  display: none;
+}
+
+.pagination--compact .pagination__info {
+  display: inline-flex;
+}
+
+@media (min-width: 640px) {
+  .pagination--compact .pagination__link--number {
+    display: inline-flex;
+  }
+  
+  .pagination--compact .pagination__info {
+    display: none;
+  }
+}
+
+/* Simple variant (just prev/next with page info) */
+.pagination--simple .pagination__link--number {
+  display: none;
+}
+
+.pagination--simple .pagination__ellipsis {
+  display: none;
+}

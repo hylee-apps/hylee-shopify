@@ -1,0 +1,170 @@
+{% comment %}
+  PDP Specifications Section
+  
+  Displays product specifications in a collapsible accordion format.
+  Supports two metafield patterns:
+  1. product.metafields.specifications (iterable hash) - renders as key/value grid
+  2. product.metafields.custom.specifications (rich text) - renders as HTML
+  
+  Also includes warranty info as the last row:
+  - Short warranty (<200 chars): popover/bottom sheet
+  - Long warranty (>=200 chars): inline accordion
+  
+  Usage:
+  {% render 'pdp-specifications', product: product %}
+  
+  Parameters:
+  - product: product object (required) - The product to display specs for
+  - expanded: boolean (default: true) - Whether section starts expanded
+  - class: string - Additional CSS classes
+  - warranty_threshold: number (default: 200) - Char limit before switching to accordion
+{% endcomment %}
+
+{%- liquid
+  assign is_expanded = expanded | default: true
+  assign extra_class = class | default: ''
+  assign section_id = 'pdp-specifications-' | append: product.id
+  assign char_threshold = warranty_threshold | default: 200
+  
+  # Check for iterable specifications (hash/JSON metafield)
+  assign has_iterable_specs = false
+  assign specs_count = 0
+  if product.metafields.specifications
+    for spec in product.metafields.specifications
+      assign specs_count = specs_count | plus: 1
+    endfor
+    if specs_count > 0
+      assign has_iterable_specs = true
+    endif
+  endif
+  
+  # Check for custom specifications (rich text)
+  assign has_custom_specs = false
+  if product.metafields.custom.specifications and product.metafields.custom.specifications != blank
+    assign has_custom_specs = true
+  endif
+  
+  assign has_any_specs = has_iterable_specs or has_custom_specs
+  
+  # Check warranty info and determine display mode
+  assign warranty_content = product.metafields.custom.warranty
+  assign has_warranty = false
+  assign warranty_is_long = false
+  if warranty_content and warranty_content != blank
+    assign has_warranty = true
+    assign warranty_length = warranty_content | strip_html | size
+    if warranty_length >= char_threshold
+      assign warranty_is_long = true
+    endif
+  endif
+-%}
+
+<div class="pdp-specifications {{ extra_class }}">
+  <button 
+    type="button" 
+    class="pdp-specifications__header"
+    aria-expanded="{{ is_expanded }}"
+    aria-controls="{{ section_id }}"
+    data-section="specifications"
+  >
+    <div class="pdp-specifications__header-content">
+      <svg class="pdp-specifications__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="3" y1="9" x2="21" y2="9"></line>
+        <line x1="9" y1="21" x2="9" y2="9"></line>
+      </svg>
+      <h2 class="pdp-specifications__title">Specifications</h2>
+    </div>
+    <svg 
+      class="pdp-specifications__chevron {% unless is_expanded %}pdp-specifications__chevron--collapsed{% endunless %}" 
+      width="20" 
+      height="20" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      stroke-width="2"
+    >
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </button>
+
+  <div 
+    id="{{ section_id }}" 
+    class="pdp-specifications__content {% if is_expanded %}pdp-specifications__content--open{% endif %}"
+  >
+    {%- if has_any_specs or has_warranty -%}
+      <dl class="pdp-specifications__grid">
+        {%- if has_iterable_specs -%}
+          <!-- Iterable specifications (key/value grid) -->
+          {%- for spec in product.metafields.specifications -%}
+            <div class="pdp-specifications__row">
+              <dt class="pdp-specifications__label">{{ spec.first }}</dt>
+              <dd class="pdp-specifications__value">{{ spec.last }}</dd>
+            </div>
+          {%- endfor -%}
+        {%- elsif has_custom_specs -%}
+          <!-- Rich text specifications displayed as single row -->
+          <div class="pdp-specifications__richtext-wrapper">
+            <div class="pdp-specifications__richtext">
+              {{ product.metafields.custom.specifications }}
+            </div>
+          </div>
+        {%- endif -%}
+
+        <!-- Warranty Row -->
+        <div class="pdp-specifications__row pdp-specifications__row--warranty">
+          <dt class="pdp-specifications__label">
+            <svg class="pdp-specifications__warranty-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            Warranty
+          </dt>
+          <dd class="pdp-specifications__value pdp-specifications__value--warranty">
+            {%- if has_warranty -%}
+              {%- if warranty_is_long -%}
+                <!-- Long warranty: inline accordion -->
+                <div class="pdp-specifications__warranty-accordion">
+                  <button 
+                    type="button"
+                    class="pdp-specifications__warranty-toggle"
+                    aria-expanded="false"
+                    aria-controls="warranty-accordion-{{ product.id }}"
+                    data-warranty-accordion-trigger
+                  >
+                    <span>View warranty details</span>
+                    <svg class="pdp-specifications__warranty-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </button>
+                  <div 
+                    id="warranty-accordion-{{ product.id }}"
+                    class="pdp-specifications__warranty-content"
+                    aria-hidden="true"
+                  >
+                    {{ warranty_content }}
+                  </div>
+                </div>
+              {%- else -%}
+                <!-- Short warranty: popover/bottom sheet -->
+                {% render 'pdp-warranty-popover', product: product, id: product.id %}
+              {%- endif -%}
+            {%- else -%}
+              <span class="pdp-specifications__no-warranty">No warranty information available</span>
+            {%- endif -%}
+          </dd>
+        </div>
+      </dl>
+    {%- else -%}
+      <!-- Placeholder when no specifications available -->
+      <div class="pdp-specifications__empty">
+        <svg class="pdp-specifications__empty-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="3" y1="9" x2="21" y2="9"></line>
+          <line x1="9" y1="21" x2="9" y2="9"></line>
+        </svg>
+        <p class="pdp-specifications__empty-text">No specifications available</p>
+        <p class="pdp-specifications__empty-hint">Product specifications will appear here when available.</p>
+      </div>
+    {%- endif -%}
+  </div>
+</div>

@@ -1,14 +1,14 @@
 {% comment %}
   Featured Products Section
-  Displays a grid of featured products
+  Displays a grid of featured products using shared product-card component
 {% endcomment %}
 
-<section class="featured-products" id="featured-{{ section.id }}">
-  <div class="featured-products__container">
+<section class="product-section-uniform featured-products" id="featured-{{ section.id }}" style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px; background-color: {{ section.settings.background_color }};">
+  <div class="product-section-uniform__container">
     
     {% if section.settings.heading != blank %}
       <div class="featured-products__header">
-        <h2 class="featured-products__title">{{ section.settings.heading }}</h2>
+        <h2 class="featured-products__title" style="color: {{ section.settings.heading_color }};">{{ section.settings.heading }}</h2>
         {% if section.settings.description != blank %}
           <p class="featured-products__description">{{ section.settings.description }}</p>
         {% endif %}
@@ -18,12 +18,15 @@
     {% assign collection = collections[section.settings.collection] %}
     
     {% if collection and collection.products.size > 0 %}
-      <div class="featured-products__grid">
+      <div class="product-grid-uniform">
         {% for product in collection.products limit: section.settings.products_to_show %}
           {% render 'product-card',
             product: product,
             show_vendor: section.settings.show_vendor,
-            show_quick_view: section.settings.show_quick_view
+            show_quick_add: true,
+            show_rating: true,
+            show_secondary_image: true,
+            show_discount_percentage: true
           %}
         {% endfor %}
       </div>
@@ -49,16 +52,6 @@
 </section>
 
 <style>
-#featured-{{ section.id }} {
-  padding: {{ section.settings.padding_top }}px 1rem {{ section.settings.padding_bottom }}px;
-  background-color: {{ section.settings.background_color }};
-}
-
-#featured-{{ section.id }} .featured-products__container {
-  max-width: 1440px;
-  margin: 0 auto;
-}
-
 #featured-{{ section.id }} .featured-products__header {
   text-align: center;
   margin-bottom: 3rem;
@@ -68,7 +61,6 @@
   margin: 0 0 1rem 0;
   font-size: 2.5rem;
   font-weight: 700;
-  color: {{ section.settings.heading_color }};
 }
 
 @media (max-width: 768px) {
@@ -83,28 +75,9 @@
   color: rgb(100, 116, 139);
 }
 
-#featured-{{ section.id }} .featured-products__grid {
-  display: grid;
-  grid-template-columns: repeat({{ section.settings.products_per_row }}, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 3rem;
-}
-
-@media (max-width: 1024px) {
-  #featured-{{ section.id }} .featured-products__grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  #featured-{{ section.id }} .featured-products__grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
-}
-
 #featured-{{ section.id }} .featured-products__footer {
   text-align: center;
+  margin-top: 3rem;
 }
 
 #featured-{{ section.id }} .featured-products__empty {
