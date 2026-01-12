@@ -1,0 +1,62 @@
+{% comment %}
+  Account Navigation Card Component
+  
+  A clickable card used on the account dashboard for navigation to different
+  account sections. Features an icon on the left and title/description on the right.
+  
+  Usage:
+    {% render 'account-nav-card',
+      icon: 'package',
+      title: 'Your Orders',
+      description: 'Track, return, or cancel an order',
+      url: '/account/orders'
+    %}
+    
+    {% render 'account-nav-card',
+      icon: 'gift',
+      title: 'Gift Cards',
+      description: 'View balance or redeem a card',
+      disabled: true,
+      badge_text: 'Coming Soon'
+    %}
+  
+  Parameters:
+    - icon: string (required) - Icon name from icon.liquid
+    - title: string (required) - Card heading text
+    - description: string (required) - Card description text
+    - url: string - Link destination (optional if disabled)
+    - disabled: boolean - Whether the card is disabled/coming soon
+    - badge_text: string - Badge text to display (e.g., "Coming Soon")
+{% endcomment %}
+
+{% liquid
+  assign is_disabled = disabled | default: false
+  assign card_tag = 'a'
+  if is_disabled or url == blank
+    assign card_tag = 'div'
+  endif
+%}
+
+<{{ card_tag }}
+  class="account-nav-card{% if is_disabled %} account-nav-card--disabled{% endif %}"
+  {% unless is_disabled or url == blank %}
+    href="{{ url }}"
+  {% endunless %}
+  {% if is_disabled %}
+    aria-disabled="true"
+  {% endif %}
+>
+  <div class="account-nav-card__icon-wrapper">
+    {% render 'icon', name: icon, size: 48, class: 'account-nav-card__icon' %}
+  </div>
+  
+  <div class="account-nav-card__content">
+    <h2 class="account-nav-card__title">
+      {{ title }}
+      {% if badge_text and badge_text != blank %}
+        <span class="account-nav-card__badge">{{ badge_text }}</span>
+      {% endif %}
+    </h2>
+    <p class="account-nav-card__description">{{ description }}</p>
+  </div>
+</{{ card_tag }}>

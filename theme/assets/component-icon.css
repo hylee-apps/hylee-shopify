@@ -1,0 +1,124 @@
+/* ==========================================================================
+   Icon Component Styles
+   ========================================================================== */
+
+/**
+ * Base icon class
+ * Icons inherit color from parent via currentColor
+ */
+.icon {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Size Modifiers
+   ========================================================================== */
+
+.icon--xs {
+  width: 0.75rem; /* 12px */
+  height: 0.75rem;
+}
+
+.icon--sm {
+  width: 1rem; /* 16px */
+  height: 1rem;
+}
+
+.icon--md {
+  width: 1.25rem; /* 20px */
+  height: 1.25rem;
+}
+
+.icon--lg {
+  width: 1.5rem; /* 24px */
+  height: 1.5rem;
+}
+
+.icon--xl {
+  width: 2rem; /* 32px */
+  height: 2rem;
+}
+
+.icon--2xl {
+  width: 2.5rem; /* 40px */
+  height: 2.5rem;
+}
+
+.icon--3xl {
+  width: 3rem; /* 48px */
+  height: 3rem;
+}
+
+/* ==========================================================================
+   Color Modifiers
+   ========================================================================== */
+
+.icon--primary {
+  color: var(--color-primary);
+}
+
+.icon--secondary {
+  color: var(--color-secondary);
+}
+
+.icon--accent {
+  color: var(--color-accent);
+}
+
+.icon--muted {
+  color: var(--color-text-muted);
+}
+
+.icon--success {
+  color: var(--color-success, #22c55e);
+}
+
+.icon--warning {
+  color: var(--color-warning, #f59e0b);
+}
+
+.icon--error {
+  color: var(--color-error, #ef4444);
+}
+
+.icon--info {
+  color: var(--color-info, #3b82f6);
+}
+
+/* ==========================================================================
+   Animation Modifiers
+   ========================================================================== */
+
+.icon--spin {
+  animation: icon-spin 1s linear infinite;
+}
+
+@keyframes icon-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================================
+   Interactive States
+   ========================================================================== */
+
+.icon--clickable {
+  cursor: pointer;
+  transition: color var(--transition-fast, 150ms) ease;
+}
+
+.icon--clickable:hover {
+  color: var(--color-primary);
+}
+
+.icon--clickable:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm, 0.25rem);
+}

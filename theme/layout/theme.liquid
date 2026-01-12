@@ -1,6 +1,24 @@
 <!doctype html>
 <html class="no-js" lang="{{ request.locale.iso_code }}">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QT99EXVZ9E"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-QT99EXVZ9E');
+  </script>
+  
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-PRWTKMCB');</script>
+  <!-- End Google Tag Manager -->
+
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -32,6 +50,8 @@
 
   {% render 'meta-tags' %}
 
+  {{ content_for_header }}
+
   <script src="{{ 'constants.js' | asset_url }}" defer="defer"></script>
   <script src="{{ 'pubsub.js' | asset_url }}" defer="defer"></script>
   <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
@@ -54,8 +74,8 @@
   {{ 'component-helper-text.css' | asset_url | stylesheet_tag }}
   {{ 'component-link.css' | asset_url | stylesheet_tag }}
   {{ 'component-selection-card.css' | asset_url | stylesheet_tag }}
-
-  {{ content_for_header }}
+  {{ 'component-icon.css' | asset_url | stylesheet_tag }}
+  {{ 'component-account-nav-card.css' | asset_url | stylesheet_tag }}
 
   {%- liquid
     assign body_font_bold = settings.type_body_font | font_modify: 'weight', 'bold'
@@ -135,7 +155,15 @@
     {{ 'accessibility.skip_to_text' | t }}
   </a>
 
-  {% section 'header' %}
+  {%- comment -%} 
+    Use header-inner for all pages except homepage.
+    Homepage uses the main header section.
+  {%- endcomment -%}
+  {%- if template == 'index' -%}
+    {% section 'header' %}
+  {%- else -%}
+    {% section 'header-inner' %}
+  {%- endif -%}
 
   <main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
     {{ content_for_layout }}

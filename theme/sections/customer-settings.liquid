@@ -1,0 +1,146 @@
+{% comment %}
+  Customer Settings Section
+  Account settings page with personal info and password management
+{% endcomment %}
+
+{{ 'section-customer-settings.css' | asset_url | stylesheet_tag }}
+
+<div class="customer-settings">
+  <div class="customer-settings__container">
+    {%- comment -%} Breadcrumbs {%- endcomment -%}
+    <nav class="customer-settings__breadcrumbs" aria-label="Breadcrumb">
+      {% render 'icon', name: 'chevron-left', size: 16 %}
+      <a href="{{ routes.account_url }}">Your Account</a>
+      <span class="customer-settings__breadcrumb-separator" aria-hidden="true">›</span>
+      <span aria-current="page">Login & Security</span>
+    </nav>
+
+    {%- comment -%} Header {%- endcomment -%}
+    <div class="customer-settings__header">
+      <h1 class="customer-settings__title">Login & Security</h1>
+      <p class="customer-settings__subtitle">Manage your account settings and password</p>
+    </div>
+
+    {%- comment -%} Settings Cards {%- endcomment -%}
+    <div class="customer-settings__grid">
+      {%- comment -%} Personal Information Card {%- endcomment -%}
+      <div class="customer-settings__card">
+        <div class="customer-settings__card-header">
+          <div class="customer-settings__card-icon">
+            {% render 'icon', name: 'user', size: 24 %}
+          </div>
+          <h2 class="customer-settings__card-title">Personal Information</h2>
+        </div>
+        
+        <div class="customer-settings__card-content">
+          <div class="customer-settings__info-row">
+            <div class="customer-settings__info-label">Name</div>
+            <div class="customer-settings__info-value">{{ customer.name }}</div>
+          </div>
+          <div class="customer-settings__info-row">
+            <div class="customer-settings__info-label">Email</div>
+            <div class="customer-settings__info-value">{{ customer.email }}</div>
+          </div>
+          {% if customer.phone %}
+            <div class="customer-settings__info-row">
+              <div class="customer-settings__info-label">Phone</div>
+              <div class="customer-settings__info-value">{{ customer.phone }}</div>
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="customer-settings__card-footer">
+          <p class="customer-settings__note">
+            {% render 'icon', name: 'info', size: 16 %}
+            To update your name or email, please contact customer support.
+          </p>
+        </div>
+      </div>
+
+      {%- comment -%} Password Card {%- endcomment -%}
+      <div class="customer-settings__card">
+        <div class="customer-settings__card-header">
+          <div class="customer-settings__card-icon">
+            {% render 'icon', name: 'lock', size: 24 %}
+          </div>
+          <h2 class="customer-settings__card-title">Password</h2>
+        </div>
+        
+        <div class="customer-settings__card-content">
+          <p class="customer-settings__description">
+            Keep your account secure by using a strong, unique password that you don't use for other accounts.
+          </p>
+          <div class="customer-settings__password-display">
+            <span class="customer-settings__password-dots">••••••••••••</span>
+            <span class="customer-settings__password-status">
+              {% render 'icon', name: 'check-circle', size: 16 %}
+              Password set
+            </span>
+          </div>
+        </div>
+
+        <div class="customer-settings__card-actions">
+          <a href="{{ routes.account_recover_url }}" class="customer-settings__btn customer-settings__btn--primary">
+            {% render 'icon', name: 'key', size: 16 %}
+            Reset Password
+          </a>
+        </div>
+      </div>
+
+      {%- comment -%} Account Activity Card {%- endcomment -%}
+      <div class="customer-settings__card">
+        <div class="customer-settings__card-header">
+          <div class="customer-settings__card-icon">
+            {% render 'icon', name: 'shield', size: 24 %}
+          </div>
+          <h2 class="customer-settings__card-title">Account Activity</h2>
+        </div>
+        
+        <div class="customer-settings__card-content">
+          <div class="customer-settings__info-row">
+            <div class="customer-settings__info-label">Member Since</div>
+            <div class="customer-settings__info-value">{{ customer.created_at | date: '%B %d, %Y' }}</div>
+          </div>
+          <div class="customer-settings__info-row">
+            <div class="customer-settings__info-label">Total Orders</div>
+            <div class="customer-settings__info-value">{{ customer.orders_count }}</div>
+          </div>
+          <div class="customer-settings__info-row">
+            <div class="customer-settings__info-label">Total Spent</div>
+            <div class="customer-settings__info-value">{{ customer.total_spent | money }}</div>
+          </div>
+        </div>
+      </div>
+
+      {%- comment -%} Sign Out Card {%- endcomment -%}
+      <div class="customer-settings__card customer-settings__card--highlight">
+        <div class="customer-settings__card-header">
+          <div class="customer-settings__card-icon customer-settings__card-icon--muted">
+            {% render 'icon', name: 'log-out', size: 24 %}
+          </div>
+          <h2 class="customer-settings__card-title">Sign Out</h2>
+        </div>
+        
+        <div class="customer-settings__card-content">
+          <p class="customer-settings__description">
+            Sign out of your account on this device. You'll need to sign in again to access your account.
+          </p>
+        </div>
+
+        <div class="customer-settings__card-actions">
+          <a href="{{ routes.account_logout_url }}" class="customer-settings__btn customer-settings__btn--secondary">
+            {% render 'icon', name: 'log-out', size: 16 %}
+            Sign Out
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Customer Settings",
+  "settings": []
+}
+{% endschema %}

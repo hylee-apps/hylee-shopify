@@ -7,7 +7,13 @@
   width: 100%;
   min-height: 100vh;
   background-color: #ffffff;
-  font-family: 'Assistant', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    'Assistant',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
 }
 
 .product-container {
@@ -166,7 +172,7 @@
 }
 
 .pdp-thumbnail--active {
-  border-color: #2AC864;
+  border-color: #2ac864;
   border-width: 2px;
 }
 
@@ -348,7 +354,7 @@
 }
 
 .pdp-thumbnail-mobile--active {
-  border-color: #2AC864;
+  border-color: #2ac864;
 }
 
 .pdp-thumbnail-mobile img {
@@ -497,18 +503,6 @@
   display: block;
 }
 
-.pdp-section__link {
-  display: inline-block;
-  margin-top: 0.75rem;
-  font-size: 0.875rem;
-  color: #475569;
-  text-decoration: underline;
-}
-
-.pdp-section__link:hover {
-  color: #0f172a;
-}
-
 /* Features List */
 .pdp-features {
   font-size: 0.9375rem;
@@ -598,11 +592,11 @@
 .pdp-price__current {
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--color-success, #267A03);
+  color: var(--color-success, #267a03);
 }
 
 .pdp-price__current--sale {
-  color: var(--color-success, #267A03);
+  color: var(--color-success, #267a03);
 }
 
 .pdp-price__compare {
@@ -631,14 +625,14 @@
   font-size: 0.75rem;
   font-weight: 700;
   background: #f0fdf4;
-  color: #267A03;
+  color: #267a03;
   border-radius: 0.25rem;
 }
 
 .pdp-price__savings-amount {
   font-size: 0.875rem;
   font-weight: 700;
-  color: #267A03;
+  color: #267a03;
 }
 
 .pdp-price-note {
@@ -714,7 +708,9 @@
 
 .pdp-color-swatch--active {
   border-color: #0f172a;
-  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #0f172a;
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 0 0 4px #0f172a;
 }
 
 /* Size Buttons */
@@ -1074,7 +1070,7 @@
 }
 
 .pdp-specifications__icon {
-  color: var(--color-primary, #2AC864);
+  color: var(--color-primary, #2ac864);
   flex-shrink: 0;
 }
 
@@ -1082,7 +1078,7 @@
   margin: 0;
   font-size: var(--text-lg, 1.125rem);
   font-weight: 600;
-  color: var(--color-dark, #40283C);
+  color: var(--color-dark, #40283c);
 }
 
 .pdp-specifications__chevron {
@@ -1122,7 +1118,7 @@
 
 .pdp-specifications__label {
   font-weight: 600;
-  color: var(--color-dark, #40283C);
+  color: var(--color-dark, #40283c);
   font-size: var(--text-sm, 0.875rem);
   margin: 0;
 }
@@ -1205,7 +1201,7 @@
 }
 
 .pdp-warranty__icon {
-  color: var(--color-secondary, #2699A6);
+  color: var(--color-secondary, #2699a6);
   flex-shrink: 0;
 }
 
@@ -1213,7 +1209,7 @@
   margin: 0;
   font-size: var(--text-lg, 1.125rem);
   font-weight: 600;
-  color: var(--color-dark, #40283C);
+  color: var(--color-dark, #40283c);
 }
 
 .pdp-warranty__chevron {
@@ -1246,7 +1242,7 @@
   gap: var(--space-2, 0.5rem);
   padding: var(--space-2, 0.5rem) var(--space-3, 0.75rem);
   background: rgba(38, 153, 166, 0.1);
-  color: var(--color-secondary, #2699A6);
+  color: var(--color-secondary, #2699a6);
   border-radius: var(--radius-full, 9999px);
   font-size: var(--text-sm, 0.875rem);
   font-weight: 600;
@@ -1315,7 +1311,7 @@
 }
 
 .pdp-warnings__icon {
-  color: var(--color-warning, #F2B05E);
+  color: var(--color-warning, #f2b05e);
   flex-shrink: 0;
 }
 
@@ -1323,7 +1319,7 @@
   margin: 0;
   font-size: var(--text-lg, 1.125rem);
   font-weight: 600;
-  color: var(--color-dark, #40283C);
+  color: var(--color-dark, #40283c);
 }
 
 .pdp-warnings__chevron {
@@ -1414,7 +1410,7 @@
 }
 
 .pdp-compare-similar__icon {
-  color: var(--color-primary, #2AC864);
+  color: var(--color-primary, #2ac864);
   flex-shrink: 0;
 }
 
@@ -1422,7 +1418,7 @@
   margin: 0;
   font-size: var(--text-lg, 1.125rem);
   font-weight: 600;
-  color: var(--color-dark, #40283C);
+  color: var(--color-dark, #40283c);
 }
 
 .pdp-compare-similar__content {
@@ -1453,7 +1449,7 @@
   padding: var(--space-4, 1rem);
   font-weight: 600;
   font-size: var(--text-sm, 0.875rem);
-  color: var(--color-dark, #40283C);
+  color: var(--color-dark, #40283c);
   text-align: left;
   vertical-align: top;
   background: var(--color-surface, #f8fafc);
@@ -1482,13 +1478,13 @@
 }
 
 .pdp-compare-table__product--link:hover .pdp-compare-table__product-title {
-  color: var(--color-primary, #2AC864);
+  color: var(--color-primary, #2ac864);
 }
 
 .pdp-compare-table__badge {
   display: inline-block;
   padding: var(--space-1, 0.25rem) var(--space-2, 0.5rem);
-  background: var(--color-primary, #2AC864);
+  background: var(--color-primary, #2ac864);
   color: #ffffff;
   font-size: var(--text-xs, 0.75rem);
   font-weight: 600;
@@ -1547,7 +1543,7 @@
 
 .pdp-compare-table__price {
   font-weight: 700;
-  color: var(--color-dark, #40283C);
+  color: var(--color-dark, #40283c);
   display: block;
 }
 
@@ -1627,11 +1623,13 @@
   border-radius: var(--radius-md, 0.5rem);
   text-decoration: none;
   color: inherit;
-  transition: border-color var(--transition-fast, 150ms), box-shadow var(--transition-fast, 150ms);
+  transition:
+    border-color var(--transition-fast, 150ms),
+    box-shadow var(--transition-fast, 150ms);
 }
 
 .pdp-compare-card:hover {
-  border-color: var(--color-primary, #2AC864);
+  border-color: var(--color-primary, #2ac864);
   box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
 }
 
@@ -1670,7 +1668,7 @@
   margin: 0 0 var(--space-2, 0.5rem) 0;
   font-size: var(--text-sm, 0.875rem);
   font-weight: 600;
-  color: var(--color-dark, #40283C);
+  color: var(--color-dark, #40283c);
   line-height: 1.3;
 }
 
@@ -1681,7 +1679,7 @@
 .pdp-compare-card__current-price {
   font-size: var(--text-base, 1rem);
   font-weight: 700;
-  color: var(--color-dark, #40283C);
+  color: var(--color-dark, #40283c);
 }
 
 .pdp-compare-card__compare-price {
@@ -1831,14 +1829,16 @@
   background: var(--color-bg, #ffffff);
   border: 1px solid var(--color-border, #e2e8f0);
   border-radius: var(--radius-lg, 0.5rem);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.1);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-8px);
   transition: all 0.2s ease;
 }
 
-.pdp-warranty-popover[aria-hidden="false"] {
+.pdp-warranty-popover[aria-hidden='false'] {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
@@ -1901,7 +1901,7 @@
   display: none;
 }
 
-.pdp-warranty-sheet[aria-hidden="false"] {
+.pdp-warranty-sheet[aria-hidden='false'] {
   display: block;
 }
 
@@ -1991,13 +1991,21 @@
 
 /* Bottom Sheet Animations */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 /* Warranty Inline Accordion (for long content) */

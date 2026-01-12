@@ -6,28 +6,6 @@
 {{ 'section-customer-login.css' | asset_url | stylesheet_tag }}
 
 <div class="customer-login min-h-screen bg-gradient-to-b from-slate-50 to-white">
-  {%- comment %-%} Header {%- endcomment -%}
-  <header class="customer-login__header">
-    <div class="customer-login__header-inner">
-      <a href="{{ routes.root_url }}" class="customer-login__logo">
-        <img 
-          src="https://placehold.co/28x28/71717a/ffffff?text=H" 
-          alt="{{ shop.name }}"
-          class="customer-login__logo-img"
-          width="28"
-          height="28"
-        >
-        <span class="customer-login__logo-text">Hylee</span>
-      </a>
-      <div class="customer-login__header-actions">
-        <span class="customer-login__signup-prompt">Don't have an account?</span>
-        <a href="{{ routes.account_register_url }}" class="customer-login__signup-btn">
-          Sign Up
-        </a>
-      </div>
-    </div>
-  </header>
-
   <div class="customer-login__container">
     <div class="customer-login__content">
       <div class="customer-login__form-wrapper">

@@ -1,0 +1,1291 @@
+{% comment %}
+  Customer Account Section
+  Pixel-perfect match to React Account component
+{% endcomment %}
+
+{{ 'section-customer-account.css' | asset_url | stylesheet_tag }}
+
+<div class="customer-account min-h-screen bg-gradient-to-b from-slate-50 to-white">
+  {%- comment %-%} Header {%- endcomment -%}
+  <header class="customer-account__header">
+    <div class="customer-account__header-inner">
+      <a href="{{ routes.root_url }}" class="customer-account__logo">
+        <img 
+          src="https://placehold.co/28x28/71717a/ffffff?text=H" 
+          alt="{{ shop.name }}"
+          class="customer-account__logo-img"
+          width="28"
+          height="28"
+        >
+        <span class="customer-account__logo-text">Hylee</span>
+      </a>
+      <nav class="customer-account__nav">
+        <a href="{{ routes.root_url }}" class="customer-account__nav-link">Home</a>
+        <a href="{{ routes.all_products_collection_url }}" class="customer-account__nav-link">Products</a>
+        <a href="/collections" class="customer-account__nav-link">Categories</a>
+      </nav>
+      <div class="customer-account__header-actions">
+        <a href="{{ routes.account_logout_url }}" class="customer-account__signout-btn">
+          Sign Out
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="customer-account__container">
+    <div class="customer-account__grid">
+      {%- comment %-%} Sidebar Navigation {%- endcomment -%}
+      <div class="customer-account__sidebar">
+        <div class="customer-account__sidebar-card">
+          <div class="customer-account__user-info">
+            <div class="customer-account__user-avatar">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <div class="customer-account__user-details">
+              <p class="customer-account__user-name">{{ customer.name }}</p>
+              <p class="customer-account__user-email">{{ customer.email }}</p>
+            </div>
+          </div>
+
+          <nav class="customer-account__sidebar-nav">
+            <button class="customer-account__nav-item customer-account__nav-item--active" data-section="overview">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+              Overview
+            </button>
+            <button class="customer-account__nav-item" data-section="orders">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+              Order History
+            </button>
+            <button class="customer-account__nav-item" data-section="addresses">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Addresses
+            </button>
+            <button class="customer-account__nav-item" data-section="profile">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Account Settings
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      {%- comment %-%} Main Content Area {%- endcomment -%}
+      <div class="customer-account__main">
+        {%- comment %-%} Overview Section {%- endcomment -%}
+        <div class="customer-account__section customer-account__section--active" data-section-content="overview">
+          <div class="customer-account__section-header">
+            <h1 class="customer-account__title">Welcome back, {{ customer.first_name }}!</h1>
+            <p class="customer-account__subtitle">Member since {{ customer.created_at | date: '%B %Y' }}</p>
+          </div>
+
+          {%- comment %-%} Quick Stats {%- endcomment -%}
+          <div class="customer-account__stats-grid">
+            <div class="customer-account__stat-card">
+              <div class="customer-account__stat-header">
+                <span class="customer-account__stat-label">Total Orders</span>
+                <svg class="customer-account__stat-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2AC864">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+              <p class="customer-account__stat-value">{{ customer.orders_count }}</p>
+            </div>
+            <div class="customer-account__stat-card">
+              <div class="customer-account__stat-header">
+                <span class="customer-account__stat-label">Total Spent</span>
+                <svg class="customer-account__stat-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2699A6">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              </div>
+              <p class="customer-account__stat-value">{{ customer.total_spent | money }}</p>
+            </div>
+            <div class="customer-account__stat-card">
+              <div class="customer-account__stat-header">
+                <span class="customer-account__stat-label">Default Address</span>
+                <svg class="customer-account__stat-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2BD9A8">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                </svg>
+              </div>
+              <p class="customer-account__stat-value customer-account__stat-value--small">
+                {% if customer.default_address %}
+                  {{ customer.default_address.city }}
+                {% else %}
+                  Not set
+                {% endif %}
+              </p>
+            </div>
+          </div>
+
+          {%- comment %-%} Recent Orders {%- endcomment -%}
+          <div class="customer-account__content-card">
+            <div class="customer-account__card-header">
+              <h2 class="customer-account__card-title">Recent Orders</h2>
+              <button class="customer-account__view-all-btn" data-navigate="orders">
+                View All
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+            <div class="customer-account__orders-list">
+              {% paginate customer.orders by 3 %}
+                {% for order in customer.orders limit: 2 %}
+                  <div class="customer-account__order-item">
+                    {% assign first_line_item = order.line_items.first %}
+                    {% if first_line_item.image %}
+                      <img src="{{ first_line_item.image | image_url: width: 64 }}" alt="{{ first_line_item.title }}" class="customer-account__order-image">
+                    {% else %}
+                      <div class="customer-account__order-image-placeholder">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                      </div>
+                    {% endif %}
+                    <div class="customer-account__order-details">
+                      <div class="customer-account__order-header">
+                        <div>
+                          <p class="customer-account__order-name">{{ order.name }}</p>
+                          <p class="customer-account__order-date">{{ order.created_at | date: '%B %d, %Y' }}</p>
+                        </div>
+                        <span class="customer-account__order-status customer-account__order-status--{{ order.financial_status }}">
+                          {{ order.fulfillment_status | default: 'Processing' | capitalize }}
+                        </span>
+                      </div>
+                      <div class="customer-account__order-footer">
+                        <span class="customer-account__order-items">{{ order.line_items.size }} item{% if order.line_items.size > 1 %}s{% endif %}</span>
+                        <span class="customer-account__order-total">{{ order.total_price | money }}</span>
+                      </div>
+                    </div>
+                  </div>
+                {% else %}
+                  <div class="customer-account__empty-state">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    <p>No orders yet</p>
+                    <a href="{{ routes.all_products_collection_url }}" class="customer-account__empty-state-btn">Start Shopping</a>
+                  </div>
+                {% endfor %}
+              {% endpaginate %}
+            </div>
+          </div>
+        </div>
+
+        {%- comment %-%} Order History Section - Amazon Style {%- endcomment -%}
+        <div class="customer-account__section" data-section-content="orders">
+          {%- comment %-%} Breadcrumbs {%- endcomment -%}
+          <nav class="orders-tab__breadcrumbs" aria-label="Breadcrumb">
+            <a href="{{ routes.account_url }}">Your Account</a>
+            <span class="orders-tab__breadcrumb-separator" aria-hidden="true">›</span>
+            <span aria-current="page">Your Orders</span>
+          </nav>
+
+          {%- comment %-%} Header with Search {%- endcomment -%}
+          <div class="orders-tab__header">
+            <h1 class="orders-tab__title">Your Orders</h1>
+            <div class="orders-tab__search-container">
+              <form class="orders-tab__search-form" role="search" onsubmit="return false;">
+                <label for="orders-search" class="visually-hidden">Search your orders</label>
+                <input
+                  type="search"
+                  id="orders-search"
+                  class="orders-tab__search-input"
+                  placeholder="Search all orders"
+                  aria-label="Search all orders"
+                  data-orders-search
+                >
+                <button type="button" class="orders-tab__search-btn" aria-label="Search orders" data-orders-search-btn>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                  </svg>
+                  Search Orders
+                </button>
+              </form>
+            </div>
+          </div>
+
+          {%- comment %-%} Tab Navigation {%- endcomment -%}
+          <div class="orders-tab__nav" role="tablist" aria-label="Order filters">
+            <button 
+              class="orders-tab__nav-item orders-tab__nav-item--active" 
+              role="tab" 
+              aria-selected="true"
+              aria-controls="orders-panel-all"
+              id="orders-tab-all"
+              data-orders-tab="all"
+            >
+              Orders
+            </button>
+            <button 
+              class="orders-tab__nav-item" 
+              role="tab" 
+              aria-selected="false"
+              aria-controls="orders-panel-buy-again"
+              id="orders-tab-buy-again"
+              data-orders-tab="buy-again"
+            >
+              Buy Again
+            </button>
+            <button 
+              class="orders-tab__nav-item" 
+              role="tab" 
+              aria-selected="false"
+              aria-controls="orders-panel-not-shipped"
+              id="orders-tab-not-shipped"
+              data-orders-tab="not-shipped"
+            >
+              Not Yet Shipped
+            </button>
+            <button 
+              class="orders-tab__nav-item" 
+              role="tab" 
+              aria-selected="false"
+              aria-controls="orders-panel-digital"
+              id="orders-tab-digital"
+              data-orders-tab="digital"
+            >
+              Digital Orders
+            </button>
+          </div>
+
+          {%- comment %-%} Filter Row {%- endcomment -%}
+          <div class="orders-tab__filter-row">
+            <span class="orders-tab__order-count" data-orders-count>
+              {{ customer.orders_count }} order{% if customer.orders_count != 1 %}s{% endif %}
+            </span>
+            <div class="orders-tab__time-filter">
+              <label for="orders-time-filter" class="visually-hidden">Filter by time period</label>
+              <select id="orders-time-filter" class="orders-tab__time-select" data-orders-time-filter>
+                <option value="30">past 30 days</option>
+                <option value="90">past 3 months</option>
+                <option value="180" selected>past 6 months</option>
+                <option value="365">past year</option>
+                <option value="all">all time</option>
+              </select>
+            </div>
+          </div>
+
+          {%- comment %-%} Orders Panel - All Orders {%- endcomment -%}
+          <div 
+            class="orders-tab__panel orders-tab__panel--active" 
+            role="tabpanel" 
+            id="orders-panel-all"
+            aria-labelledby="orders-tab-all"
+            data-orders-panel="all"
+          >
+            {% paginate customer.orders by 10 %}
+              <div class="orders-tab__list" data-orders-list>
+                {% for order in customer.orders %}
+                  <article 
+                    class="orders-tab__card" 
+                    data-order-card
+                    data-order-date="{{ order.created_at | date: '%s' }}"
+                    data-order-number="{{ order.name }}"
+                    data-order-status="{{ order.fulfillment_status | default: 'unfulfilled' }}"
+                    data-order-products="{% for item in order.line_items %}{{ item.title | downcase }}{% unless forloop.last %},{% endunless %}{% endfor %}"
+                    data-order-has-digital="{% assign has_digital = false %}{% for item in order.line_items %}{% if item.product.tags contains 'digital' %}{% assign has_digital = true %}{% endif %}{% endfor %}{{ has_digital }}"
+                  >
+                    <header class="orders-tab__card-header">
+                      <div class="orders-tab__card-meta">
+                        <div class="orders-tab__card-meta-item">
+                          <span class="orders-tab__card-meta-label">ORDER PLACED</span>
+                          <span class="orders-tab__card-meta-value">{{ order.created_at | date: '%B %d, %Y' }}</span>
+                        </div>
+                        <div class="orders-tab__card-meta-item">
+                          <span class="orders-tab__card-meta-label">TOTAL</span>
+                          <span class="orders-tab__card-meta-value">{{ order.total_price | money }}</span>
+                        </div>
+                        <div class="orders-tab__card-meta-item">
+                          <span class="orders-tab__card-meta-label">SHIP TO</span>
+                          <span class="orders-tab__card-meta-value">
+                            {% if order.shipping_address %}
+                              {{ order.shipping_address.name }}
+                            {% else %}
+                              {{ customer.name }}
+                            {% endif %}
+                          </span>
+                        </div>
+                      </div>
+                      <div class="orders-tab__card-actions-header">
+                        <span class="orders-tab__card-order-number">ORDER # {{ order.name }}</span>
+                        <a href="{{ order.customer_url }}" class="orders-tab__card-link">View order details</a>
+                      </div>
+                    </header>
+
+                    <div class="orders-tab__card-body">
+                      <div class="orders-tab__delivery-status">
+                        {% case order.fulfillment_status %}
+                          {% when 'fulfilled' %}
+                            <span class="orders-tab__status orders-tab__status--delivered">Delivered</span>
+                          {% when 'partial' %}
+                            <span class="orders-tab__status orders-tab__status--partial">Partially Shipped</span>
+                          {% else %}
+                            <span class="orders-tab__status orders-tab__status--processing">Processing</span>
+                        {% endcase %}
+                        {% if order.fulfillment_status == 'fulfilled' %}
+                          <span class="orders-tab__delivery-date">{{ order.updated_at | date: '%B %d, %Y' }}</span>
+                        {% endif %}
+                      </div>
+
+                      <div class="orders-tab__items">
+                        {% for item in order.line_items %}
+                          <div class="orders-tab__item">
+                            <div class="orders-tab__item-image-wrapper">
+                              {% if item.image %}
+                                <img 
+                                  src="{{ item.image | image_url: width: 120 }}" 
+                                  alt="{{ item.title }}" 
+                                  class="orders-tab__item-image"
+                                  width="120"
+                                  height="120"
+                                  loading="lazy"
+                                >
+                              {% else %}
+                                <div class="orders-tab__item-image-placeholder" aria-hidden="true">
+                                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                  </svg>
+                                </div>
+                              {% endif %}
+                            </div>
+                            <div class="orders-tab__item-details">
+                              <a href="{{ item.product.url }}" class="orders-tab__item-title">{{ item.title }}</a>
+                              {% if item.variant.title != 'Default Title' %}
+                                <p class="orders-tab__item-variant">{{ item.variant.title }}</p>
+                              {% endif %}
+                              <p class="orders-tab__item-quantity">Qty: {{ item.quantity }}</p>
+                              <div class="orders-tab__item-actions">
+                                <a href="{{ item.product.url }}" class="orders-tab__item-btn orders-tab__item-btn--primary">
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                                    <circle cx="9" cy="21" r="1"></circle>
+                                    <circle cx="20" cy="21" r="1"></circle>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                  </svg>
+                                  Buy it again
+                                </a>
+                                <a href="{{ item.product.url }}" class="orders-tab__item-btn orders-tab__item-btn--secondary">View your item</a>
+                              </div>
+                            </div>
+                          </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </article>
+                {% else %}
+                  <div class="orders-tab__empty-state">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    <p>You haven't placed any orders yet</p>
+                    <a href="{{ routes.all_products_collection_url }}" class="orders-tab__empty-state-btn">Start Shopping</a>
+                  </div>
+                {% endfor %}
+              </div>
+
+              {% if paginate.pages > 1 %}
+                <nav class="orders-tab__pagination" aria-label="Orders pagination">
+                  {{ paginate | default_pagination }}
+                </nav>
+              {% endif %}
+            {% endpaginate %}
+          </div>
+
+          {%- comment %-%} Buy Again Panel {%- endcomment -%}
+          <div 
+            class="orders-tab__panel" 
+            role="tabpanel" 
+            id="orders-panel-buy-again"
+            aria-labelledby="orders-tab-buy-again"
+            data-orders-panel="buy-again"
+            hidden
+          >
+            <div class="orders-tab__buy-again-grid">
+              {%- comment %-%} Collect unique products from order history {%- endcomment -%}
+              {% assign seen_handles = '' %}
+              {% assign product_count = 0 %}
+              {% for order in customer.orders %}
+                {% for item in order.line_items %}
+                  {% unless seen_handles contains item.product.handle %}
+                    {% assign seen_handles = seen_handles | append: item.product.handle | append: ',' %}
+                    {% assign product_count = product_count | plus: 1 %}
+                    <div class="orders-tab__buy-again-item" data-product-handle="{{ item.product.handle }}">
+                      <a href="{{ item.product.url }}" class="orders-tab__buy-again-image-link">
+                        {% if item.image %}
+                          <img 
+                            src="{{ item.image | image_url: width: 180 }}" 
+                            alt="{{ item.title }}" 
+                            class="orders-tab__buy-again-image"
+                            width="180"
+                            height="180"
+                            loading="lazy"
+                          >
+                        {% else %}
+                          <div class="orders-tab__buy-again-placeholder" aria-hidden="true">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                            </svg>
+                          </div>
+                        {% endif %}
+                      </a>
+                      <div class="orders-tab__buy-again-details">
+                        <a href="{{ item.product.url }}" class="orders-tab__buy-again-title">{{ item.product.title }}</a>
+                        <p class="orders-tab__buy-again-price">{{ item.product.price | money }}</p>
+                        <a href="{{ item.product.url }}" class="orders-tab__item-btn orders-tab__item-btn--primary">
+                          View Product
+                        </a>
+                      </div>
+                    </div>
+                  {% endunless %}
+                {% endfor %}
+              {% endfor %}
+              {% if product_count == 0 %}
+                <div class="orders-tab__empty-state">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                  </svg>
+                  <p>No products to buy again</p>
+                  <a href="{{ routes.all_products_collection_url }}" class="orders-tab__empty-state-btn">Browse Products</a>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          {%- comment %-%} Not Yet Shipped Panel {%- endcomment -%}
+          <div 
+            class="orders-tab__panel" 
+            role="tabpanel" 
+            id="orders-panel-not-shipped"
+            aria-labelledby="orders-tab-not-shipped"
+            data-orders-panel="not-shipped"
+            hidden
+          >
+            <div class="orders-tab__list" data-not-shipped-list>
+              {% assign has_unshipped = false %}
+              {% for order in customer.orders %}
+                {% if order.fulfillment_status != 'fulfilled' %}
+                  {% assign has_unshipped = true %}
+                  <article class="orders-tab__card" data-order-card>
+                    <header class="orders-tab__card-header">
+                      <div class="orders-tab__card-meta">
+                        <div class="orders-tab__card-meta-item">
+                          <span class="orders-tab__card-meta-label">ORDER PLACED</span>
+                          <span class="orders-tab__card-meta-value">{{ order.created_at | date: '%B %d, %Y' }}</span>
+                        </div>
+                        <div class="orders-tab__card-meta-item">
+                          <span class="orders-tab__card-meta-label">TOTAL</span>
+                          <span class="orders-tab__card-meta-value">{{ order.total_price | money }}</span>
+                        </div>
+                        <div class="orders-tab__card-meta-item">
+                          <span class="orders-tab__card-meta-label">SHIP TO</span>
+                          <span class="orders-tab__card-meta-value">
+                            {% if order.shipping_address %}
+                              {{ order.shipping_address.name }}
+                            {% else %}
+                              {{ customer.name }}
+                            {% endif %}
+                          </span>
+                        </div>
+                      </div>
+                      <div class="orders-tab__card-actions-header">
+                        <span class="orders-tab__card-order-number">ORDER # {{ order.name }}</span>
+                        <a href="{{ order.customer_url }}" class="orders-tab__card-link">View order details</a>
+                      </div>
+                    </header>
+
+                    <div class="orders-tab__card-body">
+                      <div class="orders-tab__delivery-status">
+                        <span class="orders-tab__status orders-tab__status--processing">
+                          {% if order.fulfillment_status == 'partial' %}
+                            Partially Shipped
+                          {% else %}
+                            Processing
+                          {% endif %}
+                        </span>
+                      </div>
+
+                      <div class="orders-tab__items">
+                        {% for item in order.line_items %}
+                          <div class="orders-tab__item">
+                            <div class="orders-tab__item-image-wrapper">
+                              {% if item.image %}
+                                <img 
+                                  src="{{ item.image | image_url: width: 120 }}" 
+                                  alt="{{ item.title }}" 
+                                  class="orders-tab__item-image"
+                                  width="120"
+                                  height="120"
+                                  loading="lazy"
+                                >
+                              {% else %}
+                                <div class="orders-tab__item-image-placeholder" aria-hidden="true">
+                                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                  </svg>
+                                </div>
+                              {% endif %}
+                            </div>
+                            <div class="orders-tab__item-details">
+                              <a href="{{ item.product.url }}" class="orders-tab__item-title">{{ item.title }}</a>
+                              {% if item.variant.title != 'Default Title' %}
+                                <p class="orders-tab__item-variant">{{ item.variant.title }}</p>
+                              {% endif %}
+                              <p class="orders-tab__item-quantity">Qty: {{ item.quantity }}</p>
+                            </div>
+                          </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </article>
+                {% endif %}
+              {% endfor %}
+              {% unless has_unshipped %}
+                <div class="orders-tab__empty-state">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <p>All orders have been shipped!</p>
+                  <a href="{{ routes.all_products_collection_url }}" class="orders-tab__empty-state-btn">Continue Shopping</a>
+                </div>
+              {% endunless %}
+            </div>
+          </div>
+
+          {%- comment %-%} Digital Orders Panel {%- endcomment -%}
+          <div 
+            class="orders-tab__panel" 
+            role="tabpanel" 
+            id="orders-panel-digital"
+            aria-labelledby="orders-tab-digital"
+            data-orders-panel="digital"
+            hidden
+          >
+            <div class="orders-tab__list" data-digital-list>
+              {% assign has_digital = false %}
+              {% for order in customer.orders %}
+                {% assign order_has_digital = false %}
+                {% for item in order.line_items %}
+                  {% if item.product.tags contains 'digital' %}
+                    {% assign order_has_digital = true %}
+                    {% assign has_digital = true %}
+                  {% endif %}
+                {% endfor %}
+                {% if order_has_digital %}
+                  <article class="orders-tab__card" data-order-card>
+                    <header class="orders-tab__card-header">
+                      <div class="orders-tab__card-meta">
+                        <div class="orders-tab__card-meta-item">
+                          <span class="orders-tab__card-meta-label">ORDER PLACED</span>
+                          <span class="orders-tab__card-meta-value">{{ order.created_at | date: '%B %d, %Y' }}</span>
+                        </div>
+                        <div class="orders-tab__card-meta-item">
+                          <span class="orders-tab__card-meta-label">TOTAL</span>
+                          <span class="orders-tab__card-meta-value">{{ order.total_price | money }}</span>
+                        </div>
+                      </div>
+                      <div class="orders-tab__card-actions-header">
+                        <span class="orders-tab__card-order-number">ORDER # {{ order.name }}</span>
+                        <a href="{{ order.customer_url }}" class="orders-tab__card-link">View order details</a>
+                      </div>
+                    </header>
+
+                    <div class="orders-tab__card-body">
+                      <div class="orders-tab__delivery-status">
+                        <span class="orders-tab__status orders-tab__status--digital">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                          </svg>
+                          Digital Product
+                        </span>
+                      </div>
+
+                      <div class="orders-tab__items">
+                        {% for item in order.line_items %}
+                          {% if item.product.tags contains 'digital' %}
+                            <div class="orders-tab__item">
+                              <div class="orders-tab__item-image-wrapper">
+                                {% if item.image %}
+                                  <img 
+                                    src="{{ item.image | image_url: width: 120 }}" 
+                                    alt="{{ item.title }}" 
+                                    class="orders-tab__item-image"
+                                    width="120"
+                                    height="120"
+                                    loading="lazy"
+                                  >
+                                {% else %}
+                                  <div class="orders-tab__item-image-placeholder" aria-hidden="true">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                                    </svg>
+                                  </div>
+                                {% endif %}
+                              </div>
+                              <div class="orders-tab__item-details">
+                                <a href="{{ item.product.url }}" class="orders-tab__item-title">{{ item.title }}</a>
+                                {% if item.variant.title != 'Default Title' %}
+                                  <p class="orders-tab__item-variant">{{ item.variant.title }}</p>
+                                {% endif %}
+                                <div class="orders-tab__item-actions">
+                                  <a href="{{ item.product.url }}" class="orders-tab__item-btn orders-tab__item-btn--secondary">View Product</a>
+                                </div>
+                              </div>
+                            </div>
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </article>
+                {% endif %}
+              {% endfor %}
+              {% unless has_digital %}
+                <div class="orders-tab__empty-state">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                  </svg>
+                  <p>No digital orders</p>
+                  <a href="{{ routes.all_products_collection_url }}" class="orders-tab__empty-state-btn">Browse Products</a>
+                </div>
+              {% endunless %}
+            </div>
+          </div>
+        </div>
+
+        {%- comment %-%} Addresses Section {%- endcomment -%}
+        <div class="customer-account__section" data-section-content="addresses">
+          <div class="customer-account__section-header">
+            <h1 class="customer-account__title">Saved Addresses</h1>
+            <button type="button" class="customer-account__add-btn" onclick="toggleAddressForm('new')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Add New Address
+            </button>
+          </div>
+
+          {%- comment %-%} New Address Form {%- endcomment -%}
+          <div id="AddressNewForm" class="customer-account__address-form-wrapper" style="display: none;">
+            <div class="customer-account__settings-card">
+              <div class="customer-account__settings-header">
+                <h3 class="customer-account__settings-title">Add New Address</h3>
+                <button type="button" class="customer-account__close-btn" onclick="toggleAddressForm('new')">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              {% form 'customer_address', customer.new_address, data-shopify-captcha: 'true' %}
+                <input type="hidden" name="return_to" value="/account">
+                <div class="customer-account__form-grid">
+                  <div class="customer-account__form-field">
+                    <label for="AddressFirstNameNew" class="customer-account__form-label">First Name</label>
+                    <input type="text" name="address[first_name]" id="AddressFirstNameNew" class="customer-account__form-input" value="{{ form.first_name }}" required>
+                  </div>
+                  <div class="customer-account__form-field">
+                    <label for="AddressLastNameNew" class="customer-account__form-label">Last Name</label>
+                    <input type="text" name="address[last_name]" id="AddressLastNameNew" class="customer-account__form-input" value="{{ form.last_name }}" required>
+                  </div>
+                </div>
+                <div class="customer-account__form-field">
+                  <label for="AddressCompanyNew" class="customer-account__form-label">Company (Optional)</label>
+                  <input type="text" name="address[company]" id="AddressCompanyNew" class="customer-account__form-input" value="{{ form.company }}">
+                </div>
+                <div class="customer-account__form-field">
+                  <label for="AddressAddress1New" class="customer-account__form-label">Address Line 1</label>
+                  <input type="text" name="address[address1]" id="AddressAddress1New" class="customer-account__form-input" value="{{ form.address1 }}" required>
+                </div>
+                <div class="customer-account__form-field">
+                  <label for="AddressAddress2New" class="customer-account__form-label">Address Line 2 (Optional)</label>
+                  <input type="text" name="address[address2]" id="AddressAddress2New" class="customer-account__form-input" value="{{ form.address2 }}">
+                </div>
+                <div class="customer-account__form-grid">
+                  <div class="customer-account__form-field">
+                    <label for="AddressCityNew" class="customer-account__form-label">City</label>
+                    <input type="text" name="address[city]" id="AddressCityNew" class="customer-account__form-input" value="{{ form.city }}" required>
+                  </div>
+                  <div class="customer-account__form-field">
+                    <label for="AddressCountryNew" class="customer-account__form-label">Country</label>
+                    <select name="address[country]" id="AddressCountryNew" class="customer-account__form-input" data-default="{{ form.country }}" required>
+                      {{ country_option_tags }}
+                    </select>
+                  </div>
+                </div>
+                <div class="customer-account__form-grid">
+                  <div class="customer-account__form-field">
+                    <label for="AddressProvinceNew" class="customer-account__form-label">State/Province</label>
+                    <select name="address[province]" id="AddressProvinceNew" class="customer-account__form-input" data-default="{{ form.province }}">
+                      <option value="">Select State/Province</option>
+                    </select>
+                  </div>
+                  <div class="customer-account__form-field">
+                    <label for="AddressZipNew" class="customer-account__form-label">ZIP/Postal Code</label>
+                    <input type="text" name="address[zip]" id="AddressZipNew" class="customer-account__form-input" value="{{ form.zip }}" required>
+                  </div>
+                </div>
+                <div class="customer-account__form-field">
+                  <label for="AddressPhoneNew" class="customer-account__form-label">Phone (Optional)</label>
+                  <input type="tel" name="address[phone]" id="AddressPhoneNew" class="customer-account__form-input" value="{{ form.phone }}">
+                </div>
+                <div class="customer-account__form-checkbox">
+                  <input type="checkbox" name="address[default]" id="AddressDefaultNew" value="1">
+                  <label for="AddressDefaultNew">Set as default address</label>
+                </div>
+                <div class="customer-account__form-actions">
+                  <button type="submit" class="customer-account__save-btn">Add Address</button>
+                  <button type="button" class="customer-account__cancel-btn" onclick="toggleAddressForm('new')">Cancel</button>
+                </div>
+              {% endform %}
+            </div>
+          </div>
+
+          <div class="customer-account__addresses-grid">
+            {% paginate customer.addresses by 6 %}
+              {% for address in customer.addresses %}
+                <div class="customer-account__address-card" id="address-card-{{ address.id }}">
+                  {% if address == customer.default_address %}
+                    <span class="customer-account__address-badge">Default</span>
+                  {% endif %}
+                  
+                  {%- comment %-%} Address Display {%- endcomment -%}
+                  <div class="customer-account__address-display" id="address-display-{{ address.id }}">
+                    <div class="customer-account__address-content">
+                      <div class="customer-account__address-header">
+                        <svg class="customer-account__address-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2AC864">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span class="customer-account__address-type">
+                          {% if address.company %}{{ address.company }}{% else %}Address{% endif %}
+                        </span>
+                      </div>
+                      <p class="customer-account__address-name">{{ address.name }}</p>
+                      <p class="customer-account__address-line">{{ address.address1 }}</p>
+                      {% if address.address2 != blank %}
+                        <p class="customer-account__address-line">{{ address.address2 }}</p>
+                      {% endif %}
+                      <p class="customer-account__address-line">
+                        {{ address.city }}, {{ address.province_code }} {{ address.zip }}
+                      </p>
+                      {% if address.phone != blank %}
+                        <p class="customer-account__address-line">{{ address.phone }}</p>
+                      {% endif %}
+                    </div>
+                    <div class="customer-account__address-actions">
+                      <button type="button" class="customer-account__address-btn" onclick="toggleAddressForm({{ address.id }})">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Edit
+                      </button>
+                      <button type="button" class="customer-account__address-btn customer-account__address-btn--delete" onclick="confirmDeleteAddress({{ address.id }})">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+
+                  {%- comment %-%} Edit Form {%- endcomment -%}
+                  <div class="customer-account__address-edit-form" id="address-edit-{{ address.id }}" style="display: none;">
+                    {% form 'customer_address', address, data-shopify-captcha: 'true' %}
+                      <input type="hidden" name="return_to" value="/account">
+                      <div class="customer-account__form-grid">
+                        <div class="customer-account__form-field">
+                          <label for="AddressFirstName{{ address.id }}" class="customer-account__form-label">First Name</label>
+                          <input type="text" name="address[first_name]" id="AddressFirstName{{ address.id }}" class="customer-account__form-input" value="{{ address.first_name }}" required>
+                        </div>
+                        <div class="customer-account__form-field">
+                          <label for="AddressLastName{{ address.id }}" class="customer-account__form-label">Last Name</label>
+                          <input type="text" name="address[last_name]" id="AddressLastName{{ address.id }}" class="customer-account__form-input" value="{{ address.last_name }}" required>
+                        </div>
+                      </div>
+                      <div class="customer-account__form-field">
+                        <label for="AddressCompany{{ address.id }}" class="customer-account__form-label">Company (Optional)</label>
+                        <input type="text" name="address[company]" id="AddressCompany{{ address.id }}" class="customer-account__form-input" value="{{ address.company }}">
+                      </div>
+                      <div class="customer-account__form-field">
+                        <label for="AddressAddress1{{ address.id }}" class="customer-account__form-label">Address Line 1</label>
+                        <input type="text" name="address[address1]" id="AddressAddress1{{ address.id }}" class="customer-account__form-input" value="{{ address.address1 }}" required>
+                      </div>
+                      <div class="customer-account__form-field">
+                        <label for="AddressAddress2{{ address.id }}" class="customer-account__form-label">Address Line 2 (Optional)</label>
+                        <input type="text" name="address[address2]" id="AddressAddress2{{ address.id }}" class="customer-account__form-input" value="{{ address.address2 }}">
+                      </div>
+                      <div class="customer-account__form-grid">
+                        <div class="customer-account__form-field">
+                          <label for="AddressCity{{ address.id }}" class="customer-account__form-label">City</label>
+                          <input type="text" name="address[city]" id="AddressCity{{ address.id }}" class="customer-account__form-input" value="{{ address.city }}" required>
+                        </div>
+                        <div class="customer-account__form-field">
+                          <label for="AddressCountry{{ address.id }}" class="customer-account__form-label">Country</label>
+                          <select name="address[country]" id="AddressCountry{{ address.id }}" class="customer-account__form-input" data-default="{{ address.country }}" required>
+                            {{ country_option_tags }}
+                          </select>
+                        </div>
+                      </div>
+                      <div class="customer-account__form-grid">
+                        <div class="customer-account__form-field">
+                          <label for="AddressProvince{{ address.id }}" class="customer-account__form-label">State/Province</label>
+                          <select name="address[province]" id="AddressProvince{{ address.id }}" class="customer-account__form-input" data-default="{{ address.province }}">
+                            <option value="">Select State/Province</option>
+                          </select>
+                        </div>
+                        <div class="customer-account__form-field">
+                          <label for="AddressZip{{ address.id }}" class="customer-account__form-label">ZIP/Postal Code</label>
+                          <input type="text" name="address[zip]" id="AddressZip{{ address.id }}" class="customer-account__form-input" value="{{ address.zip }}" required>
+                        </div>
+                      </div>
+                      <div class="customer-account__form-field">
+                        <label for="AddressPhone{{ address.id }}" class="customer-account__form-label">Phone (Optional)</label>
+                        <input type="tel" name="address[phone]" id="AddressPhone{{ address.id }}" class="customer-account__form-input" value="{{ address.phone }}">
+                      </div>
+                      {% if address != customer.default_address %}
+                        <div class="customer-account__form-checkbox">
+                          <input type="checkbox" name="address[default]" id="AddressDefault{{ address.id }}" value="1">
+                          <label for="AddressDefault{{ address.id }}">Set as default address</label>
+                        </div>
+                      {% endif %}
+                      <div class="customer-account__form-actions">
+                        <button type="submit" class="customer-account__save-btn">Save Changes</button>
+                        <button type="button" class="customer-account__cancel-btn" onclick="toggleAddressForm({{ address.id }})">Cancel</button>
+                      </div>
+                    {% endform %}
+                  </div>
+
+                  {%- comment %-%} Hidden Delete Form {%- endcomment -%}
+                  <div style="display: none;">
+                    <form method="post" action="{{ routes.account_addresses_url }}/{{ address.id }}">
+                      <input type="hidden" name="_method" value="delete">
+                      <button type="submit" id="delete-address-{{ address.id }}"></button>
+                    </form>
+                  </div>
+                </div>
+              {% else %}
+                <div class="customer-account__empty-state">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <p>No addresses saved yet</p>
+                  <button type="button" class="customer-account__empty-state-btn" onclick="toggleAddressForm('new')">Add Address</button>
+                </div>
+              {% endfor %}
+            {% endpaginate %}
+          </div>
+        </div>
+
+        {%- comment %-%} Account Settings Section {%- endcomment -%}
+        <div class="customer-account__section" data-section-content="profile">
+          <div class="customer-account__section-header">
+            <h1 class="customer-account__title">Account Settings</h1>
+          </div>
+
+          <div class="customer-account__settings-grid">
+            <div class="customer-account__settings-card">
+              <div class="customer-account__settings-header">
+                <h3 class="customer-account__settings-title">Personal Information</h3>
+              </div>
+              <div class="customer-account__settings-content customer-account__settings-view">
+                <div class="customer-account__settings-item">
+                  <label class="customer-account__settings-label">Name</label>
+                  <p class="customer-account__settings-value">{{ customer.name }}</p>
+                </div>
+                <div class="customer-account__settings-item">
+                  <label class="customer-account__settings-label">Email</label>
+                  <p class="customer-account__settings-value">{{ customer.email }}</p>
+                </div>
+              </div>
+              <div class="customer-account__settings-form" style="display: none;">
+                {% form 'customer' %}
+                  <div class="customer-account__form-field">
+                    <label for="CustomerFirstName" class="customer-account__form-label">First Name</label>
+                    <input
+                      type="text"
+                      name="customer[first_name]"
+                      id="CustomerFirstName"
+                      value="{{ customer.first_name }}"
+                      class="customer-account__form-input"
+                      required
+                    >
+                  </div>
+                  <div class="customer-account__form-field">
+                    <label for="CustomerLastName" class="customer-account__form-label">Last Name</label>
+                    <input
+                      type="text"
+                      name="customer[last_name]"
+                      id="CustomerLastName"
+                      value="{{ customer.last_name }}"
+                      class="customer-account__form-input"
+                      required
+                    >
+                  </div>
+                  <div class="customer-account__form-field">
+                    <label for="CustomerEmail" class="customer-account__form-label">Email</label>
+                    <input
+                      type="email"
+                      name="customer[email]"
+                      id="CustomerEmail"
+                      value="{{ customer.email }}"
+                      class="customer-account__form-input"
+                      required
+                    >
+                  </div>
+                  <div class="customer-account__form-actions">
+                    <button type="submit" class="customer-account__form-btn customer-account__form-btn--save">Save Changes</button>
+                    <button type="button" class="customer-account__form-btn customer-account__form-btn--cancel" data-cancel-edit="profile">Cancel</button>
+                  </div>
+                {% endform %}
+              </div>
+              <div class="customer-account__settings-footer">
+                <button type="button" class="customer-account__settings-btn" data-edit-profile>Edit Profile</button>
+              </div>
+            </div>
+
+            <div class="customer-account__settings-card">
+              <div class="customer-account__settings-header">
+                <h3 class="customer-account__settings-title">Password</h3>
+              </div>
+              <div class="customer-account__settings-content customer-account__settings-view">
+                <p class="customer-account__settings-description">
+                  Keep your account secure with a strong password
+                </p>
+              </div>
+              <div class="customer-account__settings-form" style="display: none;">
+                {% form 'customer' %}
+                  <div class="customer-account__form-field">
+                    <label for="CustomerPassword" class="customer-account__form-label">New Password</label>
+                    <input
+                      type="password"
+                      name="customer[password]"
+                      id="CustomerPassword"
+                      class="customer-account__form-input"
+                      placeholder="Enter new password"
+                      minlength="8"
+                    >
+                  </div>
+                  <div class="customer-account__form-field">
+                    <label for="CustomerPasswordConfirm" class="customer-account__form-label">Confirm Password</label>
+                    <input
+                      type="password"
+                      name="customer[password_confirmation]"
+                      id="CustomerPasswordConfirm"
+                      class="customer-account__form-input"
+                      placeholder="Confirm new password"
+                      minlength="8"
+                    >
+                  </div>
+                  <div class="customer-account__form-actions">
+                    <button type="submit" class="customer-account__form-btn customer-account__form-btn--save">Update Password</button>
+                    <button type="button" class="customer-account__form-btn customer-account__form-btn--cancel" data-cancel-edit="password">Cancel</button>
+                  </div>
+                {% endform %}
+              </div>
+              <div class="customer-account__settings-footer">
+                <button type="button" class="customer-account__settings-btn" data-edit-password>Change Password</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Navigation functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const navButtons = document.querySelectorAll('.customer-account__nav-item');
+    
+    navButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const sectionId = this.dataset.section;
+        
+        // Update sidebar navigation
+        navButtons.forEach(btn => {
+          btn.classList.remove('customer-account__nav-item--active');
+        });
+        this.classList.add('customer-account__nav-item--active');
+        
+        // Update content sections
+        document.querySelectorAll('.customer-account__section').forEach(section => {
+          section.classList.remove('customer-account__section--active');
+        });
+        
+        const targetSection = document.querySelector(`[data-section-content="${sectionId}"]`);
+        if (targetSection) {
+          targetSection.classList.add('customer-account__section--active');
+        }
+      });
+    });
+    
+    // View All button functionality
+    document.querySelectorAll('.customer-account__view-all-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        const targetSection = this.dataset.navigate;
+        const navButton = document.querySelector(`[data-section="${targetSection}"]`);
+        if (navButton) {
+          navButton.click();
+        }
+      });
+    });
+
+    // Edit Profile functionality
+    const editProfileBtn = document.querySelector('[data-edit-profile]');
+    if (editProfileBtn) {
+      editProfileBtn.addEventListener('click', function() {
+        const card = this.closest('.customer-account__settings-card');
+        card.querySelector('.customer-account__settings-view').style.display = 'none';
+        card.querySelector('.customer-account__settings-form').style.display = 'block';
+        card.querySelector('.customer-account__settings-footer').style.display = 'none';
+      });
+    }
+
+    // Edit Password functionality
+    const editPasswordBtn = document.querySelector('[data-edit-password]');
+    if (editPasswordBtn) {
+      editPasswordBtn.addEventListener('click', function() {
+        const card = this.closest('.customer-account__settings-card');
+        card.querySelector('.customer-account__settings-view').style.display = 'none';
+        card.querySelector('.customer-account__settings-form').style.display = 'block';
+        card.querySelector('.customer-account__settings-footer').style.display = 'none';
+      });
+    }
+
+    // Cancel edit functionality
+    document.querySelectorAll('[data-cancel-edit]').forEach(button => {
+      button.addEventListener('click', function() {
+        const card = this.closest('.customer-account__settings-card');
+        card.querySelector('.customer-account__settings-view').style.display = 'block';
+        card.querySelector('.customer-account__settings-form').style.display = 'none';
+        card.querySelector('.customer-account__settings-footer').style.display = 'flex';
+      });
+    });
+  });
+
+  // Address form toggle
+  window.toggleAddressForm = function(addressId) {
+    if (addressId === 'new') {
+      const newForm = document.getElementById('AddressNewForm');
+      const isHidden = newForm.style.display === 'none';
+      
+      // Hide all edit forms
+      document.querySelectorAll('.customer-account__address-edit-form').forEach(form => {
+        form.style.display = 'none';
+      });
+      document.querySelectorAll('.customer-account__address-display').forEach(display => {
+        display.style.display = 'block';
+      });
+      
+      // Toggle new form
+      newForm.style.display = isHidden ? 'block' : 'none';
+      
+      if (isHidden) {
+        newForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    } else {
+      const editForm = document.getElementById(`address-edit-${addressId}`);
+      const display = document.getElementById(`address-display-${addressId}`);
+      const isHidden = editForm.style.display === 'none';
+      
+      // Hide new form
+      document.getElementById('AddressNewForm').style.display = 'none';
+      
+      // Hide all other edit forms
+      document.querySelectorAll('.customer-account__address-edit-form').forEach(form => {
+        if (form.id !== `address-edit-${addressId}`) {
+          form.style.display = 'none';
+        }
+      });
+      document.querySelectorAll('.customer-account__address-display').forEach(disp => {
+        if (disp.id !== `address-display-${addressId}`) {
+          disp.style.display = 'block';
+        }
+      });
+      
+      // Toggle this address's edit form
+      editForm.style.display = isHidden ? 'block' : 'none';
+      display.style.display = isHidden ? 'none' : 'block';
+      
+      if (isHidden) {
+        editForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  };
+
+  // Confirm delete address
+  window.confirmDeleteAddress = function(addressId) {
+    if (confirm('Are you sure you want to delete this address?')) {
+      const deleteBtn = document.getElementById(`delete-address-${addressId}`);
+      if (deleteBtn) {
+        deleteBtn.click();
+      }
+    }
+  };
+
+  // Province/State handling for address forms
+  window.Shopify = window.Shopify || {};
+  window.Shopify.CountryProvinceSelector = function(countryElementId, provinceElementId, options) {
+    this.countryEl = document.getElementById(countryElementId);
+    this.provinceEl = document.getElementById(provinceElementId);
+    this.provinceContainer = document.getElementById(options.provinceContainer) || this.provinceEl.parentElement;
+    
+    this.countryEl.addEventListener('change', () => {
+      this.onCountryChange();
+    });
+    
+    this.initCountry();
+    this.initProvince();
+  };
+  
+  window.Shopify.CountryProvinceSelector.prototype = {
+    initCountry: function() {
+      const value = this.countryEl.getAttribute('data-default');
+      this.countryEl.value = value || '';
+      this.onCountryChange();
+    },
+    
+    initProvince: function() {
+      const value = this.provinceEl.getAttribute('data-default');
+      if (value && this.provinceEl.options.length > 0) {
+        this.provinceEl.value = value;
+      }
+    },
+    
+    onCountryChange: function() {
+      this.updateProvince();
+    },
+    
+    updateProvince: function() {
+      const provinces = this.getProvinces();
+      this.clearOptions(this.provinceEl);
+      
+      if (provinces && provinces.length > 0) {
+        this.provinceEl.disabled = false;
+        this.provinceEl.parentElement.style.display = '';
+        
+        this.provinceEl.options.add(new Option('Select State/Province', ''));
+        
+        for (let i = 0; i < provinces.length; i++) {
+          const opt = new Option(provinces[i][0], provinces[i][1]);
+          this.provinceEl.options.add(opt);
+        }
+        
+        const defaultValue = this.provinceEl.getAttribute('data-default');
+        if (defaultValue) {
+          this.provinceEl.value = defaultValue;
+        }
+      } else {
+        this.provinceEl.disabled = true;
+        this.provinceEl.parentElement.style.display = 'none';
+      }
+    },
+    
+    clearOptions: function(selector) {
+      while (selector.firstChild) {
+        selector.removeChild(selector.firstChild);
+      }
+    },
+    
+    getProvinces: function() {
+      const countryCode = this.countryEl.value;
+      return window.Shopify.CountryProvinces[countryCode] || [];
+    }
+  };
+  
+  // Country/Province data - keyed by country codes and names
+  window.Shopify.CountryProvinces = {
+    "US": [
+      ["Alabama", "AL"], ["Alaska", "AK"], ["Arizona", "AZ"], ["Arkansas", "AR"],
+      ["California", "CA"], ["Colorado", "CO"], ["Connecticut", "CT"], ["Delaware", "DE"],
+      ["Florida", "FL"], ["Georgia", "GA"], ["Hawaii", "HI"], ["Idaho", "ID"],
+      ["Illinois", "IL"], ["Indiana", "IN"], ["Iowa", "IA"], ["Kansas", "KS"],
+      ["Kentucky", "KY"], ["Louisiana", "LA"], ["Maine", "ME"], ["Maryland", "MD"],
+      ["Massachusetts", "MA"], ["Michigan", "MI"], ["Minnesota", "MN"], ["Mississippi", "MS"],
+      ["Missouri", "MO"], ["Montana", "MT"], ["Nebraska", "NE"], ["Nevada", "NV"],
+      ["New Hampshire", "NH"], ["New Jersey", "NJ"], ["New Mexico", "NM"], ["New York", "NY"],
+      ["North Carolina", "NC"], ["North Dakota", "ND"], ["Ohio", "OH"], ["Oklahoma", "OK"],
+      ["Oregon", "OR"], ["Pennsylvania", "PA"], ["Rhode Island", "RI"], ["South Carolina", "SC"],
+      ["South Dakota", "SD"], ["Tennessee", "TN"], ["Texas", "TX"], ["Utah", "UT"],
+      ["Vermont", "VT"], ["Virginia", "VA"], ["Washington", "WA"], ["West Virginia", "WV"],
+      ["Wisconsin", "WI"], ["Wyoming", "WY"]
+    ],
+    "United States": [
+      ["Alabama", "AL"], ["Alaska", "AK"], ["Arizona", "AZ"], ["Arkansas", "AR"],
+      ["California", "CA"], ["Colorado", "CO"], ["Connecticut", "CT"], ["Delaware", "DE"],
+      ["Florida", "FL"], ["Georgia", "GA"], ["Hawaii", "HI"], ["Idaho", "ID"],
+      ["Illinois", "IL"], ["Indiana", "IN"], ["Iowa", "IA"], ["Kansas", "KS"],
+      ["Kentucky", "KY"], ["Louisiana", "LA"], ["Maine", "ME"], ["Maryland", "MD"],
+      ["Massachusetts", "MA"], ["Michigan", "MI"], ["Minnesota", "MN"], ["Mississippi", "MS"],
+      ["Missouri", "MO"], ["Montana", "MT"], ["Nebraska", "NE"], ["Nevada", "NV"],
+      ["New Hampshire", "NH"], ["New Jersey", "NJ"], ["New Mexico", "NM"], ["New York", "NY"],
+      ["North Carolina", "NC"], ["North Dakota", "ND"], ["Ohio", "OH"], ["Oklahoma", "OK"],
+      ["Oregon", "OR"], ["Pennsylvania", "PA"], ["Rhode Island", "RI"], ["South Carolina", "SC"],
+      ["South Dakota", "SD"], ["Tennessee", "TN"], ["Texas", "TX"], ["Utah", "UT"],
+      ["Vermont", "VT"], ["Virginia", "VA"], ["Washington", "WA"], ["West Virginia", "WV"],
+      ["Wisconsin", "WI"], ["Wyoming", "WY"]
+    ],
+    "CA": [
+      ["Alberta", "AB"], ["British Columbia", "BC"], ["Manitoba", "MB"], ["New Brunswick", "NB"],
+      ["Newfoundland and Labrador", "NL"], ["Northwest Territories", "NT"], ["Nova Scotia", "NS"],
+      ["Nunavut", "NU"], ["Ontario", "ON"], ["Prince Edward Island", "PE"], ["Quebec", "QC"],
+      ["Saskatchewan", "SK"], ["Yukon", "YT"]
+    ],
+    "Canada": [
+      ["Alberta", "AB"], ["British Columbia", "BC"], ["Manitoba", "MB"], ["New Brunswick", "NB"],
+      ["Newfoundland and Labrador", "NL"], ["Northwest Territories", "NT"], ["Nova Scotia", "NS"],
+      ["Nunavut", "NU"], ["Ontario", "ON"], ["Prince Edward Island", "PE"], ["Quebec", "QC"],
+      ["Saskatchewan", "SK"], ["Yukon", "YT"]
+    ]
+  };
+  
+  // Initialize selectors on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    // New address form
+    if (document.getElementById('AddressCountryNew')) {
+      new window.Shopify.CountryProvinceSelector('AddressCountryNew', 'AddressProvinceNew', {
+        provinceContainer: 'AddressProvinceNew'
+      });
+    }
+    
+    // Edit address forms
+    const addressForms = document.querySelectorAll('[id^="AddressCountry"]');
+    addressForms.forEach(function(countrySelect) {
+      const addressId = countrySelect.id.replace('AddressCountry', '');
+      if (addressId && addressId !== 'New') {
+        const provinceSelect = document.getElementById('AddressProvince' + addressId);
+        if (provinceSelect) {
+          new window.Shopify.CountryProvinceSelector('AddressCountry' + addressId, 'AddressProvince' + addressId, {
+            provinceContainer: 'AddressProvince' + addressId
+          });
+        }
+      }
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Customer Account",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo"
+    }
+  ]
+}
+{% endschema %}

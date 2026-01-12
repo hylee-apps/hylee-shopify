@@ -1,0 +1,321 @@
+{% comment %}
+  Header (Inner Pages) - Walmart-inspired header for all non-homepage templates
+  
+  Features:
+  - Skip-to-main-content accessibility link
+  - Logo with homepage link
+  - Full-width search bar with pill styling
+  - Account dropdown with sign-in/orders/settings
+  - Cart link with item count badge and total
+  - Mobile: hamburger menu, search toggle, cart icon
+  
+  Usage:
+    {% section 'header-inner' %}
+{% endcomment %}
+
+{{ 'section-header-inner.css' | asset_url | stylesheet_tag }}
+
+<header class="header-inner" data-header-inner>
+  {%- comment -%} Skip to main content link for accessibility {%- endcomment -%}
+  <a href="#MainContent" class="header-inner__skip-link">
+    {{ 'accessibility.skip_to_text' | t | default: 'Skip to main content' }}
+  </a>
+
+  <div class="header-inner__container">
+    {%- comment -%} Mobile: Menu toggle button {%- endcomment -%}
+    <button 
+      type="button" 
+      class="header-inner__menu-toggle"
+      data-header-menu-toggle
+      aria-label="{{ 'sections.header.menu' | t | default: 'Menu' }}"
+      aria-expanded="false"
+      aria-controls="header-inner-mobile-menu"
+    >
+      {% render 'icon', name: 'menu', size: 24 %}
+    </button>
+
+    {%- comment -%} Logo {%- endcomment -%}
+    <a href="{{ routes.root_url }}" class="header-inner__logo" aria-label="{{ shop.name }} - {{ 'general.accessibility.home' | t | default: 'Homepage' }}">
+      {%- if section.settings.logo != blank -%}
+        <img 
+          src="{{ section.settings.logo | image_url: width: 120 }}" 
+          alt="{{ shop.name }}"
+          class="header-inner__logo-image"
+          width="120"
+          height="auto"
+          loading="eager"
+        >
+      {%- else -%}
+        <span class="header-inner__logo-text">{{ section.settings.logo_text | default: shop.name }}</span>
+      {%- endif -%}
+    </a>
+
+    {%- comment -%} Search bar - Desktop {%- endcomment -%}
+    <div class="header-inner__search" data-header-search>
+      <form action="{{ routes.search_url }}" method="get" role="search" class="header-inner__search-form" aria-label="{{ 'general.search.search' | t | default: 'Search' }}">
+        <input 
+          type="search" 
+          name="q" 
+          class="header-inner__search-input"
+          placeholder="{{ section.settings.search_placeholder | default: 'Search products...' }}"
+          autocomplete="off"
+          aria-label="{{ 'general.search.search' | t | default: 'Search' }}"
+        >
+        <button type="submit" class="header-inner__search-button" aria-label="{{ 'general.search.search' | t | default: 'Search' }}">
+          {% render 'icon', name: 'search', size: 20 %}
+        </button>
+      </form>
+    </div>
+
+    {%- comment -%} Mobile: Search toggle {%- endcomment -%}
+    <button 
+      type="button" 
+      class="header-inner__search-toggle"
+      data-header-search-toggle
+      aria-label="{{ 'general.search.search' | t | default: 'Search' }}"
+      aria-expanded="false"
+    >
+      {% render 'icon', name: 'search', size: 24 %}
+    </button>
+
+    {%- comment -%} Actions: Account & Cart {%- endcomment -%}
+    <nav class="header-inner__actions" aria-label="{{ 'sections.header.account_and_cart' | t | default: 'Account and Cart' }}">
+      {%- comment -%} Account dropdown {%- endcomment -%}
+      {%- if section.settings.show_account -%}
+        <div class="header-inner__account" data-header-account>
+          <a 
+            href="{{ routes.account_url | default: routes.account_login_url }}"
+            class="header-inner__account-trigger"
+            data-header-account-toggle
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            {% render 'icon', name: 'user', size: 20 %}
+            <span class="header-inner__account-text">
+              {%- if customer -%}
+                <span class="header-inner__account-label">{{ customer.first_name | default: 'Hi' }}</span>
+                <span class="header-inner__account-value">Account</span>
+              {%- else -%}
+                <span class="header-inner__account-label">Sign In</span>
+                <span class="header-inner__account-value">Account</span>
+              {%- endif -%}
+            </span>
+            {% render 'icon', name: 'chevron-down', size: 12, class: 'header-inner__account-chevron' %}
+          </a>
+
+          {%- comment -%} Account flyout dropdown {%- endcomment -%}
+          <div class="header-inner__account-flyout" data-header-account-flyout hidden>
+            <div class="header-inner__account-flyout-inner">
+              {%- if customer -%}
+                <a href="{{ routes.account_url }}" class="header-inner__flyout-link">
+                  {% render 'icon', name: 'user', size: 16 %}
+                  My Account
+                </a>
+                <a href="{{ routes.account_url }}#orders" class="header-inner__flyout-link">
+                  {% render 'icon', name: 'package', size: 16 %}
+                  Orders
+                </a>
+                <a href="/account/settings" class="header-inner__flyout-link">
+                  {% render 'icon', name: 'settings', size: 16 %}
+                  Settings
+                </a>
+                <hr class="header-inner__flyout-divider">
+                <a href="{{ routes.account_logout_url }}" class="header-inner__flyout-link">
+                  {% render 'icon', name: 'log-out', size: 16 %}
+                  Sign Out
+                </a>
+              {%- else -%}
+                <a href="{{ routes.account_login_url }}" class="header-inner__flyout-button">
+                  Sign in or create account
+                </a>
+                <hr class="header-inner__flyout-divider">
+                <a href="{{ routes.account_login_url }}" class="header-inner__flyout-link">
+                  {% render 'icon', name: 'package', size: 16 %}
+                  Purchase History
+                </a>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} Cart link {%- endcomment -%}
+      <a href="{{ routes.cart_url }}" class="header-inner__cart">
+        <span class="header-inner__cart-icon-wrapper">
+          {% render 'icon', name: 'cart', size: 24 %}
+          {%- if cart.item_count > 0 -%}
+            <span class="header-inner__cart-badge">{{ cart.item_count }}</span>
+          {%- endif -%}
+        </span>
+        <span class="header-inner__cart-total">{{ cart.total_price | money }}</span>
+      </a>
+    </nav>
+  </div>
+
+  {%- comment -%} Mobile search overlay {%- endcomment -%}
+  <div class="header-inner__search-overlay" data-header-search-overlay hidden>
+    <form action="{{ routes.search_url }}" method="get" role="search" class="header-inner__search-overlay-form">
+      <input 
+        type="search" 
+        name="q" 
+        class="header-inner__search-overlay-input"
+        placeholder="{{ section.settings.search_placeholder | default: 'Search products...' }}"
+        autocomplete="off"
+        aria-label="{{ 'general.search.search' | t | default: 'Search' }}"
+      >
+      <button type="submit" class="header-inner__search-overlay-submit" aria-label="{{ 'general.search.search' | t | default: 'Search' }}">
+        {% render 'icon', name: 'search', size: 20 %}
+      </button>
+      <button type="button" class="header-inner__search-overlay-close" data-header-search-close aria-label="{{ 'general.accessibility.close' | t | default: 'Close' }}">
+        {% render 'icon', name: 'close', size: 24 %}
+      </button>
+    </form>
+  </div>
+
+  {%- comment -%} Mobile menu drawer {%- endcomment -%}
+  <div 
+    class="header-inner__mobile-menu" 
+    id="header-inner-mobile-menu"
+    data-header-mobile-menu 
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-label="{{ 'sections.header.menu' | t | default: 'Menu' }}"
+  >
+    <div class="header-inner__mobile-menu-backdrop" data-header-menu-backdrop></div>
+    <div class="header-inner__mobile-menu-drawer">
+      <div class="header-inner__mobile-menu-header">
+        <span class="header-inner__mobile-menu-title">Menu</span>
+        <button 
+          type="button" 
+          class="header-inner__mobile-menu-close"
+          data-header-menu-close
+          aria-label="{{ 'general.accessibility.close' | t | default: 'Close menu' }}"
+        >
+          {% render 'icon', name: 'close', size: 24 %}
+        </button>
+      </div>
+      
+      <nav class="header-inner__mobile-nav" aria-label="{{ 'sections.header.main_navigation' | t | default: 'Main navigation' }}">
+        {%- assign menu = linklists[section.settings.menu] -%}
+        {%- if menu != blank -%}
+          <ul class="header-inner__mobile-nav-list">
+            {%- for link in menu.links -%}
+              <li class="header-inner__mobile-nav-item">
+                {%- if link.links != blank -%}
+                  <details class="header-inner__mobile-nav-details">
+                    <summary class="header-inner__mobile-nav-summary">
+                      {{ link.title }}
+                      {% render 'icon', name: 'chevron-down', size: 16, class: 'header-inner__mobile-nav-chevron' %}
+                    </summary>
+                    <ul class="header-inner__mobile-nav-submenu">
+                      {%- for child_link in link.links -%}
+                        <li>
+                          <a href="{{ child_link.url }}" class="header-inner__mobile-nav-sublink">
+                            {{ child_link.title }}
+                          </a>
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  </details>
+                {%- else -%}
+                  <a href="{{ link.url }}" class="header-inner__mobile-nav-link">
+                    {{ link.title }}
+                  </a>
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+        {%- else -%}
+          <p class="header-inner__mobile-nav-empty">No menu assigned. Configure in theme settings.</p>
+        {%- endif -%}
+      </nav>
+
+      {%- comment -%} Mobile account links {%- endcomment -%}
+      <div class="header-inner__mobile-account">
+        <hr class="header-inner__mobile-divider">
+        {%- if customer -%}
+          <a href="{{ routes.account_url }}" class="header-inner__mobile-account-link">
+            {% render 'icon', name: 'user', size: 20 %}
+            My Account
+          </a>
+          <a href="{{ routes.account_url }}#orders" class="header-inner__mobile-account-link">
+            {% render 'icon', name: 'package', size: 20 %}
+            Orders
+          </a>
+          <a href="{{ routes.account_logout_url }}" class="header-inner__mobile-account-link">
+            {% render 'icon', name: 'log-out', size: 20 %}
+            Sign Out
+          </a>
+        {%- else -%}
+          <a href="{{ routes.account_login_url }}" class="header-inner__mobile-account-link">
+            {% render 'icon', name: 'user', size: 20 %}
+            Sign In / Create Account
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</header>
+
+{% schema %}
+{
+  "name": "Header (Inner Pages)",
+  "tag": "section",
+  "class": "section-header-inner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo image"
+    },
+    {
+      "type": "text",
+      "id": "logo_text",
+      "label": "Logo text",
+      "default": "Hy-lee",
+      "info": "Displayed if no logo image is set"
+    },
+    {
+      "type": "header",
+      "content": "Search"
+    },
+    {
+      "type": "text",
+      "id": "search_placeholder",
+      "label": "Search placeholder text",
+      "default": "Search products..."
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Mobile menu",
+      "default": "main-menu",
+      "info": "Select the menu to display in mobile navigation"
+    },
+    {
+      "type": "header",
+      "content": "Account"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_account",
+      "label": "Show account link",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Header (Inner Pages)"
+    }
+  ]
+}
+{% endschema %}
