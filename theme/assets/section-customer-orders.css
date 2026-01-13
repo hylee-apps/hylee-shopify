@@ -15,32 +15,6 @@
 }
 
 /* ==========================================================================
-   Breadcrumbs
-   ========================================================================== */
-
-.customer-orders__breadcrumbs {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2, 0.5rem);
-  font-size: 0.875rem;
-  color: var(--color-text-muted, #666666);
-  margin-bottom: var(--space-4, 1rem);
-}
-
-.customer-orders__breadcrumbs a {
-  color: var(--color-secondary, #2699a6);
-  text-decoration: none;
-}
-
-.customer-orders__breadcrumbs a:hover {
-  text-decoration: underline;
-}
-
-.customer-orders__breadcrumb-separator {
-  color: var(--color-border, #e5e7eb);
-}
-
-/* ==========================================================================
    Header with Search
    ========================================================================== */
 
@@ -601,6 +575,144 @@
   border: 0;
 }
 
+.visually-hidden--focusable:focus,
+.visually-hidden--focusable:focus-visible {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: var(--space-2);
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background: var(--color-primary);
+  color: #ffffff;
+  z-index: 9999;
+}
+
+/* ==========================================================================
+   Skeleton Loading
+   ========================================================================== */
+
+.customer-orders__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 1rem);
+}
+
+.customer-orders__skeleton[hidden] {
+  display: none;
+}
+
+.skeleton--order-card {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-lg, 0.75rem);
+  padding: var(--space-4, 1rem);
+}
+
+.skeleton--order-card .skeleton__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4, 1rem);
+  padding-bottom: var(--space-3, 0.75rem);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.skeleton--order-card .skeleton__body {
+  display: flex;
+  gap: var(--space-4, 1rem);
+}
+
+.skeleton--order-card .skeleton__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem);
+}
+
+.skeleton__line {
+  height: 1rem;
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+  border-radius: var(--radius-sm, 0.25rem);
+}
+
+.skeleton__line--sm {
+  height: 0.75rem;
+}
+
+.skeleton__line--md {
+  height: 1rem;
+}
+
+.skeleton__image {
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+  border-radius: var(--radius-md, 0.5rem);
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ==========================================================================
+   Tab Navigation - Horizontal Scroll (Mobile)
+   ========================================================================== */
+
+.customer-orders__nav {
+  position: relative;
+}
+
+.customer-orders__nav-inner {
+  display: flex;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.customer-orders__nav-inner::-webkit-scrollbar {
+  display: none;
+}
+
+/* Scroll shadow indicators */
+.customer-orders__nav::before,
+.customer-orders__nav::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 1;
+}
+
+.customer-orders__nav::before {
+  left: 0;
+  background: linear-gradient(to right, var(--color-background, #ffffff), transparent);
+}
+
+.customer-orders__nav::after {
+  right: 0;
+  background: linear-gradient(to left, var(--color-background, #ffffff), transparent);
+}
+
+.customer-orders__nav--scroll-left::before,
+.customer-orders__nav--scroll-right::after {
+  opacity: 1;
+}
+
 /* ==========================================================================
    Responsive Styles
    ========================================================================== */
@@ -652,6 +764,42 @@
     flex-direction: column;
     align-items: stretch;
     gap: 0.75rem;
+  }
+
+  /* Touch-friendly tab navigation */
+  .customer-orders__nav-item {
+    min-height: 44px;
+    padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+    white-space: nowrap;
+  }
+
+  /* Touch-friendly buttons */
+  .customer-orders__item-btn,
+  .customer-orders__item-actions .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .customer-orders__item-actions {
+    flex-direction: column;
+    gap: var(--space-2, 0.5rem);
+    width: 100%;
+  }
+
+  .customer-orders__item-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Touch-friendly search button */
+  .customer-orders__search-btn {
+    min-height: 44px;
+    width: 100%;
+  }
+
+  /* Touch-friendly time filter */
+  .customer-orders__time-select {
+    min-height: 44px;
   }
 }
 

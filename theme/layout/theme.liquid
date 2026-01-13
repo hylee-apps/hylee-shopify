@@ -10,7 +10,7 @@
 
     gtag('config', 'G-QT99EXVZ9E');
   </script>
-  
+
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -18,6 +18,13 @@
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','GTM-PRWTKMCB');</script>
   <!-- End Google Tag Manager -->
+
+  <!-- Route /account/orders to /pages/orders -->
+  <script>
+    if (window.location.pathname === '/account/orders') {
+      window.location.replace('/pages/orders');
+    }
+  </script>
 
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -150,7 +157,7 @@
   </script>
 </head>
 
-<body class="gradient{% if template contains 'customers' %} template-customers{% endif %}">
+<body class="gradient{% if template contains 'customers' %} template-customers{% endif %}{% if template == 'customers/login' %} template-customers-login{% endif %}{% if template == 'customers/register' %} template-customers-register{% endif %}">
   <a class="skip-to-content-link button visually-hidden" href="#MainContent">
     {{ 'accessibility.skip_to_text' | t }}
   </a>

@@ -103,9 +103,11 @@ a:hover {
   );
 }
 
-/* Hide main header and footer on customer pages (they have their own) */
-.template-customers #shopify-section-header,
-.template-customers #shopify-section-footer {
+/* Hide main header and footer only on login/register pages */
+.template-customers-login #shopify-section-header,
+.template-customers-login #shopify-section-footer,
+.template-customers-register #shopify-section-header,
+.template-customers-register #shopify-section-footer {
   display: none;
 }
 

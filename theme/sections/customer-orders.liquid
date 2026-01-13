@@ -7,19 +7,20 @@
 
 <div class="customer-orders">
   <div class="customer-orders__container">
+    {%- comment -%} Skip Link for accessibility {%- endcomment -%}
+    <a href="#orders-list" class="visually-hidden visually-hidden--focusable">
+      Skip to order list
+    </a>
+
     {%- comment -%} Breadcrumbs {%- endcomment -%}
-    <nav class="customer-orders__breadcrumbs" aria-label="Breadcrumb">
-      {% render 'icon', name: 'chevron-left', size: 16 %}
-      <a href="{{ routes.account_url }}">Your Account</a>
-      <span class="customer-orders__breadcrumb-separator" aria-hidden="true">›</span>
-      <span aria-current="page">Your Orders</span>
-    </nav>
+    {%- assign breadcrumb_items = "Your Account," | append: routes.account_url | append: ";Your Orders" | split: ";" -%}
+    {% render 'breadcrumb', variant: 'account', items: breadcrumb_items %}
 
     {%- comment -%} Header with Search {%- endcomment -%}
     <div class="customer-orders__header">
       <h1 class="customer-orders__title">Your Orders</h1>
       <div class="customer-orders__search-container">
-        <form class="customer-orders__search-form" role="search" onsubmit="return false;">
+        <form class="customer-orders__search-form" role="search" data-orders-search-form>
           <label for="orders-search" class="visually-hidden">Search your orders</label>
           <input
             type="search"
@@ -98,6 +99,13 @@
       </div>
     </div>
 
+    {%- comment -%} Skeleton Loading Placeholder {%- endcomment -%}
+    <div class="customer-orders__skeleton" data-orders-skeleton hidden aria-hidden="true">
+      {% for i in (1..3) %}
+        {% render 'skeleton', type: 'order-card' %}
+      {% endfor %}
+    </div>
+
     {%- comment -%} Orders Panel - All Orders {%- endcomment -%}
     <div 
       class="customer-orders__panel customer-orders__panel--active" 
@@ -107,7 +115,7 @@
       data-orders-panel="all"
     >
       {% paginate customer.orders by 10 %}
-        <div class="customer-orders__list" data-orders-list>
+        <div class="customer-orders__list" id="orders-list" data-orders-list>
           {% for order in customer.orders %}
             <article 
               class="customer-orders__card" 
@@ -149,20 +157,14 @@
                 <div class="customer-orders__delivery-status">
                   {% case order.fulfillment_status %}
                     {% when 'fulfilled' %}
-                      <span class="customer-orders__status customer-orders__status--delivered">
-                        {% render 'icon', name: 'check-circle', size: 16 %}
-                        Delivered
-                      </span>
+                      {%- capture icon_html -%}{% render 'icon', name: 'check-circle', size: 16 %}{%- endcapture -%}
+                      {% render 'badge', text: 'Delivered', variant: 'success', icon: icon_html %}
                     {% when 'partial' %}
-                      <span class="customer-orders__status customer-orders__status--partial">
-                        {% render 'icon', name: 'truck', size: 16 %}
-                        Partially Shipped
-                      </span>
+                      {%- capture icon_html -%}{% render 'icon', name: 'truck', size: 16 %}{%- endcapture -%}
+                      {% render 'badge', text: 'Partially Shipped', variant: 'info', icon: icon_html %}
                     {% else %}
-                      <span class="customer-orders__status customer-orders__status--processing">
-                        {% render 'icon', name: 'clock', size: 16 %}
-                        Processing
-                      </span>
+                      {%- capture icon_html -%}{% render 'icon', name: 'clock', size: 16 %}{%- endcapture -%}
+                      {% render 'badge', text: 'Processing', variant: 'warning', icon: icon_html %}
                   {% endcase %}
                   {% if order.fulfillment_status == 'fulfilled' %}
                     <span class="customer-orders__delivery-date">{{ order.updated_at | date: '%B %d, %Y' }}</span>
@@ -189,17 +191,33 @@
                         {% endif %}
                       </div>
                       <div class="customer-orders__item-details">
-                        <a href="{{ item.product.url }}" class="customer-orders__item-title">{{ item.title }}</a>
+                        {%- assign item_url = item.product.url | default: item.url -%}
+                        {% if item_url != blank %}
+                          <a href="{{ item_url }}" class="customer-orders__item-title">{{ item.title }}</a>
+                        {% else %}
+                          <span class="customer-orders__item-title">{{ item.title }}</span>
+                        {% endif %}
                         {% if item.variant.title != 'Default Title' %}
                           <p class="customer-orders__item-variant">{{ item.variant.title }}</p>
                         {% endif %}
                         <p class="customer-orders__item-quantity">Qty: {{ item.quantity }}</p>
                         <div class="customer-orders__item-actions">
-                          <a href="{{ item.product.url }}" class="customer-orders__item-btn customer-orders__item-btn--primary">
-                            {% render 'icon', name: 'shopping-cart', size: 16 %}
-                            Buy it again
-                          </a>
-                          <a href="{{ item.product.url }}" class="customer-orders__item-btn customer-orders__item-btn--secondary">View your item</a>
+                          {%- capture cart_icon -%}{% render 'icon', name: 'shopping-cart', size: 16 %}{%- endcapture -%}
+                          <button 
+                            type="button" 
+                            class="btn btn--primary btn--sm customer-orders__item-btn"
+                            data-buy-again
+                            data-variant-id="{{ item.variant_id }}"
+                            data-quantity="{{ item.quantity }}"
+                            data-product-name="{{ item.title | escape }}"
+                            aria-label="Add {{ item.title | escape }} to cart"
+                          >
+                            {{ cart_icon }}
+                            <span>Buy it again</span>
+                          </button>
+                          {% if item_url != blank %}
+                            {% render 'button', text: 'View your item', url: item_url, variant: 'outline', size: 'sm', class: 'customer-orders__item-btn' %}
+                          {% endif %}
                         </div>
                       </div>
                     </div>
@@ -211,7 +229,7 @@
             <div class="customer-orders__empty-state">
               {% render 'icon', name: 'package', size: 64 %}
               <p>You haven't placed any orders yet</p>
-              <a href="{{ routes.all_products_collection_url }}" class="customer-orders__empty-state-btn">Start Shopping</a>
+              {% render 'button', text: 'Start Shopping', url: routes.all_products_collection_url, variant: 'primary', class: 'customer-orders__empty-state-btn' %}
             </div>
           {% endfor %}
         </div>
@@ -241,8 +259,9 @@
             {% unless seen_handles contains item.product.handle %}
               {% assign seen_handles = seen_handles | append: item.product.handle | append: ',' %}
               {% assign product_count = product_count | plus: 1 %}
+              {%- assign buy_again_url = item.product.url | default: item.url -%}
               <div class="customer-orders__buy-again-item" data-product-handle="{{ item.product.handle }}">
-                <a href="{{ item.product.url }}" class="customer-orders__buy-again-image-link">
+                <a href="{{ buy_again_url }}" class="customer-orders__buy-again-image-link">
                   {% if item.image %}
                     <img 
                       src="{{ item.image | image_url: width: 180 }}" 
@@ -259,11 +278,9 @@
                   {% endif %}
                 </a>
                 <div class="customer-orders__buy-again-details">
-                  <a href="{{ item.product.url }}" class="customer-orders__buy-again-title">{{ item.product.title }}</a>
+                  <a href="{{ buy_again_url }}" class="customer-orders__buy-again-title">{{ item.product.title }}</a>
                   <p class="customer-orders__buy-again-price">{{ item.product.price | money }}</p>
-                  <a href="{{ item.product.url }}" class="customer-orders__item-btn customer-orders__item-btn--primary">
-                    View Product
-                  </a>
+                  {% render 'button', text: 'View Product', url: buy_again_url, variant: 'primary', size: 'sm', class: 'customer-orders__item-btn' %}
                 </div>
               </div>
             {% endunless %}
@@ -273,7 +290,7 @@
           <div class="customer-orders__empty-state">
             {% render 'icon', name: 'shopping-cart', size: 64 %}
             <p>No products to buy again</p>
-            <a href="{{ routes.all_products_collection_url }}" class="customer-orders__empty-state-btn">Browse Products</a>
+            {% render 'button', text: 'Browse Products', url: routes.all_products_collection_url, variant: 'primary', class: 'customer-orders__empty-state-btn' %}
           </div>
         {% endif %}
       </div>
@@ -323,14 +340,13 @@
 
               <div class="customer-orders__card-body">
                 <div class="customer-orders__delivery-status">
-                  <span class="customer-orders__status customer-orders__status--processing">
-                    {% render 'icon', name: 'clock', size: 16 %}
-                    {% if order.fulfillment_status == 'partial' %}
-                      Partially Shipped
-                    {% else %}
-                      Processing
-                    {% endif %}
-                  </span>
+                  {% if order.fulfillment_status == 'partial' %}
+                    {%- capture icon_html -%}{% render 'icon', name: 'truck', size: 16 %}{%- endcapture -%}
+                    {% render 'badge', text: 'Partially Shipped', variant: 'info', icon: icon_html %}
+                  {% else %}
+                    {%- capture icon_html -%}{% render 'icon', name: 'clock', size: 16 %}{%- endcapture -%}
+                    {% render 'badge', text: 'Processing', variant: 'warning', icon: icon_html %}
+                  {% endif %}
                 </div>
 
                 <div class="customer-orders__items">
@@ -353,7 +369,12 @@
                         {% endif %}
                       </div>
                       <div class="customer-orders__item-details">
-                        <a href="{{ item.product.url }}" class="customer-orders__item-title">{{ item.title }}</a>
+                        {%- assign unshipped_item_url = item.product.url | default: item.url -%}
+                        {% if unshipped_item_url != blank %}
+                          <a href="{{ unshipped_item_url }}" class="customer-orders__item-title">{{ item.title }}</a>
+                        {% else %}
+                          <span class="customer-orders__item-title">{{ item.title }}</span>
+                        {% endif %}
                         {% if item.variant.title != 'Default Title' %}
                           <p class="customer-orders__item-variant">{{ item.variant.title }}</p>
                         {% endif %}
@@ -370,7 +391,7 @@
           <div class="customer-orders__empty-state">
             {% render 'icon', name: 'check-circle', size: 64 %}
             <p>All orders have been shipped!</p>
-            <a href="{{ routes.all_products_collection_url }}" class="customer-orders__empty-state-btn">Continue Shopping</a>
+            {% render 'button', text: 'Continue Shopping', url: routes.all_products_collection_url, variant: 'primary', class: 'customer-orders__empty-state-btn' %}
           </div>
         {% endunless %}
       </div>
@@ -416,10 +437,8 @@
 
               <div class="customer-orders__card-body">
                 <div class="customer-orders__delivery-status">
-                  <span class="customer-orders__status customer-orders__status--digital">
-                    {% render 'icon', name: 'download', size: 16 %}
-                    Digital Product
-                  </span>
+                  {%- capture icon_html -%}{% render 'icon', name: 'download', size: 16 %}{%- endcapture -%}
+                  {% render 'badge', text: 'Digital Product', variant: 'secondary', icon: icon_html %}
                 </div>
 
                 <div class="customer-orders__items">
@@ -443,12 +462,19 @@
                           {% endif %}
                         </div>
                         <div class="customer-orders__item-details">
-                          <a href="{{ item.product.url }}" class="customer-orders__item-title">{{ item.title }}</a>
+                          {%- assign digital_item_url = item.product.url | default: item.url -%}
+                          {% if digital_item_url != blank %}
+                            <a href="{{ digital_item_url }}" class="customer-orders__item-title">{{ item.title }}</a>
+                          {% else %}
+                            <span class="customer-orders__item-title">{{ item.title }}</span>
+                          {% endif %}
                           {% if item.variant.title != 'Default Title' %}
                             <p class="customer-orders__item-variant">{{ item.variant.title }}</p>
                           {% endif %}
                           <div class="customer-orders__item-actions">
-                            <a href="{{ item.product.url }}" class="customer-orders__item-btn customer-orders__item-btn--secondary">View Product</a>
+                            {% if digital_item_url != blank %}
+                              {% render 'button', text: 'View Product', url: digital_item_url, variant: 'outline', size: 'sm', class: 'customer-orders__item-btn' %}
+                            {% endif %}
                           </div>
                         </div>
                       </div>
@@ -463,108 +489,13 @@
           <div class="customer-orders__empty-state">
             {% render 'icon', name: 'download', size: 64 %}
             <p>No digital orders</p>
-            <a href="{{ routes.all_products_collection_url }}" class="customer-orders__empty-state-btn">Browse Products</a>
+            {% render 'button', text: 'Browse Products', url: routes.all_products_collection_url, variant: 'primary', class: 'customer-orders__empty-state-btn' %}
           </div>
         {% endunless %}
       </div>
     </div>
   </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Tab Navigation
-  const tabButtons = document.querySelectorAll('[data-orders-tab]');
-  const panels = document.querySelectorAll('[data-orders-panel]');
-  
-  tabButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      const targetPanel = this.dataset.ordersTab;
-      
-      // Update tab states
-      tabButtons.forEach(btn => {
-        btn.classList.remove('customer-orders__nav-item--active');
-        btn.setAttribute('aria-selected', 'false');
-      });
-      this.classList.add('customer-orders__nav-item--active');
-      this.setAttribute('aria-selected', 'true');
-      
-      // Update panel visibility
-      panels.forEach(panel => {
-        if (panel.dataset.ordersPanel === targetPanel) {
-          panel.classList.add('customer-orders__panel--active');
-          panel.removeAttribute('hidden');
-        } else {
-          panel.classList.remove('customer-orders__panel--active');
-          panel.setAttribute('hidden', '');
-        }
-      });
-    });
-  });
-  
-  // Search functionality
-  const searchInput = document.querySelector('[data-orders-search]');
-  const searchBtn = document.querySelector('[data-orders-search-btn]');
-  const orderCards = document.querySelectorAll('[data-order-card]');
-  
-  function filterOrders() {
-    const searchTerm = searchInput.value.toLowerCase().trim();
-    let visibleCount = 0;
-    
-    orderCards.forEach(card => {
-      const orderNumber = card.dataset.orderNumber.toLowerCase();
-      const products = card.dataset.orderProducts.toLowerCase();
-      
-      if (searchTerm === '' || orderNumber.includes(searchTerm) || products.includes(searchTerm)) {
-        card.style.display = '';
-        visibleCount++;
-      } else {
-        card.style.display = 'none';
-      }
-    });
-    
-    // Update count
-    const countEl = document.querySelector('[data-orders-count]');
-    if (countEl) {
-      countEl.textContent = `${visibleCount} order${visibleCount !== 1 ? 's' : ''}`;
-    }
-  }
-  
-  if (searchInput) {
-    searchInput.addEventListener('input', filterOrders);
-  }
-  if (searchBtn) {
-    searchBtn.addEventListener('click', filterOrders);
-  }
-  
-  // Time filter
-  const timeFilter = document.querySelector('[data-orders-time-filter]');
-  if (timeFilter) {
-    timeFilter.addEventListener('change', function() {
-      const days = this.value;
-      const now = Date.now() / 1000;
-      let visibleCount = 0;
-      
-      orderCards.forEach(card => {
-        const orderDate = parseInt(card.dataset.orderDate, 10);
-        const daysDiff = (now - orderDate) / (60 * 60 * 24);
-        
-        if (days === 'all' || daysDiff <= parseInt(days, 10)) {
-          card.style.display = '';
-          visibleCount++;
-        } else {
-          card.style.display = 'none';
-        }
-      });
-      
-      const countEl = document.querySelector('[data-orders-count]');
-      if (countEl) {
-        countEl.textContent = `${visibleCount} order${visibleCount !== 1 ? 's' : ''}`;
-      }
-    });
-  }
-});
-</script>
 
 {% schema %}
 {

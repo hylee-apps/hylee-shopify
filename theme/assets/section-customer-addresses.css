@@ -1,0 +1,739 @@
+/**
+ * Customer Addresses Page Styles
+ * Amazon-inspired card grid layout with modal forms
+ */
+
+/* ==========================================================================
+   Page Layout
+   ========================================================================== */
+
+.addresses-page {
+  padding: var(--space-6) var(--space-4);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .addresses-page {
+    padding: var(--space-8) var(--space-6);
+  }
+}
+
+/* Skip Link */
+.addresses-page__skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.addresses-page__skip-link:focus {
+  position: fixed;
+  top: var(--space-4);
+  left: var(--space-4);
+  width: auto;
+  height: auto;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-md);
+  z-index: var(--z-modal);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+.addresses-page__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .addresses-page__header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-8);
+  }
+}
+
+.addresses-page__title {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .addresses-page__title {
+    font-size: var(--text-3xl);
+  }
+}
+
+/* ==========================================================================
+   Address Grid
+   ========================================================================== */
+
+.addresses-page__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .addresses-page__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .addresses-page__grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+  }
+}
+
+/* ==========================================================================
+   Add Address Tile (Amazon-style)
+   ========================================================================== */
+
+.addresses-page__add-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: var(--space-6);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: border-color var(--transition-base), background-color var(--transition-base);
+  text-decoration: none;
+  color: var(--color-text-muted);
+}
+
+.addresses-page__add-tile:hover,
+.addresses-page__add-tile:focus-visible {
+  border-color: var(--color-primary);
+  background-color: color-mix(in srgb, var(--color-primary) 5%, transparent);
+}
+
+.addresses-page__add-tile:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.addresses-page__add-tile-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  color: var(--color-primary);
+  margin-bottom: var(--space-3);
+  transition: transform var(--transition-base);
+}
+
+.addresses-page__add-tile:hover .addresses-page__add-tile-icon {
+  transform: scale(1.1);
+}
+
+.addresses-page__add-tile-text {
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+/* ==========================================================================
+   Address Card Component
+   ========================================================================== */
+
+.address-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base), border-color var(--transition-base);
+}
+
+.address-card:hover {
+  box-shadow: var(--shadow);
+}
+
+/* Default Address Styling */
+.address-card--default {
+  border-left: 3px solid var(--color-primary);
+}
+
+/* Badge */
+.address-card__badge {
+  margin-bottom: var(--space-3);
+}
+
+/* Content */
+.address-card__content {
+  flex: 1;
+}
+
+.address-card__name {
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.address-card__company {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.address-card__address {
+  font-style: normal;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+.address-card__line {
+  display: block;
+}
+
+.address-card__phone {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+/* Actions */
+.address-card__actions {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.address-card__action-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.address-card__action-item {
+  display: flex;
+  align-items: center;
+}
+
+.address-card__action-divider {
+  color: var(--color-border);
+  user-select: none;
+}
+
+.address-card__action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+  text-decoration: none;
+}
+
+.address-card__action-link:hover,
+.address-card__action-link:focus-visible {
+  color: var(--color-primary-dark, var(--color-primary));
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+
+.address-card__action-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.address-card__action-link--danger {
+  color: var(--color-error, #dc2626);
+}
+
+.address-card__action-link--danger:hover,
+.address-card__action-link--danger:focus-visible {
+  color: var(--color-error-dark, #b91c1c);
+  background: color-mix(in srgb, var(--color-error, #dc2626) 10%, transparent);
+}
+
+/* ==========================================================================
+   Skeleton Loading
+   ========================================================================== */
+
+.addresses-page__loading {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .addresses-page__loading {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .addresses-page__loading {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+  }
+}
+
+.skeleton--address-card {
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  min-height: 200px;
+}
+
+.skeleton--address-card .skeleton__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.skeleton--address-card .skeleton__footer {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+/* ==========================================================================
+   Empty State
+   ========================================================================== */
+
+.addresses-page__empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-12) var(--space-6);
+  text-align: center;
+}
+
+.addresses-page__empty-illustration {
+  width: 120px;
+  height: 120px;
+  margin-bottom: var(--space-6);
+  color: var(--color-text-muted);
+  opacity: 0.5;
+}
+
+.addresses-page__empty-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.addresses-page__empty-description {
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-6) 0;
+  max-width: 360px;
+}
+
+/* ==========================================================================
+   Modal Form Styles
+   ========================================================================== */
+
+.address-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.address-form__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 480px) {
+  .address-form__row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.address-form__row--three {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 480px) {
+  .address-form__row--three {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.address-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* ==========================================================================
+   Input Group Styling within Address Form
+   ========================================================================== */
+
+/* Input group container */
+.address-form .input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+/* Enhanced label styling */
+.address-form .input-label,
+.address-form .select__label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+
+.address-form .input-label--required::after,
+.address-form .select__label--required::after {
+  content: " *";
+  color: var(--color-error, #dc2626);
+  font-weight: 400;
+}
+
+/* Enhanced input styling */
+.address-form .input {
+  width: 100%;
+  height: 2.75rem;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-base);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-background, #fff);
+  color: var(--color-text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.address-form .input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.address-form .input:hover {
+  border-color: var(--color-border-hover, #94a3b8);
+}
+
+.address-form .input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent);
+  outline: none;
+  background-color: #fff;
+}
+
+/* Helper text / hint styling */
+.address-form .input-hint {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   Select Styling within Address Form
+   ========================================================================== */
+
+/* Select wrapper styling */
+.address-form .select {
+  display: block;
+  width: 100%;
+  position: relative;
+}
+
+.address-form .select__native {
+  width: 100%;
+  height: 2.75rem;
+  padding: var(--space-3) var(--space-10) var(--space-3) var(--space-4);
+  font-size: var(--text-base);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-background, #fff);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25rem;
+}
+
+.address-form .select__native:hover {
+  border-color: var(--color-border-hover, #94a3b8);
+}
+
+.address-form .select__native:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent);
+  outline: none;
+}
+
+/* Select option styling */
+.address-form .select__native option {
+  padding: var(--space-2);
+}
+
+.address-form .select__native option:disabled {
+  color: var(--color-text-muted);
+}
+
+/* ==========================================================================
+   Checkbox Styling within Address Form
+   ========================================================================== */
+
+.address-form__checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  margin-top: var(--space-2);
+  background-color: var(--color-background-subtle, #f8fafc);
+  border: 1px solid var(--color-border-subtle, #e2e8f0);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.address-form__checkbox:hover {
+  background-color: var(--color-background-hover, #f1f5f9);
+  border-color: var(--color-border);
+}
+
+.address-form__checkbox:has(.checkbox:checked) {
+  background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  border-color: var(--color-primary);
+}
+
+.address-form__checkbox .checkbox {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  appearance: none;
+  position: relative;
+}
+
+.address-form__checkbox .checkbox:hover {
+  border-color: var(--color-primary);
+}
+
+.address-form__checkbox .checkbox:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 20%, transparent);
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.address-form__checkbox .checkbox:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.address-form__checkbox .checkbox:checked::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  width: 0.3rem;
+  height: 0.6rem;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+}
+
+.address-form__checkbox .checkbox-wrapper__label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  cursor: pointer;
+  line-height: 1.4;
+  user-select: none;
+}
+
+/* ==========================================================================
+   Form Actions Styling
+   ========================================================================== */
+
+.address-form__actions {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--space-3);
+  padding-top: var(--space-6);
+  margin-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+@media (min-width: 480px) {
+  .address-form__actions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+
+  .address-form__actions .button {
+    min-width: 8rem;
+  }
+}
+
+/* Ensure buttons in form actions have proper sizing */
+.address-form__actions .button {
+  justify-content: center;
+  font-weight: 600;
+}
+
+/* Cancel button subtle styling */
+.address-form__actions .button--outline {
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.address-form__actions .button--outline:hover {
+  background-color: var(--color-background-subtle, #f8fafc);
+  border-color: var(--color-border-hover, #94a3b8);
+  color: var(--color-text);
+}
+
+/* ==========================================================================
+   Form Error Messaging
+   ========================================================================== */
+.address-form__error {
+  display: none;
+  padding: var(--space-3) var(--space-4);
+  background: color-mix(in srgb, var(--color-error, #dc2626) 10%, transparent);
+  border: 1px solid var(--color-error, #dc2626);
+  border-radius: var(--radius-md);
+  color: var(--color-error, #dc2626);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.address-form__error.is-visible {
+  display: block;
+}
+
+/* Field validation error state */
+.address-form__field--error .input,
+.address-form__field--error .select__native {
+  border-color: var(--color-error, #dc2626);
+}
+
+.address-form__field--error .input:focus,
+.address-form__field--error .select__native:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-error, #dc2626) 20%, transparent);
+}
+
+/* ==========================================================================
+   Delete Confirmation Modal
+   ========================================================================== */
+
+.delete-confirm {
+  text-align: center;
+}
+
+.delete-confirm__icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto var(--space-4);
+  color: var(--color-error, #dc2626);
+}
+
+.delete-confirm__title {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.delete-confirm__address-name {
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-4) 0;
+}
+
+.delete-confirm__warning {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-6) 0;
+  padding: var(--space-3);
+  background: var(--color-background);
+  border-radius: var(--radius-md);
+}
+
+.delete-confirm__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (min-width: 480px) {
+  .delete-confirm__actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+/* ==========================================================================
+   Alert Messages
+   ========================================================================== */
+
+.addresses-page__alert {
+  margin-bottom: var(--space-6);
+}
+
+/* ==========================================================================
+   Hidden Utility
+   ========================================================================== */
+
+.addresses-page--loading .addresses-page__grid,
+.addresses-page--loading .addresses-page__empty {
+  display: none;
+}
+
+.addresses-page:not(.addresses-page--loading) .addresses-page__loading {
+  display: none;
+}
+
+/* Set Default Form (hidden) */
+.address-card__default-form {
+  display: none;
+}

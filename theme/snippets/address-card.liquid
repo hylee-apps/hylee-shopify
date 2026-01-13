@@ -1,0 +1,122 @@
+{% comment %}
+  Address Card Component
+  
+  Usage:
+    {% render 'address-card',
+      address: address,
+      is_default: address.default,
+      index: forloop.index
+    %}
+  
+  Parameters:
+    - address: Address object from customer.addresses (required)
+    - is_default: boolean - Whether this is the default address
+    - index: number - Index for unique IDs
+    - class: string - Additional CSS classes
+{% endcomment %}
+
+{%- liquid
+  assign is_default = is_default | default: false
+  assign card_index = index | default: 1
+  assign extra_class = class | default: ''
+  
+  assign card_classes = 'address-card'
+  if is_default
+    assign card_classes = card_classes | append: ' address-card--default'
+  endif
+  if extra_class != ''
+    assign card_classes = card_classes | append: ' ' | append: extra_class
+  endif
+-%}
+
+<article class="{{ card_classes }}" id="address-card-{{ address.id }}" data-address-id="{{ address.id }}">
+  {%- comment -%} Default Badge {%- endcomment -%}
+  {% if is_default %}
+    <div class="address-card__badge">
+      {% render 'badge', text: 'Default', variant: 'success', size: 'sm' %}
+    </div>
+  {% endif %}
+
+  {%- comment -%} Card Content {%- endcomment -%}
+  <div class="address-card__content">
+    {%- comment -%} Name {%- endcomment -%}
+    <h3 class="address-card__name">{{ address.name }}</h3>
+    
+    {%- comment -%} Company (if exists) {%- endcomment -%}
+    {% if address.company != blank %}
+      <p class="address-card__company">{{ address.company }}</p>
+    {% endif %}
+    
+    {%- comment -%} Address Lines {%- endcomment -%}
+    <address class="address-card__address">
+      <span class="address-card__line">{{ address.address1 }}</span>
+      {% if address.address2 != blank %}
+        <span class="address-card__line">{{ address.address2 }}</span>
+      {% endif %}
+      <span class="address-card__line">{{ address.city }}, {{ address.province_code }} {{ address.zip }}</span>
+      <span class="address-card__line">{{ address.country }}</span>
+      {% if address.phone != blank %}
+        <span class="address-card__line address-card__phone">
+          Phone: {{ address.phone }}
+        </span>
+      {% endif %}
+    </address>
+  </div>
+
+  {%- comment -%} Card Actions {%- endcomment -%}
+  <div class="address-card__actions">
+    <ul class="address-card__action-list" role="list">
+      <li class="address-card__action-item">
+        <button 
+          type="button" 
+          class="address-card__action-link"
+          data-modal-open="address-modal"
+          data-address-id="{{ address.id }}"
+          data-address-first-name="{{ address.first_name | escape }}"
+          data-address-last-name="{{ address.last_name | escape }}"
+          data-address-company="{{ address.company | escape }}"
+          data-address-address1="{{ address.address1 | escape }}"
+          data-address-address2="{{ address.address2 | escape }}"
+          data-address-city="{{ address.city | escape }}"
+          data-address-province="{{ address.province | escape }}"
+          data-address-province-code="{{ address.province_code | escape }}"
+          data-address-zip="{{ address.zip | escape }}"
+          data-address-country="{{ address.country | escape }}"
+          data-address-country-code="{{ address.country_code | escape }}"
+          data-address-phone="{{ address.phone | escape }}"
+          data-address-default="{{ address.default }}"
+          aria-label="Edit address for {{ address.name | escape }}"
+        >
+          {% render 'icon', name: 'edit', size: 14 %}
+          <span>Edit</span>
+        </button>
+      </li>
+      <li class="address-card__action-divider" aria-hidden="true">|</li>
+      <li class="address-card__action-item">
+        <button 
+          type="button" 
+          class="address-card__action-link address-card__action-link--danger"
+          data-modal-open="delete-confirm-modal"
+          data-address-id="{{ address.id }}"
+          data-address-name="{{ address.name | escape }}"
+          aria-label="Remove address for {{ address.name | escape }}"
+        >
+          <span>Remove</span>
+        </button>
+      </li>
+      {% unless is_default %}
+        <li class="address-card__action-divider" aria-hidden="true">|</li>
+        <li class="address-card__action-item">
+          <button 
+            type="button" 
+            class="address-card__action-link"
+            data-set-default-address="{{ address.id }}"
+            aria-label="Set as default address"
+          >
+            <span>Set as Default</span>
+          </button>
+        </li>
+      {% endunless %}
+    </ul>
+  </div>
+</article>

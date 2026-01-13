@@ -5,29 +5,7 @@
 
 {{ 'section-customer-register.css' | asset_url | stylesheet_tag }}
 
-<div class="customer-register min-h-screen bg-gradient-to-b from-slate-50 to-white">
-  {%- comment %-%} Header {%- endcomment -%}
-  <header class="customer-register__header">
-    <div class="customer-register__header-inner">
-      <a href="{{ routes.root_url }}" class="customer-register__logo">
-        <img 
-          src="https://placehold.co/28x28/71717a/ffffff?text=H" 
-          alt="{{ shop.name }}"
-          class="customer-register__logo-img"
-          width="28"
-          height="28"
-        >
-        <span class="customer-register__logo-text">Hylee</span>
-      </a>
-      <div class="customer-register__header-actions">
-        <span class="customer-register__signin-prompt">Already have an account?</span>
-        <a href="{{ routes.account_login_url }}" class="customer-register__signin-btn">
-          Sign In
-        </a>
-      </div>
-    </div>
-  </header>
-
+<div class="customer-register">
   <div class="customer-register__container">
     <div class="customer-register__grid">
       {%- comment %-%} Left Side - Sign Up Form {%- endcomment -%}
@@ -321,20 +299,6 @@
       </div>
     </div>
   </div>
-
-  {%- comment %-%} Footer {%- endcomment -%}
-  <footer class="customer-register__footer">
-    <div class="customer-register__footer-inner">
-      <p class="customer-register__footer-copyright">
-        © {{ 'now' | date: '%Y' }} {{ shop.name }}. All rights reserved.
-      </p>
-      <div class="customer-register__footer-links">
-        <a href="/pages/privacy" class="customer-register__footer-link">Privacy Policy</a>
-        <a href="/pages/terms" class="customer-register__footer-link">Terms of Service</a>
-        <a href="/pages/contact" class="customer-register__footer-link">Contact Support</a>
-      </div>
-    </div>
-  </footer>
 </div>
 
 <script>

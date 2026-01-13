@@ -39,6 +39,7 @@
     },
     "actions": {
       "track_order": "Orders",
+      "orders_returns": "Orders",
       "sign_in": "Sign In",
       "account": "Account"
     }

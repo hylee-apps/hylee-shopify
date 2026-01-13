@@ -127,6 +127,31 @@ pnpm validate:structure # Check directory structure
 - Screen reader friendly content (alt text, visually hidden labels)
 - Focus-visible outlines for interactive elements
 
+### Color Contrast Requirements (MANDATORY)
+
+**All text and UI elements MUST be visible on their backgrounds:**
+
+| Element Type                               | Minimum Contrast | Example Colors on White   |
+| ------------------------------------------ | ---------------- | ------------------------- |
+| Body text                                  | 4.5:1            | `#374151`, `#4b5563`      |
+| Large text (18px+)                         | 3:1              | `#6b7280`                 |
+| UI components (icons, borders, separators) | 3:1              | `#6b7280`, `#9ca3af`      |
+| Placeholder text                           | 4.5:1            | `#6b7280`                 |
+| Disabled elements                          | No requirement   | `#d1d5db` (grayed out OK) |
+
+**Never use these colors for text/separators on white:**
+
+- ❌ `#e5e7eb` (too light - 1.6:1 ratio)
+- ❌ `#d1d5db` (too light - 2.1:1 ratio)
+- ❌ `#cbd5e1` (too light - 1.9:1 ratio)
+- ❌ `--color-border` for text elements
+
+**Always use these safer alternatives:**
+
+- ✅ `#6b7280` (gray-500, 5.0:1 ratio)
+- ✅ `#9ca3af` (gray-400, 3.0:1 ratio - icons/separators only)
+- ✅ `--color-text-muted` for secondary text
+
 ### Mobile-First Responsive Design
 
 - Mobile breakpoint: `max-width: 767px`

@@ -16,11 +16,12 @@
 
 /* ========== Main Container ========== */
 .customer-register {
-  min-height: 100vh;
+  min-height: auto;
   background: linear-gradient(to bottom, var(--color-slate-50), white);
   font-family: 'Assistant', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  padding-bottom: 4rem;
 }
 
 /* ========== Header ========== */

@@ -99,34 +99,6 @@
   transition: background 0.2s;
 }
 
-/* ========== Breadcrumb ========== */
-.customer-account__breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-  font-size: 0.875rem;
-}
-
-.customer-account__breadcrumb-link {
-  color: #64748b;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.customer-account__breadcrumb-link:hover {
-  color: #0f172a;
-}
-
-.customer-account__breadcrumb-separator {
-  color: #cbd5e1;
-}
-
-.customer-account__breadcrumb-current {
-  color: #0f172a;
-  font-weight: 500;
-}
-
 .customer-account__signout-btn:hover {
   background: var(--color-green-hover);
 }
@@ -1169,29 +1141,6 @@
 }
 
 /* ========== Orders Tab (Amazon-style) ========== */
-
-/* Breadcrumbs */
-.orders-tab__breadcrumbs {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--color-slate-600);
-  margin-bottom: 1rem;
-}
-
-.orders-tab__breadcrumbs a {
-  color: var(--color-green-secondary);
-  text-decoration: none;
-}
-
-.orders-tab__breadcrumbs a:hover {
-  text-decoration: underline;
-}
-
-.orders-tab__breadcrumb-separator {
-  color: var(--color-slate-400);
-}
 
 /* Header with Search */
 .orders-tab__header {

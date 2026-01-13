@@ -763,8 +763,8 @@
 
   .header-inner__search-button {
     right: var(--space-2);
-    width: 3rem;
-    height: 3rem;
+    width: 2.5rem;
+    height: 2.5rem;
   }
 
   .header-inner__account-trigger {

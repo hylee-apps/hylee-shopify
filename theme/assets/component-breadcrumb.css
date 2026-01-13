@@ -39,7 +39,7 @@
 
 .breadcrumb__separator {
   margin: 0 0.5rem;
-  color: var(--color-border, #cbd5e1);
+  color: var(--color-text-muted, #6b7280);
   user-select: none;
 }
 
@@ -82,4 +82,33 @@
 .breadcrumb--icons .breadcrumb__separator svg {
   width: 14px;
   height: 14px;
+}
+
+/* Account variant (used in customer account pages) */
+.breadcrumb--account {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted, #666666);
+  margin-bottom: var(--space-4, 1rem);
+  padding: 0;
+}
+
+.breadcrumb--account .breadcrumb__link {
+  color: var(--color-secondary, #4a90a4);
+}
+
+.breadcrumb--account .breadcrumb__link:hover {
+  color: var(--color-secondary-dark, #3a7a8a);
+}
+
+.breadcrumb--account .breadcrumb__separator {
+  margin: 0 0.5rem;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.breadcrumb--account .breadcrumb__current {
+  color: var(--color-text-muted, #666666);
+  font-weight: 400;
 }

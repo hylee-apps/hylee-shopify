@@ -4,29 +4,25 @@
 {% endcomment %}
 
 {{ 'section-order-detail.css' | asset_url | stylesheet_tag }}
+{{ 'section-customer-orders.css' | asset_url | stylesheet_tag }}
 
-<div class="order-detail">
-  {%- comment %-%} Header {%- endcomment -%}
-  <header class="order-detail__header">
-    <div class="order-detail__header-inner">
-      <a href="{{ routes.root_url }}" class="order-detail__logo">
-        <img 
-          src="https://placehold.co/28x28/71717a/ffffff?text=H" 
-          alt="{{ shop.name }}"
-          class="order-detail__logo-image"
-          width="28"
-          height="28"
-        >
-        <span class="order-detail__logo-text">Hylee</span>
-      </a>
-      <div class="order-detail__header-actions">
-        <a href="/pages/track-order" class="order-detail__btn order-detail__btn--outline">Track Another Order</a>
-        <a href="{{ routes.account_url }}" class="order-detail__btn order-detail__btn--outline">My Account</a>
-      </div>
-    </div>
-  </header>
+<div class="order-detail"
+     data-order-name="{{ order.name }}"
+     data-order-id="{{ order.id }}"
+     data-customer-email="{{ order.email | default: customer.email }}"
+     data-order-date="{{ order.created_at | date: '%B %d, %Y' }}"
+     data-order-total="{{ order.total_price | money }}">
+  {%- comment %-%} Skip Link for accessibility {%- endcomment -%}
+  <a href="#order-items" class="visually-hidden visually-hidden--focusable">
+    Skip to order items
+  </a>
 
   <div class="order-detail__container">
+    {%- comment %-%} Breadcrumbs {%- endcomment -%}
+    {%- capture order_label -%}Order {{ order.name }}{%- endcapture -%}
+    {%- assign breadcrumb_items = "Your Account," | append: routes.account_url | append: ";Your Orders,/pages/orders;" | append: order_label | split: ";" -%}
+    {% render 'breadcrumb', variant: 'account', items: breadcrumb_items %}
+
     {%- comment %-%} Page Title {%- endcomment -%}
     <div class="order-detail__page-header">
       <h1 class="order-detail__page-title">Order Tracking</h1>
@@ -103,8 +99,8 @@
           </div>
 
           {%- comment %-%} Current Status Card {%- endcomment -%}
-          <div class="order-detail__current-status">
-            <svg class="order-detail__status-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <div class="order-detail__current-status" role="status" aria-label="Current order status">
+            <svg class="order-detail__status-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
@@ -192,9 +188,9 @@
         {% endif %}
 
         {%- comment %-%} Order Items {%- endcomment -%}
-        <div class="order-detail__card">
+        <div class="order-detail__card" id="order-items">
           <h2 class="order-detail__card-title">Items in This Order</h2>
-          <div class="order-detail__items">
+          <div class="order-detail__items" role="list">
             {% for line_item in order.line_items %}
               <div class="order-detail__item">
                 <div class="order-detail__item-image">
@@ -218,11 +214,23 @@
 
           {%- comment %-%} Reorder Button {%- endcomment -%}
           <div class="order-detail__reorder">
-            <button type="button" class="order-detail__btn order-detail__btn--outline order-detail__btn--full">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            {%- capture cart_icon -%}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
               </svg>
-              Reorder These Items
+            {%- endcapture -%}
+            {%- capture reorder_items -%}
+              [{%- for line_item in order.line_items -%}{"variantId":"{{ line_item.variant_id }}","quantity":{{ line_item.quantity }}}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}]
+            {%- endcapture -%}
+            <button 
+              type="button" 
+              class="btn btn--outline btn--full-width order-detail__btn"
+              data-reorder-all
+              data-items='{{ reorder_items }}'
+              aria-label="Add all items from this order to cart"
+            >
+              {{ cart_icon }}
+              <span>Reorder These Items</span>
             </button>
           </div>
         </div>
@@ -231,7 +239,7 @@
       {%- comment %-%} Sidebar {%- endcomment -%}
       <div class="order-detail__sidebar">
         {%- comment %-%} Order Summary {%- endcomment -%}
-        <div class="order-detail__card order-detail__card--sticky">
+        <div class="order-detail__card">
           <h3 class="order-detail__sidebar-title">Order Summary</h3>
 
           <div class="order-detail__summary">
@@ -281,17 +289,23 @@
 
           {%- comment %-%} Quick Actions {%- endcomment -%}
           <div class="order-detail__actions">
-            <button type="button" class="order-detail__btn order-detail__btn--outline order-detail__btn--small order-detail__btn--full">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            {%- capture download_icon -%}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
               </svg>
-              Download Invoice
-            </button>
-            <button type="button" class="order-detail__btn order-detail__btn--outline order-detail__btn--small order-detail__btn--full">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            {%- endcapture -%}
+            {%- capture email_icon -%}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
               </svg>
-              Email Receipt
+            {%- endcapture -%}
+            <button type="button" class="btn btn--outline btn--sm btn--full-width order-detail__btn" data-download-invoice aria-label="Download invoice for order {{ order.name }}">
+              {{ download_icon }}
+              <span>Download Invoice</span>
+            </button>
+            <button type="button" class="btn btn--outline btn--sm btn--full-width order-detail__btn" data-email-receipt aria-label="Email receipt for order {{ order.name }}">
+              {{ email_icon }}
+              <span>Email Receipt</span>
             </button>
           </div>
         </div>
@@ -300,15 +314,16 @@
         <div class="order-detail__card">
           <h3 class="order-detail__sidebar-title">Need Help?</h3>
           <div class="order-detail__help-actions">
-            <button type="button" class="order-detail__btn order-detail__btn--outline order-detail__btn--small order-detail__btn--full">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            {%- capture warning_icon -%}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
               </svg>
-              Report an Issue
+            {%- endcapture -%}
+            <button type="button" class="btn btn--outline btn--sm btn--full-width order-detail__btn" data-report-issue>
+              {{ warning_icon }}
+              <span>Report an Issue</span>
             </button>
-            <a href="/pages/contact" class="order-detail__btn order-detail__btn--outline order-detail__btn--small order-detail__btn--full">
-              Contact Support
-            </a>
+            {% render 'button', text: 'Contact Support', url: '/pages/contact', variant: 'outline', size: 'sm', full_width: true, class: 'order-detail__btn' %}
           </div>
         </div>
 

@@ -15,32 +15,6 @@
 }
 
 /* ==========================================================================
-   Breadcrumbs
-   ========================================================================== */
-
-.customer-settings__breadcrumbs {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2, 0.5rem);
-  font-size: 0.875rem;
-  color: var(--color-text-muted, #666666);
-  margin-bottom: var(--space-4, 1rem);
-}
-
-.customer-settings__breadcrumbs a {
-  color: var(--color-secondary, #2699a6);
-  text-decoration: none;
-}
-
-.customer-settings__breadcrumbs a:hover {
-  text-decoration: underline;
-}
-
-.customer-settings__breadcrumb-separator {
-  color: var(--color-border, #e5e7eb);
-}
-
-/* ==========================================================================
    Header
    ========================================================================== */
 

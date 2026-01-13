@@ -202,6 +202,44 @@ Convert the most commonly used UI components first:
 
 ## Recent Updates
 
+### January 2026 - Addresses Page Refactor (Amazon-style)
+
+- **Created:** `snippets/address-card.liquid` - Reusable Amazon-style address card component
+  - Parameters: address, customer, is_default
+  - Displays: name, address lines (address1, address2, city, province, zip, country), phone
+  - Default badge using `{% render 'badge', variant: 'success' %}` with checkmark icon
+  - Action links: Edit | Remove | Set as Default
+  - Data attributes for JavaScript modal population (`data-edit-address`, `data-delete-address`, `data-set-default`)
+- **Created:** `assets/section-customer-addresses.css` - Page-specific styles (~400 lines)
+  - `.addresses-page__grid` - 3 columns desktop, 2 tablet, 1 mobile
+  - `.addresses-page__add-tile` - Dashed border Amazon-style "Add address" tile with plus icon
+  - `.address-card--default` - Left border accent (`--color-success`)
+  - `.addresses-page__empty` - Illustrated empty state with icon and CTA
+  - `.address-modal__form` - Modal form layout with two-column grid for name fields
+  - Success alert at top of page for URL param-based messages
+  - Mobile-first responsive design with 44px minimum tap targets
+- **Modified:** `snippets/skeleton.liquid` - Added `address-card` type
+  - 5 placeholder lines with varying widths (40%, 70%, 60%, 50%, 45%)
+  - Footer skeleton for action links
+- **Refactored:** `sections/customer-addresses.liquid` - Complete rewrite (~300 lines, from 532)
+  - Pre-rendered province JSON data in hidden `<script id="province-data">` for fast cascading
+  - Skeleton loading grid with 6 address-card skeletons
+  - Address card grid using `{% render 'address-card' %}` snippet
+  - Add-tile button with plus icon opening modal
+  - Illustrated empty state with "Add your first address" CTA
+  - Add/Edit modal with form inputs using existing snippets (input.liquid, select.liquid)
+  - Country select using `{{ all_country_option_tags }}`
+  - Delete confirmation modal with hidden form
+  - Hidden forms for set-default and delete actions
+- **Modified:** `assets/component-scripts.js` - Added `initAddresses()` function (~350 lines)
+  - Country/province data parsing from pre-rendered JSON
+  - Modal open handlers populating edit form from data attributes
+  - Delete confirmation flow with address data injection
+  - Set-default hidden form submission
+  - Country/province cascading from pre-rendered JSON
+  - Client-side form validation (required fields, phone regex `/^\+?[\d\s\-()]{7,}$/`)
+  - URL param-based success alerts (e.g., `?message=added`)
+
 ### January 12, 2026 - Header (Inner Pages) Component
 
 - **Created:** `sections/header-inner.liquid` - Walmart-inspired header for all non-homepage templates
@@ -288,6 +326,45 @@ Convert the most commonly used UI components first:
 - **Modified:** `templates/product.liquid` - Removed "View all item details" link
 - **Modified:** `assets/template-product.css` - Removed `.pdp-section__link` styles
 
+### January 13, 2026 - Orders Page Enhancement (10-Step Plan Complete)
+
+- **Modified:** `sections/customer-orders.liquid` - Major refactor:
+  - Status badges now use `{% render 'badge', variant: '...', icon: icon_html %}` snippet
+  - Buttons refactored to use `{% render 'button' %}` snippet with data attributes
+  - Added skeleton loading container with `data-orders-skeleton`
+  - Added skip link for accessibility (`#orders-list` target)
+  - Removed ~90 lines of inline JavaScript (now in component-scripts.js)
+- **Modified:** `sections/order-detail.liquid` - Accessibility & button refactor:
+  - Header buttons use `{% render 'button' %}` with data attributes
+  - Reorder button has `data-reorder-all` with JSON items data
+  - Added skip link to `#order-items`
+  - Added `role="status"` and `aria-label` to current status card
+- **Modified:** `snippets/skeleton.liquid` - Added `order-card` type:
+  - Renders header, body, image, and content skeleton elements for loading states
+- **Modified:** `assets/component-scripts.js` - Buy Again & Toast functionality:
+  - `initBuyAgain()` - handles Buy Again button clicks via Shopify Ajax API
+  - `initReorderAll()` - adds all order items to cart
+  - `addToCart(variantId, quantity)` - POST to `/cart/add.js`
+  - `showToast(message, type, allowHtml)` - toast notification system
+  - `removeToast(toast)` - removes toast with transition
+  - `saveOrdersFilter(tab, period)` / `loadOrdersFilter()` - sessionStorage persistence
+  - Fixed `switchOrdersTab` to use correct BEM class names
+- **Modified:** `assets/component-alert.css` - Toast notification styles:
+  - `.toast-container` - fixed position container
+  - `.toast`, `.toast--visible` - slide-in animation
+  - `.toast--success/error/info/warning` - color variants
+  - Mobile responsive styles
+- **Modified:** `assets/section-customer-orders.css` - Enhanced styles:
+  - `.visually-hidden--focusable` for skip links
+  - `.skeleton--order-card` with shimmer animation
+  - Tab scroll shadow indicators (::before/::after pseudo-elements)
+  - Mobile touch targets (min-height: 44px)
+- **Modified:** `sections/header.liquid` - Orders & Returns link:
+  - Desktop: Shows "Orders & Returns" for logged-in, "Orders" for guests
+  - Mobile menu: Same conditional logic with package icon
+  - Schema: Added `show_orders_link` checkbox setting
+- **Modified:** `locales/en.default.json` - Added `header.actions.orders_returns` translation key
+
 ---
 
-_Last updated: 2026-01-12_
+_Last updated: 2026-01-13_

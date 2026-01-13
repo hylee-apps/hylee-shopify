@@ -7,26 +7,60 @@
   Or automatic product/collection breadcrumbs:
   {% render 'breadcrumb', product: product, collection: collection %}
   
-  Items format:
+  Account-style breadcrumbs (no schema.org, chevron separator):
+  {%- assign items = "Your Account," | append: routes.account_url | append: ";Your Orders" | split: ";" -%}
+  {% render 'breadcrumb', variant: 'account', items: items %}
+  
+  Items format (default variant):
   [
     { "label": "Home", "url": "/" },
     { "label": "Category", "url": "/collections/category" },
     { "label": "Current Page" }
   ]
   
+  Items format (account variant) - simple "label,url" or "label" strings:
+  "Your Account,/account;Your Orders" | split: ";"
+  
   Parameters:
-  - items: array - Array of breadcrumb objects with label and optional url
+  - items: array - Array of breadcrumb items
   - product: object - Shopify product object (auto-generates breadcrumb)
   - collection: object - Shopify collection object
   - class: string - Additional CSS classes
+  - variant: string - 'default' or 'account' (account skips schema.org, uses › separator)
+  - separator: string - Custom separator character (default: '/' for default, '›' for account)
 {% endcomment %}
 
 {%- liquid
   assign extra_class = class | default: ''
+  assign breadcrumb_variant = variant | default: 'default'
+  
+  if breadcrumb_variant == 'account'
+    assign sep = separator | default: '›'
+  else
+    assign sep = separator | default: '/'
+  endif
 -%}
 
-<nav class="breadcrumb {{ extra_class }}" aria-label="Breadcrumb">
-  <ol class="breadcrumb__list" itemscope itemtype="https://schema.org/BreadcrumbList">
+{% if breadcrumb_variant == 'account' %}
+  {%- comment -%} Account variant: simpler markup, no schema.org {%- endcomment -%}
+  <nav class="breadcrumb breadcrumb--account {{ extra_class }}" aria-label="Breadcrumb">
+    {% for item in items %}
+      {%- assign item_parts = item | split: ',' -%}
+      {%- assign item_label = item_parts[0] -%}
+      {%- assign item_url = item_parts[1] | default: '' -%}
+      {% if item_url != '' and forloop.last == false %}
+        <a href="{{ item_url }}" class="breadcrumb__link">{{ item_label }}</a>
+        <span class="breadcrumb__separator" aria-hidden="true">{{ sep }}</span>
+      {% else %}
+        <span class="breadcrumb__current" aria-current="page">{{ item_label }}</span>
+      {% endif %}
+    {% endfor %}
+  </nav>
+
+{% else %}
+  {%- comment -%} Default variant: full schema.org markup {%- endcomment -%}
+  <nav class="breadcrumb {{ extra_class }}" aria-label="Breadcrumb">
+    <ol class="breadcrumb__list" itemscope itemtype="https://schema.org/BreadcrumbList">
     
     {% comment %} Home link (always first) {% endcomment %}
     <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
@@ -94,5 +128,6 @@
       </li>
     {% endif %}
     
-  </ol>
-</nav>
+    </ol>
+  </nav>
+{% endif %}

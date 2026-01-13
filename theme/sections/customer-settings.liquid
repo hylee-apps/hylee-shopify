@@ -8,12 +8,8 @@
 <div class="customer-settings">
   <div class="customer-settings__container">
     {%- comment -%} Breadcrumbs {%- endcomment -%}
-    <nav class="customer-settings__breadcrumbs" aria-label="Breadcrumb">
-      {% render 'icon', name: 'chevron-left', size: 16 %}
-      <a href="{{ routes.account_url }}">Your Account</a>
-      <span class="customer-settings__breadcrumb-separator" aria-hidden="true">›</span>
-      <span aria-current="page">Login & Security</span>
-    </nav>
+    {%- assign breadcrumb_items = "Your Account," | append: routes.account_url | append: ";Login & Security" | split: ";" -%}
+    {% render 'breadcrumb', variant: 'account', items: breadcrumb_items %}
 
     {%- comment -%} Header {%- endcomment -%}
     <div class="customer-settings__header">

@@ -172,7 +172,11 @@
 
     {%- comment -%} Actions {%- endcomment -%}
     <div class="header__actions">
-      {%- if show_track_order -%}
+      {%- if customer and section.settings.show_orders_link -%}
+        <a href="/account" class="header__action-link">
+          {{ 'header.actions.orders_returns' | t | default: 'Orders' }}
+        </a>
+      {%- elsif show_track_order -%}
         <a href="{{ section.settings.track_order_link | default: '/pages/track-order' }}" class="header__action-link">
           {{ 'header.actions.track_order' | t }}
         </a>
@@ -267,7 +271,12 @@
       {%- comment -%} Account Actions {%- endcomment -%}
       <div class="header__mobile-divider"></div>
       
-      {%- if show_track_order -%}
+      {%- if customer and section.settings.show_orders_link -%}
+        <a href="/account" class="header__mobile-link">
+          {% render 'icon', name: 'package', size: 20 %}
+          {{ 'header.actions.orders_returns' | t | default: 'Orders' }}
+        </a>
+      {%- elsif show_track_order -%}
         <a href="{{ section.settings.track_order_link | default: '/pages/track-order' }}" class="header__mobile-link">
           {{ 'header.actions.track_order' | t }}
         </a>
@@ -564,14 +573,21 @@
     },
     {
       "type": "checkbox",
+      "id": "show_orders_link",
+      "label": "Show Orders link",
+      "info": "Displays for logged-in customers only. For guests, shows the Orders link instead.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
       "id": "show_track_order",
-      "label": "Show Orders Link",
+      "label": "Show Orders Link (for guests)",
       "default": true
     },
     {
       "type": "url",
       "id": "track_order_link",
-      "label": "Orders Page"
+      "label": "Orders Page (for guests)"
     },
     {
       "type": "text",
