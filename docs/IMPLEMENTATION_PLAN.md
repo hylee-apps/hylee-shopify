@@ -403,13 +403,13 @@ This implementation plan addresses feedback from the December 14th meeting, focu
 
 **Files Created/Modified:**
 
-| File | Type | Description |
-|------|------|-------------|
-| `snippets/address-card.liquid` | Created | Reusable address card component |
-| `assets/section-customer-addresses.css` | Created | Page styles (~400 lines) |
-| `snippets/skeleton.liquid` | Modified | Added `address-card` type |
-| `sections/customer-addresses.liquid` | Refactored | Complete rewrite (~300 lines) |
-| `assets/component-scripts.js` | Modified | Added `initAddresses()` (~350 lines) |
+| File                                    | Type       | Description                          |
+| --------------------------------------- | ---------- | ------------------------------------ |
+| `snippets/address-card.liquid`          | Created    | Reusable address card component      |
+| `assets/section-customer-addresses.css` | Created    | Page styles (~400 lines)             |
+| `snippets/skeleton.liquid`              | Modified   | Added `address-card` type            |
+| `sections/customer-addresses.liquid`    | Refactored | Complete rewrite (~300 lines)        |
+| `assets/component-scripts.js`           | Modified   | Added `initAddresses()` (~350 lines) |
 
 **Completed:** January 2026
 

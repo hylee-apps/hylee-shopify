@@ -2,7 +2,7 @@
 
 /* ========== Variables ========== */
 :root {
-  --color-green-primary: #2AC864;
+  --color-green-primary: #2ac864;
   --color-green-hover: #24b056;
   --color-slate-50: #f8fafc;
   --color-slate-100: #f1f5f9;
@@ -18,7 +18,13 @@
 .customer-register {
   min-height: auto;
   background: linear-gradient(to bottom, var(--color-slate-50), white);
-  font-family: 'Assistant', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    'Assistant',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   padding-bottom: 4rem;
@@ -533,7 +539,9 @@
 
 .customer-register__value-prop-card:hover {
   border-color: var(--color-green-primary);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .customer-register__value-prop-icon {
@@ -543,7 +551,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--color-green-primary) 0%, #2699A6 100%);
+  background: linear-gradient(135deg, var(--color-green-primary) 0%, #2699a6 100%);
   border-radius: 0.75rem;
   color: white;
 }

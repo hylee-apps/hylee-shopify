@@ -115,7 +115,9 @@
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   cursor: pointer;
-  transition: border-color var(--transition-base), background-color var(--transition-base);
+  transition:
+    border-color var(--transition-base),
+    background-color var(--transition-base);
   text-decoration: none;
   color: var(--color-text-muted);
 }
@@ -167,7 +169,9 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  transition: box-shadow var(--transition-base), border-color var(--transition-base);
+  transition:
+    box-shadow var(--transition-base),
+    border-color var(--transition-base);
 }
 
 .address-card:hover {
@@ -258,7 +262,9 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: color var(--transition-fast), background-color var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast);
   text-decoration: none;
 }
 
@@ -425,7 +431,7 @@
 
 .address-form .input-label--required::after,
 .address-form .select__label--required::after {
-  content: " *";
+  content: ' *';
   color: var(--color-error, #dc2626);
   font-weight: 400;
 }
@@ -440,7 +446,10 @@
   border-radius: var(--radius-md);
   background-color: var(--color-background, #fff);
   color: var(--color-text);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .address-form .input::placeholder {
@@ -487,7 +496,9 @@
   background-color: var(--color-background, #fff);
   color: var(--color-text);
   cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
   background-position: right 0.75rem center;
@@ -528,7 +539,9 @@
   border: 1px solid var(--color-border-subtle, #e2e8f0);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .address-form__checkbox:hover {
@@ -570,7 +583,7 @@
 }
 
 .address-form__checkbox .checkbox:checked::after {
-  content: "";
+  content: '';
   position: absolute;
   left: 50%;
   top: 45%;

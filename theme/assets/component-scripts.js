@@ -811,13 +811,13 @@
     document.querySelectorAll('[data-modal-open="address-modal"]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const addressId = btn.getAttribute('data-address-id');
-        
+
         if (addressId) {
           // Edit mode - populate form with address data
           populateEditForm(btn);
           if (modalTitle) modalTitle.textContent = 'Edit address';
           if (submitBtn) submitBtn.querySelector('.btn__text, span')?.textContent || (submitBtn.textContent = 'Save Changes');
-          
+
           // Update form action for edit
           const formMethod = document.getElementById('address-form-method');
           const formIdInput = document.getElementById('address-form-id');
@@ -839,10 +839,10 @@
       btn.addEventListener('click', () => {
         const addressId = btn.getAttribute('data-address-id');
         const addressName = btn.getAttribute('data-address-name');
-        
+
         const nameEl = document.getElementById('delete-address-name');
         const idInput = document.getElementById('delete-address-id');
-        
+
         if (nameEl) nameEl.textContent = addressName;
         if (idInput) idInput.value = addressId;
       });
@@ -883,7 +883,7 @@
         // Use Shopify.postLink which properly handles CSRF tokens
         if (typeof Shopify !== 'undefined' && Shopify.postLink) {
           Shopify.postLink('/account/addresses/' + addressId, {
-            parameters: { 
+            parameters: {
               '_method': 'put',
               'address[default]': '1'
             }
@@ -958,7 +958,7 @@
 
     function validateAddressForm() {
       const errors = [];
-      
+
       // Required fields
       const requiredFields = [
         { id: 'address-first-name', label: 'First name' },
@@ -1067,7 +1067,7 @@
       const isDefault = btn.getAttribute('data-address-default') === 'true';
       const defaultCheckbox = document.getElementById('address-default');
       const defaultWrapper = document.getElementById('default-checkbox-wrapper');
-      
+
       if (defaultCheckbox) {
         defaultCheckbox.checked = isDefault;
       }
@@ -1119,7 +1119,7 @@
     function checkUrlParams() {
       const params = new URLSearchParams(window.location.search);
       const alertEl = document.getElementById('addresses-alert');
-      
+
       if (!alertEl) return;
 
       if (params.get('address_added') === 'true') {
@@ -1136,9 +1136,9 @@
 
     function showAlert(container, type, message) {
       container.innerHTML = `
-        <div class="alert alert--${type}" data-alert role="alert">
+        <div class="alert alert--${ type }" data-alert role="alert">
           <div class="alert__content">
-            <span class="alert__message">${message}</span>
+            <span class="alert__message">${ message }</span>
           </div>
           <button type="button" class="alert__dismiss" data-alert-dismiss aria-label="Dismiss">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1148,7 +1148,7 @@
           </button>
         </div>
       `;
-      
+
       // Re-init alert dismiss
       const alert = container.querySelector('[data-alert]');
       const dismissBtn = alert?.querySelector('[data-alert-dismiss]');
