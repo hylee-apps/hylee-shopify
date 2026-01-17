@@ -143,7 +143,7 @@
                   <div class="customer-account__order-item">
                     {% assign first_line_item = order.line_items.first %}
                     {% if first_line_item.image %}
-                      <img src="{{ first_line_item.image | image_url: width: 64 }}" alt="{{ first_line_item.title }}" class="customer-account__order-image">
+                      <img src="{{ first_line_item.image | image_url: width: 64 }}" alt="{{ first_line_item.title }}" class="customer-account__order-image" width="64" height="64">
                     {% else %}
                       <div class="customer-account__order-image-placeholder">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">

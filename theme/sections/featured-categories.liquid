@@ -27,9 +27,6 @@
     <div class="featured-categories__grid">
       {% for block in section.blocks %}
         {% if block.type == 'category' %}
-          {%- comment -%} Extract collection handle from link {%- endcomment -%}
-          {%- assign collection_handle = block.settings.link | split: '/collections/' | last | split: '/' | first -%}
-          {%- assign collection = collections[collection_handle] -%}
           
           <a 
             href="{{ block.settings.link | default: '/collections/all' }}" 

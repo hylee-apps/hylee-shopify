@@ -94,6 +94,8 @@
       alt="{{ image_alt | default: title }}"
       class="card__image"
       loading="lazy"
+      width="{{ image_width | default: 300 }}"
+      height="{{ image_height | default: 300 }}"
     >
   {% endif %}
 

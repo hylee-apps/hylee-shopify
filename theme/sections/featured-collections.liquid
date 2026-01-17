@@ -32,12 +32,16 @@
                     src="{{ block.settings.image | image_url: width: 600 }}"
                     alt="{{ block.settings.image.alt | default: collection.title }}"
                     loading="lazy"
+                    width="600"
+                    height="600"
                   >
                 {% elsif collection.image %}
                   <img
                     src="{{ collection.image | image_url: width: 600 }}"
                     alt="{{ collection.image.alt | default: collection.title }}"
                     loading="lazy"
+                    width="600"
+                    height="600"
                   >
                 {% else %}
                   <div class="collection-card__placeholder">

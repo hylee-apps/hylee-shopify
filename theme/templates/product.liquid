@@ -6,16 +6,15 @@
 
 {{ 'template-product.css' | asset_url | stylesheet_tag }}
 
-<div class="product-page">
-  <div class="product-container">
-    
+<div class='product-page'>
+  <div class='product-container'>
     <!-- Breadcrumbs -->
-    <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <nav class='breadcrumbs' aria-label='Breadcrumb'>
       {%- liquid
         assign max_chars = 60
         assign has_product_category = false
         assign has_collection_fallback = false
-        
+
         comment
           Try to use product.product_category for breadcrumb hierarchy
           This provides the Shopify standard taxonomy path
@@ -31,7 +30,7 @@
           assign fallback_collection = product.collections.first
         endif
       -%}
-      
+
       {% if has_product_category %}
         {%- liquid
           comment
@@ -43,11 +42,11 @@
             if ancestor_length > max_chars
               assign ancestor_name = ancestor_name | truncate: max_chars, '...'
             endif
-            
+
             echo '<span class="breadcrumbs__link">' | append: ancestor_name | append: '</span>'
             echo '<span class="breadcrumbs__separator">/</span>'
           endfor
-          
+
           comment
             Show the current product category (leaf node)
           endcomment
@@ -56,7 +55,7 @@
           if current_length > max_chars
             assign current_category = current_category | truncate: max_chars, '...'
           endif
-          
+
           echo '<span class="breadcrumbs__link">' | append: current_category | append: '</span>'
           echo '<span class="breadcrumbs__separator">/</span>'
         -%}
@@ -67,13 +66,13 @@
           if collection_length > max_chars
             assign collection_title = collection_title | truncate: max_chars, '...'
           endif
-          
+
           echo '<a href="' | append: fallback_collection.url | append: '" class="breadcrumbs__link">' | append: collection_title | append: '</a>'
           echo '<span class="breadcrumbs__separator">/</span>'
         -%}
       {% else %}
-        <a href="/" class="breadcrumbs__link">Home</a>
-        <span class="breadcrumbs__separator">/</span>
+        <a href='/' class='breadcrumbs__link'>Home</a>
+        <span class='breadcrumbs__separator'>/</span>
       {% endif %}
       {%- liquid
         assign product_title_display = product.title
@@ -82,38 +81,67 @@
           assign product_title_display = product_title_display | truncate: max_chars, '...'
         endif
       -%}
-      <span class="breadcrumbs__current" title="{{ product.title }}">{{ product_title_display }}</span>
+      <span class='breadcrumbs__current' title='{{ product.title }}'>
+        {{- product_title_display -}}
+      </span>
     </nav>
 
     <!-- Product Main - 3 Column Layout -->
-    <div class="pdp-grid">
-      
+    <div class='pdp-grid'>
       <!-- Column 1: Product Gallery with Vertical Thumbnails -->
-      <div class="pdp-gallery">
-        <div class="pdp-gallery__inner">
+      <div class='pdp-gallery'>
+        <div class='pdp-gallery__inner'>
           <!-- Vertical Thumbnails on Left -->
           {% if product.images.size > 1 %}
-            <div class="pdp-thumbnails">
-              <button type="button" class="pdp-thumbnails__nav pdp-thumbnails__nav--up" aria-label="Scroll thumbnails up">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <div class='pdp-thumbnails'>
+              <button
+                type='button'
+                class='pdp-thumbnails__nav pdp-thumbnails__nav--up'
+                aria-label='Scroll thumbnails up'
+              >
+                <svg
+                  width='16'
+                  height='16'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  stroke-width='2'
+                >
                   <polyline points="18 15 12 9 6 15"></polyline>
                 </svg>
               </button>
-              <div class="pdp-thumbnails__scroll" id="thumbnail-scroll">
+              <div class='pdp-thumbnails__scroll' id='thumbnail-scroll'>
                 {% for image in product.images %}
                   <button
-                    type="button"
-                    class="pdp-thumbnail{% if forloop.first %} pdp-thumbnail--active{% endif %}"
-                    data-image-url="{{ image | image_url: width: 800 }}"
-                    data-index="{{ forloop.index0 }}"
-                    aria-label="View image {{ forloop.index }}"
+                    type='button'
+                    class='pdp-thumbnail{% if forloop.first %} pdp-thumbnail--active{% endif %}'
+                    data-image-url='{{ image | image_url: width: 800 }}'
+                    data-index='{{ forloop.index0 }}'
+                    aria-label='View image {{ forloop.index }}'
                   >
-                    <img src="{{ image | image_url: width: 100 }}" alt="{{ image.alt | default: product.title }}" loading="lazy">
+                    <img
+                      src='{{ image | image_url: width: 100 }}'
+                      alt='{{ image.alt | default: product.title }}'
+                      loading='lazy'
+                      width='100'
+                      height='100'
+                    >
                   </button>
                 {% endfor %}
               </div>
-              <button type="button" class="pdp-thumbnails__nav pdp-thumbnails__nav--down" aria-label="Scroll thumbnails down">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <button
+                type='button'
+                class='pdp-thumbnails__nav pdp-thumbnails__nav--down'
+                aria-label='Scroll thumbnails down'
+              >
+                <svg
+                  width='16'
+                  height='16'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  stroke-width='2'
+                >
                   <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
               </button>
@@ -121,12 +149,23 @@
           {% endif %}
 
           <!-- Main Image -->
-          <div class="pdp-main-image">
-            <div class="pdp-main-image__container">
+          <div class='pdp-main-image'>
+            <div class='pdp-main-image__container'>
               <!-- Navigation Arrows -->
               {% if product.images.size > 1 %}
-                <button type="button" class="pdp-main-image__nav pdp-main-image__nav--prev" aria-label="Previous image">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button
+                  type='button'
+                  class='pdp-main-image__nav pdp-main-image__nav--prev'
+                  aria-label='Previous image'
+                >
+                  <svg
+                    width='24'
+                    height='24'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    stroke-width='2'
+                  >
                     <polyline points="15 18 9 12 15 6"></polyline>
                   </svg>
                 </button>
@@ -134,42 +173,66 @@
 
               {% if product.featured_image %}
                 <img
-                  src="{{ product.featured_image | image_url: width: 800 }}"
-                  alt="{{ product.featured_image.alt | default: product.title }}"
-                  id="pdp-featured-image"
-                  class="pdp-main-image__img"
-                  loading="eager"
+                  src='{{ product.featured_image | image_url: width: 800 }}'
+                  alt='{{ product.featured_image.alt | default: product.title }}'
+                  id='pdp-featured-image'
+                  class='pdp-main-image__img'
+                  loading='eager'
+                  width='800'
+                  height='800'
                 >
               {% else %}
-                <div class="pdp-main-image__placeholder">No image available</div>
+                <div class='pdp-main-image__placeholder'>No image available</div>
               {% endif %}
 
               {% if product.images.size > 1 %}
-                <button type="button" class="pdp-main-image__nav pdp-main-image__nav--next" aria-label="Next image">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button
+                  type='button'
+                  class='pdp-main-image__nav pdp-main-image__nav--next'
+                  aria-label='Next image'
+                >
+                  <svg
+                    width='24'
+                    height='24'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    stroke-width='2'
+                  >
                     <polyline points="9 18 15 12 9 6"></polyline>
                   </svg>
                 </button>
               {% endif %}
 
               <!-- Badges -->
-              <div class="pdp-badges">
+              <div class='pdp-badges'>
                 {% if product.compare_at_price > product.price and product.available %}
-                  {% assign discount = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price %}
-                  <span class="pdp-badge pdp-badge--sale">{{ discount }}% Off</span>
+                  {% assign discount = product.compare_at_price
+                    | minus: product.price
+                    | times: 100
+                    | divided_by: product.compare_at_price
+                  %}
+                  <span class='pdp-badge pdp-badge--sale'>{{ discount }}% Off</span>
                 {% endif %}
                 {% if product.tags contains 'new' %}
-                  <span class="pdp-badge pdp-badge--new">New</span>
+                  <span class='pdp-badge pdp-badge--new'>New</span>
                 {% endif %}
                 {% if product.tags contains 'bestseller' %}
-                  <span class="pdp-badge pdp-badge--bestseller">Bestseller</span>
+                  <span class='pdp-badge pdp-badge--bestseller'>Bestseller</span>
                 {% endif %}
               </div>
 
               <!-- Action buttons -->
-              <div class="pdp-main-image__actions">
-                <button type="button" class="pdp-action-btn" aria-label="Share">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <div class='pdp-main-image__actions'>
+                <button type='button' class='pdp-action-btn' aria-label='Share'>
+                  <svg
+                    width='20'
+                    height='20'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    stroke-width='2'
+                  >
                     <circle cx="18" cy="5" r="3"></circle>
                     <circle cx="6" cy="12" r="3"></circle>
                     <circle cx="18" cy="19" r="3"></circle>
@@ -177,8 +240,15 @@
                     <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
                   </svg>
                 </button>
-                <button type="button" class="pdp-action-btn" aria-label="Add to wishlist">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button type='button' class='pdp-action-btn' aria-label='Add to wishlist'>
+                  <svg
+                    width='20'
+                    height='20'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    stroke-width='2'
+                  >
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                   </svg>
                 </button>
@@ -187,15 +257,21 @@
 
             <!-- Mobile Thumbnails -->
             {% if product.images.size > 1 %}
-              <div class="pdp-thumbnails-mobile">
+              <div class='pdp-thumbnails-mobile'>
                 {% for image in product.images %}
                   <button
-                    type="button"
-                    class="pdp-thumbnail-mobile{% if forloop.first %} pdp-thumbnail-mobile--active{% endif %}"
-                    data-image-url="{{ image | image_url: width: 800 }}"
-                    data-index="{{ forloop.index0 }}"
+                    type='button'
+                    class='pdp-thumbnail-mobile{% if forloop.first %} pdp-thumbnail-mobile--active{% endif %}'
+                    data-image-url='{{ image | image_url: width: 800 }}'
+                    data-index='{{ forloop.index0 }}'
                   >
-                    <img src="{{ image | image_url: width: 80 }}" alt="{{ image.alt | default: product.title }}" loading="lazy">
+                    <img
+                      src='{{ image | image_url: width: 80 }}'
+                      alt='{{ image.alt | default: product.title }}'
+                      loading='lazy'
+                      width='80'
+                      height='80'
+                    >
                   </button>
                 {% endfor %}
               </div>
@@ -205,21 +281,34 @@
       </div>
 
       <!-- Column 2: Product Info -->
-      <div class="pdp-info">
+      <div class='pdp-info'>
         <!-- Title -->
-        <h1 class="pdp-info__title">{{ product.title }}</h1>
+        <h1 class='pdp-info__title'>{{ product.title }}</h1>
 
         <!-- Description Section -->
-        <div class="pdp-section">
-          <button type="button" class="pdp-section__header" aria-expanded="true" data-section="features">
-            <span class="pdp-section__title">Description</span>
-            <svg class="pdp-section__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class='pdp-section'>
+          <button
+            type='button'
+            class='pdp-section__header'
+            aria-expanded='true'
+            data-section='features'
+          >
+            <span class='pdp-section__title'>Description</span>
+            <svg
+              class='pdp-section__icon'
+              width='24'
+              height='24'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              stroke-width='2'
+            >
               <polyline points="18 15 12 9 6 15"></polyline>
             </svg>
           </button>
-          <div class="pdp-section__content pdp-section__content--open" id="features-content">
+          <div class='pdp-section__content pdp-section__content--open' id='features-content'>
             {% if product.description != blank %}
-              <div class="pdp-features">
+              <div class='pdp-features'>
                 {{ product.description }}
               </div>
             {% endif %}
@@ -227,74 +316,98 @@
         </div>
 
         <!-- Specs Section -->
-        <div class="pdp-section">
-          <button type="button" class="pdp-section__header" aria-expanded="false" data-section="specs">
-            <span class="pdp-section__title">Specs</span>
-            <svg class="pdp-section__icon pdp-section__icon--collapsed" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class='pdp-section'>
+          <button
+            type='button'
+            class='pdp-section__header'
+            aria-expanded='false'
+            data-section='specs'
+          >
+            <span class='pdp-section__title'>Specs</span>
+            <svg
+              class='pdp-section__icon pdp-section__icon--collapsed'
+              width='24'
+              height='24'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              stroke-width='2'
+            >
               <polyline points="18 15 12 9 6 15"></polyline>
             </svg>
           </button>
-          <div class="pdp-section__content" id="specs-content">
-            <div class="pdp-specs-grid">
+          <div class='pdp-section__content' id='specs-content'>
+            <div class='pdp-specs-grid'>
               {% if product.metafields.specifications %}
                 {% for spec in product.metafields.specifications %}
-                  <div class="pdp-spec-card">
-                    <div class="pdp-spec-card__label">{{ spec.first }}</div>
-                    <div class="pdp-spec-card__value">{{ spec.last }}</div>
+                  <div class='pdp-spec-card'>
+                    <div class='pdp-spec-card__label'>{{ spec.first }}</div>
+                    <div class='pdp-spec-card__value'>{{ spec.last }}</div>
                   </div>
                 {% endfor %}
               {% else %}
-                <div class="pdp-spec-card">
-                  <div class="pdp-spec-card__label">SKU</div>
-                  <div class="pdp-spec-card__value">{{ product.selected_or_first_available_variant.sku | default: 'N/A' }}</div>
+                <div class='pdp-spec-card'>
+                  <div class='pdp-spec-card__label'>SKU</div>
+                  <div class='pdp-spec-card__value'>
+                    {{ product.selected_or_first_available_variant.sku | default: 'N/A' }}
+                  </div>
                 </div>
-                <div class="pdp-spec-card">
-                  <div class="pdp-spec-card__label">Type</div>
-                  <div class="pdp-spec-card__value">{{ product.type | default: 'General' }}</div>
+                <div class='pdp-spec-card'>
+                  <div class='pdp-spec-card__label'>Type</div>
+                  <div class='pdp-spec-card__value'>{{ product.type | default: 'General' }}</div>
                 </div>
-                <div class="pdp-spec-card">
-                  <div class="pdp-spec-card__label">Vendor</div>
-                  <div class="pdp-spec-card__value">{{ product.vendor | default: 'N/A' }}</div>
+                <div class='pdp-spec-card'>
+                  <div class='pdp-spec-card__label'>Vendor</div>
+                  <div class='pdp-spec-card__value'>{{ product.vendor | default: 'N/A' }}</div>
                 </div>
               {% endif %}
             </div>
-            <a href="#specs-full" class="pdp-section__link">View all specs</a>
+            <a href='#specs-full' class='pdp-section__link'>View all specs</a>
           </div>
         </div>
       </div>
 
       <!-- Column 3: Buy Box -->
-      <div class="pdp-buybox">
-        <div class="pdp-buybox__sticky">
-          <div class="pdp-buybox__outer">
-            <div class="pdp-buybox__inner">
+      <div class='pdp-buybox'>
+        <div class='pdp-buybox__sticky'>
+          <div class='pdp-buybox__outer'>
+            <div class='pdp-buybox__inner'>
               <!-- Price Section -->
-              <div class="pdp-price">
+              <div class='pdp-price'>
                 {% if product.compare_at_price > product.price %}
-                  <div class="pdp-price__current pdp-price__current--sale">
+                  <div class='pdp-price__current pdp-price__current--sale'>
                     Now {{ product.selected_or_first_available_variant.price | money }}
                   </div>
-                  <div class="pdp-price__compare">
-                    <span class="pdp-price__was">{{ product.selected_or_first_available_variant.compare_at_price | money }}</span>
+                  <div class='pdp-price__compare'>
+                    <span class='pdp-price__was'>
+                      {{- product.selected_or_first_available_variant.compare_at_price | money -}}
+                    </span>
                   </div>
                   {% assign savings = product.compare_at_price | minus: product.price %}
-                  <div class="pdp-price__savings">
-                    <span class="pdp-price__savings-badge">You save</span>
-                    <span class="pdp-price__savings-amount">{{ savings | money }}</span>
+                  <div class='pdp-price__savings'>
+                    <span class='pdp-price__savings-badge'>You save</span>
+                    <span class='pdp-price__savings-amount'>{{ savings | money }}</span>
                   </div>
                 {% else %}
-                  <div class="pdp-price__current">
+                  <div class='pdp-price__current'>
                     {{ product.selected_or_first_available_variant.price | money }}
                   </div>
                 {% endif %}
               </div>
 
-              <div class="pdp-price-note">Price when purchased online</div>
+              <div class='pdp-price-note'>Price when purchased online</div>
 
               <!-- Shipping badges -->
-              <div class="pdp-shipping-badges">
-                <div class="pdp-shipping-badge">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <div class='pdp-shipping-badges'>
+                <div class='pdp-shipping-badge'>
+                  <svg
+                    width='16'
+                    height='16'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    stroke-width='2'
+                  >
                     <rect x="1" y="3" width="15" height="13"></rect>
                     <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
                     <circle cx="5.5" cy="18.5" r="2.5"></circle>
@@ -302,8 +415,15 @@
                   </svg>
                   <span>Free shipping</span>
                 </div>
-                <div class="pdp-shipping-badge">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <div class='pdp-shipping-badge'>
+                  <svg
+                    width='16'
+                    height='16'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    stroke-width='2'
+                  >
                     <polyline points="1 4 1 10 7 10"></polyline>
                     <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
                   </svg>
@@ -313,35 +433,41 @@
 
               <!-- Variants -->
               {% unless product.has_only_default_variant %}
-                <div class="pdp-variants">
+                <div class='pdp-variants'>
                   {% for option in product.options_with_values %}
-                    <div class="pdp-variant-group">
-                      <label class="pdp-variant-label">
-                        {{ option.name }}: <span class="pdp-variant-selected" id="selected-{{ option.name | handleize }}">{{ option.selected_value }}</span>
+                    <div class='pdp-variant-group'>
+                      <label class='pdp-variant-label'>
+                        {{ option.name }}:
+                        <span
+                          class='pdp-variant-selected'
+                          id='selected-{{ option.name | handleize }}'
+                        >
+                          {{- option.selected_value -}}
+                        </span>
                       </label>
 
                       {% if option.name == 'Color' or option.name == 'Colour' %}
-                        <div class="pdp-color-swatches">
+                        <div class='pdp-color-swatches'>
                           {% for value in option.values %}
                             <button
-                              type="button"
-                              class="pdp-color-swatch{% if option.selected_value == value %} pdp-color-swatch--active{% endif %}"
-                              data-option="{{ option.name }}"
-                              data-value="{{ value }}"
-                              style="background-color: {{ value | handleize }};"
-                              aria-label="{{ value }}"
-                              title="{{ value }}"
+                              type='button'
+                              class='pdp-color-swatch{% if option.selected_value == value %} pdp-color-swatch--active{% endif %}'
+                              data-option='{{ option.name }}'
+                              data-value='{{ value }}'
+                              style='background-color: {{ value | handleize }};'
+                              aria-label='{{ value }}'
+                              title='{{ value }}'
                             ></button>
                           {% endfor %}
                         </div>
                       {% else %}
-                        <div class="pdp-size-buttons">
+                        <div class='pdp-size-buttons'>
                           {% for value in option.values %}
                             <button
-                              type="button"
-                              class="pdp-size-btn{% if option.selected_value == value %} pdp-size-btn--active{% endif %}"
-                              data-option="{{ option.name }}"
-                              data-value="{{ value }}"
+                              type='button'
+                              class='pdp-size-btn{% if option.selected_value == value %} pdp-size-btn--active{% endif %}'
+                              data-option='{{ option.name }}'
+                              data-value='{{ value }}'
                             >
                               {{ value }}
                             </button>
@@ -354,14 +480,21 @@
               {% endunless %}
 
               <!-- Add to Cart Form -->
-              <form action="/cart/add" method="post" class="pdp-form" id="product-form">
-                <input type="hidden" name="id" id="variant-id" value="{{ product.selected_or_first_available_variant.id }}">
-                <input type="hidden" name="quantity" id="quantity-input" value="1">
+              <form action='/cart/add' method='post' class='pdp-form' id='product-form'>
+                <input
+                  type='hidden'
+                  name='id'
+                  id='variant-id'
+                  value='{{ product.selected_or_first_available_variant.id }}'
+                >
+                <input type='hidden' name='quantity' id='quantity-input' value='1'>
 
                 <button
-                  type="submit"
-                  class="pdp-add-to-cart{% unless product.available %} pdp-add-to-cart--disabled{% endunless %}"
-                  {% unless product.available %}disabled{% endunless %}
+                  type='submit'
+                  class='pdp-add-to-cart{% unless product.available %} pdp-add-to-cart--disabled{% endunless %}'
+                  {% unless product.available %}
+                    disabled
+                  {% endunless %}
                 >
                   {% if product.available %}
                     Add to cart
@@ -371,12 +504,15 @@
                 </button>
               </form>
 
-              <div class="pdp-divider"></div>
+              <div class='pdp-divider'></div>
 
               <!-- Fulfillment Options -->
-              <div class="pdp-fulfillment">
-                <h2 class="pdp-fulfillment__title">How you'll get this item:</h2>
-                <div class="pdp-fulfillment__options selection-card-group selection-card-group--equal-height" style="--selection-card-group-height: 5rem; --selection-card-group-height-mobile: 4.5rem;">
+              <div class='pdp-fulfillment'>
+                <h2 class='pdp-fulfillment__title'>How you'll get this item:</h2>
+                <div
+                  class='pdp-fulfillment__options selection-card-group selection-card-group--equal-height'
+                  style='--selection-card-group-height: 5rem; --selection-card-group-height-mobile: 4.5rem;'
+                >
                   {% render 'selection-card',
                     id: 'fulfillment-shipping',
                     name: 'fulfillment',
@@ -398,36 +534,52 @@
                 </div>
               </div>
 
-              <div class="pdp-divider"></div>
+              <div class='pdp-divider'></div>
 
               <!-- Seller Info -->
-              <div class="pdp-seller">
-                <span class="pdp-seller__icon">✦</span>
-                <span>Sold and shipped by <strong>{{ shop.name }}</strong></span>
+              <div class='pdp-seller'>
+                <span class='pdp-seller__icon'>✦</span>
+                <span
+                  >Sold and shipped by <strong>{{ shop.name }}</strong></span
+                >
               </div>
 
               <!-- Return Policy -->
-              <div class="pdp-returns">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <div class='pdp-returns'>
+                <svg
+                  width='16'
+                  height='16'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  stroke-width='2'
+                >
                   <polyline points="1 4 1 10 7 10"></polyline>
                   <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
                 </svg>
                 <strong>Free 30-day returns</strong>
-                <a href="/policies/refund-policy" class="pdp-returns__link">Details</a>
+                <a href='/policies/refund-policy' class='pdp-returns__link'>Details</a>
               </div>
 
-              <div class="pdp-divider"></div>
+              <div class='pdp-divider'></div>
 
               <!-- Wishlist / Registry -->
-              <div class="pdp-actions-row">
-                <button type="button" class="pdp-secondary-action">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <div class='pdp-actions-row'>
+                <button type='button' class='pdp-secondary-action'>
+                  <svg
+                    width='16'
+                    height='16'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    stroke-width='2'
+                  >
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                   </svg>
                   Add to list
                 </button>
-                <div class="pdp-actions-divider"></div>
-                <button type="button" class="pdp-secondary-action">
+                <div class='pdp-actions-divider'></div>
+                <button type='button' class='pdp-secondary-action'>
                   <span>🎁</span>
                   Add to registry
                 </button>
@@ -436,40 +588,36 @@
           </div>
         </div>
       </div>
-
     </div>
 
     <!-- Below-Fold Sections (Walmart-inspired) -->
-    <div class="pdp-below-fold">
-      
+    <div class='pdp-below-fold'>
       <!-- Specifications Section (includes warranty as row) -->
-      <div id="specs-full">
+      <div id='specs-full'>
         {% render 'pdp-specifications', product: product, expanded: true %}
       </div>
-      
+
       <!-- Warnings Section -->
       {% render 'pdp-warnings', product: product, expanded: false %}
-      
+
       <!-- Compare with Similar Items -->
-      {% render 'pdp-compare-similar', 
-        product: product, 
-        max_products: settings.pdp_compare_max_products 
+      {% render 'pdp-compare-similar',
+        product: product,
+        max_products: settings.pdp_compare_max_products
       %}
-      
     </div>
 
     <!-- Related Products -->
     {% if recommendations.products.size > 0 %}
-      <div class="related-products">
-        <h2 class="related-products__title">You May Also Like</h2>
-        <div class="related-products__grid">
+      <div class='related-products'>
+        <h2 class='related-products__title'>You May Also Like</h2>
+        <div class='related-products__grid'>
           {% for product in recommendations.products limit: 4 %}
             {% render 'product-card', product: product %}
           {% endfor %}
         </div>
       </div>
     {% endif %}
-
   </div>
 </div>
 
