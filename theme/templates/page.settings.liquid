@@ -1,30 +1,32 @@
 {% comment %}
-  Customer Orders Page Template
-  Order history for logged-in customers
+  Customer Settings Page Template
+  Login & Security settings
 
   ┌─────────────────────────────────────────────────────────────────────────┐
   │  REQUIRED SETUP - This page must be created in Shopify Admin!          │
   │                                                                          │
   │  1. Go to Shopify Admin → Online Store → Pages                          │
   │  2. Click "Add page"                                                     │
-  │  3. Title: "Orders" (or "Your Orders")                                  │
-  │  4. Under SEO, set Handle to: orders                                    │
-  │  5. Under Template, select: page.orders                                 │
+  │  3. Title: "Settings" (or "Login & Security")                           │
+  │  4. Under SEO, set Handle to: settings                                  │
+  │  5. Under Template, select: page.settings                               │
   │  6. Click Save                                                           │
   │                                                                          │
-  │  The page will then be accessible at: /pages/orders                     │
+  │  The page will then be accessible at: /pages/settings                   │
   └─────────────────────────────────────────────────────────────────────────┘
 {% endcomment %}
 
 {% layout 'theme' %}
 
-{% if customer %}
-  {% section 'customer-orders' %}
-{% else %}
+{%- comment -%} Require customer login {%- endcomment -%}
+{%- unless customer -%}
   <script>
-    window.location.href = '{{ routes.account_login_url }}?return_url={{ request.path | url_encode }}';
+    window.location.href =
+      '{{ routes.account_login_url }}?return_url={{ request.path | url_encode }}';
   </script>
-  <div class="page-width" style="padding: var(--space-8) 0; text-align: center;">
-    <p>Please <a href="{{ routes.account_login_url }}">log in</a> to view your orders.</p>
+  <div style='min-height: 50vh; display: flex; align-items: center; justify-content: center;'>
+    <p>Redirecting to login...</p>
   </div>
-{% endif %}
+{%- else -%}
+  {% section 'customer-settings' %}
+{%- endunless -%}
