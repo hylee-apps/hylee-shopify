@@ -7,27 +7,27 @@
 {{ 'component-icon.css' | asset_url | stylesheet_tag }}
 {{ 'component-account-nav-card.css' | asset_url | stylesheet_tag }}
 
-<div class="customer-dashboard">
-  <div class="customer-dashboard__container">
+<div class='customer-dashboard'>
+  <div class='customer-dashboard__container'>
     {%- comment -%} Header {%- endcomment -%}
-    <header class="customer-dashboard__header">
-      <h1 class="customer-dashboard__title">Your Account</h1>
-      <p class="customer-dashboard__greeting">
+    <header class='customer-dashboard__header'>
+      <h1 class='customer-dashboard__title'>Your Account</h1>
+      <p class='customer-dashboard__greeting'>
         Hello, <strong>{{ customer.first_name }}</strong>
-        <span class="customer-dashboard__member-since">
+        <span class='customer-dashboard__member-since'>
           · Member since {{ customer.created_at | date: '%B %Y' }}
         </span>
       </p>
     </header>
 
     {%- comment -%} Navigation Cards Grid {%- endcomment -%}
-    <nav class="customer-dashboard__grid" aria-label="Account navigation">
+    <nav class='customer-dashboard__grid' aria-label='Account navigation'>
       {%- comment -%} Orders Card {%- endcomment -%}
       {%- render 'account-nav-card',
         icon: 'package',
         title: 'Your Orders',
         description: 'Track, return, or buy things again',
-        url: '/account/orders'
+        url: '/pages/orders'
       -%}
 
       {%- comment -%} Login & Security Card {%- endcomment -%}
@@ -35,7 +35,7 @@
         icon: 'shield',
         title: 'Login & Security',
         description: 'Edit login, name, and mobile number',
-        url: routes.account_url | append: '/settings'
+        url: '/pages/settings'
       -%}
 
       {%- comment -%} Addresses Card {%- endcomment -%}

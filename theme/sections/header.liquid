@@ -8,236 +8,319 @@
   assign cta_link = section.settings.cta_link
 %}
 
-<header class="header{% if variant == 'minimal' %} header--minimal{% endif %}" id="shopify-section-header">
+<header
+  class='header{% if variant == 'minimal' %} header--minimal{% endif %}'
+  id='shopify-section-header'
+>
   {%- comment -%} Top Banner {%- endcomment -%}
   {% if section.settings.show_announcement and section.settings.announcement_text != blank %}
-    <div class="header__announcement">
+    <div class='header__announcement'>
       {{ section.settings.announcement_text }}
     </div>
   {% endif %}
-  
-  <div class="header__inner-wrapper">
-    <div class="header__inner">
-    {%- comment -%} Mobile Menu Toggle {%- endcomment -%}
-    <button class="header__mobile-toggle" aria-label="Toggle menu" data-mobile-menu-toggle>
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="3" y1="12" x2="21" y2="12"></line>
-        <line x1="3" y1="6" x2="21" y2="6"></line>
-        <line x1="3" y1="18" x2="21" y2="18"></line>
-      </svg>
-    </button>
 
-    {%- comment -%} Logo {%- endcomment -%}
-    <a href="{{ routes.root_url }}" class="header__logo">
-      {% if section.settings.logo != blank %}
-        <img 
-          src="{{ section.settings.logo | image_url: width: 28 }}" 
-          alt="{{ shop.name }}"
-          class="header__logo-image"
-          width="28"
-          height="28"
-          loading="eager"
+  <div class='header__inner-wrapper'>
+    <div class='header__inner'>
+      {%- comment -%} Mobile Menu Toggle {%- endcomment -%}
+      <button class='header__mobile-toggle' aria-label='Toggle menu' data-mobile-menu-toggle>
+        <svg
+          width='24'
+          height='24'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+          stroke-width='2'
         >
-      {% else %}
-        <img 
-          src="https://placehold.co/28x28/71717a/ffffff?text=H" 
-          alt="{{ shop.name }}"
-          class="header__logo-image"
-          width="28"
-          height="28"
-          loading="eager"
-        >
-      {% endif %}
-      <span class="header__logo-text">{{ section.settings.logo_text | default: shop.name }}</span>
-    </a>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
 
-    {%- if variant == 'default' -%}
-      {%- comment -%} Main Navigation {%- endcomment -%}
-      <nav class="header__nav" role="navigation">
-        {%- comment -%} Product Category Dropdown with L1 Categories {%- endcomment -%}
-        {%- if show_categories -%}
-          <div class="header__dropdown header__dropdown--categories">
-            <button 
-              class="header__nav-link header__dropdown-toggle" 
-              aria-expanded="false"
-              aria-controls="product-category-dropdown"
-              data-category-dropdown-toggle
+      {%- comment -%} Logo {%- endcomment -%}
+      <a href='{{ routes.root_url }}' class='header__logo'>
+        {% if section.settings.logo != blank %}
+          <img
+            src='{{ section.settings.logo | image_url: width: 28 }}'
+            alt='{{ shop.name }}'
+            class='header__logo-image'
+            width='28'
+            height='28'
+            loading='eager'
+          >
+        {% else %}
+          <img
+            src='https://placehold.co/28x28/71717a/ffffff?text=H'
+            alt='{{ shop.name }}'
+            class='header__logo-image'
+            width='28'
+            height='28'
+            loading='eager'
+          >
+        {% endif %}
+        <span class='header__logo-text'>{{ section.settings.logo_text | default: shop.name }}</span>
+      </a>
+
+      {%- if variant == 'default' -%}
+        {%- comment -%} Main Navigation {%- endcomment -%}
+        <nav class='header__nav' role='navigation'>
+          {%- comment -%} Product Category Dropdown with L1 Categories {%- endcomment -%}
+          {%- if show_categories -%}
+            <div class='header__dropdown header__dropdown--categories'>
+              <button
+                class='header__nav-link header__dropdown-toggle'
+                aria-expanded='false'
+                aria-controls='product-category-dropdown'
+                data-category-dropdown-toggle
+              >
+                Product Category
+                <svg
+                  width='12'
+                  height='12'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  stroke-width='2'
+                  class='header__dropdown-arrow'
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+
+              <div
+                class='header__dropdown-menu header__dropdown-menu--wide hidden'
+                id='product-category-dropdown'
+                data-category-dropdown-menu
+              >
+                <div class='header__dropdown-header'>Categories</div>
+                <div class='header__dropdown-grid'>
+                  {%- assign l1_categories = collections
+                    | where: 'metafields.custom.category_level', 'L1'
+                  -%}
+
+                  {%- if l1_categories.size > 0 -%}
+                    {%- for l1_collection in l1_categories limit: 20 -%}
+                      <div class='header__category-item' data-category-hover>
+                        <a
+                          href='{{ l1_collection.url }}'
+                          class='header__dropdown-item header__dropdown-item--category header__dropdown-item--parent'
+                        >
+                          {{ l1_collection.title }}
+                          <svg
+                            width='16'
+                            height='16'
+                            viewBox='0 0 24 24'
+                            fill='none'
+                            stroke='currentColor'
+                            stroke-width='2'
+                            class='header__category-arrow'
+                          >
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                          </svg>
+                        </a>
+
+                        {%- comment -%} Find L2 subcategories {%- endcomment -%}
+                        {%- assign l2_categories = collections
+                          | where: 'metafields.custom.category_level', 'L2'
+                        -%}
+                        {%- assign parent_handle = l1_collection.handle -%}
+                        {%- assign has_subcategories = false -%}
+
+                        {%- for l2_collection in l2_categories -%}
+                          {%- if l2_collection.metafields.custom.parent_category == parent_handle
+                          -%}
+                            {%- assign has_subcategories = true -%}
+                            {%- break -%}
+                          {%- endif -%}
+                        {%- endfor -%}
+
+                        {%- if has_subcategories -%}
+                          <div class='header__subcategory-menu hidden' data-subcategory-menu>
+                            <div class='header__subcategory-header'>{{ l1_collection.title }}</div>
+                            <div class='header__subcategory-grid'>
+                              {%- for l2_collection in l2_categories -%}
+                                {%- if l2_collection.metafields.custom.parent_category
+                                    == parent_handle
+                                -%}
+                                  <a
+                                    href='{{ l2_collection.url }}'
+                                    class='header__subcategory-item'
+                                  >
+                                    {{ l2_collection.title }}
+                                  </a>
+                                {%- endif -%}
+                              {%- endfor -%}
+                            </div>
+                          </div>
+                        {%- endif -%}
+                      </div>
+                    {%- endfor -%}
+                  {%- else -%}
+                    {%- comment -%} Fallback: Show main collections {%- endcomment -%}
+                    {%- for collection in collections limit: 20 -%}
+                      {%- unless collection.handle == 'all' -%}
+                        <a
+                          href='{{ collection.url }}'
+                          class='header__dropdown-item header__dropdown-item--category'
+                        >
+                          {{ collection.title }}
+                        </a>
+                      {%- endunless -%}
+                    {%- endfor -%}
+                  {%- endif -%}
+                </div>
+              </div>
+            </div>
+          {%- endif -%}
+
+          {%- comment -%} What's New Dropdown {%- endcomment -%}
+          <div class='header__dropdown'>
+            <button
+              class='header__nav-link header__dropdown-toggle'
+              aria-expanded='false'
+              aria-controls='whats-new-dropdown'
+              data-whats-new-dropdown-toggle
             >
-              Product Category
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="header__dropdown-arrow">
+              What's New
+              <svg
+                width='12'
+                height='12'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                stroke-width='2'
+                class='header__dropdown-arrow'
+              >
                 <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
             </button>
-            
-            <div class="header__dropdown-menu header__dropdown-menu--wide hidden" id="product-category-dropdown" data-category-dropdown-menu>
-              <div class="header__dropdown-header">Categories</div>
-              <div class="header__dropdown-grid">
-                {%- assign l1_categories = collections | where: "metafields.custom.category_level", "L1" -%}
-                
-                {%- if l1_categories.size > 0 -%}
-                  {%- for l1_collection in l1_categories limit: 20 -%}
-                    <div class="header__category-item" data-category-hover>
-                      <a href="{{ l1_collection.url }}" class="header__dropdown-item header__dropdown-item--category header__dropdown-item--parent">
-                        {{ l1_collection.title }}
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="header__category-arrow">
-                          <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                      </a>
-                      
-                      {%- comment -%} Find L2 subcategories {%- endcomment -%}
-                      {%- assign l2_categories = collections | where: "metafields.custom.category_level", "L2" -%}
-                      {%- assign parent_handle = l1_collection.handle -%}
-                      {%- assign has_subcategories = false -%}
-                      
-                      {%- for l2_collection in l2_categories -%}
-                        {%- if l2_collection.metafields.custom.parent_category == parent_handle -%}
-                          {%- assign has_subcategories = true -%}
-                          {%- break -%}
-                        {%- endif -%}
-                      {%- endfor -%}
-                      
-                      {%- if has_subcategories -%}
-                        <div class="header__subcategory-menu hidden" data-subcategory-menu>
-                          <div class="header__subcategory-header">{{ l1_collection.title }}</div>
-                          <div class="header__subcategory-grid">
-                            {%- for l2_collection in l2_categories -%}
-                              {%- if l2_collection.metafields.custom.parent_category == parent_handle -%}
-                                <a href="{{ l2_collection.url }}" class="header__subcategory-item">
-                                  {{ l2_collection.title }}
-                                </a>
-                              {%- endif -%}
-                            {%- endfor -%}
-                          </div>
-                        </div>
-                      {%- endif -%}
-                    </div>
-                  {%- endfor -%}
-                {%- else -%}
-                  {%- comment -%} Fallback: Show main collections {%- endcomment -%}
-                  {%- for collection in collections limit: 20 -%}
-                    {%- unless collection.handle == 'all' -%}
-                      <a href="{{ collection.url }}" class="header__dropdown-item header__dropdown-item--category">
-                        {{ collection.title }}
-                      </a>
-                    {%- endunless -%}
-                  {%- endfor -%}
-                {%- endif -%}
-              </div>
+
+            <div
+              class='header__dropdown-menu hidden'
+              id='whats-new-dropdown'
+              data-whats-new-dropdown-menu
+            >
+              <a href='/collections/deals-promotions' class='header__dropdown-item'>
+                Deals & Promotions
+              </a>
+              <a href='/collections/new-arrivals' class='header__dropdown-item'> New Additions </a>
+              <a href='/collections/seasonal' class='header__dropdown-item'>
+                Season Item Spotlights
+              </a>
+              <a href='/collections/special-events' class='header__dropdown-item'>
+                Special Events
+              </a>
             </div>
           </div>
-        {%- endif -%}
-        
-        {%- comment -%} What's New Dropdown {%- endcomment -%}
-        <div class="header__dropdown">
-          <button 
-            class="header__nav-link header__dropdown-toggle" 
-            aria-expanded="false"
-            aria-controls="whats-new-dropdown"
-            data-whats-new-dropdown-toggle
+
+          {%- comment -%} Blog Link {%- endcomment -%}
+          <a href='{{ blog.url | default: '/blogs/news' }}' class='header__nav-link'> Blog </a>
+
+          {%- if section.settings.show_about -%}
+            <a href='{{ section.settings.about_link }}' class='header__nav-link'>
+              {{ 'header.navigation.about' | t }}
+            </a>
+          {%- endif -%}
+        </nav>
+      {%- endif -%}
+
+      {%- comment -%} Actions {%- endcomment -%}
+      <div class='header__actions'>
+        {%- if customer and section.settings.show_orders_link -%}
+          <a href='/pages/orders' class='header__action-link'>
+            {{ 'header.actions.orders_returns' | t | default: 'Orders' }}
+          </a>
+        {%- elsif show_track_order -%}
+          <a
+            href='{{ section.settings.track_order_link | default: '/pages/track-order' }}'
+            class='header__action-link'
           >
-            What's New
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="header__dropdown-arrow">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </button>
-          
-          <div class="header__dropdown-menu hidden" id="whats-new-dropdown" data-whats-new-dropdown-menu>
-            <a href="/collections/deals-promotions" class="header__dropdown-item">
-              Deals & Promotions
-            </a>
-            <a href="/collections/new-arrivals" class="header__dropdown-item">
-              New Additions
-            </a>
-            <a href="/collections/seasonal" class="header__dropdown-item">
-              Season Item Spotlights
-            </a>
-            <a href="/collections/special-events" class="header__dropdown-item">
-              Special Events
-            </a>
-          </div>
-        </div>
-        
-        {%- comment -%} Blog Link {%- endcomment -%}
-        <a href="{{ blog.url | default: '/blogs/news' }}" class="header__nav-link">
-          Blog
-        </a>
-
-        {%- if section.settings.show_about -%}
-          <a href="{{ section.settings.about_link }}" class="header__nav-link">
-            {{ 'header.navigation.about' | t }}
+            {{ 'header.actions.track_order' | t }}
           </a>
         {%- endif -%}
-      </nav>
-    {%- endif -%}
 
-    {%- comment -%} Actions {%- endcomment -%}
-    <div class="header__actions">
-      {%- if customer and section.settings.show_orders_link -%}
-        <a href="/account" class="header__action-link">
-          {{ 'header.actions.orders_returns' | t | default: 'Orders' }}
-        </a>
-      {%- elsif show_track_order -%}
-        <a href="{{ section.settings.track_order_link | default: '/pages/track-order' }}" class="header__action-link">
-          {{ 'header.actions.track_order' | t }}
-        </a>
-      {%- endif -%}
+        {%- if shop.customer_accounts_enabled -%}
+          {%- if customer -%}
+            <a
+              href='{{ routes.account_url }}'
+              class='header__action-link header__action-link--outline'
+            >
+              {{ 'header.actions.account' | t }}
+            </a>
+          {%- else -%}
+            <a
+              href='{{ routes.account_login_url }}'
+              class='header__action-link header__action-link--outline'
+            >
+              {{ 'header.actions.sign_in' | t }}
+            </a>
+          {%- endif -%}
+        {%- endif -%}
 
-      {%- if shop.customer_accounts_enabled -%}
-        {%- if customer -%}
-          <a href="{{ routes.account_url }}" class="header__action-link header__action-link--outline">
-            {{ 'header.actions.account' | t }}
-          </a>
-        {%- else -%}
-          <a href="{{ routes.account_register_url }}" class="header__action-link header__action-link--outline">
-            {{ 'header.actions.sign_in' | t }}
+        {%- if cta_text != blank and cta_link != blank -%}
+          <a href='{{ cta_link }}' class='header__cta'>
+            {{ cta_text }}
           </a>
         {%- endif -%}
-      {%- endif -%}
-
-      {%- if cta_text != blank and cta_link != blank -%}
-        <a href="{{ cta_link }}" class="header__cta">
-          {{ cta_text }}
-        </a>
-      {%- endif -%}
-    </div>
+      </div>
     </div>
   </div>
 
   {%- comment -%} Mobile Menu Overlay {%- endcomment -%}
-  <div class="header__mobile-overlay hidden" data-mobile-overlay></div>
+  <div class='header__mobile-overlay hidden' data-mobile-overlay></div>
 
   {%- comment -%} Mobile Menu {%- endcomment -%}
-  <div class="header__mobile-menu hidden" data-mobile-menu>
-    <div class="header__mobile-header">
-      <span class="header__mobile-title">Menu</span>
-      <button class="header__mobile-close" aria-label="Close menu" data-mobile-menu-close>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <div class='header__mobile-menu hidden' data-mobile-menu>
+    <div class='header__mobile-header'>
+      <span class='header__mobile-title'>Menu</span>
+      <button class='header__mobile-close' aria-label='Close menu' data-mobile-menu-close>
+        <svg
+          width='24'
+          height='24'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+          stroke-width='2'
+        >
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
       </button>
     </div>
 
-    <nav class="header__mobile-nav">
+    <nav class='header__mobile-nav'>
       {%- comment -%} Product Category Section {%- endcomment -%}
       {%- if show_categories -%}
-        <div class="header__mobile-section">
-          <button class="header__mobile-section-toggle" data-mobile-section="categories">
+        <div class='header__mobile-section'>
+          <button class='header__mobile-section-toggle' data-mobile-section='categories'>
             <span>Product Category</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg
+              width='16'
+              height='16'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              stroke-width='2'
+            >
               <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </button>
-          <div class="header__mobile-submenu hidden" data-mobile-submenu="categories">
-            {%- assign l1_categories = collections | where: "metafields.custom.category_level", "L1" -%}
+          <div class='header__mobile-submenu hidden' data-mobile-submenu='categories'>
+            {%- assign l1_categories = collections
+              | where: 'metafields.custom.category_level', 'L1'
+            -%}
             {%- if l1_categories.size > 0 -%}
               {%- for collection in l1_categories limit: 20 -%}
-                <a href="{{ collection.url }}" class="header__mobile-link">{{ collection.title }}</a>
+                <a href='{{ collection.url }}' class='header__mobile-link'>
+                  {{- collection.title -}}
+                </a>
               {%- endfor -%}
             {%- else -%}
               {%- for collection in collections limit: 20 -%}
                 {%- unless collection.handle == 'all' -%}
-                  <a href="{{ collection.url }}" class="header__mobile-link">{{ collection.title }}</a>
+                  <a href='{{ collection.url }}' class='header__mobile-link'>
+                    {{- collection.title -}}
+                  </a>
                 {%- endunless -%}
               {%- endfor -%}
             {%- endif -%}
@@ -246,48 +329,67 @@
       {%- endif -%}
 
       {%- comment -%} What's New Section {%- endcomment -%}
-      <div class="header__mobile-section">
-        <button class="header__mobile-section-toggle" data-mobile-section="whats-new">
+      <div class='header__mobile-section'>
+        <button class='header__mobile-section-toggle' data-mobile-section='whats-new'>
           <span>What's New</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg
+            width='16'
+            height='16'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            stroke-width='2'
+          >
             <polyline points="9 18 15 12 9 6"></polyline>
           </svg>
         </button>
-        <div class="header__mobile-submenu hidden" data-mobile-submenu="whats-new">
-          <a href="/collections/deals-promotions" class="header__mobile-link">Deals & Promotions</a>
-          <a href="/collections/new-arrivals" class="header__mobile-link">New Additions</a>
-          <a href="/collections/seasonal" class="header__mobile-link">Season Item Spotlights</a>
-          <a href="/collections/special-events" class="header__mobile-link">Special Events</a>
+        <div class='header__mobile-submenu hidden' data-mobile-submenu='whats-new'>
+          <a href='/collections/deals-promotions' class='header__mobile-link'>Deals & Promotions</a>
+          <a href='/collections/new-arrivals' class='header__mobile-link'>New Additions</a>
+          <a href='/collections/seasonal' class='header__mobile-link'>Season Item Spotlights</a>
+          <a href='/collections/special-events' class='header__mobile-link'>Special Events</a>
         </div>
       </div>
 
       {%- comment -%} Blog Link {%- endcomment -%}
-      <a href="{{ blog.url | default: '/blogs/news' }}" class="header__mobile-link header__mobile-link--top">Blog</a>
+      <a
+        href='{{ blog.url | default: '/blogs/news' }}'
+        class='header__mobile-link header__mobile-link--top'
+        >Blog</a
+      >
 
       {%- if section.settings.show_about -%}
-        <a href="{{ section.settings.about_link }}" class="header__mobile-link header__mobile-link--top">{{ 'header.navigation.about' | t }}</a>
+        <a
+          href='{{ section.settings.about_link }}'
+          class='header__mobile-link header__mobile-link--top'
+        >
+          {{- 'header.navigation.about' | t -}}
+        </a>
       {%- endif -%}
 
       {%- comment -%} Account Actions {%- endcomment -%}
-      <div class="header__mobile-divider"></div>
-      
+      <div class='header__mobile-divider'></div>
+
       {%- if customer and section.settings.show_orders_link -%}
-        <a href="/account" class="header__mobile-link">
+        <a href='/pages/orders' class='header__mobile-link'>
           {% render 'icon', name: 'package', size: 20 %}
           {{ 'header.actions.orders_returns' | t | default: 'Orders' }}
         </a>
       {%- elsif show_track_order -%}
-        <a href="{{ section.settings.track_order_link | default: '/pages/track-order' }}" class="header__mobile-link">
+        <a
+          href='{{ section.settings.track_order_link | default: '/pages/track-order' }}'
+          class='header__mobile-link'
+        >
           {{ 'header.actions.track_order' | t }}
         </a>
       {%- endif -%}
-      
+
       {% if customer %}
-        <a href="{{ routes.account_url }}" class="header__mobile-link">
+        <a href='{{ routes.account_url }}' class='header__mobile-link'>
           {{ 'header.actions.account' | t }}
         </a>
       {% else %}
-        <a href="{{ routes.account_register_url }}" class="header__mobile-link">
+        <a href='{{ routes.account_login_url }}' class='header__mobile-link'>
           {{ 'header.actions.sign_in' | t }}
         </a>
       {% endif %}
@@ -297,20 +399,20 @@
 
 <script>
   // Categories dropdown functionality
-  (function() {
+  (function () {
     const toggle = document.querySelector('[data-categories-toggle]');
     const menu = document.querySelector('[data-categories-menu]');
     const overlay = document.querySelector('[data-categories-overlay]');
-    
+
     if (toggle && menu && overlay) {
-      toggle.addEventListener('click', function() {
+      toggle.addEventListener('click', function () {
         const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
         toggle.setAttribute('aria-expanded', !isExpanded);
         menu.classList.toggle('hidden');
         overlay.classList.toggle('hidden');
       });
-      
-      overlay.addEventListener('click', function() {
+
+      overlay.addEventListener('click', function () {
         toggle.setAttribute('aria-expanded', 'false');
         menu.classList.add('hidden');
         overlay.classList.add('hidden');
@@ -319,44 +421,44 @@
   })();
 
   // Product Category dropdown functionality
-  (function() {
+  (function () {
     const categoryToggle = document.querySelector('[data-category-dropdown-toggle]');
     const categoryMenu = document.querySelector('[data-category-dropdown-menu]');
 
     if (categoryToggle && categoryMenu) {
-      categoryToggle.addEventListener('click', function(e) {
+      categoryToggle.addEventListener('click', function (e) {
         e.stopPropagation();
         const isExpanded = categoryToggle.getAttribute('aria-expanded') === 'true';
-        
+
         // Close other dropdowns
-        document.querySelectorAll('.header__dropdown-toggle').forEach(toggle => {
+        document.querySelectorAll('.header__dropdown-toggle').forEach((toggle) => {
           if (toggle !== categoryToggle) {
             toggle.setAttribute('aria-expanded', 'false');
           }
         });
-        document.querySelectorAll('.header__dropdown-menu').forEach(menu => {
+        document.querySelectorAll('.header__dropdown-menu').forEach((menu) => {
           if (menu !== categoryMenu) {
             menu.classList.add('hidden');
           }
         });
-        
+
         categoryToggle.setAttribute('aria-expanded', !isExpanded);
         categoryMenu.classList.toggle('hidden');
       });
-      
+
       // Subcategory hover functionality
       const categoryItems = categoryMenu.querySelectorAll('[data-category-hover]');
-      
-      categoryItems.forEach(item => {
+
+      categoryItems.forEach((item) => {
         const subcategoryMenu = item.querySelector('[data-subcategory-menu]');
-        
+
         if (subcategoryMenu) {
           let hideTimeout;
-          
-          item.addEventListener('mouseenter', function() {
+
+          item.addEventListener('mouseenter', function () {
             clearTimeout(hideTimeout);
             // Hide all other subcategory menus
-            categoryItems.forEach(otherItem => {
+            categoryItems.forEach((otherItem) => {
               if (otherItem !== item) {
                 const otherSubMenu = otherItem.querySelector('[data-subcategory-menu]');
                 if (otherSubMenu) {
@@ -366,18 +468,18 @@
             });
             subcategoryMenu.classList.remove('hidden');
           });
-          
-          item.addEventListener('mouseleave', function() {
+
+          item.addEventListener('mouseleave', function () {
             hideTimeout = setTimeout(() => {
               subcategoryMenu.classList.add('hidden');
             }, 200);
           });
-          
-          subcategoryMenu.addEventListener('mouseenter', function() {
+
+          subcategoryMenu.addEventListener('mouseenter', function () {
             clearTimeout(hideTimeout);
           });
-          
-          subcategoryMenu.addEventListener('mouseleave', function() {
+
+          subcategoryMenu.addEventListener('mouseleave', function () {
             subcategoryMenu.classList.add('hidden');
           });
         }
@@ -386,27 +488,27 @@
   })();
 
   // What's New dropdown functionality
-  (function() {
+  (function () {
     const whatsNewToggle = document.querySelector('[data-whats-new-dropdown-toggle]');
     const whatsNewMenu = document.querySelector('[data-whats-new-dropdown-menu]');
 
     if (whatsNewToggle && whatsNewMenu) {
-      whatsNewToggle.addEventListener('click', function(e) {
+      whatsNewToggle.addEventListener('click', function (e) {
         e.stopPropagation();
         const isExpanded = whatsNewToggle.getAttribute('aria-expanded') === 'true';
-        
+
         // Close other dropdowns
-        document.querySelectorAll('.header__dropdown-toggle').forEach(toggle => {
+        document.querySelectorAll('.header__dropdown-toggle').forEach((toggle) => {
           if (toggle !== whatsNewToggle) {
             toggle.setAttribute('aria-expanded', 'false');
           }
         });
-        document.querySelectorAll('.header__dropdown-menu').forEach(menu => {
+        document.querySelectorAll('.header__dropdown-menu').forEach((menu) => {
           if (menu !== whatsNewMenu) {
             menu.classList.add('hidden');
           }
         });
-        
+
         whatsNewToggle.setAttribute('aria-expanded', !isExpanded);
         whatsNewMenu.classList.toggle('hidden');
       });
@@ -414,24 +516,24 @@
   })();
 
   // Close dropdowns when clicking outside or pressing Escape
-  (function() {
-    document.addEventListener('click', function(e) {
+  (function () {
+    document.addEventListener('click', function (e) {
       if (!e.target.closest('.header__dropdown')) {
-        document.querySelectorAll('.header__dropdown-toggle').forEach(toggle => {
+        document.querySelectorAll('.header__dropdown-toggle').forEach((toggle) => {
           toggle.setAttribute('aria-expanded', 'false');
         });
-        document.querySelectorAll('.header__dropdown-menu').forEach(menu => {
+        document.querySelectorAll('.header__dropdown-menu').forEach((menu) => {
           menu.classList.add('hidden');
         });
       }
     });
 
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {
-        document.querySelectorAll('.header__dropdown-toggle').forEach(toggle => {
+        document.querySelectorAll('.header__dropdown-toggle').forEach((toggle) => {
           toggle.setAttribute('aria-expanded', 'false');
         });
-        document.querySelectorAll('.header__dropdown-menu').forEach(menu => {
+        document.querySelectorAll('.header__dropdown-menu').forEach((menu) => {
           menu.classList.add('hidden');
         });
       }
@@ -439,7 +541,7 @@
   })();
 
   // Mobile menu functionality
-  (function() {
+  (function () {
     const mobileToggle = document.querySelector('[data-mobile-menu-toggle]');
     const mobileMenu = document.querySelector('[data-mobile-menu]');
     const mobileOverlay = document.querySelector('[data-mobile-overlay]');
@@ -464,20 +566,20 @@
     }
 
     // Mobile submenu toggles
-    document.querySelectorAll('[data-mobile-section]').forEach(button => {
-      button.addEventListener('click', function() {
+    document.querySelectorAll('[data-mobile-section]').forEach((button) => {
+      button.addEventListener('click', function () {
         const section = this.getAttribute('data-mobile-section');
         const submenu = document.querySelector(`[data-mobile-submenu="${section}"]`);
         const isOpen = !submenu.classList.contains('hidden');
-        
+
         // Close all other submenus
-        document.querySelectorAll('.header__mobile-submenu').forEach(menu => {
+        document.querySelectorAll('.header__mobile-submenu').forEach((menu) => {
           menu.classList.add('hidden');
         });
-        document.querySelectorAll('.header__mobile-section-toggle').forEach(btn => {
+        document.querySelectorAll('.header__mobile-section-toggle').forEach((btn) => {
           btn.classList.remove('active');
         });
-        
+
         // Toggle current submenu
         if (!isOpen) {
           submenu.classList.remove('hidden');
