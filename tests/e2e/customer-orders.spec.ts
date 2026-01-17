@@ -47,13 +47,13 @@ test.describe('Customer Orders - Page Routing', () => {
 
       // Find and click the "Settings" navigation card
       const settingsCard = page
-        .locator('a[href="/pages/settings"], a:has-text("Login & Security")')
+        .locator('a[href="/account/settings"], a:has-text("Login & Security")')
         .first();
       await expect(settingsCard).toBeVisible();
       await settingsCard.click();
 
       // Should navigate to settings page
-      await expect(page).toHaveURL(/\/pages\/settings/);
+      await expect(page).toHaveURL(/\/account\/settings/);
 
       // Settings page should load successfully
       await expect(page.locator('body')).not.toContainText('Page not found');
@@ -85,13 +85,13 @@ test.describe('Customer Orders - Page Routing', () => {
 
       // Check for settings link in header navigation
       const headerSettingsLink = page.locator(
-        'header a[href="/pages/settings"], nav a[href="/pages/settings"]'
+        'header a[href="/account/settings"], nav a[href="/account/settings"]'
       );
 
       // If settings link exists in header, click it
       if ((await headerSettingsLink.count()) > 0) {
         await headerSettingsLink.first().click();
-        await expect(page).toHaveURL(/\/pages\/settings/);
+        await expect(page).toHaveURL(/\/account\/settings/);
         await expect(page.locator('body')).not.toContainText('Page not found');
       }
     });
@@ -181,7 +181,7 @@ test.describe('Customer Orders - Page Template Requirements', () => {
 
   test('settings page template is properly configured', async ({ page }) => {
     // This test verifies the settings page exists
-    const response = await page.goto('/pages/settings');
+    const response = await page.goto('/account/settings');
 
     // Check the page returns a successful status (not 404)
     expect(response?.status()).toBeLessThan(400);
