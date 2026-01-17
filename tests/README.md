@@ -8,9 +8,12 @@ This directory contains all tests for the Hy-lee Shopify Theme.
 
 ```
 tests/
-├── components/     # Vitest component/unit tests
-├── e2e/            # Playwright end-to-end tests
-└── README.md       # This file
+├── components/           # Vitest component/unit tests
+├── e2e/                  # Playwright end-to-end tests
+│   ├── auth.setup.ts     # Authentication setup
+│   ├── customer-orders.spec.ts   # Customer orders routing tests
+│   └── customer-settings.spec.ts # Customer settings page tests
+└── README.md             # This file
 ```
 
 ## Test Stack
@@ -84,16 +87,17 @@ test.describe('Product Page', () => {
 
 ### What to Test
 
-| Type | Unit Test | E2E Test |
-|------|-----------|----------|
-| New component | ✅ Required | Optional |
-| New page/section | Optional | ✅ Required |
-| Bug fix | ✅ Regression | If user flow |
-| Styling only | ❌ | ❌ |
+| Type             | Unit Test     | E2E Test     |
+| ---------------- | ------------- | ------------ |
+| New component    | ✅ Required   | Optional     |
+| New page/section | Optional      | ✅ Required  |
+| Bug fix          | ✅ Regression | If user flow |
+| Styling only     | ❌            | ❌           |
 
 ### Component Test Coverage
 
 Each component should test:
+
 - Default rendering
 - All variants
 - Edge cases (empty, long text)
