@@ -1,26 +1,26 @@
 {% comment %}
   Breadcrumb Component
-  
+
   Usage:
   {% render 'breadcrumb', items: breadcrumb_items %}
-  
+
   Or automatic product/collection breadcrumbs:
   {% render 'breadcrumb', product: product, collection: collection %}
-  
+
   Account-style breadcrumbs (no schema.org, chevron separator):
   {%- assign items = "Your Account," | append: routes.account_url | append: ";Your Orders" | split: ";" -%}
   {% render 'breadcrumb', variant: 'account', items: items %}
-  
+
   Items format (default variant):
   [
     { "label": "Home", "url": "/" },
     { "label": "Category", "url": "/collections/category" },
     { "label": "Current Page" }
   ]
-  
+
   Items format (account variant) - simple "label,url" or "label" strings:
   "Your Account,/account;Your Orders" | split: ";"
-  
+
   Parameters:
   - items: array - Array of breadcrumb items
   - product: object - Shopify product object (auto-generates breadcrumb)
@@ -33,7 +33,7 @@
 {%- liquid
   assign extra_class = class | default: ''
   assign breadcrumb_variant = variant | default: 'default'
-  
+
   if breadcrumb_variant == 'account'
     assign sep = separator | default: '›'
   else
@@ -43,91 +43,119 @@
 
 {% if breadcrumb_variant == 'account' %}
   {%- comment -%} Account variant: simpler markup, no schema.org {%- endcomment -%}
-  <nav class="breadcrumb breadcrumb--account {{ extra_class }}" aria-label="Breadcrumb">
+  <nav class='breadcrumb breadcrumb--account {{ extra_class }}' aria-label='Breadcrumb'>
     {% for item in items %}
       {%- assign item_parts = item | split: ',' -%}
       {%- assign item_label = item_parts[0] -%}
       {%- assign item_url = item_parts[1] | default: '' -%}
       {% if item_url != '' and forloop.last == false %}
-        <a href="{{ item_url }}" class="breadcrumb__link">{{ item_label }}</a>
-        <span class="breadcrumb__separator" aria-hidden="true">{{ sep }}</span>
+        <a href='{{ item_url }}' class='breadcrumb__link'>{{ item_label }}</a>
+        <span class='breadcrumb__separator' aria-hidden='true'>{{ sep }}</span>
       {% else %}
-        <span class="breadcrumb__current" aria-current="page">{{ item_label }}</span>
+        <span class='breadcrumb__current' aria-current='page'>{{ item_label }}</span>
       {% endif %}
     {% endfor %}
   </nav>
 
 {% else %}
   {%- comment -%} Default variant: full schema.org markup {%- endcomment -%}
-  <nav class="breadcrumb {{ extra_class }}" aria-label="Breadcrumb">
-    <ol class="breadcrumb__list" itemscope itemtype="https://schema.org/BreadcrumbList">
-    
-    {% comment %} Home link (always first) {% endcomment %}
-    <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-      <a href="/" class="breadcrumb__link" itemprop="item">
-        <span itemprop="name">Home</span>
-      </a>
-      <meta itemprop="position" content="1">
-      <span class="breadcrumb__separator" aria-hidden="true">/</span>
-    </li>
-    
-    {% if items %}
-      {% comment %} Custom items (skip first if it's Home) {% endcomment %}
-      {% assign position = 2 %}
-      {% for item in items %}
-        {% unless item.label == 'Home' %}
-          <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-            {% if item.url and forloop.last == false %}
-              <a href="{{ item.url }}" class="breadcrumb__link" itemprop="item">
-                <span itemprop="name">{{ item.label }}</span>
-              </a>
-              <span class="breadcrumb__separator" aria-hidden="true">/</span>
-            {% else %}
-              <span class="breadcrumb__current" itemprop="item" aria-current="page">
-                <span itemprop="name">{{ item.label }}</span>
-              </span>
-            {% endif %}
-            <meta itemprop="position" content="{{ position }}">
+  <nav class='breadcrumb {{ extra_class }}' aria-label='Breadcrumb'>
+    <ol class='breadcrumb__list' itemscope itemtype='https://schema.org/BreadcrumbList'>
+      {% comment %} Home link (always first) {% endcomment %}
+      <li
+        class='breadcrumb__item'
+        itemprop='itemListElement'
+        itemscope
+        itemtype='https://schema.org/ListItem'
+      >
+        <a href='/' class='breadcrumb__link' itemprop='item'>
+          <span itemprop='name'>Home</span>
+        </a>
+        <meta itemprop='position' content='1'>
+        <span class='breadcrumb__separator' aria-hidden='true'>/</span>
+      </li>
+
+      {% if items %}
+        {% comment %} Custom items (skip first if it's Home) {% endcomment %}
+        {% assign position = 2 %}
+        {% for item in items %}
+          {% unless item.label == 'Home' %}
+            <li
+              class='breadcrumb__item'
+              itemprop='itemListElement'
+              itemscope
+              itemtype='https://schema.org/ListItem'
+            >
+              {% if item.url and forloop.last == false %}
+                <a href='{{ item.url }}' class='breadcrumb__link' itemprop='item'>
+                  <span itemprop='name'>{{ item.label }}</span>
+                </a>
+                <span class='breadcrumb__separator' aria-hidden='true'>/</span>
+              {% else %}
+                <span class='breadcrumb__current' itemprop='item' aria-current='page'>
+                  <span itemprop='name'>{{ item.label }}</span>
+                </span>
+              {% endif %}
+              <meta itemprop='position' content='{{ position }}'>
+            </li>
+            {% assign position = position | plus: 1 %}
+          {% endunless %}
+        {% endfor %}
+
+      {% elsif product %}
+        {% comment %} Auto-generate product breadcrumb {% endcomment %}
+        {% if collection %}
+          <li
+            class='breadcrumb__item'
+            itemprop='itemListElement'
+            itemscope
+            itemtype='https://schema.org/ListItem'
+          >
+            <a href='{{ collection.url }}' class='breadcrumb__link' itemprop='item'>
+              <span itemprop='name'>{{ collection.title }}</span>
+            </a>
+            <meta itemprop='position' content='2'>
+            <span class='breadcrumb__separator' aria-hidden='true'>/</span>
           </li>
-          {% assign position = position | plus: 1 %}
-        {% endunless %}
-      {% endfor %}
-      
-    {% elsif product %}
-      {% comment %} Auto-generate product breadcrumb {% endcomment %}
-      {% if collection %}
-        <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="{{ collection.url }}" class="breadcrumb__link" itemprop="item">
-            <span itemprop="name">{{ collection.title }}</span>
-          </a>
-          <meta itemprop="position" content="2">
-          <span class="breadcrumb__separator" aria-hidden="true">/</span>
-        </li>
-        <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <span class="breadcrumb__current" itemprop="item" aria-current="page">
-            <span itemprop="name">{{ product.title }}</span>
+          <li
+            class='breadcrumb__item'
+            itemprop='itemListElement'
+            itemscope
+            itemtype='https://schema.org/ListItem'
+          >
+            <span class='breadcrumb__current' itemprop='item' aria-current='page'>
+              <span itemprop='name'>{{ product.title }}</span>
+            </span>
+            <meta itemprop='position' content='3'>
+          </li>
+        {% else %}
+          <li
+            class='breadcrumb__item'
+            itemprop='itemListElement'
+            itemscope
+            itemtype='https://schema.org/ListItem'
+          >
+            <span class='breadcrumb__current' itemprop='item' aria-current='page'>
+              <span itemprop='name'>{{ product.title }}</span>
+            </span>
+            <meta itemprop='position' content='2'>
+          </li>
+        {% endif %}
+
+      {% elsif collection %}
+        {% comment %} Collection breadcrumb {% endcomment %}
+        <li
+          class='breadcrumb__item'
+          itemprop='itemListElement'
+          itemscope
+          itemtype='https://schema.org/ListItem'
+        >
+          <span class='breadcrumb__current' itemprop='item' aria-current='page'>
+            <span itemprop='name'>{{ collection.title }}</span>
           </span>
-          <meta itemprop="position" content="3">
-        </li>
-      {% else %}
-        <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <span class="breadcrumb__current" itemprop="item" aria-current="page">
-            <span itemprop="name">{{ product.title }}</span>
-          </span>
-          <meta itemprop="position" content="2">
+          <meta itemprop='position' content='2'>
         </li>
       {% endif %}
-      
-    {% elsif collection %}
-      {% comment %} Collection breadcrumb {% endcomment %}
-      <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-        <span class="breadcrumb__current" itemprop="item" aria-current="page">
-          <span itemprop="name">{{ collection.title }}</span>
-        </span>
-        <meta itemprop="position" content="2">
-      </li>
-    {% endif %}
-    
     </ol>
   </nav>
 {% endif %}

@@ -1,6 +1,6 @@
 {% comment %}
   Modal/Dialog Component
-  
+
   Usage:
   {% render 'modal',
     id: 'my-modal',
@@ -8,9 +8,9 @@
     content: modal_content,
     size: 'medium'
   %}
-  
+
   Trigger with: <button data-modal-open="my-modal">Open Modal</button>
-  
+
   Parameters:
   - id: string (required) - Unique identifier
   - title: string - Modal header title
@@ -28,25 +28,33 @@
 -%}
 
 <div
-  class="modal {{ extra_class }}"
-  id="{{ modal_id }}"
-  role="dialog"
-  aria-modal="true"
-  aria-labelledby="{{ modal_id }}-title"
+  class='modal {{ extra_class }}'
+  id='{{ modal_id }}'
+  role='dialog'
+  aria-modal='true'
+  aria-labelledby='{{ modal_id }}-title'
   hidden
   data-modal
 >
-  <div class="modal__backdrop" data-modal-backdrop></div>
-  <div class="modal__container modal__container--{{ modal_size }}">
-    <div class="modal__panel">
+  <div class='modal__backdrop' data-modal-backdrop></div>
+  <div class='modal__container modal__container--{{ modal_size }}'>
+    <div class='modal__panel'>
       {% if title != blank or is_closable %}
-        <div class="modal__header">
+        <div class='modal__header'>
           {% if title != blank %}
-            <h2 class="modal__title" id="{{ modal_id }}-title">{{ title }}</h2>
+            <h2 class='modal__title' id='{{ modal_id }}-title'>{{ title }}</h2>
           {% endif %}
           {% if is_closable %}
-            <button type="button" class="modal__close" aria-label="Close modal" data-modal-close>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <button type='button' class='modal__close' aria-label='Close modal' data-modal-close>
+              <svg
+                width='20'
+                height='20'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                stroke-width='2'
+                aria-hidden='true'
+              >
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
@@ -54,13 +62,13 @@
           {% endif %}
         </div>
       {% endif %}
-      
-      <div class="modal__body">
+
+      <div class='modal__body'>
         {{ content }}
       </div>
-      
+
       {% if footer != blank %}
-        <div class="modal__footer">
+        <div class='modal__footer'>
           {{ footer }}
         </div>
       {% endif %}

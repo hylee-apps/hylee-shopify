@@ -1,14 +1,14 @@
 {% comment %}
   Button Component Snippet
-  
+
   Usage:
-    {% render 'button', 
+    {% render 'button',
       text: 'Click Me',
       url: '/products',
       variant: 'primary',
       size: 'default'
     %}
-  
+
   Parameters:
     - text: Button text content (required)
     - url: Link destination (optional, creates <a> if present, <button> if not)
@@ -34,37 +34,41 @@
   assign icon_position = icon_position | default: 'left'
   assign full_width = full_width | default: false
   assign pill = pill | default: false
-  
+
   assign btn_classes = 'btn'
   assign btn_classes = btn_classes | append: ' btn--' | append: variant
   assign btn_classes = btn_classes | append: ' btn--' | append: size
-  
+
   if full_width
     assign btn_classes = btn_classes | append: ' btn--full-width'
   endif
-  
+
   if pill
     assign btn_classes = btn_classes | append: ' btn--pill'
   endif
-  
+
   if loading
     assign btn_classes = btn_classes | append: ' btn--loading'
   endif
-  
+
   if class
     assign btn_classes = btn_classes | append: ' ' | append: class
   endif
 %}
 
 {% if url and url != blank %}
-  <a 
-    href="{{ url }}"
-    class="{{ btn_classes }}"
-    {% if id %}id="{{ id }}"{% endif %}
-    {% if disabled %}aria-disabled="true"{% endif %}
+  <a
+    href='{{ url }}'
+    class='{{ btn_classes }}'
+    {% if id %}
+      id='{{ id }}'
+    {% endif %}
+    {% if disabled %}
+      aria-disabled='true'
+    {% endif %}
     {% if data_attributes %}
       {% for attribute in data_attributes %}
-        data-{{ attribute[0] }}="{{ attribute[1] }}"
+        data-{{ attribute[0] }}='{{ attribute[1] }}'
       {% endfor %}
     {% endif %}
   >
@@ -79,14 +83,18 @@
     {% endif %}
   </a>
 {% else %}
-  <button 
-    type="{{ type }}"
-    class="{{ btn_classes }}"
-    {% if id %}id="{{ id }}"{% endif %}
-    {% if disabled %}disabled{% endif %}
+  <button
+    type='{{ type }}'
+    class='{{ btn_classes }}'
+    {% if id %}
+      id='{{ id }}'
+    {% endif %}
+    {% if disabled %}
+      disabled
+    {% endif %}
     {% if data_attributes %}
       {% for attribute in data_attributes %}
-        data-{{ attribute[0] }}="{{ attribute[1] }}"
+        data-{{ attribute[0] }}='{{ attribute[1] }}'
       {% endfor %}
     {% endif %}
   >

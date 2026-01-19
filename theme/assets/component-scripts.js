@@ -10,7 +10,7 @@
   // ACCORDION
   // ===========================================
   function initAccordions() {
-    document.querySelectorAll('[data-accordion]').forEach(accordion => {
+    document.querySelectorAll('[data-accordion]').forEach((accordion) => {
       const trigger = accordion.querySelector('[data-accordion-trigger]');
       const content = accordion.querySelector('[data-accordion-content]');
       const icon = accordion.querySelector('.accordion__icon');
@@ -35,16 +35,20 @@
   // ALERT
   // ===========================================
   function initAlerts() {
-    document.querySelectorAll('[data-alert]').forEach(alert => {
+    document.querySelectorAll('[data-alert]').forEach((alert) => {
       const dismissBtn = alert.querySelector('[data-alert-dismiss]');
 
       if (!dismissBtn) return;
 
       dismissBtn.addEventListener('click', () => {
         alert.setAttribute('data-dismissing', '');
-        alert.addEventListener('animationend', () => {
-          alert.remove();
-        }, { once: true });
+        alert.addEventListener(
+          'animationend',
+          () => {
+            alert.remove();
+          },
+          { once: true }
+        );
       });
     });
   }
@@ -54,7 +58,7 @@
   // ===========================================
   function initModals() {
     // Open modal triggers
-    document.querySelectorAll('[data-modal-open]').forEach(trigger => {
+    document.querySelectorAll('[data-modal-open]').forEach((trigger) => {
       trigger.addEventListener('click', (e) => {
         e.preventDefault();
         const modalId = trigger.getAttribute('data-modal-open');
@@ -64,7 +68,7 @@
     });
 
     // Close buttons
-    document.querySelectorAll('[data-modal-close]').forEach(closeBtn => {
+    document.querySelectorAll('[data-modal-close]').forEach((closeBtn) => {
       closeBtn.addEventListener('click', () => {
         const modal = closeBtn.closest('[data-modal]');
         if (modal) closeModal(modal);
@@ -72,7 +76,7 @@
     });
 
     // Backdrop clicks
-    document.querySelectorAll('[data-modal-backdrop]').forEach(backdrop => {
+    document.querySelectorAll('[data-modal-backdrop]').forEach((backdrop) => {
       backdrop.addEventListener('click', () => {
         const modal = backdrop.closest('[data-modal]');
         if (modal) closeModal(modal);
@@ -93,7 +97,9 @@
     document.body.classList.add('modal-open');
 
     // Focus first focusable element
-    const focusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    const focusable = modal.querySelector(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
     if (focusable) focusable.focus();
 
     // Trap focus
@@ -103,11 +109,15 @@
   function closeModal(modal) {
     modal.setAttribute('data-closing', '');
 
-    modal.addEventListener('animationend', () => {
-      modal.hidden = true;
-      modal.removeAttribute('data-closing');
-      document.body.classList.remove('modal-open');
-    }, { once: true });
+    modal.addEventListener(
+      'animationend',
+      () => {
+        modal.hidden = true;
+        modal.removeAttribute('data-closing');
+        document.body.classList.remove('modal-open');
+      },
+      { once: true }
+    );
 
     modal.removeEventListener('keydown', trapFocus);
   }
@@ -116,7 +126,9 @@
     if (e.key !== 'Tab') return;
 
     const modal = e.currentTarget;
-    const focusables = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    const focusables = modal.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
     const firstFocusable = focusables[0];
     const lastFocusable = focusables[focusables.length - 1];
 
@@ -133,11 +145,11 @@
   // TABS
   // ===========================================
   function initTabs() {
-    document.querySelectorAll('[data-tabs]').forEach(tabGroup => {
+    document.querySelectorAll('[data-tabs]').forEach((tabGroup) => {
       const triggers = tabGroup.querySelectorAll('[data-tab-trigger]');
       const panels = tabGroup.querySelectorAll('[data-tab-panel]');
 
-      triggers.forEach(trigger => {
+      triggers.forEach((trigger) => {
         trigger.addEventListener('click', () => {
           const index = trigger.getAttribute('data-tab-trigger');
           activateTab(tabGroup, index, triggers, panels);
@@ -211,7 +223,7 @@
 
     // Tab switching (only if tabs exist)
     if (tabNav) {
-      tabs.forEach(tab => {
+      tabs.forEach((tab) => {
         tab.addEventListener('click', () => {
           const tabId = tab.getAttribute('data-orders-tab');
           switchOrdersTab(tabId, tabs, panels);
@@ -256,13 +268,12 @@
       const orderCards = document.querySelectorAll('[data-orders-panel="all"] [data-order-card]');
       let visibleCount = 0;
 
-      orderCards.forEach(card => {
+      orderCards.forEach((card) => {
         const orderNumber = (card.getAttribute('data-order-number') || '').toLowerCase();
         const products = (card.getAttribute('data-order-products') || '').toLowerCase();
 
-        const matches = searchTerm === '' ||
-          orderNumber.includes(searchTerm) ||
-          products.includes(searchTerm);
+        const matches =
+          searchTerm === '' || orderNumber.includes(searchTerm) || products.includes(searchTerm);
 
         card.style.display = matches ? '' : 'none';
         if (matches) visibleCount++;
@@ -270,7 +281,7 @@
 
       // Update count display
       if (orderCountEl) {
-        orderCountEl.textContent = `${ visibleCount } order${ visibleCount !== 1 ? 's' : '' }`;
+        orderCountEl.textContent = `${visibleCount} order${visibleCount !== 1 ? 's' : ''}`;
       }
     }
 
@@ -299,10 +310,10 @@
     function filterOrdersByTime(days) {
       const orderCards = document.querySelectorAll('[data-orders-panel="all"] [data-order-card]');
       const now = Date.now();
-      const cutoffMs = days === 'all' ? 0 : now - (parseInt(days) * 24 * 60 * 60 * 1000);
+      const cutoffMs = days === 'all' ? 0 : now - parseInt(days) * 24 * 60 * 60 * 1000;
       let visibleCount = 0;
 
-      orderCards.forEach(card => {
+      orderCards.forEach((card) => {
         const orderDate = parseInt(card.getAttribute('data-order-date') || '0') * 1000;
         const isVisible = days === 'all' || orderDate >= cutoffMs;
 
@@ -312,7 +323,7 @@
 
       // Update count display
       if (orderCountEl) {
-        orderCountEl.textContent = `${ visibleCount } order${ visibleCount !== 1 ? 's' : '' }`;
+        orderCountEl.textContent = `${visibleCount} order${visibleCount !== 1 ? 's' : ''}`;
       }
 
       // Save filter state
@@ -323,7 +334,9 @@
     const savedFilter = loadOrdersFilter();
     if (savedFilter) {
       if (savedFilter.tab && tabs.length > 0) {
-        const savedTab = Array.from(tabs).find(t => t.getAttribute('data-orders-tab') === savedFilter.tab);
+        const savedTab = Array.from(tabs).find(
+          (t) => t.getAttribute('data-orders-tab') === savedFilter.tab
+        );
         if (savedTab) {
           setTimeout(() => savedTab.click(), 0);
         }
@@ -337,14 +350,14 @@
 
   function switchOrdersTab(tabId, tabs, panels) {
     // Update tab buttons
-    tabs.forEach(tab => {
+    tabs.forEach((tab) => {
       const isActive = tab.getAttribute('data-orders-tab') === tabId;
       tab.classList.toggle('customer-orders__nav-item--active', isActive);
       tab.setAttribute('aria-selected', isActive);
     });
 
     // Update panels
-    panels.forEach(panel => {
+    panels.forEach((panel) => {
       const isActive = panel.getAttribute('data-orders-panel') === tabId;
       panel.classList.toggle('customer-orders__panel--active', isActive);
       panel.hidden = !isActive;
@@ -546,7 +559,10 @@
 
       // Close search overlay on outside click
       if (searchOverlay && !searchOverlay.hidden) {
-        if (!e.target.closest('[data-header-search-overlay]') && !e.target.closest('[data-header-search-toggle]')) {
+        if (
+          !e.target.closest('[data-header-search-overlay]') &&
+          !e.target.closest('[data-header-search-toggle]')
+        ) {
           searchOverlay.hidden = true;
           if (searchToggle) {
             searchToggle.setAttribute('aria-expanded', 'false');
@@ -587,7 +603,7 @@
   // BUY AGAIN / REORDER FUNCTIONALITY
   // ===========================================
   function initBuyAgain() {
-    document.querySelectorAll('[data-buy-again]').forEach(btn => {
+    document.querySelectorAll('[data-buy-again]').forEach((btn) => {
       btn.addEventListener('click', async (e) => {
         e.preventDefault();
         const variantId = btn.dataset.variantId;
@@ -599,7 +615,7 @@
 
         try {
           await addToCart(variantId, quantity);
-          showToast(`${ productName } added to cart!`, 'success');
+          showToast(`${productName} added to cart!`, 'success');
         } catch (error) {
           showToast('Failed to add to cart', 'error');
         } finally {
@@ -611,7 +627,7 @@
   }
 
   function initReorderAll() {
-    document.querySelectorAll('[data-reorder-all]').forEach(btn => {
+    document.querySelectorAll('[data-reorder-all]').forEach((btn) => {
       btn.addEventListener('click', async (e) => {
         e.preventDefault();
         let items = [];
@@ -635,7 +651,7 @@
             await addToCart(item.variantId, item.quantity);
           }
           showToast(
-            `Added ${ items.length } item${ items.length > 1 ? 's' : '' } to cart! <a href="/cart" class="toast__link">View Cart</a>`,
+            `Added ${items.length} item${items.length > 1 ? 's' : ''} to cart! <a href="/cart" class="toast__link">View Cart</a>`,
             'success',
             true
           );
@@ -653,7 +669,7 @@
     const response = await fetch('/cart/add.js', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items: [{ id: parseInt(variantId), quantity }] })
+      body: JSON.stringify({ items: [{ id: parseInt(variantId), quantity }] }),
     });
 
     if (!response.ok) throw new Error('Failed to add to cart');
@@ -675,7 +691,7 @@
     }
 
     const toast = document.createElement('div');
-    toast.className = `toast toast--${ type }`;
+    toast.className = `toast toast--${type}`;
 
     if (allowHtml) {
       toast.innerHTML = message;
@@ -737,18 +753,18 @@
           return;
         }
 
-        const subject = encodeURIComponent(`Receipt for ${ orderName }`);
+        const subject = encodeURIComponent(`Receipt for ${orderName}`);
         const body = encodeURIComponent(
           `Order Details\n` +
-          `─────────────\n` +
-          `Order: ${ orderName }\n` +
-          `Date: ${ orderDate }\n` +
-          `Total: ${ orderTotal }\n\n` +
-          `View your order: ${ window.location.href }\n\n` +
-          `Thank you for your purchase!`
+            `─────────────\n` +
+            `Order: ${orderName}\n` +
+            `Date: ${orderDate}\n` +
+            `Total: ${orderTotal}\n\n` +
+            `View your order: ${window.location.href}\n\n` +
+            `Thank you for your purchase!`
         );
 
-        window.location.href = `mailto:${ customerEmail }?subject=${ subject }&body=${ body }`;
+        window.location.href = `mailto:${customerEmail}?subject=${subject}&body=${body}`;
       });
     }
   }
@@ -766,6 +782,7 @@
     initBuyAgain();
     initReorderAll();
     initOrderDetailActions();
+    initCustomerSettings();
   }
 
   // ===========================================
@@ -808,7 +825,7 @@
     // ===========================================
     // Modal Open Handlers
     // ===========================================
-    document.querySelectorAll('[data-modal-open="address-modal"]').forEach(btn => {
+    document.querySelectorAll('[data-modal-open="address-modal"]').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         const addressId = btn.getAttribute('data-address-id');
 
@@ -816,7 +833,9 @@
           // Edit mode - populate form with address data
           populateEditForm(btn);
           if (modalTitle) modalTitle.textContent = 'Edit address';
-          if (submitBtn) submitBtn.querySelector('.btn__text, span')?.textContent || (submitBtn.textContent = 'Save Changes');
+          if (submitBtn)
+            submitBtn.querySelector('.btn__text, span')?.textContent ||
+              (submitBtn.textContent = 'Save Changes');
 
           // Update form action for edit
           const formMethod = document.getElementById('address-form-method');
@@ -824,7 +843,10 @@
           if (formMethod) formMethod.value = 'put';
           if (formIdInput) formIdInput.value = addressId;
           if (addressForm) {
-            addressForm.action = addressForm.action.replace(/\/addresses\/?$/, '/addresses/' + addressId);
+            addressForm.action = addressForm.action.replace(
+              /\/addresses\/?$/,
+              '/addresses/' + addressId
+            );
           }
         } else {
           // Add mode - reset form
@@ -835,7 +857,7 @@
     });
 
     // Delete modal open handlers
-    document.querySelectorAll('[data-modal-open="delete-confirm-modal"]').forEach(btn => {
+    document.querySelectorAll('[data-modal-open="delete-confirm-modal"]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const addressId = btn.getAttribute('data-address-id');
         const addressName = btn.getAttribute('data-address-name');
@@ -851,7 +873,7 @@
     // ===========================================
     // Form Cancel Buttons
     // ===========================================
-    document.querySelectorAll('.address-form__cancel, .delete-confirm__cancel').forEach(btn => {
+    document.querySelectorAll('.address-form__cancel, .delete-confirm__cancel').forEach((btn) => {
       btn.addEventListener('click', () => {
         const modal = btn.closest('[data-modal]');
         if (modal) closeModal(modal);
@@ -877,16 +899,16 @@
     // ===========================================
     // Set Default Address Buttons
     // ===========================================
-    document.querySelectorAll('[data-set-default-address]').forEach(btn => {
+    document.querySelectorAll('[data-set-default-address]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const addressId = btn.getAttribute('data-set-default-address');
         // Use Shopify.postLink which properly handles CSRF tokens
         if (typeof Shopify !== 'undefined' && Shopify.postLink) {
           Shopify.postLink('/account/addresses/' + addressId, {
             parameters: {
-              '_method': 'put',
-              'address[default]': '1'
-            }
+              _method: 'put',
+              'address[default]': '1',
+            },
           });
         } else {
           // Fallback: submit hidden form
@@ -931,7 +953,7 @@
       provinceSelect.innerHTML = '<option value="">Select state/province</option>';
 
       if (provinces.length > 0) {
-        provinces.forEach(province => {
+        provinces.forEach((province) => {
           const option = document.createElement('option');
           option.value = province.code;
           option.textContent = province.name;
@@ -966,10 +988,10 @@
         { id: 'address-address1', label: 'Address' },
         { id: 'address-city', label: 'City' },
         { id: 'address-country', label: 'Country' },
-        { id: 'address-zip', label: 'ZIP/Postal code' }
+        { id: 'address-zip', label: 'ZIP/Postal code' },
       ];
 
-      requiredFields.forEach(field => {
+      requiredFields.forEach((field) => {
         const input = document.getElementById(field.id);
         if (input && !input.value.trim()) {
           errors.push(field.label + ' is required');
@@ -1027,7 +1049,7 @@
         'address-address2': 'data-address-address2',
         'address-city': 'data-address-city',
         'address-zip': 'data-address-zip',
-        'address-phone': 'data-address-phone'
+        'address-phone': 'data-address-phone',
       };
 
       for (const [inputId, dataAttr] of Object.entries(fields)) {
@@ -1052,7 +1074,9 @@
 
       // Province (after updating provinces)
       setTimeout(() => {
-        const provinceValue = btn.getAttribute('data-address-province') || btn.getAttribute('data-address-province-code');
+        const provinceValue =
+          btn.getAttribute('data-address-province') ||
+          btn.getAttribute('data-address-province-code');
         if (provinceSelect && provinceValue) {
           for (const option of provinceSelect.options) {
             if (option.value === provinceValue || option.textContent === provinceValue) {
@@ -1080,7 +1104,7 @@
       if (formError) {
         formError.classList.remove('is-visible');
       }
-      document.querySelectorAll('.input--error, .select--error').forEach(el => {
+      document.querySelectorAll('.input--error, .select--error').forEach((el) => {
         el.classList.remove('input--error', 'select--error');
       });
     }
@@ -1106,7 +1130,7 @@
       if (formError) {
         formError.classList.remove('is-visible');
       }
-      document.querySelectorAll('.input--error, .select--error').forEach(el => {
+      document.querySelectorAll('.input--error, .select--error').forEach((el) => {
         el.classList.remove('input--error', 'select--error');
       });
 
@@ -1136,9 +1160,9 @@
 
     function showAlert(container, type, message) {
       container.innerHTML = `
-        <div class="alert alert--${ type }" data-alert role="alert">
+        <div class="alert alert--${type}" data-alert role="alert">
           <div class="alert__content">
-            <span class="alert__message">${ message }</span>
+            <span class="alert__message">${message}</span>
           </div>
           <button type="button" class="alert__dismiss" data-alert-dismiss aria-label="Dismiss">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1171,7 +1195,9 @@
     const addFirstBtn = document.getElementById('add-first-address-btn');
     if (addFirstBtn) {
       addFirstBtn.addEventListener('click', () => {
-        const addBtn = document.querySelector('[data-modal-open="address-modal"][data-action="add"]');
+        const addBtn = document.querySelector(
+          '[data-modal-open="address-modal"][data-action="add"]'
+        );
         if (addBtn) addBtn.click();
       });
     }
@@ -1185,6 +1211,373 @@
         if (addressModal) openModal(addressModal);
       });
     }
+  };
+
+  // ===========================================
+  // CUSTOMER SETTINGS (Login & Security)
+  // ===========================================
+  const initCustomerSettings = function () {
+    const settingsContainer = document.querySelector('[data-customer-settings]');
+    if (!settingsContainer) return;
+
+    const alertsContainer = document.getElementById('settings-alerts');
+    const forms = settingsContainer.querySelectorAll('[data-settings-form]');
+
+    // Initialize each form
+    forms.forEach((form) => {
+      const formType = form.getAttribute('data-settings-form');
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const errorContainer = form.querySelector('.customer-settings__form-error');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Validate form
+        if (!validateSettingsForm(form)) {
+          return;
+        }
+
+        // Show loading state
+        setLoadingState(submitBtn, true);
+        hideFormError(errorContainer);
+
+        try {
+          if (formType === 'password') {
+            // Handle password reset - this is the only active form
+            await handlePasswordReset(form, settingsContainer);
+          }
+          // Note: Name, email, and phone editing requires Shopify Admin API backend
+          // These forms are disabled in the UI until a backend solution is implemented
+        } catch (error) {
+          console.error('Settings form error:', error);
+          showFormError(errorContainer, error.message || 'An error occurred. Please try again.');
+        } finally {
+          setLoadingState(submitBtn, false);
+        }
+      });
+    });
+
+    // Check URL params for success messages on page load
+    checkSettingsUrlParams();
+
+    // Form validation
+    function validateSettingsForm(form) {
+      const requiredFields = form.querySelectorAll('[required]');
+      let isValid = true;
+
+      requiredFields.forEach((field) => {
+        const value = field.value.trim();
+        const inputGroup = field.closest('.input-group');
+
+        if (!value) {
+          isValid = false;
+          field.classList.add('input--error');
+          if (inputGroup) {
+            const existingError = inputGroup.querySelector('.input-error');
+            if (!existingError) {
+              const errorSpan = document.createElement('span');
+              errorSpan.className = 'input-error';
+              errorSpan.id = `${field.id}-error`;
+              errorSpan.textContent = 'This field is required';
+              inputGroup.appendChild(errorSpan);
+            }
+          }
+        } else {
+          field.classList.remove('input--error');
+          if (inputGroup) {
+            const existingError = inputGroup.querySelector('.input-error');
+            if (existingError) existingError.remove();
+          }
+        }
+
+        // Email validation
+        if (field.type === 'email' && value) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(value)) {
+            isValid = false;
+            field.classList.add('input--error');
+            if (inputGroup) {
+              let errorSpan = inputGroup.querySelector('.input-error');
+              if (!errorSpan) {
+                errorSpan = document.createElement('span');
+                errorSpan.className = 'input-error';
+                errorSpan.id = `${field.id}-error`;
+                inputGroup.appendChild(errorSpan);
+              }
+              errorSpan.textContent = 'Please enter a valid email address';
+            }
+          }
+        }
+      });
+
+      return isValid;
+    }
+
+    // Password reset handler
+    async function handlePasswordReset(form, container) {
+      const formData = new FormData(form);
+
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+
+      // Shopify returns a redirect for password reset, so we show confirmation
+      // regardless of response (the email will be sent if account exists)
+      const modal = form.closest('[data-modal]');
+      const confirmation = modal.querySelector('#password-confirmation');
+
+      if (confirmation) {
+        form.hidden = true;
+        confirmation.hidden = false;
+
+        // Update modal title
+        const modalTitle = modal.querySelector('.modal__title');
+        if (modalTitle) {
+          modalTitle.textContent = 'Email Sent';
+        }
+      }
+    }
+
+    /*
+     * ===========================================================================
+     * DISABLED HANDLERS - Email, Name, Phone
+     * These require Shopify Admin API backend to function.
+     * Re-enable when backend API endpoint is implemented.
+     * ===========================================================================
+     */
+
+    // Email change handler (DISABLED - requires backend API)
+    /*
+    async function handleEmailChange(form, container) {
+      const formData = new FormData(form);
+      const newEmail = formData.get('customer[email]');
+
+      // For demo purposes, we'll show the confirmation
+      // In production, you'd save to metafield and send verification email
+      const modal = form.closest('[data-modal]');
+      const confirmation = modal.querySelector('#email-confirmation');
+
+      if (confirmation) {
+        form.hidden = true;
+        confirmation.hidden = false;
+
+        // Update modal title
+        const modalTitle = modal.querySelector('.modal__title');
+        if (modalTitle) {
+          modalTitle.textContent = 'Verification Sent';
+        }
+      }
+
+      // Note: Actual email change requires Shopify Admin API
+      // This UI demonstrates the flow
+    }
+    */
+
+    // Profile update handler (name, phone) - DISABLED - requires backend API
+    /*
+    async function handleProfileUpdate(form, formType, container) {
+      const formData = new FormData(form);
+
+      // Submit to Shopify's account endpoint
+      const response = await fetch('/account', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok || response.redirected) {
+        // Close modal
+        const modal = form.closest('[data-modal]');
+        if (modal) {
+          closeModal(modal);
+        }
+
+        // Show success message
+        showSettingsAlert('success', getSuccessMessage(formType));
+
+        // Update displayed value without page refresh
+        updateDisplayedValue(formType, formData);
+      } else {
+        throw new Error('Failed to update profile. Please try again.');
+      }
+    }
+
+    // Get success message based on form type
+    function getSuccessMessage(formType) {
+      const messages = {
+        name: 'Your name has been updated successfully.',
+        phone: 'Your phone number has been updated successfully.',
+        email: 'Verification email sent. Please check your inbox.',
+        password: 'Password reset email sent. Please check your inbox.',
+      };
+      return messages[formType] || 'Your changes have been saved.';
+    }
+
+    // Update displayed value in the UI
+    function updateDisplayedValue(formType, formData) {
+      if (formType === 'name') {
+        const firstName = formData.get('customer[first_name]') || '';
+        const lastName = formData.get('customer[last_name]') || '';
+        const fullName = `${firstName} ${lastName}`.trim() || 'Not set';
+
+        const nameDisplay = settingsContainer.querySelector('[data-field="name"]');
+        if (nameDisplay) {
+          nameDisplay.textContent = fullName;
+        }
+      } else if (formType === 'phone') {
+        const phone = formData.get('customer[phone]') || 'Not set';
+        const phoneDisplay = settingsContainer.querySelector('[data-field="phone"]');
+        if (phoneDisplay) {
+          phoneDisplay.textContent = phone;
+        }
+      }
+    }
+    End of disabled handlers
+    */
+
+    // Loading state
+    function setLoadingState(button, isLoading) {
+      if (!button) return;
+
+      if (isLoading) {
+        button.classList.add('customer-settings__btn--loading');
+        button.disabled = true;
+      } else {
+        button.classList.remove('customer-settings__btn--loading');
+        button.disabled = false;
+      }
+    }
+
+    // Form error display
+    function showFormError(container, message) {
+      if (!container) return;
+      container.textContent = message;
+      container.hidden = false;
+    }
+
+    function hideFormError(container) {
+      if (!container) return;
+      container.textContent = '';
+      container.hidden = true;
+    }
+
+    // Settings alert display
+    function showSettingsAlert(type, message) {
+      if (!alertsContainer) return;
+
+      alertsContainer.innerHTML = `
+        <div class="alert alert--${type}" data-alert role="alert">
+          <div class="alert__icon">
+            ${
+              type === 'success'
+                ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>'
+                : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>'
+            }
+          </div>
+          <div class="alert__content">
+            <span class="alert__message">${message}</span>
+          </div>
+          <button type="button" class="alert__dismiss" data-alert-dismiss aria-label="Dismiss">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      `;
+
+      // Initialize dismiss button
+      const alert = alertsContainer.querySelector('[data-alert]');
+      const dismissBtn = alert?.querySelector('[data-alert-dismiss]');
+      if (dismissBtn) {
+        dismissBtn.addEventListener('click', () => {
+          alert.remove();
+        });
+      }
+
+      // Scroll to alert
+      alertsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      // Auto-dismiss after 5 seconds
+      setTimeout(() => {
+        if (alert && alert.parentNode) {
+          alert.remove();
+        }
+      }, 5000);
+    }
+
+    // Check URL params for success messages
+    function checkSettingsUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+
+      if (params.get('name_updated') === 'true') {
+        showSettingsAlert('success', 'Your name has been updated successfully.');
+        cleanSettingsUrl();
+      } else if (params.get('phone_updated') === 'true') {
+        showSettingsAlert('success', 'Your phone number has been updated successfully.');
+        cleanSettingsUrl();
+      }
+    }
+
+    function cleanSettingsUrl() {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('name_updated');
+      url.searchParams.delete('phone_updated');
+      window.history.replaceState({}, '', url.pathname);
+    }
+
+    // Reset form when modal opens (for email/password modals)
+    document.querySelectorAll('[data-modal-open]').forEach((trigger) => {
+      trigger.addEventListener('click', () => {
+        const modalId = trigger.getAttribute('data-modal-open');
+        const modal = document.getElementById(modalId);
+
+        if (modal) {
+          // Reset form state
+          const form = modal.querySelector('form');
+          const confirmation = modal.querySelector('.customer-settings__confirmation');
+
+          if (form) {
+            form.hidden = false;
+            form.reset();
+
+            // Clear errors
+            const errorContainer = form.querySelector('.customer-settings__form-error');
+            if (errorContainer) {
+              errorContainer.hidden = true;
+              errorContainer.textContent = '';
+            }
+
+            form.querySelectorAll('.input--error').forEach((el) => {
+              el.classList.remove('input--error');
+            });
+
+            form.querySelectorAll('.input-error').forEach((el) => {
+              el.remove();
+            });
+          }
+
+          if (confirmation) {
+            confirmation.hidden = true;
+          }
+
+          // Reset modal title
+          const modalTitle = modal.querySelector('.modal__title');
+          if (modalTitle) {
+            const originalTitles = {
+              'edit-name-modal': 'Edit Name',
+              'edit-email-modal': 'Change Email Address',
+              'edit-phone-modal': 'Edit Phone Number',
+              'reset-password-modal': 'Reset Password',
+            };
+            modalTitle.textContent = originalTitles[modalId] || modalTitle.textContent;
+          }
+        }
+      });
+    });
   };
 
   // Run on DOM ready

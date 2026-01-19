@@ -81,7 +81,7 @@
 }
 
 .pill--interactive:hover {
-  border-color: var(--color-primary, #2AC864);
+  border-color: var(--color-primary, #2ac864);
   background-color: rgba(42, 200, 100, 0.05);
 }
 
@@ -91,14 +91,14 @@
 
 /* Selected State */
 .pill--selected {
-  background-color: var(--color-primary, #2AC864);
-  border-color: var(--color-primary, #2AC864);
+  background-color: var(--color-primary, #2ac864);
+  border-color: var(--color-primary, #2ac864);
   color: white;
 }
 
 .pill--selected:hover {
-  background-color: var(--color-secondary, #25B858);
-  border-color: var(--color-secondary, #25B858);
+  background-color: var(--color-secondary, #25b858);
+  border-color: var(--color-secondary, #25b858);
 }
 
 /* Disabled State */
@@ -171,7 +171,7 @@
 
 /* Focus State */
 .pill:focus-visible {
-  outline: 2px solid var(--color-primary, #2AC864);
+  outline: 2px solid var(--color-primary, #2ac864);
   outline-offset: 2px;
 }
 
@@ -182,11 +182,11 @@
     border-color: rgba(255, 255, 255, 0.1);
     color: rgb(226, 232, 240);
   }
-  
+
   .pill__close {
     background: rgba(255, 255, 255, 0.1);
   }
-  
+
   .pill__close:hover {
     background: rgba(255, 255, 255, 0.2);
   }

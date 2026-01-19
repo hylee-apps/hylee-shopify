@@ -1,10 +1,10 @@
 {% comment %}
   Link Component
-  
+
   Usage:
   {% render 'link', text: 'View details', url: '/products/item' %}
   {% render 'link', text: 'Learn more', url: '#', variant: 'muted', icon_right: arrow_svg %}
-  
+
   Parameters:
   - text: string (required) - Link text
   - url: string (required) - Link destination
@@ -23,37 +23,50 @@
   assign link_size = size | default: 'default'
   assign is_external = external | default: false
   assign extra_class = class | default: ''
-  
+
   assign link_classes = 'link'
   assign link_classes = link_classes | append: ' link--' | append: link_variant
   assign link_classes = link_classes | append: ' link--' | append: link_size
-  
+
   if icon_left or icon_right
     assign link_classes = link_classes | append: ' link--with-icon'
   endif
-  
+
   if extra_class != blank
     assign link_classes = link_classes | append: ' ' | append: extra_class
   endif
 -%}
 
-<a 
-  href="{{ url }}"
-  class="{{ link_classes }}"
-  {% if id %}id="{{ id }}"{% endif %}
-  {% if aria_label %}aria-label="{{ aria_label }}"{% endif %}
-  {% if is_external %}target="_blank" rel="noopener noreferrer"{% endif %}
+<a
+  href='{{ url }}'
+  class='{{ link_classes }}'
+  {% if id %}
+    id='{{ id }}'
+  {% endif %}
+  {% if aria_label %}
+    aria-label='{{ aria_label }}'
+  {% endif %}
+  {% if is_external %}
+    target='_blank' rel='noopener noreferrer'
+  {% endif %}
 >
   {%- if icon_left -%}
-    <span class="link__icon link__icon--left">{{ icon_left }}</span>
+    <span class='link__icon link__icon--left'>{{ icon_left }}</span>
   {%- endif -%}
-  <span class="link__text">{{ text }}</span>
+  <span class='link__text'>{{ text }}</span>
   {%- if icon_right -%}
-    <span class="link__icon link__icon--right">{{ icon_right }}</span>
+    <span class='link__icon link__icon--right'>{{ icon_right }}</span>
   {%- endif -%}
   {%- if is_external -%}
-    <span class="link__icon link__icon--external" aria-hidden="true">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <span class='link__icon link__icon--external' aria-hidden='true'>
+      <svg
+        width='12'
+        height='12'
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        stroke-width='2'
+      >
         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
         <polyline points="15 3 21 3 21 9"></polyline>
         <line x1="10" y1="14" x2="21" y2="3"></line>
