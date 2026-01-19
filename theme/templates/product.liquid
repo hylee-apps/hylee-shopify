@@ -613,7 +613,7 @@
         <h2 class='related-products__title'>You May Also Like</h2>
         <div class='related-products__grid'>
           {% for product in recommendations.products limit: 4 %}
-            {% render 'product-card', product: product %}
+            {% render 'product-card', product: product, show_vendor: false %}
           {% endfor %}
         </div>
       </div>

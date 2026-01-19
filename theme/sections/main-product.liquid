@@ -560,7 +560,7 @@
         <div class='related-products__grid'>
           {% for related_product in product.collections.first.products limit: 4 %}
             {% unless related_product.id == product.id %}
-              {% render 'product-card', product: related_product %}
+              {% render 'product-card', product: related_product, show_vendor: false %}
             {% endunless %}
           {% endfor %}
         </div>
