@@ -41,5 +41,10 @@ Thumbs.db
 # Coverage
 coverage/
 
+# Playwright
+.auth/
+playwright-report/
+test-results/
+
 # TypeScript
 *.tsbuildinfo
