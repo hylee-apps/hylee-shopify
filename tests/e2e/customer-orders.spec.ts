@@ -123,7 +123,7 @@ test.describe('Customer Orders - Page Routing', () => {
       const hasOrders = await page.locator('.order-card, .orders__item, [data-order-id]').count();
       const hasEmptyState = await page
         .locator(
-          'text=/no orders|haven\'t placed|start shopping/i, .empty-state, [data-empty-orders]'
+          "text=/no orders|haven't placed|start shopping/i, .empty-state, [data-empty-orders]"
         )
         .count();
 
