@@ -4,37 +4,52 @@
 {% endcomment %}
 
 {% if section.settings.show_section %}
-<section class="product-section-uniform best-sellers" id="best-sellers-{{ section.id }}" style="background: {{ section.settings.background_color | default: 'rgba(248, 250, 252, 0.5)' }};">
-  <div class="product-section-uniform__container">
-    <div class="product-section-uniform__header">
-      <svg class="product-section-uniform__icon" style="color: #2563eb;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-        <polyline points="17 6 23 6 23 12"/>
-      </svg>
-      {% if section.settings.heading != blank %}
-        <h3 class="product-section-uniform__heading">{{ section.settings.heading }}</h3>
-      {% endif %}
-    </div>
+  <section
+    class='product-section-uniform best-sellers'
+    id='best-sellers-{{ section.id }}'
+    style='background: {{ section.settings.background_color | default: 'rgba(248, 250, 252, 0.5)' }};'
+  >
+    <div class='product-section-uniform__container'>
+      <div class='product-section-uniform__header'>
+        <svg
+          class='product-section-uniform__icon'
+          style='color: #2563eb;'
+          width='24'
+          height='24'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+          stroke-width='2'
+        >
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+          <polyline points="17 6 23 6 23 12"/>
+        </svg>
+        {% if section.settings.heading != blank %}
+          <h3 class='product-section-uniform__heading'>{{ section.settings.heading }}</h3>
+        {% endif %}
+      </div>
 
-    <div class="product-grid-uniform">
-      {% if section.settings.collection != blank %}
-        {% assign collection = collections[section.settings.collection] %}
-        {% assign products_to_show = section.settings.products_to_show | default: 4 %}
-        
-        {% for product in collection.products limit: products_to_show %}
-          {% render 'product-card',
-            product: product,
-            show_vendor: section.settings.show_vendor,
-            custom_badge: section.settings.badge_text,
-            custom_badge_color: section.settings.badge_color
-          %}
-        {% endfor %}
-      {% else %}
-        <p style="grid-column: 1 / -1; text-align: center; color: #64748b;">Please select a collection in the section settings.</p>
-      {% endif %}
+      <div class='product-grid-uniform'>
+        {% if section.settings.collection != blank %}
+          {% assign collection = collections[section.settings.collection] %}
+          {% assign products_to_show = section.settings.products_to_show | default: 4 %}
+
+          {% for product in collection.products limit: products_to_show %}
+            {% render 'product-card',
+              product: product,
+              show_vendor: false,
+              custom_badge: section.settings.badge_text,
+              custom_badge_color: section.settings.badge_color
+            %}
+          {% endfor %}
+        {% else %}
+          <p style='grid-column: 1 / -1; text-align: center; color: #64748b;'>
+            Please select a collection in the section settings.
+          </p>
+        {% endif %}
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 {% endif %}
 
 {% schema %}
