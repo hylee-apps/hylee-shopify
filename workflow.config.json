@@ -1,0 +1,57 @@
+{
+  "projectName": "hylee-shopify",
+  "scopes": [
+    {
+      "name": "account",
+      "description": "Customer account, login, registration, and profile settings",
+      "emoji": "🔐"
+    },
+    {
+      "name": "orders",
+      "description": "Order history, order details, and confirmation pages",
+      "emoji": "📦"
+    },
+    {
+      "name": "tracking",
+      "description": "Order tracking and delivery status functionality",
+      "emoji": "🚚"
+    },
+    {
+      "name": "returns",
+      "description": "Returns portal and guest returns functionality",
+      "emoji": "🔄"
+    },
+    {
+      "name": "product",
+      "description": "Product detail pages, specifications, and comparisons",
+      "emoji": "🛍️"
+    },
+    {
+      "name": "collection",
+      "description": "Collection pages, product grids, and filtering",
+      "emoji": "📂"
+    },
+    {
+      "name": "cart",
+      "description": "Shopping cart functionality and checkout flow",
+      "emoji": "🛒"
+    },
+    {
+      "name": "nav",
+      "description": "Header navigation, mega menu, footer, and search",
+      "emoji": "🧭"
+    },
+    {
+      "name": "ui",
+      "description": "Reusable UI components, forms, and design system",
+      "emoji": "🎨"
+    },
+    {
+      "name": "homepage",
+      "description": "Homepage sections, hero, and marketing content",
+      "emoji": "🏠"
+    }
+  ],
+  "enforcement": "strict",
+  "language": "en"
+}
