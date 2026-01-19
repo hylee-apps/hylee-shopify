@@ -11,9 +11,10 @@
   {% section 'customer-orders' %}
 {% else %}
   <script>
-    window.location.href = '{{ routes.account_login_url }}?return_url={{ request.path | url_encode }}';
+    window.location.href =
+      '{{ routes.account_login_url }}?return_url={{ request.path | url_encode }}';
   </script>
-  <div class="page-width" style="padding: var(--space-8) 0; text-align: center;">
-    <p>Please <a href="{{ routes.account_login_url }}">log in</a> to view your orders.</p>
+  <div class='page-width' style='padding: var(--space-8) 0; text-align: center;'>
+    <p>Please <a href='{{ routes.account_login_url }}'>log in</a> to view your orders.</p>
   </div>
 {% endif %}
