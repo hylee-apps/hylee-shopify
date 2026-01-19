@@ -1,130 +1,188 @@
 {% comment %}
   Customer Settings Section
   Account settings page with personal info and password management
+
+  Features:
+  - View name, email, phone (read-only until backend API is implemented)
+  - Password reset with embedded form (no page navigation)
+  - Contact support link for profile changes
+
+  NOTE: Editing name, email, and phone requires a Shopify Admin API backend.
+  The modals for these are commented out until the backend is implemented.
 {% endcomment %}
 
 {{ 'section-customer-settings.css' | asset_url | stylesheet_tag }}
 
-<div class="customer-settings">
-  <div class="customer-settings__container">
+{%- comment -%} Extract customer data for display {%- endcomment -%}
+{%- liquid
+  assign customer_phone = customer.phone | default: ''
+  assign default_phone = customer.default_address.phone | default: ''
+  assign display_phone = customer_phone | default: default_phone
+-%}
+
+<div class='customer-settings' data-customer-settings>
+  <div class='customer-settings__container'>
     {%- comment -%} Breadcrumbs {%- endcomment -%}
-    {%- assign breadcrumb_items = "Your Account," | append: routes.account_url | append: ";Login & Security" | split: ";" -%}
+    {%- assign breadcrumb_items = 'Your Account,'
+      | append: routes.account_url
+      | append: ';Login & Security'
+      | split: ';'
+    -%}
     {% render 'breadcrumb', variant: 'account', items: breadcrumb_items %}
 
+    {%- comment -%} Success/Error Alert Container {%- endcomment -%}
+    <div
+      class='customer-settings__alerts'
+      id='settings-alerts'
+      role='status'
+      aria-live='polite'
+    ></div>
+
     {%- comment -%} Header {%- endcomment -%}
-    <div class="customer-settings__header">
-      <h1 class="customer-settings__title">Login & Security</h1>
-      <p class="customer-settings__subtitle">Manage your account settings and password</p>
+    <div class='customer-settings__header'>
+      <h1 class='customer-settings__title'>Login & Security</h1>
+      <p class='customer-settings__subtitle'>Manage your account settings and password</p>
     </div>
 
     {%- comment -%} Settings Cards {%- endcomment -%}
-    <div class="customer-settings__grid">
+    <div class='customer-settings__grid'>
       {%- comment -%} Personal Information Card {%- endcomment -%}
-      <div class="customer-settings__card">
-        <div class="customer-settings__card-header">
-          <div class="customer-settings__card-icon">
+      <div class='customer-settings__card'>
+        <div class='customer-settings__card-header'>
+          <div class='customer-settings__card-icon'>
             {% render 'icon', name: 'user', size: 24 %}
           </div>
-          <h2 class="customer-settings__card-title">Personal Information</h2>
-        </div>
-        
-        <div class="customer-settings__card-content">
-          <div class="customer-settings__info-row">
-            <div class="customer-settings__info-label">Name</div>
-            <div class="customer-settings__info-value">{{ customer.name }}</div>
-          </div>
-          <div class="customer-settings__info-row">
-            <div class="customer-settings__info-label">Email</div>
-            <div class="customer-settings__info-value">{{ customer.email }}</div>
-          </div>
-          {% if customer.phone %}
-            <div class="customer-settings__info-row">
-              <div class="customer-settings__info-label">Phone</div>
-              <div class="customer-settings__info-value">{{ customer.phone }}</div>
-            </div>
-          {% endif %}
+          <h2 class='customer-settings__card-title'>Personal Information</h2>
         </div>
 
-        <div class="customer-settings__card-footer">
-          <p class="customer-settings__note">
-            {% render 'icon', name: 'info', size: 16 %}
-            To update your name or email, please contact customer support.
-          </p>
+        <div class='customer-settings__card-content'>
+          {%- comment -%} Name Row (read-only - requires backend API to edit) {%- endcomment -%}
+          <div class='customer-settings__info-row'>
+            <div class='customer-settings__info-group'>
+              <div class='customer-settings__info-label'>Name</div>
+              <div class='customer-settings__info-value' data-field='name'>
+                {{ customer.name | default: 'Not set' }}
+              </div>
+            </div>
+          </div>
+
+          {%- comment -%} Email Row (read-only - requires backend API to edit) {%- endcomment -%}
+          <div class='customer-settings__info-row'>
+            <div class='customer-settings__info-group'>
+              <div class='customer-settings__info-label'>Email</div>
+              <div class='customer-settings__info-value' data-field='email'>
+                {{ customer.email }}
+              </div>
+            </div>
+          </div>
+
+          {%- comment -%} Phone Row (read-only - requires backend API to edit) {%- endcomment -%}
+          <div class='customer-settings__info-row'>
+            <div class='customer-settings__info-group'>
+              <div class='customer-settings__info-label'>Phone</div>
+              <div class='customer-settings__info-value' data-field='phone'>
+                {{ display_phone | default: 'Not set' }}
+              </div>
+            </div>
+          </div>
+
+          {%- comment -%} Contact Support Notice {%- endcomment -%}
+          <div class='customer-settings__support-notice'>
+            <div class='customer-settings__support-notice-icon'>
+              {% render 'icon', name: 'info', size: 16 %}
+            </div>
+            <p class='customer-settings__support-notice-text'>
+              To update your name, email, or phone number, please
+              <a href='/pages/contact-us' class='customer-settings__support-link'>contact support</a
+              >.
+            </p>
+          </div>
         </div>
       </div>
 
       {%- comment -%} Password Card {%- endcomment -%}
-      <div class="customer-settings__card">
-        <div class="customer-settings__card-header">
-          <div class="customer-settings__card-icon">
+      <div class='customer-settings__card'>
+        <div class='customer-settings__card-header'>
+          <div class='customer-settings__card-icon'>
             {% render 'icon', name: 'lock', size: 24 %}
           </div>
-          <h2 class="customer-settings__card-title">Password</h2>
+          <h2 class='customer-settings__card-title'>Password</h2>
         </div>
-        
-        <div class="customer-settings__card-content">
-          <p class="customer-settings__description">
-            Keep your account secure by using a strong, unique password that you don't use for other accounts.
+
+        <div class='customer-settings__card-content'>
+          <p class='customer-settings__description'>
+            Keep your account secure by using a strong, unique password that you don't use for other
+            accounts.
           </p>
-          <div class="customer-settings__password-display">
-            <span class="customer-settings__password-dots">••••••••••••</span>
-            <span class="customer-settings__password-status">
+          <div class='customer-settings__password-display'>
+            <span class='customer-settings__password-dots'>••••••••••••</span>
+            <span class='customer-settings__password-status'>
               {% render 'icon', name: 'check-circle', size: 16 %}
               Password set
             </span>
           </div>
         </div>
 
-        <div class="customer-settings__card-actions">
-          <a href="{{ routes.account_recover_url }}" class="customer-settings__btn customer-settings__btn--primary">
+        <div class='customer-settings__card-actions'>
+          <button
+            type='button'
+            class='customer-settings__btn customer-settings__btn--primary'
+            data-modal-open='reset-password-modal'
+          >
             {% render 'icon', name: 'key', size: 16 %}
             Reset Password
-          </a>
+          </button>
         </div>
       </div>
 
       {%- comment -%} Account Activity Card {%- endcomment -%}
-      <div class="customer-settings__card">
-        <div class="customer-settings__card-header">
-          <div class="customer-settings__card-icon">
+      <div class='customer-settings__card'>
+        <div class='customer-settings__card-header'>
+          <div class='customer-settings__card-icon'>
             {% render 'icon', name: 'shield', size: 24 %}
           </div>
-          <h2 class="customer-settings__card-title">Account Activity</h2>
+          <h2 class='customer-settings__card-title'>Account Activity</h2>
         </div>
-        
-        <div class="customer-settings__card-content">
-          <div class="customer-settings__info-row">
-            <div class="customer-settings__info-label">Member Since</div>
-            <div class="customer-settings__info-value">{{ customer.created_at | date: '%B %d, %Y' }}</div>
+
+        <div class='customer-settings__card-content'>
+          <div class='customer-settings__info-row'>
+            <div class='customer-settings__info-label'>Member Since</div>
+            <div class='customer-settings__info-value'>
+              {{ customer.created_at | date: '%B %d, %Y' }}
+            </div>
           </div>
-          <div class="customer-settings__info-row">
-            <div class="customer-settings__info-label">Total Orders</div>
-            <div class="customer-settings__info-value">{{ customer.orders_count }}</div>
+          <div class='customer-settings__info-row'>
+            <div class='customer-settings__info-label'>Total Orders</div>
+            <div class='customer-settings__info-value'>{{ customer.orders_count }}</div>
           </div>
-          <div class="customer-settings__info-row">
-            <div class="customer-settings__info-label">Total Spent</div>
-            <div class="customer-settings__info-value">{{ customer.total_spent | money }}</div>
+          <div class='customer-settings__info-row'>
+            <div class='customer-settings__info-label'>Total Spent</div>
+            <div class='customer-settings__info-value'>{{ customer.total_spent | money }}</div>
           </div>
         </div>
       </div>
 
       {%- comment -%} Sign Out Card {%- endcomment -%}
-      <div class="customer-settings__card customer-settings__card--highlight">
-        <div class="customer-settings__card-header">
-          <div class="customer-settings__card-icon customer-settings__card-icon--muted">
+      <div class='customer-settings__card customer-settings__card--highlight'>
+        <div class='customer-settings__card-header'>
+          <div class='customer-settings__card-icon customer-settings__card-icon--muted'>
             {% render 'icon', name: 'log-out', size: 24 %}
           </div>
-          <h2 class="customer-settings__card-title">Sign Out</h2>
+          <h2 class='customer-settings__card-title'>Sign Out</h2>
         </div>
-        
-        <div class="customer-settings__card-content">
-          <p class="customer-settings__description">
-            Sign out of your account on this device. You'll need to sign in again to access your account.
+
+        <div class='customer-settings__card-content'>
+          <p class='customer-settings__description'>
+            Sign out of your account on this device. You'll need to sign in again to access your
+            account.
           </p>
         </div>
 
-        <div class="customer-settings__card-actions">
-          <a href="{{ routes.account_logout_url }}" class="customer-settings__btn customer-settings__btn--secondary">
+        <div class='customer-settings__card-actions'>
+          <a
+            href='{{ routes.account_logout_url }}'
+            class='customer-settings__btn customer-settings__btn--secondary'
+          >
             {% render 'icon', name: 'log-out', size: 16 %}
             Sign Out
           </a>
@@ -132,6 +190,274 @@
       </div>
     </div>
   </div>
+
+  {%- comment -%}
+    ===========================================================================
+    MODALS
+    ===========================================================================
+  {%- endcomment -%}
+
+  {%- comment -%}
+    ===========================================================================
+    DISABLED MODALS - Name, Email, Phone
+    These require Shopify Admin API backend to function.
+    Re-enable when backend API endpoint is implemented.
+    ===========================================================================
+  {%- endcomment -%}
+
+  {%- comment -%}
+    Edit Name Modal (DISABLED - requires backend API)
+    {%- capture edit_name_content -%}
+      <form
+        id="edit-name-form"
+        class="customer-settings__form"
+        data-settings-form="name"
+        novalidate
+      >
+        <input type="hidden" name="form_type" value="customer">
+        <input type="hidden" name="utf8" value="✓">
+
+        <div class="customer-settings__form-error" role="alert" hidden></div>
+
+        <div class="customer-settings__form-row">
+          <div class="customer-settings__form-field">
+            {% render 'input',
+              name: 'customer[first_name]',
+              id: 'edit-first-name',
+              label: 'First Name',
+              type: 'text',
+              required: true,
+              value: customer_first_name,
+              autocomplete: 'given-name'
+            %}
+          </div>
+          <div class="customer-settings__form-field">
+            {% render 'input',
+              name: 'customer[last_name]',
+              id: 'edit-last-name',
+              label: 'Last Name',
+              type: 'text',
+              required: true,
+              value: customer_last_name,
+              autocomplete: 'family-name'
+            %}
+          </div>
+        </div>
+
+        <div class="customer-settings__form-actions">
+          <button type="button" class="customer-settings__btn customer-settings__btn--secondary" data-modal-close>
+            Cancel
+          </button>
+          <button type="submit" class="customer-settings__btn customer-settings__btn--primary">
+            <span class="customer-settings__btn-text">Save Changes</span>
+            <span class="customer-settings__btn-loading" hidden>
+              {% render 'icon', name: 'loader', size: 16 %}
+              Saving...
+            </span>
+          </button>
+        </div>
+      </form>
+    {%- endcapture -%}
+
+    DISABLED - requires backend API
+    {% render 'modal',
+      id: 'edit-name-modal',
+      title: 'Edit Name',
+      content: edit_name_content,
+      size: 'small'
+    %}
+  {%- endcomment -%}
+
+  {%- comment -%}
+    Edit Email Modal (DISABLED - requires backend API)
+    {%- capture edit_email_content -%}
+      <form
+        id="edit-email-form"
+        class="customer-settings__form"
+        data-settings-form="email"
+        novalidate
+      >
+        <input type="hidden" name="form_type" value="customer">
+        <input type="hidden" name="utf8" value="✓">
+
+        <div class="customer-settings__form-error" role="alert" hidden></div>
+
+        <div class="customer-settings__form-info">
+          <p>Current email: <strong>{{ customer.email }}</strong></p>
+          <p class="customer-settings__form-hint">
+            {% render 'icon', name: 'info', size: 14 %}
+            For security, email changes require verification. We'll send a confirmation link to your new email address.
+          </p>
+        </div>
+
+        <div class="customer-settings__form-field">
+          {% render 'input',
+            name: 'customer[email]',
+            id: 'edit-email',
+            label: 'New Email Address',
+            type: 'email',
+            required: true,
+            placeholder: 'Enter new email address',
+            autocomplete: 'email'
+          %}
+        </div>
+
+        <div class="customer-settings__form-actions">
+          <button type="button" class="customer-settings__btn customer-settings__btn--secondary" data-modal-close>
+            Cancel
+          </button>
+          <button type="submit" class="customer-settings__btn customer-settings__btn--primary">
+            <span class="customer-settings__btn-text">Send Verification</span>
+            <span class="customer-settings__btn-loading" hidden>
+              {% render 'icon', name: 'loader', size: 16 %}
+              Sending...
+            </span>
+          </button>
+        </div>
+      </form>
+
+      {%- comment -%} Email confirmation success state {%- endcomment -%}
+      <div class="customer-settings__confirmation" id="email-confirmation" hidden>
+        <div class="customer-settings__confirmation-icon">
+          {% render 'icon', name: 'mail', size: 48 %}
+        </div>
+        <h3 class="customer-settings__confirmation-title">Verification Email Sent</h3>
+        <p class="customer-settings__confirmation-text">
+          We've sent a verification link to your new email address. Please check your inbox and click the link to confirm the change.
+        </p>
+        <p class="customer-settings__confirmation-note">
+          Didn't receive it? Check your spam folder or try again.
+        </p>
+        <button type="button" class="customer-settings__btn customer-settings__btn--primary" data-modal-close>
+          Done
+        </button>
+      </div>
+    {%- endcapture -%}
+
+    DISABLED - requires backend API
+    {% render 'modal',
+      id: 'edit-email-modal',
+      title: 'Change Email Address',
+      content: edit_email_content,
+      size: 'small'
+    %}
+  {%- endcomment -%}
+
+  {%- comment -%}
+    Edit Phone Modal (DISABLED - requires backend API)
+    {%- capture edit_phone_content -%}
+      <form
+        id="edit-phone-form"
+        class="customer-settings__form"
+        data-settings-form="phone"
+        novalidate
+      >
+        <input type="hidden" name="form_type" value="customer">
+        <input type="hidden" name="utf8" value="✓">
+
+        <div class="customer-settings__form-error" role="alert" hidden></div>
+
+        <div class="customer-settings__form-field">
+          {% render 'input',
+            name: 'customer[phone]',
+            id: 'edit-phone',
+            label: 'Phone Number',
+            type: 'tel',
+            value: display_phone,
+            placeholder: '+1 (555) 123-4567',
+            autocomplete: 'tel',
+            hint: 'Include country code for international numbers'
+          %}
+        </div>
+
+        <div class="customer-settings__form-actions">
+          <button type="button" class="customer-settings__btn customer-settings__btn--secondary" data-modal-close>
+            Cancel
+          </button>
+          <button type="submit" class="customer-settings__btn customer-settings__btn--primary">
+            <span class="customer-settings__btn-text">Save Changes</span>
+            <span class="customer-settings__btn-loading" hidden>
+              {% render 'icon', name: 'loader', size: 16 %}
+              Saving...
+            </span>
+          </button>
+        </div>
+      </form>
+    {%- endcapture -%}
+
+    DISABLED - requires backend API
+    {% render 'modal',
+      id: 'edit-phone-modal',
+      title: 'Edit Phone Number',
+      content: edit_phone_content,
+      size: 'small'
+    %}
+  {%- endcomment -%}
+
+  {%- comment -%} Reset Password Modal (ACTIVE) {%- endcomment -%}
+  {%- capture reset_password_content -%}
+    <form 
+      id="reset-password-form" 
+      class="customer-settings__form"
+      data-settings-form="password"
+      action="{{ routes.account_recover_url }}"
+      method="post"
+      novalidate
+    >
+      <input type="hidden" name="form_type" value="recover_customer_password">
+      <input type="hidden" name="utf8" value="✓">
+      
+      <div class="customer-settings__form-error" role="alert" hidden></div>
+      
+      <div class="customer-settings__form-info">
+        <p>We'll send a password reset link to:</p>
+        <p class="customer-settings__form-email">
+          {% render 'icon', name: 'mail', size: 16 %}
+          <strong>{{ customer.email }}</strong>
+        </p>
+      </div>
+      
+      {%- comment -%} Pre-fill email (hidden) {%- endcomment -%}
+      <input type="hidden" name="email" value="{{ customer.email }}">
+      
+      <div class="customer-settings__form-actions">
+        <button type="button" class="customer-settings__btn customer-settings__btn--secondary" data-modal-close>
+          Cancel
+        </button>
+        <button type="submit" class="customer-settings__btn customer-settings__btn--primary">
+          <span class="customer-settings__btn-text">Send Reset Link</span>
+          <span class="customer-settings__btn-loading" hidden>
+            {% render 'icon', name: 'loader', size: 16 %}
+            Sending...
+          </span>
+        </button>
+      </div>
+    </form>
+    
+    {%- comment -%} Password reset confirmation {%- endcomment -%}
+    <div class="customer-settings__confirmation" id="password-confirmation" hidden>
+      <div class="customer-settings__confirmation-icon customer-settings__confirmation-icon--success">
+        {% render 'icon', name: 'check-circle', size: 48 %}
+      </div>
+      <h3 class="customer-settings__confirmation-title">Check Your Email</h3>
+      <p class="customer-settings__confirmation-text">
+        We've sent a password reset link to <strong>{{ customer.email }}</strong>
+      </p>
+      <p class="customer-settings__confirmation-note">
+        The link will expire in 24 hours. If you don't see the email, check your spam folder.
+      </p>
+      <button type="button" class="customer-settings__btn customer-settings__btn--primary" data-modal-close>
+        Got It
+      </button>
+    </div>
+  {%- endcapture -%}
+
+  {% render 'modal',
+    id: 'reset-password-modal',
+    title: 'Reset Password',
+    content: reset_password_content,
+    size: 'small'
+  %}
 </div>
 
 {% schema %}

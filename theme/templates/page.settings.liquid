@@ -1,0 +1,25 @@
+{% comment %}
+  Customer Settings Page Template
+  Login & Security settings
+
+  Usage:
+  1. Create a page in Shopify Admin with handle "settings"
+  2. Assign the "settings" template to that page
+  3. The page will be accessible at /pages/settings
+{% endcomment %}
+
+{% layout 'theme' %}
+
+{% if customer %}
+  {% section 'customer-settings' %}
+{% else %}
+  <script>
+    window.location.href =
+      '{{ routes.account_login_url }}?return_url={{ request.path | url_encode }}';
+  </script>
+  <div class='page-width' style='padding: var(--spacing-lg) 0; text-align: center;'>
+    <p>
+      Please <a href='{{ routes.account_login_url }}'>log in</a> to access your account settings.
+    </p>
+  </div>
+{% endif %}
