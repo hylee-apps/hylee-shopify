@@ -11,14 +11,14 @@ Hy-lee is a Walmart-style e-commerce marketplace built as a Shopify theme. It us
 
 ### Technology Stack
 
-| Layer | Technology |
-|-------|------------|
-| **Platform** | Shopify |
-| **Templating** | Liquid |
-| **Styling** | CSS (vanilla, BEM naming) |
-| **JavaScript** | Vanilla JS (no frameworks) |
-| **Testing** | Vitest (unit), Playwright (E2E) |
-| **CI/CD** | GitHub Actions |
+| Layer          | Technology                      |
+| -------------- | ------------------------------- |
+| **Platform**   | Shopify                         |
+| **Templating** | Liquid                          |
+| **Styling**    | CSS (vanilla, BEM naming)       |
+| **JavaScript** | Vanilla JS (no frameworks)      |
+| **Testing**    | Vitest (unit), Playwright (E2E) |
+| **CI/CD**      | GitHub Actions                  |
 
 ### Architecture Diagram
 
@@ -79,6 +79,7 @@ hylee-shopify/
 ### Allowed Root Files
 
 Only these files are allowed at project root:
+
 - `.eslintrc.json` - ESLint config
 - `.gitignore` - Git ignore
 - `.prettierrc.json` - Prettier config
@@ -101,15 +102,19 @@ Only these files are allowed at project root:
 **Status:** Accepted
 
 #### Context
+
 Need a consistent, reusable UI component system for Shopify theme.
 
 #### Decision
+
 All UI components live as Liquid snippets in `theme/snippets/`. Each component has:
+
 - A `.liquid` file with documentation
 - A corresponding `component-*.css` file
 - JavaScript in `component-scripts.js` if interactive
 
 #### Consequences
+
 - ✅ Single source of truth for UI
 - ✅ Easy to maintain and update
 - ✅ Consistent across all pages
@@ -123,12 +128,15 @@ All UI components live as Liquid snippets in `theme/snippets/`. Each component h
 **Status:** Accepted
 
 #### Context
+
 Need interactive behaviors without heavy framework overhead.
 
 #### Decision
+
 Use vanilla JavaScript only. No React, Vue, or other frameworks in the theme.
 
 #### Consequences
+
 - ✅ Faster page loads
 - ✅ No build step for JS
 - ✅ Simpler debugging
@@ -142,17 +150,21 @@ Use vanilla JavaScript only. No React, Vue, or other frameworks in the theme.
 **Status:** Accepted
 
 #### Context
+
 Need consistent CSS class naming convention.
 
 #### Decision
+
 Use BEM-like naming: `.component__element--modifier`
 
 Examples:
+
 - `.pdp-gallery__thumbnail--active`
 - `.btn--primary`
 - `.card__header`
 
 #### Consequences
+
 - ✅ Self-documenting class names
 - ✅ Avoids specificity issues
 - ✅ Easy to understand component structure
@@ -165,9 +177,11 @@ Examples:
 **Status:** Accepted
 
 #### Context
+
 Need centralized design token management.
 
 #### Decision
+
 All design tokens (colors, spacing, typography) defined as CSS custom properties in `theme-variables.css`.
 
 ```css
@@ -179,6 +193,7 @@ All design tokens (colors, spacing, typography) defined as CSS custom properties
 ```
 
 #### Consequences
+
 - ✅ Single source for design values
 - ✅ Easy theme customization
 - ✅ Runtime theming possible
@@ -197,11 +212,14 @@ When making significant architectural decisions, add a new ADR:
 **Status:** Proposed | Accepted | Deprecated | Superseded
 
 #### Context
+
 What is the issue motivating this decision?
 
 #### Decision
+
 What change are we making?
 
 #### Consequences
+
 What becomes easier or harder?
 ```

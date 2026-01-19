@@ -1,0 +1,84 @@
+{
+  "depth": "executive",
+  "timestamp": "2026-01-19T19:22:02.150Z",
+  "project": {
+    "name": "hylee-shopify-theme",
+    "version": "1.0.0",
+    "description": "Hy-lee Shopify theme - Walmart-style e-commerce marketplace",
+    "isMonorepo": true,
+    "packageManager": "pnpm",
+    "fileCount": 12,
+    "totalLines": 600
+  },
+  "technology": {
+    "language": "JavaScript",
+    "runtime": "Node.js",
+    "buildTools": [],
+    "platforms": ["Web"],
+    "infrastructure": []
+  },
+  "packages": {
+    "total": 12,
+    "production": [],
+    "development": [],
+    "categories": [
+      {
+        "name": "Other",
+        "count": 7,
+        "packages": [
+          "@shopify/cli",
+          "@shopify/theme",
+          "dotenv-cli",
+          "husky",
+          "lint-staged",
+          "simple-git-hooks",
+          "workflow-agent-cli"
+        ],
+        "businessImpact": "Supports various application features"
+      },
+      {
+        "name": "Testing",
+        "count": 3,
+        "packages": ["@playwright/test", "@vitest/coverage-v8", "vitest"],
+        "businessImpact": "Quality assurance - reduces production bugs and support costs"
+      },
+      {
+        "name": "Code Quality",
+        "count": 2,
+        "packages": ["eslint", "prettier"],
+        "businessImpact": "Maintainability - reduces technical debt and long-term costs"
+      }
+    ],
+    "outdated": [],
+    "security": []
+  },
+  "risks": {
+    "overall": 0,
+    "categories": [
+      {
+        "name": "Technical Complexity",
+        "score": 0,
+        "issues": [],
+        "impact": "May affect development velocity and operational costs"
+      }
+    ],
+    "critical": [],
+    "high": [],
+    "medium": [],
+    "low": []
+  },
+  "opportunities": {
+    "overall": 0.6,
+    "categories": [
+      {
+        "name": "Growth Potential",
+        "potential": 0.6,
+        "recommendations": ["Testing infrastructure enables quality-driven expansion"],
+        "businessValue": "Strong foundation for scaling features and market reach"
+      }
+    ],
+    "immediate": [],
+    "shortTerm": ["Testing infrastructure enables quality-driven expansion"],
+    "longTerm": []
+  }
+}

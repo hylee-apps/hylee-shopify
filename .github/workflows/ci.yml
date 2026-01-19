@@ -1,0 +1,48 @@
+# Workflow Agent CI Pipeline
+# Auto-generated - modifications will be preserved on regeneration
+# To regenerate: workflow github:setup
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: echo "No lint script configured - add 'lint' to package.json scripts"
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Format check
+        run: pnpm -r run format:check || npx prettier --check "**/*.{ts,tsx,js,jsx,json,md}"
+
+      - name: Build
+        run: echo "No build script configured - add 'build' to package.json scripts"
+
+      - name: Test
+        run: pnpm -r run test

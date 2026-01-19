@@ -76,15 +76,15 @@ hylee-shopify/
 
 ### Source of Truth Matrix
 
-| Concern | Location | File Pattern |
-|---------|----------|--------------|
-| **UI Components** | `theme/snippets/` | `*.liquid` |
-| **Component Styles** | `theme/assets/` | `component-*.css` |
-| **Design Tokens** | `theme/assets/` | `theme-variables.css` |
-| **Component JS** | `theme/assets/` | `component-scripts.js` |
-| **Page Sections** | `theme/sections/` | `*.liquid` |
-| **Documentation** | `docs/` | `*.md` |
-| **Tests** | `tests/` | `*.test.js`, `*.spec.ts` |
+| Concern              | Location          | File Pattern             |
+| -------------------- | ----------------- | ------------------------ |
+| **UI Components**    | `theme/snippets/` | `*.liquid`               |
+| **Component Styles** | `theme/assets/`   | `component-*.css`        |
+| **Design Tokens**    | `theme/assets/`   | `theme-variables.css`    |
+| **Component JS**     | `theme/assets/`   | `component-scripts.js`   |
+| **Page Sections**    | `theme/sections/` | `*.liquid`               |
+| **Documentation**    | `docs/`           | `*.md`                   |
+| **Tests**            | `tests/`          | `*.test.js`, `*.spec.ts` |
 
 ---
 
@@ -95,6 +95,7 @@ hylee-shopify/
 > **The component library (`theme/snippets/`) is the ONLY source for UI elements.**
 
 Every UI element MUST be:
+
 1. Defined as a reusable snippet in `theme/snippets/`
 2. Styled with a corresponding `component-*.css` file
 3. Documented with usage examples in the snippet's comment block
@@ -119,15 +120,15 @@ Every UI element MUST be:
 ```liquid
 {% comment %}
   Component Name
-  
+
   Brief description of what this component does.
-  
+
   Usage:
   {% render 'component-name',
     param1: 'value',
     param2: true
   %}
-  
+
   Parameters:
   - param1: string (required) - Description
   - param2: boolean (default: false) - Description
@@ -158,15 +159,15 @@ Every UI element MUST be:
 
 **Types:**
 
-| Type | Purpose |
-|------|---------|
-| `feat` | New feature |
-| `fix` | Bug fix |
-| `chore` | Maintenance, dependencies |
-| `docs` | Documentation only |
-| `style` | Formatting (no logic changes) |
-| `test` | Adding/updating tests |
-| `refactor` | Code restructuring |
+| Type       | Purpose                       |
+| ---------- | ----------------------------- |
+| `feat`     | New feature                   |
+| `fix`      | Bug fix                       |
+| `chore`    | Maintenance, dependencies     |
+| `docs`     | Documentation only            |
+| `style`    | Formatting (no logic changes) |
+| `test`     | Adding/updating tests         |
+| `refactor` | Code restructuring            |
 
 **Scopes:** `theme`, `components`, `sections`, `templates`, `docs`, `tests`, `config`
 
@@ -252,11 +253,11 @@ tests/
 
 ### When to Write Tests
 
-| Change Type | Unit Test | E2E Test |
-|-------------|-----------|----------|
-| New component | ✅ Required | Optional |
-| New section/page | Optional | ✅ Required |
-| Bug fix | ✅ Regression | If user flow affected |
+| Change Type      | Unit Test     | E2E Test              |
+| ---------------- | ------------- | --------------------- |
+| New component    | ✅ Required   | Optional              |
+| New section/page | Optional      | ✅ Required           |
+| Bug fix          | ✅ Regression | If user flow affected |
 
 ---
 
@@ -264,16 +265,17 @@ tests/
 
 ### Required Documents
 
-| Document | Purpose |
-|----------|---------|
+| Document                    | Purpose                       |
+| --------------------------- | ----------------------------- |
 | `DEVELOPMENT_GUIDELINES.md` | Development rules (this file) |
-| `COMPONENT_INVENTORY.md` | Component catalog |
-| `IMPLEMENTATION_PLAN.md` | Feature roadmap |
-| `ARCHITECTURE.md` | System design decisions |
+| `COMPONENT_INVENTORY.md`    | Component catalog             |
+| `IMPLEMENTATION_PLAN.md`    | Feature roadmap               |
+| `ARCHITECTURE.md`           | System design decisions       |
 
 ### Agent Auto-Updates
 
 Agents should automatically update:
+
 - `COMPONENT_INVENTORY.md` when adding components
 - `IMPLEMENTATION_PLAN.md` when completing tasks
 - `ARCHITECTURE.md` for significant decisions
@@ -326,7 +328,8 @@ Before making changes:
 
 ```css
 /* BEM-like: .component__element--modifier */
-.pdp-gallery__thumbnail--active { }
+.pdp-gallery__thumbnail--active {
+}
 ```
 
 ### File Naming
@@ -366,4 +369,4 @@ pnpm validate:structure # Check directory structure
 
 ---
 
-*This document is the authoritative source for development practices.*
+_This document is the authoritative source for development practices._
