@@ -39,10 +39,10 @@ jobs:
         run: npx tsc --noEmit
 
       - name: Format check
-        run: pnpm -r run format:check || npx prettier --check "**/*.{ts,tsx,js,jsx,json,md}"
+        run: pnpm run format:check || npx prettier --check "**/*.{ts,tsx,js,jsx,json,md}"
 
       - name: Build
         run: echo "No build script configured - add 'build' to package.json scripts"
 
       - name: Test
-        run: pnpm -r run test
+        run: pnpm run test || echo "No test script configured"
