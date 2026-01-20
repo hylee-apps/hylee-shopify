@@ -365,6 +365,68 @@ Convert the most commonly used UI components first:
   - Schema: Added `show_orders_link` checkbox setting
 - **Modified:** `locales/en.default.json` - Added `header.actions.orders_returns` translation key
 
+### January 15, 2026 - Login & Security Enhancement (Edit Modals)
+
+- **Modified:** `sections/customer-settings.liquid` - Complete enhancement with inline edit functionality:
+  - **Edit Name Modal:** Form with `customer[first_name]` and `customer[last_name]` fields, posts to `/account`
+  - **Edit Email Modal:** Form with new email input, shows verification confirmation on submit
+  - **Edit Phone Modal:** Form with `customer[phone]` field, posts to `/account`
+  - **Reset Password Modal:** Embedded `recover_customer_password` form with "Check your email" confirmation (no page navigation)
+  - Edit buttons added to each info row with `data-modal-open` attributes
+  - Uses existing `modal.liquid`, `input.liquid` snippets
+  - Alert container for success/error messages (`#settings-alerts`)
+  - Pending email badge (`customer.metafields.settings.pending_email`)
+  - Data attributes: `[data-customer-settings]`, `[data-settings-form="name|email|phone|password"]`, `[data-field="name|email|phone"]`
+- **Modified:** `assets/section-customer-settings.css` - Enhanced styles (400+ lines):
+  - `.customer-settings__edit-btn` - Inline edit buttons with hover state
+  - `.customer-settings__pending-badge` - Warning badge for pending email verification
+  - `.customer-settings__form` - Modal form layout with row and field classes
+  - `.customer-settings__form-error` - Error message container
+  - `.customer-settings__form-info` - Info block with current email display
+  - `.customer-settings__form-hint` - Helper text with icon
+  - `.customer-settings__confirmation` - Success state with icon and messaging
+  - `.customer-settings__btn--loading` - Loading state with spinner animation
+  - `@keyframes settings-spin` - Spinner animation
+  - Mobile responsive: icon-only edit buttons, stacked form actions
+- **Modified:** `assets/component-scripts.js` - Added `initCustomerSettings()` function (~300 lines):
+  - **Form Submission:** AJAX `fetch()` to `/account` endpoint, prevents page reload
+  - **Validation:** Required field validation, email format regex validation
+  - **Loading States:** `setLoadingState()` toggles button loading class and disabled state
+  - **Error Handling:** `showFormError()` / `hideFormError()` for inline error display
+  - **Success Alerts:** `showSettingsAlert()` creates dynamic alert with auto-dismiss (5s)
+  - **Value Updates:** `updateDisplayedValue()` updates UI without page refresh
+  - **Modal Reset:** Resets form and confirmation state when modal opens
+  - **Password Reset:** Intercepts form, shows confirmation without redirect
+  - **Email Change:** Shows verification sent confirmation (metafield integration ready)
+  - **URL Params:** `checkSettingsUrlParams()` handles `?name_updated=true` etc.
+- **Created:** `tests/e2e/auth.setup.ts` - Playwright authentication setup:
+  - Logs into test customer account using `TEST_CUSTOMER_EMAIL` / `TEST_CUSTOMER_PASSWORD` env vars
+  - Saves session to `.auth/customer.json` for reuse across tests
+  - Graceful handling when credentials not provided
+- **Created:** `tests/e2e/customer-settings.spec.ts` - E2E test suite (400+ lines):
+  - **Page Structure:** Header, cards, edit buttons, sign out link
+  - **Edit Name Modal:** Open, pre-fill, close (button/backdrop/escape), validation, submit
+  - **Edit Email Modal:** Open, current email display, validation, verification confirmation
+  - **Edit Phone Modal:** Open, hint text, submit
+  - **Reset Password Modal:** Open, email display, confirmation without navigation
+  - **Accessibility:** ARIA attributes, focus trapping, aria-labels
+  - **Loading States:** Button loading class, disabled state during submission
+  - **Mobile Responsiveness:** Icon-only buttons, stacked actions
+- **Modified:** `playwright.config.ts` - Auth setup project configuration:
+  - Added `auth-setup` project with `testMatch: /auth\.setup\.ts/`
+  - All browser projects depend on `auth-setup` and use `storageState: '.auth/customer.json'`
+  - Added `chromium-guest` project for unauthenticated tests
+- **Modified:** `.gitignore` - Added Playwright artifacts:
+  - `.auth/` - Session storage files
+  - `playwright-report/` - HTML report output
+  - `test-results/` - Test artifacts
+
+**Shopify Limitations Note:**
+
+- Direct email change is not supported via Liquid forms (requires Admin API)
+- Phone storage uses `customer[phone]` which may have limited support
+- For production, consider using customer metafields: `customer.metafields.settings.phone` and `customer.metafields.settings.pending_email`
+
 ---
 
-_Last updated: 2026-01-13_
+_Last updated: 2026-01-15_

@@ -3,26 +3,31 @@
   Displays a grid of featured products using shared product-card component
 {% endcomment %}
 
-<section class="product-section-uniform featured-products" id="featured-{{ section.id }}" style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px; background-color: {{ section.settings.background_color }};">
-  <div class="product-section-uniform__container">
-    
+<section
+  class='product-section-uniform featured-products'
+  id='featured-{{ section.id }}'
+  style='padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px; background-color: {{ section.settings.background_color }};'
+>
+  <div class='product-section-uniform__container'>
     {% if section.settings.heading != blank %}
-      <div class="featured-products__header">
-        <h2 class="featured-products__title" style="color: {{ section.settings.heading_color }};">{{ section.settings.heading }}</h2>
+      <div class='featured-products__header'>
+        <h2 class='featured-products__title' style='color: {{ section.settings.heading_color }};'>
+          {{ section.settings.heading }}
+        </h2>
         {% if section.settings.description != blank %}
-          <p class="featured-products__description">{{ section.settings.description }}</p>
+          <p class='featured-products__description'>{{ section.settings.description }}</p>
         {% endif %}
       </div>
     {% endif %}
 
     {% assign collection = collections[section.settings.collection] %}
-    
+
     {% if collection and collection.products.size > 0 %}
-      <div class="product-grid-uniform">
+      <div class='product-grid-uniform'>
         {% for product in collection.products limit: section.settings.products_to_show %}
           {% render 'product-card',
             product: product,
-            show_vendor: section.settings.show_vendor,
+            show_vendor: false,
             show_quick_add: true,
             show_rating: true,
             show_secondary_image: true,
@@ -32,7 +37,7 @@
       </div>
 
       {% if section.settings.show_view_all and collection.url %}
-        <div class="featured-products__footer">
+        <div class='featured-products__footer'>
           {% render 'button',
             text: section.settings.button_label,
             url: collection.url,
@@ -43,48 +48,47 @@
       {% endif %}
 
     {% else %}
-      <div class="featured-products__empty">
+      <div class='featured-products__empty'>
         <p>No products found. Please select a collection.</p>
       </div>
     {% endif %}
-
   </div>
 </section>
 
 <style>
-#featured-{{ section.id }} .featured-products__header {
-  text-align: center;
-  margin-bottom: 3rem;
-}
-
-#featured-{{ section.id }} .featured-products__title {
-  margin: 0 0 1rem 0;
-  font-size: 2.5rem;
-  font-weight: 700;
-}
-
-@media (max-width: 768px) {
-  #featured-{{ section.id }} .featured-products__title {
-    font-size: 2rem;
+  #featured-{{ section.id }} .featured-products__header {
+    text-align: center;
+    margin-bottom: 3rem;
   }
-}
 
-#featured-{{ section.id }} .featured-products__description {
-  margin: 0;
-  font-size: 1.125rem;
-  color: rgb(100, 116, 139);
-}
+  #featured-{{ section.id }} .featured-products__title {
+    margin: 0 0 1rem 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+  }
 
-#featured-{{ section.id }} .featured-products__footer {
-  text-align: center;
-  margin-top: 3rem;
-}
+  @media (max-width: 768px) {
+    #featured-{{ section.id }} .featured-products__title {
+      font-size: 2rem;
+    }
+  }
 
-#featured-{{ section.id }} .featured-products__empty {
-  text-align: center;
-  padding: 4rem 2rem;
-  color: rgb(100, 116, 139);
-}
+  #featured-{{ section.id }} .featured-products__description {
+    margin: 0;
+    font-size: 1.125rem;
+    color: rgb(100, 116, 139);
+  }
+
+  #featured-{{ section.id }} .featured-products__footer {
+    text-align: center;
+    margin-top: 3rem;
+  }
+
+  #featured-{{ section.id }} .featured-products__empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: rgb(100, 116, 139);
+  }
 </style>
 
 {% schema %}

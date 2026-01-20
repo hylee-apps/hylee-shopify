@@ -1,0 +1,97 @@
+{
+  "projectName": "hylee-shopify",
+  "scopes": [
+    {
+      "name": "theme",
+      "description": "Theme-wide changes, layout, and configuration",
+      "emoji": "🎨",
+      "category": "infrastructure"
+    },
+    {
+      "name": "components",
+      "description": "UI component library in theme/snippets/",
+      "emoji": "🧩",
+      "category": "features"
+    },
+    {
+      "name": "sections",
+      "description": "Page sections in theme/sections/",
+      "emoji": "📦",
+      "category": "features"
+    },
+    {
+      "name": "templates",
+      "description": "Page templates in theme/templates/",
+      "emoji": "📄",
+      "category": "features"
+    },
+    {
+      "name": "customer",
+      "description": "Customer account, orders, settings, returns",
+      "emoji": "👤",
+      "category": "features"
+    },
+    {
+      "name": "product",
+      "description": "Product pages, PDP, product cards",
+      "emoji": "🏷️",
+      "category": "features"
+    },
+    {
+      "name": "collection",
+      "description": "Collection pages, product grid, filtering",
+      "emoji": "📚",
+      "category": "features"
+    },
+    {
+      "name": "cart",
+      "description": "Cart functionality and checkout",
+      "emoji": "🛒",
+      "category": "features"
+    },
+    {
+      "name": "navigation",
+      "description": "Header, footer, menus, breadcrumbs",
+      "emoji": "🧭",
+      "category": "features"
+    },
+    {
+      "name": "styles",
+      "description": "CSS, design tokens, theme-variables.css",
+      "emoji": "💅",
+      "category": "features"
+    },
+    {
+      "name": "scripts",
+      "description": "JavaScript, component-scripts.js, interactivity",
+      "emoji": "⚡",
+      "category": "features"
+    },
+    {
+      "name": "config",
+      "description": "Theme settings, settings_data.json, locales",
+      "emoji": "⚙️",
+      "category": "infrastructure"
+    },
+    {
+      "name": "docs",
+      "description": "Documentation, guidelines, planning",
+      "emoji": "📚",
+      "category": "documentation"
+    },
+    {
+      "name": "tests",
+      "description": "Unit tests (Vitest) and E2E tests (Playwright)",
+      "emoji": "🧪",
+      "category": "testing"
+    },
+    {
+      "name": "ci",
+      "description": "GitHub Actions, workflows, automation",
+      "emoji": "🔄",
+      "category": "infrastructure"
+    }
+  ],
+  "enforcement": "strict",
+  "language": "en"
+}

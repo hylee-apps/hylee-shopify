@@ -1,12 +1,12 @@
 {% comment %}
   PDP Warranty Popover/Bottom Sheet
-  
+
   Displays warranty information in a tooltip (desktop) or bottom sheet (mobile).
   Used as a trigger element that opens the warranty content on click.
-  
+
   Usage:
   {% render 'pdp-warranty-popover', product: product %}
-  
+
   Parameters:
   - product: product object (required) - The product with warranty metafield
   - id: string - Unique identifier for this popover instance
@@ -23,96 +23,148 @@
 
 {%- if has_warranty -%}
   <!-- Warranty Popover Trigger -->
-  <button 
-    type="button" 
-    class="pdp-warranty-trigger"
-    aria-haspopup="dialog"
-    aria-expanded="false"
-    aria-controls="warranty-popover-{{ popover_id }}"
-    data-warranty-trigger="{{ popover_id }}"
+  <button
+    type='button'
+    class='pdp-warranty-trigger'
+    aria-haspopup='dialog'
+    aria-expanded='false'
+    aria-controls='warranty-popover-{{ popover_id }}'
+    data-warranty-trigger='{{ popover_id }}'
   >
-    <svg class="pdp-warranty-trigger__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <svg
+      class='pdp-warranty-trigger__icon'
+      width='16'
+      height='16'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      stroke-width='2'
+    >
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
       <polyline points="9 12 11 14 15 10"></polyline>
     </svg>
-    <span class="pdp-warranty-trigger__text">View Warranty</span>
-    <svg class="pdp-warranty-trigger__arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <span class='pdp-warranty-trigger__text'>View Warranty</span>
+    <svg
+      class='pdp-warranty-trigger__arrow'
+      width='12'
+      height='12'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      stroke-width='2'
+    >
       <polyline points="6 9 12 15 18 9"></polyline>
     </svg>
   </button>
 
   <!-- Warranty Popover (Desktop Tooltip) -->
-  <div 
-    id="warranty-popover-{{ popover_id }}"
-    class="pdp-warranty-popover"
-    role="dialog"
-    aria-label="Warranty Information"
-    aria-hidden="true"
-    data-warranty-popover="{{ popover_id }}"
+  <div
+    id='warranty-popover-{{ popover_id }}'
+    class='pdp-warranty-popover'
+    role='dialog'
+    aria-label='Warranty Information'
+    aria-hidden='true'
+    data-warranty-popover='{{ popover_id }}'
   >
-    <div class="pdp-warranty-popover__content">
-      <div class="pdp-warranty-popover__header">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div class='pdp-warranty-popover__content'>
+      <div class='pdp-warranty-popover__header'>
+        <svg
+          width='18'
+          height='18'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+          stroke-width='2'
+        >
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
         </svg>
-        <span class="pdp-warranty-popover__title">Warranty</span>
-        <button 
-          type="button" 
-          class="pdp-warranty-popover__close"
-          aria-label="Close warranty information"
-          data-warranty-close="{{ popover_id }}"
+        <span class='pdp-warranty-popover__title'>Warranty</span>
+        <button
+          type='button'
+          class='pdp-warranty-popover__close'
+          aria-label='Close warranty information'
+          data-warranty-close='{{ popover_id }}'
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg
+            width='16'
+            height='16'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            stroke-width='2'
+          >
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
         </button>
       </div>
-      <div class="pdp-warranty-popover__body">
+      <div class='pdp-warranty-popover__body'>
         {{ warranty_content }}
       </div>
     </div>
-    <div class="pdp-warranty-popover__arrow"></div>
+    <div class='pdp-warranty-popover__arrow'></div>
   </div>
 
   <!-- Warranty Bottom Sheet (Mobile) -->
-  <div 
-    class="pdp-warranty-sheet"
-    aria-hidden="true"
-    data-warranty-sheet="{{ popover_id }}"
+  <div
+    class='pdp-warranty-sheet'
+    aria-hidden='true'
+    data-warranty-sheet='{{ popover_id }}'
   >
-    <div class="pdp-warranty-sheet__backdrop" data-warranty-backdrop="{{ popover_id }}"></div>
-    <div class="pdp-warranty-sheet__container" role="dialog" aria-label="Warranty Information">
-      <div class="pdp-warranty-sheet__header">
-        <div class="pdp-warranty-sheet__handle"></div>
-        <div class="pdp-warranty-sheet__title-row">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div class='pdp-warranty-sheet__backdrop' data-warranty-backdrop='{{ popover_id }}'></div>
+    <div class='pdp-warranty-sheet__container' role='dialog' aria-label='Warranty Information'>
+      <div class='pdp-warranty-sheet__header'>
+        <div class='pdp-warranty-sheet__handle'></div>
+        <div class='pdp-warranty-sheet__title-row'>
+          <svg
+            width='20'
+            height='20'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            stroke-width='2'
+          >
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
           </svg>
-          <h3 class="pdp-warranty-sheet__title">Warranty Information</h3>
-          <button 
-            type="button" 
-            class="pdp-warranty-sheet__close"
-            aria-label="Close"
-            data-warranty-close="{{ popover_id }}"
+          <h3 class='pdp-warranty-sheet__title'>Warranty Information</h3>
+          <button
+            type='button'
+            class='pdp-warranty-sheet__close'
+            aria-label='Close'
+            data-warranty-close='{{ popover_id }}'
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg
+              width='20'
+              height='20'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              stroke-width='2'
+            >
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
           </button>
         </div>
       </div>
-      <div class="pdp-warranty-sheet__body">
+      <div class='pdp-warranty-sheet__body'>
         {{ warranty_content }}
       </div>
     </div>
   </div>
 {%- else -%}
-  <span class="pdp-warranty-trigger pdp-warranty-trigger--empty">
-    <svg class="pdp-warranty-trigger__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <span class='pdp-warranty-trigger pdp-warranty-trigger--empty'>
+    <svg
+      class='pdp-warranty-trigger__icon'
+      width='16'
+      height='16'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      stroke-width='2'
+    >
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
     </svg>
-    <span class="pdp-warranty-trigger__text">No warranty info</span>
+    <span class='pdp-warranty-trigger__text'>No warranty info</span>
   </span>
 {%- endif -%}

@@ -1,7 +1,7 @@
 {% comment %}
   Selection Card Component
   (Radio/checkbox style selectable cards - like fulfillment options)
-  
+
   Usage:
   {% render 'selection-card',
     id: 'shipping',
@@ -14,7 +14,7 @@
     detail: 'Arrives Thu, Jan 15',
     min_height: '80px'
   %}
-  
+
   Parameters:
   - id: string (required) - Unique ID for the input
   - name: string (required) - Input name for grouping
@@ -38,18 +38,18 @@
   assign card_variant = variant | default: 'default'
   assign extra_class = class | default: ''
   assign card_min_height = min_height | default: ''
-  
+
   assign card_classes = 'selection-card'
   assign card_classes = card_classes | append: ' selection-card--' | append: card_variant
-  
+
   if is_checked
     assign card_classes = card_classes | append: ' selection-card--checked'
   endif
-  
+
   if is_disabled
     assign card_classes = card_classes | append: ' selection-card--disabled'
   endif
-  
+
   if extra_class != blank
     assign card_classes = card_classes | append: ' ' | append: extra_class
   endif
@@ -96,29 +96,39 @@
   {%- endcase -%}
 {%- endcapture -%}
 
-<label class="{{ card_classes }}" for="{{ id }}"{% if inline_style != blank %} style="{{ inline_style | strip }}"{% endif %}>
+<label
+  class='{{ card_classes }}'
+  for='{{ id }}'
+  {% if inline_style != blank %}
+    style='{{ inline_style | strip }}'
+  {% endif %}
+>
   <input
-    type="{{ input_type }}"
-    id="{{ id }}"
-    name="{{ name }}"
-    value="{{ value }}"
-    class="selection-card__input"
-    {% if is_checked %}checked{% endif %}
-    {% if is_disabled %}disabled{% endif %}
+    type='{{ input_type }}'
+    id='{{ id }}'
+    name='{{ name }}'
+    value='{{ value }}'
+    class='selection-card__input'
+    {% if is_checked %}
+      checked
+    {% endif %}
+    {% if is_disabled %}
+      disabled
+    {% endif %}
   >
-  <span class="selection-card__content">
+  <span class='selection-card__content'>
     {%- if icon != blank -%}
-      <span class="selection-card__icon">{{ icon_svg }}</span>
+      <span class='selection-card__icon'>{{ icon_svg }}</span>
     {%- endif -%}
-    <span class="selection-card__text">
-      <span class="selection-card__label">{{ label }}</span>
+    <span class='selection-card__text'>
+      <span class='selection-card__label'>{{ label }}</span>
       {%- if description -%}
-        <span class="selection-card__description">{{ description }}</span>
+        <span class='selection-card__description'>{{ description }}</span>
       {%- endif -%}
       {%- if detail -%}
-        <span class="selection-card__detail">{{ detail }}</span>
+        <span class='selection-card__detail'>{{ detail }}</span>
       {%- endif -%}
     </span>
   </span>
-  <span class="selection-card__indicator"></span>
+  <span class='selection-card__indicator'></span>
 </label>

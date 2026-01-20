@@ -1,11 +1,11 @@
 {% comment %}
   Skeleton Loading Component
-  
+
   Usage:
   {% render 'skeleton', type: 'text', lines: 3 %}
   {% render 'skeleton', type: 'card' %}
   {% render 'skeleton', type: 'image', aspect_ratio: '1/1' %}
-  
+
   Parameters:
   - type: string (default: 'text') - 'text', 'card', 'image', 'avatar', 'button', 'product-card'
   - lines: number (default: 1) - Number of text lines (for type: 'text')
@@ -22,92 +22,92 @@
 -%}
 
 {% case skeleton_type %}
-
   {% when 'text' %}
-    <div class="skeleton skeleton--text {{ extra_class }}" aria-hidden="true">
+    <div class='skeleton skeleton--text {{ extra_class }}' aria-hidden='true'>
       {% for i in (1..line_count) %}
-        <div 
-          class="skeleton__line"
-          {% if forloop.last %}style="width: 60%;"{% endif %}
+        <div
+          class='skeleton__line'
+          {% if forloop.last %}
+            style='width: 60%;'
+          {% endif %}
         ></div>
       {% endfor %}
     </div>
 
   {% when 'card' %}
-    <div class="skeleton skeleton--card {{ extra_class }}" aria-hidden="true">
-      <div class="skeleton__image" style="aspect-ratio: 16/9;"></div>
-      <div class="skeleton__content">
-        <div class="skeleton__line" style="width: 70%;"></div>
-        <div class="skeleton__line" style="width: 100%;"></div>
-        <div class="skeleton__line" style="width: 40%;"></div>
+    <div class='skeleton skeleton--card {{ extra_class }}' aria-hidden='true'>
+      <div class='skeleton__image' style='aspect-ratio: 16/9;'></div>
+      <div class='skeleton__content'>
+        <div class='skeleton__line' style='width: 70%;'></div>
+        <div class='skeleton__line' style='width: 100%;'></div>
+        <div class='skeleton__line' style='width: 40%;'></div>
       </div>
     </div>
 
   {% when 'product-card' %}
-    <div class="skeleton skeleton--product-card {{ extra_class }}" aria-hidden="true">
-      <div class="skeleton__image" style="aspect-ratio: 1/1;"></div>
-      <div class="skeleton__content">
-        <div class="skeleton__line" style="width: 50%; height: 12px;"></div>
-        <div class="skeleton__line" style="width: 90%;"></div>
-        <div class="skeleton__line" style="width: 30%; height: 24px;"></div>
+    <div class='skeleton skeleton--product-card {{ extra_class }}' aria-hidden='true'>
+      <div class='skeleton__image' style='aspect-ratio: 1/1;'></div>
+      <div class='skeleton__content'>
+        <div class='skeleton__line' style='width: 50%; height: 12px;'></div>
+        <div class='skeleton__line' style='width: 90%;'></div>
+        <div class='skeleton__line' style='width: 30%; height: 24px;'></div>
       </div>
     </div>
 
   {% when 'image' %}
-    <div 
-      class="skeleton skeleton--image {{ extra_class }}" 
-      aria-hidden="true"
-      style="{% if aspect_ratio %}aspect-ratio: {{ aspect_ratio }};{% endif %}{% if width %}width: {{ width }};{% endif %}{% if height %}height: {{ height }};{% endif %}"
+    <div
+      class='skeleton skeleton--image {{ extra_class }}'
+      aria-hidden='true'
+      style='{% if aspect_ratio %}aspect-ratio: {{ aspect_ratio }};{% endif %}{% if width %}width: {{ width }};{% endif %}{% if height %}height: {{ height }};{% endif %}'
     ></div>
 
   {% when 'avatar' %}
-    <div 
-      class="skeleton skeleton--avatar {{ extra_class }}" 
-      aria-hidden="true"
-      style="{% if width %}width: {{ width }}; height: {{ width }};{% endif %}"
+    <div
+      class='skeleton skeleton--avatar {{ extra_class }}'
+      aria-hidden='true'
+      style='{% if width %}width: {{ width }}; height: {{ width }};{% endif %}'
     ></div>
 
   {% when 'button' %}
-    <div 
-      class="skeleton skeleton--button {{ extra_class }}" 
-      aria-hidden="true"
-      style="{% if width %}width: {{ width }};{% endif %}"
+    <div
+      class='skeleton skeleton--button {{ extra_class }}'
+      aria-hidden='true'
+      style='{% if width %}width: {{ width }};{% endif %}'
     ></div>
 
   {% when 'order-card' %}
-    <div class="skeleton skeleton--order-card {{ extra_class }}" aria-hidden="true">
-      <div class="skeleton__header">
-        <div class="skeleton__line skeleton__line--md" style="width: 30%;"></div>
-        <div class="skeleton__line skeleton__line--sm" style="width: 20%;"></div>
+    <div class='skeleton skeleton--order-card {{ extra_class }}' aria-hidden='true'>
+      <div class='skeleton__header'>
+        <div class='skeleton__line skeleton__line--md' style='width: 30%;'></div>
+        <div class='skeleton__line skeleton__line--sm' style='width: 20%;'></div>
       </div>
-      <div class="skeleton__body">
-        <div class="skeleton__image" style="width: 80px; height: 80px;"></div>
-        <div class="skeleton__content">
-          <div class="skeleton__line" style="width: 60%;"></div>
-          <div class="skeleton__line skeleton__line--sm" style="width: 40%;"></div>
+      <div class='skeleton__body'>
+        <div class='skeleton__image' style='width: 80px; height: 80px;'></div>
+        <div class='skeleton__content'>
+          <div class='skeleton__line' style='width: 60%;'></div>
+          <div class='skeleton__line skeleton__line--sm' style='width: 40%;'></div>
         </div>
       </div>
     </div>
 
   {% when 'address-card' %}
-    <div class="skeleton skeleton--address-card {{ extra_class }}" aria-hidden="true">
-      <div class="skeleton__content">
-        <div class="skeleton__line skeleton__line--md" style="width: 40%;"></div>
-        <div class="skeleton__line" style="width: 70%;"></div>
-        <div class="skeleton__line" style="width: 60%;"></div>
-        <div class="skeleton__line" style="width: 50%;"></div>
-        <div class="skeleton__line" style="width: 45%;"></div>
+    <div class='skeleton skeleton--address-card {{ extra_class }}' aria-hidden='true'>
+      <div class='skeleton__content'>
+        <div class='skeleton__line skeleton__line--md' style='width: 40%;'></div>
+        <div class='skeleton__line' style='width: 70%;'></div>
+        <div class='skeleton__line' style='width: 60%;'></div>
+        <div class='skeleton__line' style='width: 50%;'></div>
+        <div class='skeleton__line' style='width: 45%;'></div>
       </div>
-      <div class="skeleton__footer">
-        <div class="skeleton__line skeleton__line--sm" style="width: 30%;"></div>
+      <div class='skeleton__footer'>
+        <div class='skeleton__line skeleton__line--sm' style='width: 30%;'></div>
       </div>
     </div>
 
   {% else %}
-    <div 
-      class="skeleton {{ extra_class }}" 
-      aria-hidden="true"
-      style="{% if width %}width: {{ width }};{% endif %}{% if height %}height: {{ height }};{% endif %}"
+    <div
+      class='skeleton {{ extra_class }}'
+      aria-hidden='true'
+      style='{% if width %}width: {{ width }};{% endif %}{% if height %}height: {{ height }};{% endif %}'
     ></div>
-
 {% endcase %}

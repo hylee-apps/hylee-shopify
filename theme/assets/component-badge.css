@@ -149,7 +149,7 @@ a.badge--error:hover {
 }
 
 .badge--dot::before {
-  content: "";
+  content: '';
   display: inline-block;
   width: 0.5rem;
   height: 0.5rem;

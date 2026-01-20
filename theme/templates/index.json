@@ -74,7 +74,14 @@
           }
         }
       },
-      "block_order": ["category-1", "category-2", "category-3", "category-4", "category-5", "category-6"],
+      "block_order": [
+        "category-1",
+        "category-2",
+        "category-3",
+        "category-4",
+        "category-5",
+        "category-6"
+      ],
       "settings": {
         "heading": "Featured Categories",
         "description": "Explore our most popular product categories",

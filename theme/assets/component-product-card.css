@@ -34,7 +34,9 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform var(--transition-slow), opacity var(--transition-base);
+  transition:
+    transform var(--transition-slow),
+    opacity var(--transition-base);
 }
 
 .product-card__image-primary {
@@ -251,8 +253,12 @@
 }
 
 @keyframes product-card-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Product Grid */
@@ -267,11 +273,11 @@
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: var(--space-4);
   }
-  
+
   .product-card__info {
     padding: var(--space-3);
   }
-  
+
   .product-card__actions {
     padding: 0 var(--space-3) var(--space-3);
   }

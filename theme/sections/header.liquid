@@ -227,7 +227,7 @@
       {%- comment -%} Actions {%- endcomment -%}
       <div class='header__actions'>
         {%- if customer and section.settings.show_orders_link -%}
-          <a href='/pages/orders' class='header__action-link'>
+          <a href='/account/orders' class='header__action-link'>
             {{ 'header.actions.orders_returns' | t | default: 'Orders' }}
           </a>
         {%- elsif show_track_order -%}
@@ -371,7 +371,7 @@
       <div class='header__mobile-divider'></div>
 
       {%- if customer and section.settings.show_orders_link -%}
-        <a href='/pages/orders' class='header__mobile-link'>
+        <a href='/account/orders' class='header__mobile-link'>
           {% render 'icon', name: 'package', size: 20 %}
           {{ 'header.actions.orders_returns' | t | default: 'Orders' }}
         </a>

@@ -3,35 +3,50 @@
   Displays newest products using shared product-card component
 {% endcomment %}
 
-<section class="product-section-uniform new-arrivals" id="new-arrivals-{{ section.id }}" style="background: {{ section.settings.background_color | default: '#ffffff' }};">
-  <div class="product-section-uniform__container">
-    <div class="product-section-uniform__header">
-      <svg class="product-section-uniform__icon" style="color: {{ section.settings.icon_color | default: '#059669' }};" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+<section
+  class='product-section-uniform new-arrivals'
+  id='new-arrivals-{{ section.id }}'
+  style='background: {{ section.settings.background_color | default: '#ffffff' }};'
+>
+  <div class='product-section-uniform__container'>
+    <div class='product-section-uniform__header'>
+      <svg
+        class='product-section-uniform__icon'
+        style='color: {{ section.settings.icon_color | default: '#059669' }};'
+        width='24'
+        height='24'
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        stroke-width='2'
+      >
         <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/>
         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
         <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
         <line x1="12" y1="22.08" x2="12" y2="12"/>
       </svg>
       {% if section.settings.heading != blank %}
-        <h3 class="product-section-uniform__heading">{{ section.settings.heading }}</h3>
+        <h3 class='product-section-uniform__heading'>{{ section.settings.heading }}</h3>
       {% endif %}
     </div>
 
-    <div class="product-grid-uniform">
+    <div class='product-grid-uniform'>
       {% assign collection = collections[section.settings.collection] %}
       {% assign products_to_show = section.settings.products_to_show | default: 4 %}
-      
+
       {% if collection and collection.products.size > 0 %}
         {% for product in collection.products limit: products_to_show %}
           {% render 'product-card',
             product: product,
-            show_vendor: section.settings.show_vendor,
+            show_vendor: false,
             custom_badge: section.settings.badge_text,
             custom_badge_color: section.settings.badge_color
           %}
         {% endfor %}
       {% else %}
-        <p style="grid-column: 1 / -1; text-align: center; color: #64748b;">Please select a collection in the section settings.</p>
+        <p style='grid-column: 1 / -1; text-align: center; color: #64748b;'>
+          Please select a collection in the section settings.
+        </p>
       {% endif %}
     </div>
   </div>

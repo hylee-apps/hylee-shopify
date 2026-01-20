@@ -1,10 +1,13 @@
 # Cursor AI Rules for Hy-lee Shopify Theme
 
 ## Project Type
+
 This is a Shopify theme project using Liquid templating. NOT React/TypeScript.
 
 ## Context Files
+
 Before making changes, read:
+
 - docs/DEVELOPMENT_GUIDELINES.md
 - docs/COMPONENT_INVENTORY.md
 - docs/IMPLEMENTATION_PLAN.md
@@ -12,18 +15,23 @@ Before making changes, read:
 ## Component-First Development
 
 ### Rule: Check Before Create
+
 ALWAYS check `theme/snippets/` before creating any UI element.
 If a component exists, USE IT. If not, CREATE IT FIRST as a reusable snippet.
 
 ### Rule: Component Location
+
 All UI components MUST be in `theme/snippets/` as `.liquid` files.
 
 ### Rule: Styling Location
+
 Component styles MUST be in `theme/assets/component-{name}.css`.
 NEVER use inline styles. NEVER hardcode colors or spacing.
 
 ## Design Tokens
+
 ALWAYS use CSS custom properties from `theme-variables.css`:
+
 ```css
 /* ✅ Correct */
 color: var(--color-primary);
@@ -31,34 +39,44 @@ padding: var(--spacing-md);
 font-size: var(--font-size-base);
 
 /* ❌ Wrong */
-color: #4A90A4;
+color: #4a90a4;
 padding: 16px;
 ```
 
 ## File Naming Conventions
+
 - Components: `{name}.liquid`
 - Component CSS: `component-{name}.css`
 - Section CSS: `section-{name}.css`
 - Template CSS: `template-{name}.css`
 
 ## CSS Naming (BEM)
+
 ```css
-.component-name { }
-.component-name__element { }
-.component-name--modifier { }
+.component-name {
+}
+.component-name__element {
+}
+.component-name--modifier {
+}
 ```
 
 ## Documentation Updates
+
 When completing work:
+
 - New component → Update `docs/COMPONENT_INVENTORY.md`
 - Completed task → Update `docs/IMPLEMENTATION_PLAN.md`
 - Architecture decision → Update `docs/ARCHITECTURE.md`
 
 ## Branching
+
 Format: `{type}({scope}): {description}`
 Types: feat, fix, chore, docs, style, test, refactor
+Scopes: account, orders, tracking, returns, product, collection, cart, nav, ui, homepage
 
 ## Commands
+
 ```bash
 pnpm theme:dev          # Start dev server
 pnpm theme-check        # Run Shopify linter
@@ -70,6 +88,7 @@ pnpm validate:structure # Check directory structure
 ```
 
 ## DO NOT
+
 - Create React/TypeScript components
 - Hardcode colors, spacing, or design values
 - Create inline styles
