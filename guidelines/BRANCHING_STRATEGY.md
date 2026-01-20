@@ -1,6 +1,6 @@
 # Branching Strategy
 
-> **Purpose**: This document defines the Git branching strategy, naming conventions, PR requirements, and merge policies. Following these guidelines ensures a clean commit history and reliable releases.
+> **Purpose**: This document defines the Git branching strategy, naming conventions, PR requirements, and merge policies for the Hy-lee Shopify Theme.
 
 ---
 
@@ -17,19 +17,16 @@
 
 ## Branch Types
 
-| Branch Type  | Purpose                                    | Base Branch      | Merges To       |
-| ------------ | ------------------------------------------ | ---------------- | --------------- |
-| `main`       | Production-ready code                      | -                | -               |
-| `release/*`  | Release candidates (e.g., `release/1.2.0`) | Feature branches | `main`          |
-| `feature/*`  | New features                               | `main`           | `release/*`     |
-| `bugfix/*`   | Non-urgent bug fixes                       | `main`           | `release/*`     |
-| `hotfix/*`   | Urgent production fixes                    | `main`           | `main` (direct) |
-| `chore/*`    | Maintenance tasks (deps, config)           | `main`           | `release/*`     |
-| `refactor/*` | Code refactoring (no new features)         | `main`           | `release/*`     |
-| `docs/*`     | Documentation only                         | `main`           | `release/*`     |
-| `test/*`     | Test additions/improvements                | `main`           | `release/*`     |
-
-> **Important**: Only `release/*` and `hotfix/*` branches can merge directly to `main`. All other branch types must go through a release branch. See [Release Workflow](#release-workflow) for details.
+| Branch Type  | Purpose                            | Base Branch | Merges To       |
+| ------------ | ---------------------------------- | ----------- | --------------- |
+| `main`       | Production-ready code              | -           | -               |
+| `feature/*`  | New features                       | `main`      | `main`          |
+| `bugfix/*`   | Non-urgent bug fixes               | `main`      | `main`          |
+| `hotfix/*`   | Urgent production fixes            | `main`      | `main` (direct) |
+| `chore/*`    | Maintenance tasks (deps, config)   | `main`      | `main`          |
+| `refactor/*` | Code refactoring (no new features) | `main`      | `main`          |
+| `docs/*`     | Documentation only                 | `main`      | `main`          |
+| `test/*`     | Test additions/improvements        | `main`      | `main`          |
 
 ---
 
@@ -51,19 +48,22 @@
 
 ```bash
 # Good branch names
-feature/tasks/add-due-date-reminder
-bugfix/auth/fix-session-expiry
-hotfix/notifications/missing-toast-message
-chore/deps/upgrade-next-to-16
-refactor/boards/simplify-column-logic
-docs/test/update-testing-guide
-test/comments/add-mention-tests
+feature/components/add-tooltip-snippet
+feature/sections/create-mega-menu
+feature/customer/add-order-history
+bugfix/product/fix-image-loading
+bugfix/cart/quantity-update-bug
+hotfix/navigation/broken-mobile-menu
+chore/config/update-theme-settings
+refactor/components/simplify-button-variants
+docs/components/add-accordion-usage
+test/customer/add-orders-e2e
 
 # Bad branch names
 feature/add-new-feature          # Missing scope
-FEATURE/tasks/add-reminder       # Uppercase type
-feature/tasks/AddDueDateReminder # CamelCase description
-fix/authentication-bug           # Wrong type (use bugfix)
+FEATURE/components/add-tooltip   # Uppercase type
+feature/product/AddImageZoom     # CamelCase description
+fix/button-bug                   # Wrong type (use bugfix), missing scope
 ```
 
 ---
@@ -80,7 +80,7 @@ PR titles MUST follow the [Conventional Commits](https://www.conventionalcommits
 
 ### Rules
 
-1. **Type**: One of: `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `perf`, `style`, `build`, `ci`
+1. **Type**: One of: `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `perf`, `style`
 2. **Scope**: Must be from the [allowed scopes list](#allowed-scopes)
 3. **Description**: Lowercase, imperative mood, no period at end
 
@@ -100,19 +100,21 @@ PR titles MUST follow the [Conventional Commits](https://www.conventionalcommits
 
 ```
 # Good PR titles
-feat(tasks): add due date reminder notifications
-fix(auth): resolve session expiry on page refresh
-refactor(boards): simplify column drag-drop logic
-chore(deps): upgrade Next.js to v16.2
-docs(test): update unit testing examples
-test(comments): add tests for @mention functionality
+feat(components): add tooltip snippet
+feat(customer): implement order history page
+fix(product): resolve image loading on mobile
+fix(cart): correct quantity update behavior
+refactor(navigation): simplify mega menu logic
+chore(config): update theme settings schema
+docs(components): add button usage examples
+test(customer): add orders page e2e tests
 
 # Bad PR titles
-Added due date reminders                    # Missing type and scope
-feat: add task reminders                    # Missing scope
-feat(tasks): Add Due Date Reminders         # Capitalized description
-feat(tasks): add due date reminders.        # Period at end
-feature(tasks): add due date reminders      # Wrong type (use feat)
+Added tooltip component                     # Missing type and scope
+feat: add tooltip                           # Missing scope
+feat(components): Add Tooltip Component     # Capitalized description
+feat(components): add tooltip.              # Period at end
+feature(components): add tooltip            # Wrong type (use feat)
 ```
 
 ---
@@ -121,26 +123,32 @@ feature(tasks): add due date reminders      # Wrong type (use feat)
 
 These are the only valid scopes for branch names and PR titles:
 
-| Scope        | Description                                                 |
-| ------------ | ----------------------------------------------------------- |
-| `account`    | Customer account, login, registration, and profile settings |
-| `orders`     | Order history, order details, and confirmation pages        |
-| `tracking`   | Order tracking and delivery status functionality            |
-| `returns`    | Returns portal and guest returns functionality              |
-| `product`    | Product detail pages, specifications, and comparisons       |
-| `collection` | Collection pages, product grids, and filtering              |
-| `cart`       | Shopping cart functionality and checkout flow               |
-| `nav`        | Header navigation, mega menu, footer, and search            |
-| `ui`         | Reusable UI components, forms, and design system            |
-| `homepage`   | Homepage sections, hero, and marketing content              |
+| Scope        | Description                                     |
+| ------------ | ----------------------------------------------- |
+| `theme`      | Theme-wide changes, layout, configuration       |
+| `components` | UI component library in `theme/snippets/`       |
+| `sections`   | Page sections in `theme/sections/`              |
+| `templates`  | Page templates in `theme/templates/`            |
+| `customer`   | Customer account, orders, settings, returns     |
+| `product`    | Product pages, PDP, product cards               |
+| `collection` | Collection pages, product grid, filtering       |
+| `cart`       | Cart functionality and checkout                 |
+| `navigation` | Header, footer, menus, breadcrumbs              |
+| `styles`     | CSS, design tokens, theme-variables.css         |
+| `scripts`    | JavaScript, component-scripts.js, interactivity |
+| `config`     | Theme settings, settings_data.json, locales     |
+| `docs`       | Documentation, guidelines, planning             |
+| `tests`      | Unit tests (Vitest) and E2E tests (Playwright)  |
+| `ci`         | GitHub Actions, workflows, automation           |
 
 ### Adding New Scopes
 
 If you need a new scope:
 
-1. Discuss with the team
-2. Add to this document
-3. Update any linting rules (if applicable)
+1. Propose in a PR or discussion
+2. Add to `workflow.config.json`
+3. Update this document
+4. Regenerate copilot instructions: `pnpm workflow:generate-instructions`
 
 ---
 
@@ -149,252 +157,120 @@ If you need a new scope:
 ### Required for All PRs
 
 - [ ] **PR title follows conventional commits format**
-- [ ] **PR description filled out** (use Agent to auto-generate)
-- [ ] **Unit tests pass** (`pnpm test`)
-- [ ] **TypeScript compiles** (`pnpm typecheck`)
-- [ ] **Linting passes** (`pnpm lint`)
-- [ ] **No `any` types** introduced without justification
-- [ ] **No unapproved libraries** added
+- [ ] **Theme check passes**: `pnpm theme-check`
+- [ ] **Formatting passes**: `pnpm format:check`
+- [ ] **Unit tests pass**: `pnpm test` (if applicable)
+- [ ] **No broken Liquid syntax**
 
 ### Additional Requirements by Change Type
 
-| Change Type | Additional Requirements                                      |
-| ----------- | ------------------------------------------------------------ |
-| `feat`      | E2E tests for critical paths, `data-testid` attributes added |
-| `fix`       | Regression test added to prevent recurrence                  |
-| `refactor`  | All existing tests still pass                                |
-| `db`        | Migration tested locally, rollback SQL documented            |
+| Change Type  | Additional Requirements                       |
+| ------------ | --------------------------------------------- |
+| `components` | Component documented in snippet comment block |
+| `sections`   | Section schema documented                     |
+| `customer`   | E2E test for critical paths                   |
+| `product`    | Visual testing on staging store               |
+| `styles`     | Design tokens used (no hardcoded values)      |
+| `scripts`    | No breaking changes to existing behaviors     |
 
 ### Review Requirements
 
-| Change Size                | Review Requirement             |
-| -------------------------- | ------------------------------ |
-| Small (1-50 lines)         | Self-review + automated checks |
-| Medium (51-200 lines)      | One reviewer                   |
-| Large (201+ lines)         | Two reviewers                  |
-| Critical (auth, db, admin) | Two reviewers + maintainer     |
+| Change Size       | Review Requirement             |
+| ----------------- | ------------------------------ |
+| Small (1-50 loc)  | Self-review + automated checks |
+| Medium (51-200)   | One reviewer                   |
+| Large (201+)      | Two reviewers                  |
+| Critical (config) | Team lead approval             |
 
 ---
 
 ## Workflow
 
-### Branch Protection Rules
-
-This repository uses GitHub Repository Rulesets to enforce the following:
-
-- ✅ Only `release/*` and `hotfix/*` branches can merge to `main`
-- ✅ Required status checks: `Build`, `Lint`, `Prettier`, `TypeCheck`
-- ✅ Pull request required before merging
-- ✅ Force pushes blocked on `main`
-
-See [RULESET_SETUP.md](../.github/RULESET_SETUP.md) for configuration instructions.
-
----
-
-### Release Workflow
-
-The standard workflow for getting changes into production:
-
-```
-feature/tasks/new-feature ──┐
-feature/auth/login-update ──┼──► release/1.2.0 ──► main ──► Production
-bugfix/ui/fix-button ───────┘
-```
-
-#### 1. Create Feature Branch
-
-```bash
-# Start from latest main
-git checkout main
-git pull origin main
-
-# Create feature branch
-git checkout -b feature/tasks/add-due-date-reminder
-```
-
-#### 2. Develop and Test
-
-- Make changes following [AGENT_EDITING_INSTRUCTIONS.md](AGENT_EDITING_INSTRUCTIONS.md)
-- Add tests for new functionality
-- Ensure all checks pass locally: `pnpm lint && pnpm format:check && pnpm typecheck && pnpm test`
-
-#### 3. Create Release Branch
-
-When ready to release (can bundle multiple features):
-
-```bash
-# Create release branch from main
-git checkout main
-git pull origin main
-git checkout -b release/1.2.0
-
-# Merge feature branches into release
-git merge feature/tasks/add-due-date-reminder
-git merge feature/auth/login-update
-# ... merge other features as needed
-```
-
-#### 4. Open PR to Main
-
-```bash
-git push origin release/1.2.0
-```
-
-Then create PR on GitHub:
-
-- **From**: `release/1.2.0`
-- **To**: `main`
-- **Title**: `release: v1.2.0`
-- CI will run and validate all changes
-
-#### 5. Review and Merge
-
-- Get required approvals
-- Ensure all CI checks pass
-- **Squash and merge** to `main`
-- Deployment triggers automatically via Vercel
-
-#### 6. Clean Up
-
-```bash
-git checkout main
-git pull origin main
-git branch -d release/1.2.0
-git push origin --delete release/1.2.0
-```
-
----
-
 ### Feature Branch Workflow
 
-For individual feature development:
-
-### 1. Create Branch
-
 ```bash
-# Start from latest main
+# 1. Ensure main is up to date
 git checkout main
 git pull origin main
 
-# Create feature branch
-git checkout -b feature/tasks/add-due-date-reminder
-```
+# 2. Create feature branch
+git checkout -b "feature/components/add-tooltip-snippet"
 
-### 2. Make Changes
+# 3. Make changes
+# ... edit files ...
 
-Follow the patterns in [AGENT_EDITING_INSTRUCTIONS.md](AGENT_EDITING_INSTRUCTIONS.md):
+# 4. Validate changes
+pnpm theme-check
+pnpm format:check
+pnpm test
 
-- Touch all required files for your change type
-- Add tests for new functionality
-- Add `data-testid` for testable elements
-
-### 3. Commit Changes
-
-Use conventional commit messages for individual commits:
-
-```bash
+# 5. Commit with conventional message
 git add .
-git commit -m "feat(tasks): add DueDateReminder component"
-git commit -m "feat(tasks): add reminder notification logic"
-git commit -m "test(tasks): add due date reminder tests"
+git commit -m "feat(components): add tooltip snippet"
+
+# 6. Push and create PR
+git push origin "feature/components/add-tooltip-snippet"
 ```
 
-### 4. Push and Create PR
+### Hotfix Workflow
 
-```bash
-git push origin feature/tasks/add-due-date-reminder
-```
-
-Then create PR on GitHub with:
-
-- Title: `feat(tasks): add due date reminder notifications`
-- Description: Use the PR template, have Agent fill it out
-
-### 5. Address Review Feedback
-
-```bash
-# Make changes based on feedback
-git add .
-git commit -m "fix(tasks): address review feedback on reminder logic"
-git push
-```
-
-### 6. Merge
-
-Once approved:
-
-- **Squash and merge** for feature/bugfix branches (cleaner history)
-- **Merge commit** for hotfixes (preserve full context)
-
-### 7. Clean Up
-
-```bash
-# After merge, delete local branch
-git checkout main
-git pull origin main
-git branch -d feature/tasks/add-due-date-reminder
-```
-
----
-
-## Hotfix Workflow
-
-For urgent production issues that cannot wait for a release cycle:
-
-```
-hotfix/auth/critical-fix ─────────────────────► main ──► Production
-```
-
-> **Note**: Hotfixes bypass the release branch and merge directly to `main`. Use sparingly.
+For urgent production issues:
 
 ```bash
 # 1. Create hotfix branch from main
 git checkout main
 git pull origin main
-git checkout -b hotfix/auth/fix-login-crash
+git checkout -b "hotfix/navigation/broken-mobile-menu"
 
 # 2. Make minimal fix
 # ... fix the issue ...
 
-# 3. Commit with urgency context
+# 3. Validate
+pnpm theme-check
+
+# 4. Commit and push
 git add .
-git commit -m "fix(auth): resolve crash on login with expired token"
+git commit -m "fix(navigation): resolve broken mobile menu"
+git push origin "hotfix/navigation/broken-mobile-menu"
 
-# 4. Push and create PR to main
-git push origin hotfix/auth/fix-login-crash
+# 5. Create PR with urgent label
+# Request expedited review
 
-# 5. Request expedited review
-# Tag reviewers, mark as urgent in PR description
-
-# 6. Merge with merge commit (not squash)
-# This preserves the hotfix commit for easy tracking
-
-# 7. Monitor deployment
-# Watch Vercel deployment and production logs
+# 6. After merge, push to production
+pnpm theme:push
 ```
 
 ---
 
-## Release Notes
+## Theme Deployment
 
-When features are released, the conventional commit format enables automatic changelog generation:
+### Development
 
-```markdown
-## [1.2.0] - 2026-01-08
+```bash
+# Start local development server
+pnpm theme:dev
+```
 
-### Features
+### Staging
 
-- **tasks**: add due date reminder notifications (#123)
-- **boards**: enable column reordering (#124)
+Push to a development theme for testing:
 
-### Bug Fixes
+```bash
+# Push to staging theme
+pnpm theme:push --theme <staging-theme-id>
+```
 
-- **auth**: resolve session expiry on page refresh (#125)
-- **notifications**: fix missing toast on task delete (#126)
+### Production
 
-### Refactoring
+After PR is merged to `main`:
 
-- **boards**: simplify column drag-drop logic (#127)
+```bash
+# Pull latest main
+git checkout main
+git pull origin main
+
+# Push to production theme
+pnpm theme:push
 ```
 
 ---
@@ -413,6 +289,10 @@ git checkout -b <type>/<scope>/<description>
 <type>(<scope>): <description>
 ```
 
+### Scopes
+
+`theme` | `components` | `sections` | `templates` | `customer` | `product` | `collection` | `cart` | `navigation` | `styles` | `scripts` | `config` | `docs` | `tests` | `ci`
+
 ### Types
 
 | Type       | Use For                       |
@@ -424,7 +304,7 @@ git checkout -b <type>/<scope>/<description>
 | `docs`     | Documentation                 |
 | `test`     | Tests                         |
 | `perf`     | Performance                   |
-| `style`    | Code style (no logic changes) |
+| `style`    | Formatting (no logic changes) |
 
 ---
 
@@ -432,4 +312,4 @@ git checkout -b <type>/<scope>/<description>
 
 - [AGENT_EDITING_INSTRUCTIONS.md](AGENT_EDITING_INSTRUCTIONS.md) - Editing rules
 - [TESTING_STRATEGY.md](TESTING_STRATEGY.md) - Testing requirements
-- [../.github/PULL_REQUEST_TEMPLATE.md](../.github/PULL_REQUEST_TEMPLATE.md) - PR template
+- [SINGLE_SOURCE_OF_TRUTH.md](SINGLE_SOURCE_OF_TRUTH.md) - File locations
