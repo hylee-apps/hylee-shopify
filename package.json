@@ -15,7 +15,7 @@
     "prettier": "^3.2.0",
     "simple-git-hooks": "^2.13.1",
     "vitest": "^1.2.0",
-    "workflow-agent-cli": "^2.7.0"
+    "workflow-agent-cli": "^2.8.1"
   },
   "scripts": {
     "theme-check": "dotenv -e .env.local -- shopify theme check --path theme",
@@ -70,7 +70,9 @@
     "workflow:advisory:comprehensive": "workflow-agent advisory --depth comprehensive",
     "workflow:advisory:executive": "workflow-agent advisory --depth executive",
     "workflow:advisory:ci": "workflow-agent advisory --ci",
-    "workflow:generate-instructions": "workflow-agent generate-instructions"
+    "workflow:generate-instructions": "workflow-agent generate-instructions",
+    "workflow:update-templates": "workflow-agent update-templates",
+    "workflow:update-templates:force": "workflow-agent update-templates --force"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"
