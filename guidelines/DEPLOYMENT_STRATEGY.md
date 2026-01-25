@@ -1,6 +1,6 @@
 # Deployment Strategy
 
-> **Purpose**: This document defines the deployment workflow, environment management, and theme pushing procedures for the Hy-lee Shopify Theme.
+> **Purpose**: This document defines the deployment workflow, environment management, database migration strategy, and rollback procedures for ProjectHub.
 
 ---
 
@@ -8,36 +8,41 @@
 
 1. [Deployment Overview](#deployment-overview)
 2. [Environments](#environments)
-3. [Development Workflow](#development-workflow)
-4. [Theme Push Commands](#theme-push-commands)
-5. [Pre-Deployment Checklist](#pre-deployment-checklist)
-6. [Rollback Procedures](#rollback-procedures)
+3. [Environment Variables](#environment-variables)
+4. [Deployment Workflow](#deployment-workflow)
+5. [Database Migrations](#database-migrations)
+6. [Preview Deployments](#preview-deployments)
+7. [Production Deployment](#production-deployment)
+8. [Rollback Procedures](#rollback-procedures)
+9. [Monitoring](#monitoring)
 
 ---
 
 ## Deployment Overview
 
-### Architecture
+ProjectHub uses **Vercel** for deployment with the following architecture:
 
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│   Local Dev     │────▶│   GitHub Repo    │────▶│  Shopify Store  │
-│   (theme:dev)   │     │   (main branch)  │     │  (Live Theme)   │
+│   Git Push      │────▶│  Vercel Build    │────▶│  Deployment     │
+│   (GitHub)      │     │  (Next.js)       │     │  (Edge Network) │
 └─────────────────┘     └──────────────────┘     └─────────────────┘
-         │                       │                        │
-         │                       │                        │
-    Hot Reload            Version Control           Production
-    via Shopify CLI        & Review                   Theme
+                                                           │
+                                                           ▼
+                                                 ┌─────────────────┐
+                                                 │   Supabase      │
+                                                 │   (PostgreSQL)  │
+                                                 └─────────────────┘
 ```
 
 ### Key Components
 
-| Component     | Purpose                          |
-| ------------- | -------------------------------- |
-| Shopify CLI   | Local development and theme push |
-| GitHub        | Version control and code review  |
-| Shopify Admin | Theme management and settings    |
-| .env.local    | Local store credentials          |
+| Component      | Platform      | Purpose                                     |
+| -------------- | ------------- | ------------------------------------------- |
+| Frontend + API | Vercel        | Next.js app, server actions, edge functions |
+| Database       | Supabase      | PostgreSQL, RLS, real-time subscriptions    |
+| Auth           | Supabase Auth | Session management, OAuth providers         |
+| CDN            | Vercel Edge   | Static assets, caching                      |
 
 ---
 
@@ -45,172 +50,306 @@
 
 ### Environment Types
 
-| Environment | Purpose              | Theme ID               |
+| Environment | Branch           | Purpose              | URL Pattern                    |
+| ----------- | ---------------- | -------------------- | ------------------------------ |
+| Production  | `main`           | Live application     | `projecthub.vercel.app`        |
+| Preview     | Feature branches | PR previews, testing | `projecthub-<hash>.vercel.app` |
+| Local       | N/A              | Development          | `localhost:3000`               |
+
+### Supabase Projects
+
+| Environment | Supabase Project     | Purpose                |
 | ----------- | -------------------- | ---------------------- |
-| Development | Local development    | Development theme      |
-| Staging     | Pre-production test  | Unpublished theme      |
-| Production  | Live customer-facing | Published (live) theme |
+| Production  | `projecthub-prod`    | Live data              |
+| Staging     | `projecthub-staging` | Pre-production testing |
+| Local       | Local Docker         | Development            |
 
-### Theme Setup
+---
 
-1. **Development Theme**: Auto-created by `shopify theme dev`
-2. **Staging Theme**: Duplicate of production for testing
-3. **Production Theme**: The published, live theme
+## Environment Variables
 
-### Environment Configuration
+### Required Variables
 
-Create `.env.local` (never commit):
+| Variable                        | Description              | Source                              |
+| ------------------------------- | ------------------------ | ----------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL     | Supabase Dashboard → Settings → API |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public anon key | Supabase Dashboard → Settings → API |
+
+### Optional Variables
+
+| Variable                    | Description                    | Default                   |
+| --------------------------- | ------------------------------ | ------------------------- |
+| `NEXT_PUBLIC_APP_URL`       | Application URL                | Auto-detected by Vercel   |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-side Supabase admin key | Only for admin operations |
+
+### Secret Management
+
+1. **Never commit secrets** to the repository
+2. **Use Vercel environment variables** for all secrets
+3. **Scope secrets by environment**:
+   - Production: Only production values
+   - Preview: Staging or development values
+   - Development: Local `.env.local` file
+
+### Setting Environment Variables
 
 ```bash
-# Store connection
-SHOPIFY_CLI_THEME_TOKEN=your-theme-access-token
-SHOPIFY_FLAG_STORE=your-store.myshopify.com
+# Via Vercel CLI
+vercel env add NEXT_PUBLIC_SUPABASE_URL production
+vercel env add NEXT_PUBLIC_SUPABASE_URL preview
 
-# Optional: specific theme IDs
-SHOPIFY_THEME_ID_DEV=123456789
-SHOPIFY_THEME_ID_STAGING=987654321
-SHOPIFY_THEME_ID_PROD=111222333
-
-# Test credentials (for E2E tests)
-TEST_CUSTOMER_EMAIL=test@example.com
-TEST_CUSTOMER_PASSWORD=TestPassword123!
+# Or via Vercel Dashboard
+# Project → Settings → Environment Variables
 ```
 
 ---
 
-## Development Workflow
+## Deployment Workflow
 
-### Local Development
+### Standard Flow (Feature Branch)
 
-```bash
-# Start development server
-pnpm theme:dev
+```
+1. Developer creates branch
+   └── feature/tasks/add-reminder
 
-# This will:
-# 1. Connect to your development store
-# 2. Create/use a development theme
-# 3. Enable hot reload for changes
-# 4. Open preview URL in browser
+2. Developer pushes changes
+   └── git push origin feature/tasks/add-reminder
+
+3. Vercel creates preview deployment
+   └── https://projecthub-abc123.vercel.app
+
+4. Developer creates PR
+   └── Title: feat(tasks): add reminder functionality
+
+5. Automated checks run
+   ├── Vercel build (Next.js compile)
+   ├── GitHub Actions (if configured)
+   └── Preview URL available
+
+6. Review and approval
+   └── Code review, manual testing on preview
+
+7. Merge to main
+   └── Squash and merge
+
+8. Production deployment
+   └── Automatic on merge to main
 ```
 
-### Development Preview
+### Deployment Triggers
 
-The `theme:dev` command provides:
-
-- **Hot reload**: Changes appear instantly
-- **Preview URL**: Test on any device
-- **Console output**: Liquid errors and warnings
-
-### Making Changes
-
-```bash
-# 1. Create feature branch
-git checkout -b feature/components/add-tooltip
-
-# 2. Start development server
-pnpm theme:dev
-
-# 3. Make changes (hot reload updates preview)
-
-# 4. Validate changes
-pnpm theme-check
-pnpm format:check
-
-# 5. Commit and push
-git add .
-git commit -m "feat(components): add tooltip snippet"
-git push origin feature/components/add-tooltip
-
-# 6. Create PR for review
-```
+| Trigger                | Environment | Automatic    |
+| ---------------------- | ----------- | ------------ |
+| Push to feature branch | Preview     | ✅ Yes       |
+| PR created/updated     | Preview     | ✅ Yes       |
+| Merge to `main`        | Production  | ✅ Yes       |
+| Manual via CLI         | Any         | ✅ On-demand |
 
 ---
 
-## Theme Push Commands
+## Database Migrations
 
-### Available Commands
+### Migration File Location
 
-```bash
-# Development (hot reload)
-pnpm theme:dev
-
-# Push to connected theme
-pnpm theme:push
-
-# Pull latest from theme
-pnpm theme:pull
+```
+supabase/
+└── migrations/
+    ├── 001_initial_schema.sql
+    ├── 002_add_sprints.sql
+    └── 003_add_notifications.sql
 ```
 
-### Push to Specific Theme
+### Creating Migrations
 
 ```bash
-# Push to staging theme
-shopify theme push --theme <staging-theme-id> --path theme
+# Create new migration file
+touch supabase/migrations/$(date +%Y%m%d%H%M%S)_description.sql
 
-# Push to production (use with caution!)
-shopify theme push --theme <prod-theme-id> --path theme
+# Or using Supabase CLI
+supabase migration new add_feature_table
 ```
 
-### Push Options
+### Migration File Format
+
+```sql
+-- supabase/migrations/20260108120000_add_due_date_reminders.sql
+
+-- Description: Add due date reminder functionality
+-- Author: Developer Name
+-- Date: 2026-01-08
+
+-- Up Migration
+CREATE TABLE IF NOT EXISTS task_reminders (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    task_id UUID REFERENCES tasks(id) ON DELETE CASCADE,
+    remind_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS
+ALTER TABLE task_reminders ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies
+CREATE POLICY "Users can manage their task reminders"
+ON task_reminders
+FOR ALL
+USING (
+    task_id IN (
+        SELECT id FROM tasks WHERE assignee = auth.uid()
+    )
+);
+
+-- ============================================
+-- ROLLBACK SQL (Keep at bottom of file)
+-- ============================================
+-- DROP POLICY IF EXISTS "Users can manage their task reminders" ON task_reminders;
+-- DROP TABLE IF EXISTS task_reminders;
+```
+
+### Running Migrations
+
+#### Local Development
 
 ```bash
-# Preview what would be pushed (dry run)
-shopify theme push --path theme --dry-run
+# Start local Supabase
+supabase start
 
-# Only push specific files
-shopify theme push --path theme --only "sections/*.liquid"
+# Run pending migrations
+supabase db push
 
-# Ignore specific files
-shopify theme push --path theme --ignore "config/settings_data.json"
-
-# Force push (overwrite conflicts)
-shopify theme push --path theme --force
+# Reset database (warning: destroys data)
+supabase db reset
 ```
+
+#### Staging/Production
+
+```bash
+# Link to Supabase project
+supabase link --project-ref your-project-ref
+
+# Push migrations to remote
+supabase db push
+
+# Or run manually in SQL Editor (Supabase Dashboard)
+```
+
+### Migration Checklist
+
+Before deploying a migration:
+
+- [ ] **Test locally** with `supabase db push`
+- [ ] **Include rollback SQL** in migration file
+- [ ] **Update types** - regenerate `types/supabase.ts`
+- [ ] **Check RLS policies** - ensure security
+- [ ] **Test with sample data** - verify queries work
+- [ ] **Document breaking changes** - if any
+
+### Dual-Database Migration (REQUIRED)
+
+> **⚠️ MANDATORY**: All migrations MUST be run on both dev and prod databases.
+
+**Preferred Method (Automated):**
+
+```bash
+# Runs dev first, then prod (stops on dev failure)
+./scripts/db.sh migrate-both
+```
+
+**Manual Method (Step-by-Step):**
+
+```bash
+# Step 1: Run on DEV
+./scripts/db.sh link dev
+./scripts/db.sh migrate
+./scripts/db.sh status   # ✓ Verify migration applied
+
+# Step 2: Run on PROD (only if dev succeeded)
+./scripts/db.sh link prod
+./scripts/db.sh migrate
+./scripts/db.sh status   # ✓ Verify migration applied
+```
+
+**Migration Execution Checklist:**
+
+- [ ] DEV migration executed successfully
+- [ ] DEV migration status verified (`./scripts/db.sh status`)
+- [ ] PROD migration executed successfully
+- [ ] PROD migration status verified (`./scripts/db.sh status`)
 
 ---
 
-## Pre-Deployment Checklist
+## Preview Deployments
 
-### Before Every Push
+### Automatic Preview URLs
 
-- [ ] **Theme check passes**: `pnpm theme-check`
-- [ ] **Formatting passes**: `pnpm format:check`
-- [ ] **Unit tests pass**: `pnpm test`
-- [ ] **No console errors** in browser preview
-- [ ] **Visual check** on desktop and mobile
+Every PR gets an automatic preview deployment:
 
-### Before Production Push
+```
+https://projecthub-<hash>-<team>.vercel.app
+```
 
-All of the above, plus:
+### Preview Environment Configuration
 
-- [ ] **E2E tests pass**: `pnpm test:e2e`
-- [ ] **Tested on staging** theme first
-- [ ] **Team review** for significant changes
-- [ ] **Backup current theme** (duplicate in Shopify admin)
-- [ ] **Schedule deployment** for low-traffic time (if critical)
+Preview deployments use:
 
-### Deployment Steps
+- **Preview environment variables** (from Vercel)
+- **Staging Supabase project** (recommended) OR
+- **Production Supabase** with read-only access
+
+### Testing on Preview
+
+1. Click preview URL in PR
+2. Test the specific feature
+3. Verify no regressions
+4. Check mobile responsiveness
+5. Test authentication flow
+
+### Preview Deployment Limitations
+
+- Preview deployments expire after inactivity
+- Database changes require separate staging environment
+- Real-time features may behave differently
+
+---
+
+## Production Deployment
+
+### Pre-Deployment Checklist
+
+Before merging to `main`:
+
+- [ ] All tests pass (`pnpm test`)
+- [ ] TypeScript compiles (`pnpm typecheck`)
+- [ ] Linting passes (`pnpm lint`)
+- [ ] PR approved by required reviewers
+- [ ] Preview deployment tested
+- [ ] Database migrations tested (if any)
+- [ ] Environment variables set in Vercel
+- [ ] No breaking changes (or documented)
+
+### Deployment Process
 
 ```bash
-# 1. Ensure main is up to date
-git checkout main
-git pull origin main
+# Automatic: Just merge PR to main
+# Vercel automatically deploys on merge
 
-# 2. Run full validation
-pnpm validate
+# Manual: Using Vercel CLI
+vercel --prod
 
-# 3. Push to staging first
-shopify theme push --theme <staging-id> --path theme
-
-# 4. Test on staging URL
-
-# 5. Push to production
-pnpm theme:push
-# or specific production theme:
-shopify theme push --theme <prod-id> --path theme
-
-# 6. Verify production site
+# Manual: Using GitHub
+# 1. Go to Actions tab
+# 2. Run "Deploy to Production" workflow
 ```
+
+### Post-Deployment Verification
+
+After deployment:
+
+- [ ] Verify production URL is accessible
+- [ ] Test critical paths (login, create task, etc.)
+- [ ] Check Vercel function logs for errors
+- [ ] Monitor Supabase dashboard for issues
+- [ ] Verify real-time subscriptions work
 
 ---
 
@@ -218,159 +357,153 @@ shopify theme push --theme <prod-id> --path theme
 
 ### When to Rollback
 
-- Critical bug affecting customers
-- Broken checkout or cart
-- Major visual issues
-- JavaScript errors preventing interaction
+- Critical bug affecting all users
+- Security vulnerability discovered
+- Database corruption
+- Performance degradation
 
-### Rollback Options
+### Application Rollback (Vercel)
 
-#### Option 1: Revert in Git
+#### Via Dashboard
 
-```bash
-# Find the last working commit
-git log --oneline -10
+1. Go to Vercel Dashboard → Project → Deployments
+2. Find the last working deployment
+3. Click "..." menu → "Promote to Production"
 
-# Revert to that commit
-git revert HEAD~1  # Revert last commit
-# or
-git revert <commit-hash>  # Revert specific commit
-
-# Push the revert
-git push origin main
-
-# Push reverted theme
-pnpm theme:push
-```
-
-#### Option 2: Restore from Theme Backup
-
-1. Go to **Shopify Admin > Online Store > Themes**
-2. Find the backup/duplicate theme
-3. Click **Actions > Publish**
-
-#### Option 3: Pull and Revert Manually
+#### Via CLI
 
 ```bash
-# Pull current production theme
-shopify theme pull --theme <prod-id> --path theme-backup
+# List recent deployments
+vercel ls
 
-# Compare and manually fix issues
-
-# Push fixed theme
-pnpm theme:push
+# Rollback to specific deployment
+vercel rollback <deployment-url>
 ```
 
-### Post-Rollback
+### Database Rollback
 
-1. **Notify team** of the rollback
-2. **Document the issue** in GitHub issue
-3. **Create hotfix branch** to address the issue
-4. **Test thoroughly** before re-deploying
+#### If Migration Included Rollback SQL
+
+```sql
+-- Run the rollback SQL from the migration file
+-- Usually commented at the bottom
+
+DROP POLICY IF EXISTS "Users can manage their task reminders" ON task_reminders;
+DROP TABLE IF EXISTS task_reminders;
+```
+
+#### If No Rollback SQL (Emergency)
+
+1. **Restore from backup** (Supabase Dashboard → Settings → Backups)
+2. Or **manually reverse changes** using SQL Editor
+
+### Rollback Checklist
+
+- [ ] Identify the issue and scope
+- [ ] Notify team of rollback
+- [ ] Execute rollback (app and/or database)
+- [ ] Verify rollback successful
+- [ ] Document what went wrong
+- [ ] Create fix and re-deploy
 
 ---
 
-## Theme Files to Protect
+## Monitoring
 
-### Never Auto-Push
+### Vercel Monitoring
 
-These files should be carefully reviewed before pushing:
+| Metric            | Location         | Action Threshold |
+| ----------------- | ---------------- | ---------------- |
+| Build Time        | Deployments tab  | > 5 minutes      |
+| Function Duration | Functions tab    | > 10 seconds     |
+| Function Errors   | Functions → Logs | Any error        |
+| Edge Latency      | Analytics        | > 500ms          |
 
-| File                        | Reason                        |
-| --------------------------- | ----------------------------- |
-| `config/settings_data.json` | Contains theme customizations |
-| `locales/*.json`            | May have manual translations  |
-| `templates/*.json`          | Section configurations        |
+### Supabase Monitoring
 
-### Recommended .shopifyignore
+| Metric             | Location              | Action Threshold |
+| ------------------ | --------------------- | ---------------- |
+| Database Size      | Settings → Billing    | 80% of limit     |
+| Active Connections | Database → Roles      | 80% of limit     |
+| API Requests       | Settings → Billing    | Unusual spikes   |
+| Auth Events        | Authentication → Logs | Failed attempts  |
 
-```
-# Don't push local config
-.env
-.env.local
+### Recommended Integrations
 
-# Don't push development files
-tests/
-docs/
-scripts/
-*.md
-*.test.js
-```
+| Service          | Purpose                       |
+| ---------------- | ----------------------------- |
+| Sentry           | Error tracking, stack traces  |
+| Vercel Analytics | Web vitals, performance       |
+| Supabase Logs    | Database queries, auth events |
 
----
+### Setting Up Error Alerts
 
-## Continuous Deployment (Future)
+```bash
+# Add Sentry (optional)
+pnpm add @sentry/nextjs
 
-### GitHub Actions Workflow
-
-For automated deployments (optional):
-
-```yaml
-# .github/workflows/deploy.yml
-name: Deploy Theme
-
-on:
-  push:
-    branches: [main]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Run validations
-        run: pnpm validate
-
-      - name: Deploy to Shopify
-        env:
-          SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
-          SHOPIFY_FLAG_STORE: ${{ secrets.SHOPIFY_STORE }}
-        run: |
-          shopify theme push --path theme --theme ${{ secrets.THEME_ID }}
+# Configure in sentry.client.config.ts
+# Configure in sentry.server.config.ts
+# Add SENTRY_DSN to environment variables
 ```
 
 ---
 
 ## Quick Reference
 
-### Daily Development
+### Deploy Commands
 
 ```bash
-pnpm theme:dev          # Start dev server
-pnpm theme-check        # Lint Liquid
-pnpm format:check       # Check formatting
-pnpm test               # Run unit tests
+# Local development
+pnpm dev
+
+# Build locally
+pnpm build
+
+# Deploy to preview
+vercel
+
+# Deploy to production
+vercel --prod
+
+# Check deployment status
+vercel ls
 ```
 
-### Deployment
+### Migration Commands
 
 ```bash
-pnpm validate           # Full validation
-pnpm theme:push         # Push to theme
-pnpm theme:pull         # Pull from theme
+# Start local Supabase
+supabase start
+
+# Run migrations locally
+supabase db push
+
+# Generate types
+supabase gen types typescript --local > types/supabase.ts
+
+# Link to remote project
+supabase link --project-ref <ref>
+
+# Push migrations to remote
+supabase db push
 ```
 
-### Emergency
+### Rollback Commands
 
 ```bash
-# Quick rollback to previous commit
-git revert HEAD
-git push origin main
-pnpm theme:push
+# Rollback to previous deployment
+vercel rollback
+
+# Rollback to specific deployment
+vercel rollback <deployment-url>
 ```
 
 ---
 
 ## Related Documents
 
-- [BRANCHING_STRATEGY.md](BRANCHING_STRATEGY.md) - Git workflow
+- [VERCEL_DEPLOYMENT_GUIDE.md](../VERCEL_DEPLOYMENT_GUIDE.md) - Initial setup guide
+- [BRANCHING_STRATEGY.md](BRANCHING_STRATEGY.md) - Branch and PR workflow
 - [TESTING_STRATEGY.md](TESTING_STRATEGY.md) - Testing requirements
-- [AGENT_EDITING_INSTRUCTIONS.md](AGENT_EDITING_INSTRUCTIONS.md) - Coding standards
+- [SINGLE_SOURCE_OF_TRUTH.md](SINGLE_SOURCE_OF_TRUTH.md) - Service locations

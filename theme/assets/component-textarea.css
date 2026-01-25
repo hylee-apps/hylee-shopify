@@ -33,7 +33,7 @@
   opacity: 0.5;
 }
 
-.textarea[aria-invalid="true"] {
+.textarea[aria-invalid='true'] {
   border-color: rgb(239, 68, 68);
   ring-color: rgba(239, 68, 68, 0.2);
 }
@@ -81,7 +81,7 @@
 }
 
 .textarea__label--required::after {
-  content: "*";
+  content: '*';
   color: rgb(239, 68, 68);
   margin-left: 0.25rem;
 }

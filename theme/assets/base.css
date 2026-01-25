@@ -97,8 +97,9 @@ a:hover {
 }
 
 .gradient {
-  background: linear-gradient(180deg, 
-    rgb(var(--color-base-background-1)), 
+  background: linear-gradient(
+    180deg,
+    rgb(var(--color-base-background-1)),
     rgb(var(--color-base-background-2))
   );
 }
@@ -110,4 +111,3 @@ a:hover {
 .template-customers-register #shopify-section-footer {
   display: none;
 }
-

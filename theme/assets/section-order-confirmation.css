@@ -2,7 +2,7 @@
 
 /* ========== Variables ========== */
 :root {
-  --color-green-primary: #2AC864;
+  --color-green-primary: #2ac864;
   --color-green-hover: #24b056;
   --color-gray-50: #f9fafb;
   --color-gray-100: #f3f4f6;
@@ -18,7 +18,13 @@
 .order-confirmation {
   min-height: 100vh;
   background: var(--color-gray-50);
-  font-family: 'Assistant', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    'Assistant',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -48,9 +54,33 @@
 }
 
 .order-confirmation__logo-image {
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 50%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Desktop logo - hidden on mobile */
+.order-confirmation__logo-image--desktop {
+  display: none;
+  max-width: 128px;
+  max-height: 40px;
+}
+
+/* Mobile logo - shown on mobile by default */
+.order-confirmation__logo-image--mobile {
+  display: block;
+  max-width: 64px;
+  max-height: 32px;
+}
+
+/* Show desktop logo and hide mobile logo on larger screens */
+@media (min-width: 768px) {
+  .order-confirmation__logo-image--desktop {
+    display: block;
+  }
+
+  .order-confirmation__logo-image--mobile {
+    display: none;
+  }
 }
 
 .order-confirmation__logo-text {

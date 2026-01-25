@@ -34,11 +34,18 @@
     <meta name='theme-color' content=''>
     <link rel='canonical' href='{{ canonical_url }}'>
 
+    {%- comment -%} Favicon - uses theme settings or falls back to favicon.ico in assets {%- endcomment -%}
     {%- if settings.favicon != blank -%}
       <link
         rel='icon'
         type='image/png'
         href='{{ settings.favicon | image_url: width: 32, height: 32 }}'
+      >
+    {%- else -%}
+      <link
+        rel='icon'
+        type='image/x-icon'
+        href='{{ 'favicon.ico' | asset_url }}'
       >
     {%- endif -%}
 

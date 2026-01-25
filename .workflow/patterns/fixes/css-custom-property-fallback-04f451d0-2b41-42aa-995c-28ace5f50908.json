@@ -1,0 +1,53 @@
+{
+  "id": "04f451d0-2b41-42aa-995c-28ace5f50908",
+  "name": "CSS custom property fallback",
+  "description": "Add fallback values to CSS custom properties for browser compatibility",
+  "category": "lint",
+  "tags": [
+    {
+      "category": "tool",
+      "name": "css"
+    },
+    {
+      "category": "error-type",
+      "name": "custom-property"
+    },
+    {
+      "category": "framework",
+      "name": "shopify"
+    }
+  ],
+  "trigger": {
+    "errorPattern": ".*",
+    "errorMessage": "Generic error pattern",
+    "filePattern": "**/*"
+  },
+  "solution": {
+    "type": "command",
+    "steps": [
+      {
+        "order": 1,
+        "action": "run",
+        "target": "npm run fix",
+        "description": "Follow the pattern instructions"
+      }
+    ]
+  },
+  "compatibility": {
+    "framework": "shopify",
+    "frameworkVersion": ">=1.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "applications": 0,
+    "successes": 0,
+    "failures": 0,
+    "successRate": 0
+  },
+  "source": "manual",
+  "isPrivate": true,
+  "createdAt": "2026-01-25T14:20:00.771Z",
+  "updatedAt": "2026-01-25T14:20:00.771Z"
+}

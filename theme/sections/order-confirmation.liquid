@@ -5,87 +5,128 @@
 
 {{ 'section-order-confirmation.css' | asset_url | stylesheet_tag }}
 
-<div class="order-confirmation">
-  {%- comment %-%} Header {%- endcomment -%}
-  <header class="order-confirmation__header">
-    <div class="order-confirmation__header-inner">
-      <a href="{{ routes.root_url }}" class="order-confirmation__logo">
-        <img 
-          src="https://placehold.co/28x28/71717a/ffffff?text=H" 
-          alt="{{ shop.name }}"
-          class="order-confirmation__logo-image"
-          width="28"
-          height="28"
+<div class='order-confirmation'>
+  {%- comment -%} Header {%- endcomment -%}
+  <header class='order-confirmation__header'>
+    <div class='order-confirmation__header-inner'>
+      <a href='{{ routes.root_url }}' class='order-confirmation__logo'>
+        {%- comment -%} Desktop Logo {%- endcomment -%}
+        <img
+          src='{{ 'logo-128.png' | asset_url }}'
+          alt='{{ shop.name }}'
+          class='order-confirmation__logo-image order-confirmation__logo-image--desktop'
+          width='128'
+          height='auto'
         >
-        <span class="order-confirmation__logo-text">Hylee</span>
+        {%- comment -%} Mobile Logo {%- endcomment -%}
+        <img
+          src='{{ 'logo-64.png' | asset_url }}'
+          alt='{{ shop.name }}'
+          class='order-confirmation__logo-image order-confirmation__logo-image--mobile'
+          width='64'
+          height='auto'
+        >
+        <span class='order-confirmation__logo-text'>{{ shop.name }}</span>
       </a>
     </div>
   </header>
 
-  <div class="order-confirmation__container">
-    {%- comment %-%} Success Message {%- endcomment -%}
-    <div class="order-confirmation__success">
-      <div class="order-confirmation__icon-wrapper">
-        <svg class="order-confirmation__icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+  <div class='order-confirmation__container'>
+    {%- comment -%} Success Message {%- endcomment -%}
+    <div class='order-confirmation__success'>
+      <div class='order-confirmation__icon-wrapper'>
+        <svg
+          class='order-confirmation__icon'
+          width='32'
+          height='32'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+        >
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
       </div>
-      <h1 class="order-confirmation__title">Order Confirmed!</h1>
-      <p class="order-confirmation__subtitle">
-        Thank you for your order. We've sent a confirmation email to <span class="order-confirmation__email">{{ order.email | default: customer.email }}</span>
+      <h1 class='order-confirmation__title'>Order Confirmed!</h1>
+      <p class='order-confirmation__subtitle'>
+        Thank you for your order. We've sent a confirmation email to
+        <span class='order-confirmation__email'>{{ order.email | default: customer.email }}</span>
       </p>
     </div>
 
-    {%- comment %-%} Order Number Card {%- endcomment -%}
-    <div class="order-confirmation__card">
-      <div class="order-confirmation__order-header">
+    {%- comment -%} Order Number Card {%- endcomment -%}
+    <div class='order-confirmation__card'>
+      <div class='order-confirmation__order-header'>
         <div>
-          <p class="order-confirmation__label">Order Number</p>
-          <p class="order-confirmation__order-number">{{ order.name | default: "#1234" }}</p>
+          <p class='order-confirmation__label'>Order Number</p>
+          <p class='order-confirmation__order-number'>{{ order.name | default: '#1234' }}</p>
         </div>
-        <div class="order-confirmation__order-date-wrapper">
-          <p class="order-confirmation__label">Order Date</p>
-          <p class="order-confirmation__order-date">{{ order.created_at | date: "%B %d, %Y" | default: "December 13, 2024" }}</p>
+        <div class='order-confirmation__order-date-wrapper'>
+          <p class='order-confirmation__label'>Order Date</p>
+          <p class='order-confirmation__order-date'>
+            {{ order.created_at | date: '%B %d, %Y' | default: 'December 13, 2024' }}
+          </p>
         </div>
       </div>
 
-      <div class="order-confirmation__divider"></div>
+      <div class='order-confirmation__divider'></div>
 
-      {%- comment %-%} Delivery Information {%- endcomment -%}
-      <div class="order-confirmation__delivery-info">
-        <div class="order-confirmation__delivery-content">
-          <svg class="order-confirmation__delivery-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      {%- comment -%} Delivery Information {%- endcomment -%}
+      <div class='order-confirmation__delivery-info'>
+        <div class='order-confirmation__delivery-content'>
+          <svg
+            class='order-confirmation__delivery-icon'
+            width='20'
+            height='20'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+          >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
           </svg>
-          <div class="order-confirmation__delivery-text">
-            <h3 class="order-confirmation__delivery-title">Estimated Delivery</h3>
-            <p class="order-confirmation__delivery-date">{{ order.created_at | date: "%s" | plus: 604800 | date: "%B %d, %Y" | default: "December 20, 2024" }}</p>
-            <p class="order-confirmation__delivery-description">
-              Your order is being processed and will ship soon. You'll receive a shipping confirmation email with tracking details.
+          <div class='order-confirmation__delivery-text'>
+            <h3 class='order-confirmation__delivery-title'>Estimated Delivery</h3>
+            <p class='order-confirmation__delivery-date'>
+              {{
+                order.created_at
+                | date: '%s'
+                | plus: 604800
+                | date: '%B %d, %Y'
+                | default: 'December 20, 2024'
+              }}
+            </p>
+            <p class='order-confirmation__delivery-description'>
+              Your order is being processed and will ship soon. You'll receive a shipping
+              confirmation email with tracking details.
             </p>
           </div>
         </div>
       </div>
 
-      {%- comment %-%} Quick Actions {%- endcomment -%}
-      <div class="order-confirmation__actions">
+      {%- comment -%} Quick Actions {%- endcomment -%}
+      <div class='order-confirmation__actions'>
         {% if customer %}
-          <a href="{{ routes.account_url }}" class="order-confirmation__btn order-confirmation__btn--primary">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <a
+            href='{{ routes.account_url }}'
+            class='order-confirmation__btn order-confirmation__btn--primary'
+          >
+            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor'>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
             </svg>
             Track My Order
           </a>
         {% else %}
-          <a href="/pages/track-order" class="order-confirmation__btn order-confirmation__btn--primary">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <a
+            href='/pages/track-order'
+            class='order-confirmation__btn order-confirmation__btn--primary'
+          >
+            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor'>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
             </svg>
             Track My Order
           </a>
         {% endif %}
-        <button type="button" class="order-confirmation__btn order-confirmation__btn--outline">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <button type='button' class='order-confirmation__btn order-confirmation__btn--outline'>
+          <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor'>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
           </svg>
           Resend Confirmation
@@ -93,137 +134,157 @@
       </div>
     </div>
 
-    {%- comment %-%} Order Details {%- endcomment -%}
-    <div class="order-confirmation__card">
-      <h2 class="order-confirmation__section-title">Order Details</h2>
+    {%- comment -%} Order Details {%- endcomment -%}
+    <div class='order-confirmation__card'>
+      <h2 class='order-confirmation__section-title'>Order Details</h2>
 
-      {%- comment %-%} Items {%- endcomment -%}
-      <div class="order-confirmation__items">
+      {%- comment -%} Items {%- endcomment -%}
+      <div class='order-confirmation__items'>
         {% for line_item in order.line_items %}
-          <div class="order-confirmation__item">
-            <div class="order-confirmation__item-image">
+          <div class='order-confirmation__item'>
+            <div class='order-confirmation__item-image'>
               {% if line_item.image %}
-                <img src="{{ line_item.image | image_url: width: 80 }}" alt="{{ line_item.title }}" loading="lazy" width="80" height="80">
+                <img
+                  src='{{ line_item.image | image_url: width: 80 }}'
+                  alt='{{ line_item.title }}'
+                  loading='lazy'
+                  width='80'
+                  height='80'
+                >
               {% else %}
-                <div class="order-confirmation__item-placeholder"></div>
+                <div class='order-confirmation__item-placeholder'></div>
               {% endif %}
             </div>
-            <div class="order-confirmation__item-details">
-              <h4 class="order-confirmation__item-name">{{ line_item.title }}</h4>
-              <p class="order-confirmation__item-variant">{{ line_item.variant_title }}</p>
-              <div class="order-confirmation__item-footer">
-                <span class="order-confirmation__item-quantity">Qty: {{ line_item.quantity }}</span>
-                <span class="order-confirmation__item-price">{{ line_item.final_line_price | money }}</span>
+            <div class='order-confirmation__item-details'>
+              <h4 class='order-confirmation__item-name'>{{ line_item.title }}</h4>
+              <p class='order-confirmation__item-variant'>{{ line_item.variant_title }}</p>
+              <div class='order-confirmation__item-footer'>
+                <span class='order-confirmation__item-quantity'>Qty: {{ line_item.quantity }}</span>
+                <span class='order-confirmation__item-price'>
+                  {{- line_item.final_line_price | money -}}
+                </span>
               </div>
             </div>
           </div>
         {% endfor %}
       </div>
 
-      {%- comment %-%} Order Summary {%- endcomment -%}
-      <div class="order-confirmation__summary">
-        <div class="order-confirmation__summary-row">
-          <span class="order-confirmation__summary-label">Subtotal</span>
-          <span class="order-confirmation__summary-value">{{ order.subtotal_price | money }}</span>
+      {%- comment -%} Order Summary {%- endcomment -%}
+      <div class='order-confirmation__summary'>
+        <div class='order-confirmation__summary-row'>
+          <span class='order-confirmation__summary-label'>Subtotal</span>
+          <span class='order-confirmation__summary-value'>{{ order.subtotal_price | money }}</span>
         </div>
-        <div class="order-confirmation__summary-row">
-          <span class="order-confirmation__summary-label">Shipping</span>
-          <span class="order-confirmation__summary-value">{{ order.shipping_price | money }}</span>
+        <div class='order-confirmation__summary-row'>
+          <span class='order-confirmation__summary-label'>Shipping</span>
+          <span class='order-confirmation__summary-value'>{{ order.shipping_price | money }}</span>
         </div>
-        <div class="order-confirmation__summary-row">
-          <span class="order-confirmation__summary-label">Tax</span>
-          <span class="order-confirmation__summary-value">{{ order.tax_price | money }}</span>
+        <div class='order-confirmation__summary-row'>
+          <span class='order-confirmation__summary-label'>Tax</span>
+          <span class='order-confirmation__summary-value'>{{ order.tax_price | money }}</span>
         </div>
-        <div class="order-confirmation__divider"></div>
-        <div class="order-confirmation__summary-total">
-          <span class="order-confirmation__summary-label">Total</span>
-          <span class="order-confirmation__total-price">{{ order.total_price | money }}</span>
+        <div class='order-confirmation__divider'></div>
+        <div class='order-confirmation__summary-total'>
+          <span class='order-confirmation__summary-label'>Total</span>
+          <span class='order-confirmation__total-price'>{{ order.total_price | money }}</span>
         </div>
       </div>
     </div>
 
-    {%- comment %-%} Shipping & Payment Info {%- endcomment -%}
-    <div class="order-confirmation__info-grid">
-      {%- comment %-%} Shipping Address {%- endcomment -%}
-      <div class="order-confirmation__card">
-        <h3 class="order-confirmation__info-title">Shipping Address</h3>
-        <div class="order-confirmation__address">
+    {%- comment -%} Shipping & Payment Info {%- endcomment -%}
+    <div class='order-confirmation__info-grid'>
+      {%- comment -%} Shipping Address {%- endcomment -%}
+      <div class='order-confirmation__card'>
+        <h3 class='order-confirmation__info-title'>Shipping Address</h3>
+        <div class='order-confirmation__address'>
           <p>{{ order.shipping_address.name }}</p>
           <p>{{ order.shipping_address.address1 }}</p>
           {% if order.shipping_address.address2 != blank %}
             <p>{{ order.shipping_address.address2 }}</p>
           {% endif %}
-          <p>{{ order.shipping_address.city }}, {{ order.shipping_address.province_code }} {{ order.shipping_address.zip }}</p>
+          <p>
+            {{ order.shipping_address.city }}, {{ order.shipping_address.province_code }}
+            {{ order.shipping_address.zip }}
+          </p>
         </div>
       </div>
 
-      {%- comment %-%} Payment Method {%- endcomment -%}
-      <div class="order-confirmation__card">
-        <h3 class="order-confirmation__info-title">Payment Method</h3>
-        <div class="order-confirmation__address">
-          <p>{{ order.payment_method_name | default: "Credit Card" }}</p>
-          <p>{{ order.payment_details.credit_card_company }} ending in {{ order.payment_details.credit_card_last_four_digits }}</p>
+      {%- comment -%} Payment Method {%- endcomment -%}
+      <div class='order-confirmation__card'>
+        <h3 class='order-confirmation__info-title'>Payment Method</h3>
+        <div class='order-confirmation__address'>
+          <p>{{ order.payment_method_name | default: 'Credit Card' }}</p>
+          <p>
+            {{ order.payment_details.credit_card_company }} ending in
+            {{ order.payment_details.credit_card_last_four_digits }}
+          </p>
         </div>
       </div>
     </div>
 
-    {%- comment %-%} What's Next {%- endcomment -%}
-    <div class="order-confirmation__card">
-      <h2 class="order-confirmation__section-title">What's Next?</h2>
-      <div class="order-confirmation__steps">
-        <div class="order-confirmation__step">
-          <div class="order-confirmation__step-number">1</div>
-          <div class="order-confirmation__step-content">
-            <h4 class="order-confirmation__step-title">Order Processing</h4>
-            <p class="order-confirmation__step-text">
+    {%- comment -%} What's Next {%- endcomment -%}
+    <div class='order-confirmation__card'>
+      <h2 class='order-confirmation__section-title'>What's Next?</h2>
+      <div class='order-confirmation__steps'>
+        <div class='order-confirmation__step'>
+          <div class='order-confirmation__step-number'>1</div>
+          <div class='order-confirmation__step-content'>
+            <h4 class='order-confirmation__step-title'>Order Processing</h4>
+            <p class='order-confirmation__step-text'>
               We're preparing your order for shipment. This typically takes 1-2 business days.
             </p>
           </div>
         </div>
 
-        <div class="order-confirmation__step">
-          <div class="order-confirmation__step-number">2</div>
-          <div class="order-confirmation__step-content">
-            <h4 class="order-confirmation__step-title">Shipping Notification</h4>
-            <p class="order-confirmation__step-text">
+        <div class='order-confirmation__step'>
+          <div class='order-confirmation__step-number'>2</div>
+          <div class='order-confirmation__step-content'>
+            <h4 class='order-confirmation__step-title'>Shipping Notification</h4>
+            <p class='order-confirmation__step-text'>
               You'll receive an email with your tracking number once your order ships.
             </p>
           </div>
         </div>
 
-        <div class="order-confirmation__step">
-          <div class="order-confirmation__step-number">3</div>
-          <div class="order-confirmation__step-content">
-            <h4 class="order-confirmation__step-title">Track Your Order</h4>
-            <p class="order-confirmation__step-text">
-              Monitor your shipment's progress in real-time using the tracking link in your email or your account dashboard.
+        <div class='order-confirmation__step'>
+          <div class='order-confirmation__step-number'>3</div>
+          <div class='order-confirmation__step-content'>
+            <h4 class='order-confirmation__step-title'>Track Your Order</h4>
+            <p class='order-confirmation__step-text'>
+              Monitor your shipment's progress in real-time using the tracking link in your email or
+              your account dashboard.
             </p>
           </div>
         </div>
 
-        <div class="order-confirmation__step">
-          <div class="order-confirmation__step-number">4</div>
-          <div class="order-confirmation__step-content">
-            <h4 class="order-confirmation__step-title">Delivery</h4>
-            <p class="order-confirmation__step-text">
-              Receive your order and enjoy! We'll send a delivery confirmation once your package arrives.
+        <div class='order-confirmation__step'>
+          <div class='order-confirmation__step-number'>4</div>
+          <div class='order-confirmation__step-content'>
+            <h4 class='order-confirmation__step-title'>Delivery</h4>
+            <p class='order-confirmation__step-text'>
+              Receive your order and enjoy! We'll send a delivery confirmation once your package
+              arrives.
             </p>
           </div>
         </div>
       </div>
     </div>
 
-    {%- comment %-%} Create Account Prompt (for guest users) {%- endcomment -%}
+    {%- comment -%} Create Account Prompt (for guest users) {%- endcomment -%}
     {% unless customer %}
-      <div class="order-confirmation__cta-card">
-        <div class="order-confirmation__cta-content">
-          <h3 class="order-confirmation__cta-title">Create an Account to Track Your Order</h3>
-          <p class="order-confirmation__cta-text">
-            Save your delivery preferences, view order history, and get personalized recommendations.
+      <div class='order-confirmation__cta-card'>
+        <div class='order-confirmation__cta-content'>
+          <h3 class='order-confirmation__cta-title'>Create an Account to Track Your Order</h3>
+          <p class='order-confirmation__cta-text'>
+            Save your delivery preferences, view order history, and get personalized
+            recommendations.
           </p>
-          <a href="{{ routes.account_register_url }}" class="order-confirmation__btn order-confirmation__btn--primary">
+          <a
+            href='{{ routes.account_register_url }}'
+            class='order-confirmation__btn order-confirmation__btn--primary'
+          >
             Create Account
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor'>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
             </svg>
           </a>
@@ -231,11 +292,14 @@
       </div>
     {% endunless %}
 
-    {%- comment %-%} Continue Shopping {%- endcomment -%}
-    <div class="order-confirmation__continue">
-      <a href="{{ routes.all_products_collection_url }}" class="order-confirmation__btn order-confirmation__btn--outline">
+    {%- comment -%} Continue Shopping {%- endcomment -%}
+    <div class='order-confirmation__continue'>
+      <a
+        href='{{ routes.all_products_collection_url }}'
+        class='order-confirmation__btn order-confirmation__btn--outline'
+      >
         Continue Shopping
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor'>
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
         </svg>
       </a>

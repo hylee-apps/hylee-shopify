@@ -50,9 +50,33 @@
 }
 
 .customer-account__logo-img {
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 50%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Desktop logo - hidden on mobile */
+.customer-account__logo-img--desktop {
+  display: none;
+  max-width: 128px;
+  max-height: 40px;
+}
+
+/* Mobile logo - shown on mobile by default */
+.customer-account__logo-img--mobile {
+  display: block;
+  max-width: 64px;
+  max-height: 32px;
+}
+
+/* Show desktop logo and hide mobile logo on larger screens */
+@media (min-width: 768px) {
+  .customer-account__logo-img--desktop {
+    display: block;
+  }
+
+  .customer-account__logo-img--mobile {
+    display: none;
+  }
 }
 
 .customer-account__logo-text {

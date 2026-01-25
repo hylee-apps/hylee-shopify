@@ -1,0 +1,53 @@
+{
+  "id": "c4477fec-2d57-4162-bde9-b20c3561b5b0",
+  "name": "Liquid assign vs capture",
+  "description": "Use assign for single values and capture for complex multi-line content in Liquid templates",
+  "category": "lint",
+  "tags": [
+    {
+      "category": "tool",
+      "name": "liquid"
+    },
+    {
+      "category": "error-type",
+      "name": "syntax"
+    },
+    {
+      "category": "framework",
+      "name": "shopify"
+    }
+  ],
+  "trigger": {
+    "errorPattern": ".*",
+    "errorMessage": "Generic error pattern",
+    "filePattern": "**/*"
+  },
+  "solution": {
+    "type": "command",
+    "steps": [
+      {
+        "order": 1,
+        "action": "run",
+        "target": "npm run fix",
+        "description": "Follow the pattern instructions"
+      }
+    ]
+  },
+  "compatibility": {
+    "framework": "shopify",
+    "frameworkVersion": ">=1.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "applications": 0,
+    "successes": 0,
+    "failures": 0,
+    "successRate": 0
+  },
+  "source": "manual",
+  "isPrivate": true,
+  "createdAt": "2026-01-25T14:20:31.520Z",
+  "updatedAt": "2026-01-25T14:20:31.520Z"
+}

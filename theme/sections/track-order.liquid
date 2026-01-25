@@ -5,85 +5,123 @@
 
 {{ 'section-track-order.css' | asset_url | stylesheet_tag }}
 
-<div class="track-order">
-  {%- comment %-%} Header {%- endcomment -%}
-  <header class="track-order__header">
-    <div class="track-order__header-inner">
-      <a href="{{ routes.root_url }}" class="track-order__logo">
-        <img 
-          src="https://placehold.co/28x28/71717a/ffffff?text=H" 
-          alt="{{ shop.name }}"
-          class="track-order__logo-image"
-          width="28"
-          height="28"
+<div class='track-order'>
+  {%- comment -%} Header {%- endcomment -%}
+  <header class='track-order__header'>
+    <div class='track-order__header-inner'>
+      <a href='{{ routes.root_url }}' class='track-order__logo'>
+        {%- comment -%} Desktop Logo {%- endcomment -%}
+        <img
+          src='{{ 'logo-128.png' | asset_url }}'
+          alt='{{ shop.name }}'
+          class='track-order__logo-image track-order__logo-image--desktop'
+          width='128'
+          height='auto'
         >
-        <span class="track-order__logo-text">Hylee</span>
+        {%- comment -%} Mobile Logo {%- endcomment -%}
+        <img
+          src='{{ 'logo-64.png' | asset_url }}'
+          alt='{{ shop.name }}'
+          class='track-order__logo-image track-order__logo-image--mobile'
+          width='64'
+          height='auto'
+        >
+        <span class='track-order__logo-text'>{{ shop.name }}</span>
       </a>
-      <div class="track-order__header-actions">
+      <div class='track-order__header-actions'>
         {% if customer %}
-          <a href="{{ routes.account_url }}" class="track-order__btn track-order__btn--outline">My Account</a>
+          <a href='{{ routes.account_url }}' class='track-order__btn track-order__btn--outline'
+            >My Account</a
+          >
         {% else %}
-          <a href="{{ routes.account_login_url }}" class="track-order__btn track-order__btn--outline">Sign In</a>
+          <a
+            href='{{ routes.account_login_url }}'
+            class='track-order__btn track-order__btn--outline'
+            >Sign In</a
+          >
         {% endif %}
       </div>
     </div>
   </header>
 
-  <div class="track-order__container">
-    {%- comment %-%} Hero Section {%- endcomment -%}
-    <div class="track-order__hero">
-      <div class="track-order__icon-wrapper">
-        <svg class="track-order__icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+  <div class='track-order__container'>
+    {%- comment -%} Hero Section {%- endcomment -%}
+    <div class='track-order__hero'>
+      <div class='track-order__icon-wrapper'>
+        <svg
+          class='track-order__icon'
+          width='32'
+          height='32'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+        >
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
         </svg>
       </div>
-      <h1 class="track-order__title">Track Your Order</h1>
-      <p class="track-order__subtitle">Enter your order details below to check the status of your shipment</p>
+      <h1 class='track-order__title'>Track Your Order</h1>
+      <p class='track-order__subtitle'>
+        Enter your order details below to check the status of your shipment
+      </p>
     </div>
 
-    {%- comment %-%} Track Form {%- endcomment -%}
-    <div class="track-order__form-card">
-      <form id="trackOrderForm" class="track-order__form">
-        <div class="track-order__field">
-          <label for="orderNumber" class="track-order__label">Order Number</label>
-          <div class="track-order__input-wrapper">
+    {%- comment -%} Track Form {%- endcomment -%}
+    <div class='track-order__form-card'>
+      <form id='trackOrderForm' class='track-order__form'>
+        <div class='track-order__field'>
+          <label for='orderNumber' class='track-order__label'>Order Number</label>
+          <div class='track-order__input-wrapper'>
             <input
-              type="text"
-              id="orderNumber"
-              name="order"
-              placeholder="e.g., 1001 or #1001"
-              class="track-order__input"
+              type='text'
+              id='orderNumber'
+              name='order'
+              placeholder='e.g., 1001 or #1001'
+              class='track-order__input'
               required
             >
-            <svg class="track-order__input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <svg
+              class='track-order__input-icon'
+              width='20'
+              height='20'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+            >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
             </svg>
           </div>
-          <p class="track-order__hint">You can find this in your confirmation email</p>
+          <p class='track-order__hint'>You can find this in your confirmation email</p>
         </div>
 
-        <div class="track-order__field">
-          <label for="email" class="track-order__label">Email Address</label>
-          <div class="track-order__input-wrapper">
+        <div class='track-order__field'>
+          <label for='email' class='track-order__label'>Email Address</label>
+          <div class='track-order__input-wrapper'>
             <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="your.email@example.com"
-              class="track-order__input"
+              type='email'
+              id='email'
+              name='email'
+              placeholder='your.email@example.com'
+              class='track-order__input'
               required
             >
-            <svg class="track-order__input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <svg
+              class='track-order__input-icon'
+              width='20'
+              height='20'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+            >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
             </svg>
           </div>
-          <p class="track-order__hint">The email address used during checkout</p>
+          <p class='track-order__hint'>The email address used during checkout</p>
         </div>
 
-        <div id="trackOrderError" class="track-order__error" style="display: none;"></div>
+        <div id='trackOrderError' class='track-order__error' style='display: none;'></div>
 
-        <button type="submit" class="track-order__submit">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <button type='submit' class='track-order__submit'>
+          <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor'>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
           Track Order
@@ -91,99 +129,109 @@
       </form>
     </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const form = document.getElementById('trackOrderForm');
-  const errorDiv = document.getElementById('trackOrderError');
-  
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const orderNumber = document.getElementById('orderNumber').value.trim().replace(/^#/, '');
-    const email = document.getElementById('email').value.trim();
-    
-    errorDiv.style.display = 'none';
-    
-    {% if customer %}
-      // For logged in customers, search their orders
-      fetch('/account')
-        .then(response => response.text())
-        .then(html => {
-          // Redirect to account page where they can see all orders
-          window.location.href = '/account';
-        })
-        .catch(error => {
-          errorDiv.textContent = 'Unable to access your orders. Please try again.';
-          errorDiv.style.display = 'block';
-        });
-    {% else %}
-      // For guest users, explain they need the order status link from email
-      errorDiv.innerHTML = 'Guest order tracking requires the unique order status link sent to your email.<br><br>Please check your email for "Order Confirmation" and click the "View your order" button, or <a href="/account/login" style="color: #2AC864; text-decoration: underline;">sign in to your account</a> to view all your orders.';
-      errorDiv.style.display = 'block';
-    {% endif %}
-  });
-});
-</script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('trackOrderForm');
+        const errorDiv = document.getElementById('trackOrderError');
 
-    {%- comment %-%} Help Section {%- endcomment -%}
-    <div class="track-order__help-card">
-      <h3 class="track-order__help-title">Need Help?</h3>
-      <div class="track-order__help-content">
-        <div class="track-order__help-item">
-          <h4 class="track-order__help-heading">Can't find your order number?</h4>
-          <p class="track-order__help-text">
-            Check your email inbox for your order confirmation. The subject line should be "Order Confirmation - {{ shop.name }}"
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+
+          const orderNumber = document.getElementById('orderNumber').value.trim().replace(/^#/, '');
+          const email = document.getElementById('email').value.trim();
+
+          errorDiv.style.display = 'none';
+
+          {% if customer %}
+            // For logged in customers, search their orders
+            fetch('/account')
+              .then(response => response.text())
+              .then(html => {
+                // Redirect to account page where they can see all orders
+                window.location.href = '/account';
+              })
+              .catch(error => {
+                errorDiv.textContent = 'Unable to access your orders. Please try again.';
+                errorDiv.style.display = 'block';
+              });
+          {% else %}
+            // For guest users, explain they need the order status link from email
+            errorDiv.innerHTML = 'Guest order tracking requires the unique order status link sent to your email.<br><br>Please check your email for "Order Confirmation" and click the "View your order" button, or <a href="/account/login" style="color: #2AC864; text-decoration: underline;">sign in to your account</a> to view all your orders.';
+            errorDiv.style.display = 'block';
+          {% endif %}
+        });
+      });
+    </script>
+
+    {%- comment -%} Help Section {%- endcomment -%}
+    <div class='track-order__help-card'>
+      <h3 class='track-order__help-title'>Need Help?</h3>
+      <div class='track-order__help-content'>
+        <div class='track-order__help-item'>
+          <h4 class='track-order__help-heading'>Can't find your order number?</h4>
+          <p class='track-order__help-text'>
+            Check your email inbox for your order confirmation. The subject line should be "Order
+            Confirmation - {{ shop.name }}"
           </p>
         </div>
-        <div class="track-order__help-item">
-          <h4 class="track-order__help-heading">Still can't find it?</h4>
-          <p class="track-order__help-text">
+        <div class='track-order__help-item'>
+          <h4 class='track-order__help-heading'>Still can't find it?</h4>
+          <p class='track-order__help-text'>
             If you created an account, you can view all your orders in your account dashboard.
           </p>
           {% if customer %}
-            <a href="{{ routes.account_url }}" class="track-order__btn track-order__btn--outline track-order__btn--small">
+            <a
+              href='{{ routes.account_url }}'
+              class='track-order__btn track-order__btn--outline track-order__btn--small'
+            >
               View My Orders
             </a>
           {% else %}
-            <a href="{{ routes.account_login_url }}" class="track-order__btn track-order__btn--outline track-order__btn--small">
+            <a
+              href='{{ routes.account_login_url }}'
+              class='track-order__btn track-order__btn--outline track-order__btn--small'
+            >
               Sign In to Account
             </a>
           {% endif %}
         </div>
 
-        <div class="track-order__help-item">
-          <h4 class="track-order__help-heading">Need to start a return?</h4>
-          <p class="track-order__help-text">
+        <div class='track-order__help-item'>
+          <h4 class='track-order__help-heading'>Need to start a return?</h4>
+          <p class='track-order__help-text'>
             Start your return using your order number, email, and ZIP/postal code.
           </p>
-          <a href="/pages/returns" class="track-order__btn track-order__btn--outline track-order__btn--small">
+          <a
+            href='/pages/returns'
+            class='track-order__btn track-order__btn--outline track-order__btn--small'
+          >
             Start a Return
           </a>
         </div>
       </div>
     </div>
 
-    {%- comment %-%} Create Account CTA {%- endcomment -%}
+    {%- comment -%} Create Account CTA {%- endcomment -%}
     {% unless customer %}
-      <div class="track-order__cta-card">
-        <h3 class="track-order__cta-title">Want Easier Order Tracking?</h3>
-        <p class="track-order__cta-text">
-          Create a {{ shop.name }} account to view all your orders in one place, save addresses, and get personalized recommendations.
+      <div class='track-order__cta-card'>
+        <h3 class='track-order__cta-title'>Want Easier Order Tracking?</h3>
+        <p class='track-order__cta-text'>
+          Create a {{ shop.name }} account to view all your orders in one place, save addresses, and
+          get personalized recommendations.
         </p>
-        <a href="{{ routes.account_register_url }}" class="track-order__btn track-order__btn--primary">
+        <a
+          href='{{ routes.account_register_url }}'
+          class='track-order__btn track-order__btn--primary'
+        >
           Create Free Account
         </a>
       </div>
     {% endunless %}
 
-    {%- comment %-%} Additional Info {%- endcomment -%}
-    <div class="track-order__footer">
-      <p class="track-order__footer-text">
-        For order assistance, please contact our support team
-      </p>
-      <a href="/pages/contact" class="track-order__link">
-        Contact Support
-      </a>
+    {%- comment -%} Additional Info {%- endcomment -%}
+    <div class='track-order__footer'>
+      <p class='track-order__footer-text'>For order assistance, please contact our support team</p>
+      <a href='/pages/contact' class='track-order__link'> Contact Support </a>
     </div>
   </div>
 </div>

@@ -11,13 +11,13 @@
 }
 
 .label--required::after {
-  content: "*";
+  content: '*';
   color: rgb(239, 68, 68);
   margin-left: 0.125rem;
 }
 
 .label--optional::after {
-  content: "(optional)";
+  content: '(optional)';
   color: rgb(100, 116, 139);
   margin-left: 0.25rem;
   font-weight: 400;

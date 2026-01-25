@@ -6,112 +6,181 @@
 
 {{ 'section-guest-returns.css' | asset_url | stylesheet_tag }}
 
-<div class="guest-returns">
+<div class='guest-returns'>
   {%- comment -%} Header {%- endcomment -%}
-  <header class="guest-returns__header">
-    <div class="guest-returns__header-inner">
-      <a href="{{ routes.root_url }}" class="guest-returns__logo">
+  <header class='guest-returns__header'>
+    <div class='guest-returns__header-inner'>
+      <a href='{{ routes.root_url }}' class='guest-returns__logo'>
+        {%- comment -%} Desktop Logo {%- endcomment -%}
         <img
-          src="https://placehold.co/28x28/71717a/ffffff?text=H"
-          alt="{{ shop.name }}"
-          class="guest-returns__logo-image"
-          width="28"
-          height="28"
+          src='{{ 'logo-128.png' | asset_url }}'
+          alt='{{ shop.name }}'
+          class='guest-returns__logo-image guest-returns__logo-image--desktop'
+          width='128'
+          height='auto'
         >
-        <span class="guest-returns__logo-text">Hylee</span>
+        {%- comment -%} Mobile Logo {%- endcomment -%}
+        <img
+          src='{{ 'logo-64.png' | asset_url }}'
+          alt='{{ shop.name }}'
+          class='guest-returns__logo-image guest-returns__logo-image--mobile'
+          width='64'
+          height='auto'
+        >
+        <span class='guest-returns__logo-text'>{{ shop.name }}</span>
       </a>
-      <div class="guest-returns__header-actions">
+      <div class='guest-returns__header-actions'>
         {% if customer %}
-          <a href="{{ routes.account_url }}" class="guest-returns__btn guest-returns__btn--outline">My Account</a>
+          <a href='{{ routes.account_url }}' class='guest-returns__btn guest-returns__btn--outline'
+            >My Account</a
+          >
         {% else %}
-          <a href="{{ routes.account_login_url }}" class="guest-returns__btn guest-returns__btn--outline">Sign In</a>
+          <a
+            href='{{ routes.account_login_url }}'
+            class='guest-returns__btn guest-returns__btn--outline'
+            >Sign In</a
+          >
         {% endif %}
       </div>
     </div>
   </header>
 
-  <div class="guest-returns__container">
+  <div class='guest-returns__container'>
     {%- comment -%} Hero {%- endcomment -%}
-    <div class="guest-returns__hero">
-      <div class="guest-returns__icon-wrapper" aria-hidden="true">
-        <svg class="guest-returns__icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <div class='guest-returns__hero'>
+      <div class='guest-returns__icon-wrapper' aria-hidden='true'>
+        <svg
+          class='guest-returns__icon'
+          width='32'
+          height='32'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+        >
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
         </svg>
       </div>
-      <h1 class="guest-returns__title">Start a Return</h1>
-      <p class="guest-returns__subtitle">Enter your order details below to begin the return process</p>
+      <h1 class='guest-returns__title'>Start a Return</h1>
+      <p class='guest-returns__subtitle'>
+        Enter your order details below to begin the return process
+      </p>
     </div>
 
     {%- comment -%} Form Card {%- endcomment -%}
-    <div class="guest-returns__form-card">
-      <form id="guestReturnsForm" class="guest-returns__form" novalidate>
-        <div class="guest-returns__field">
-          <label for="guestReturnsOrderNumber" class="guest-returns__label">Order Number</label>
-          <div class="guest-returns__input-wrapper">
+    <div class='guest-returns__form-card'>
+      <form id='guestReturnsForm' class='guest-returns__form' novalidate>
+        <div class='guest-returns__field'>
+          <label for='guestReturnsOrderNumber' class='guest-returns__label'>Order Number</label>
+          <div class='guest-returns__input-wrapper'>
             <input
-              type="text"
-              id="guestReturnsOrderNumber"
-              name="order"
-              placeholder="e.g., 1001 or #1001"
-              class="guest-returns__input"
+              type='text'
+              id='guestReturnsOrderNumber'
+              name='order'
+              placeholder='e.g., 1001 or #1001'
+              class='guest-returns__input'
               required
-              autocomplete="off"
+              autocomplete='off'
             >
-            <svg class="guest-returns__input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <svg
+              class='guest-returns__input-icon'
+              width='20'
+              height='20'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              aria-hidden='true'
+            >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
             </svg>
           </div>
-          <p class="guest-returns__hint">You can find this in your confirmation email</p>
+          <p class='guest-returns__hint'>You can find this in your confirmation email</p>
         </div>
 
-        <div class="guest-returns__field">
-          <label for="guestReturnsEmail" class="guest-returns__label">Email Address</label>
-          <div class="guest-returns__input-wrapper">
+        <div class='guest-returns__field'>
+          <label for='guestReturnsEmail' class='guest-returns__label'>Email Address</label>
+          <div class='guest-returns__input-wrapper'>
             <input
-              type="email"
-              id="guestReturnsEmail"
-              name="email"
-              placeholder="your.email@example.com"
-              class="guest-returns__input"
+              type='email'
+              id='guestReturnsEmail'
+              name='email'
+              placeholder='your.email@example.com'
+              class='guest-returns__input'
               required
-              autocomplete="email"
+              autocomplete='email'
             >
-            <svg class="guest-returns__input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <svg
+              class='guest-returns__input-icon'
+              width='20'
+              height='20'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              aria-hidden='true'
+            >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
             </svg>
           </div>
-          <p class="guest-returns__hint">The email address used during checkout</p>
+          <p class='guest-returns__hint'>The email address used during checkout</p>
         </div>
 
-        <div class="guest-returns__field">
-          <label for="guestReturnsPostal" class="guest-returns__label">ZIP / Postal Code</label>
-          <div class="guest-returns__input-wrapper">
+        <div class='guest-returns__field'>
+          <label for='guestReturnsPostal' class='guest-returns__label'>ZIP / Postal Code</label>
+          <div class='guest-returns__input-wrapper'>
             <input
-              type="text"
-              id="guestReturnsPostal"
-              name="postal_code"
-              placeholder="e.g., 60601"
-              class="guest-returns__input"
+              type='text'
+              id='guestReturnsPostal'
+              name='postal_code'
+              placeholder='e.g., 60601'
+              class='guest-returns__input'
               required
-              autocomplete="postal-code"
+              autocomplete='postal-code'
             >
-            <svg class="guest-returns__input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <svg
+              class='guest-returns__input-icon'
+              width='20'
+              height='20'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              aria-hidden='true'
+            >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5 9 6.343 9 8s1.343 3 3 3zm0 0c-3.866 0-7 2.239-7 5v2h14v-2c0-2.761-3.134-5-7-5z"/>
             </svg>
           </div>
-          <p class="guest-returns__hint">Used to verify your order details</p>
+          <p class='guest-returns__hint'>Used to verify your order details</p>
         </div>
 
         {%- comment -%} Accessible error banner (hidden by default) {%- endcomment -%}
-        <div id="guestReturnsError" class="guest-returns__error" role="alert" aria-live="assertive" aria-atomic="true" style="display: none;"></div>
+        <div
+          id='guestReturnsError'
+          class='guest-returns__error'
+          role='alert'
+          aria-live='assertive'
+          aria-atomic='true'
+          style='display: none;'
+        ></div>
 
         {%- comment -%} Accessible confirmation banner (hidden by default) {%- endcomment -%}
-        <div id="guestReturnsConfirmation" class="guest-returns__confirmation" role="status" aria-live="polite" aria-atomic="true" style="display: none;">
+        <div
+          id='guestReturnsConfirmation'
+          class='guest-returns__confirmation'
+          role='status'
+          aria-live='polite'
+          aria-atomic='true'
+          style='display: none;'
+        >
           Returns are coming soon.
         </div>
 
-        <button type="submit" class="guest-returns__submit">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <button type='submit' class='guest-returns__submit'>
+          <svg
+            width='20'
+            height='20'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            aria-hidden='true'
+          >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-3-3v6m9-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
           Start Return
@@ -120,7 +189,7 @@
     </div>
 
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('guestReturnsForm');
         const errorDiv = document.getElementById('guestReturnsError');
         const confirmationDiv = document.getElementById('guestReturnsConfirmation');
@@ -144,7 +213,7 @@
           errorDiv.textContent = '';
         }
 
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', function (e) {
           e.preventDefault();
           clearMessages();
 
@@ -164,33 +233,42 @@
     </script>
 
     {%- comment -%} Help Section {%- endcomment -%}
-    <div class="guest-returns__help-card">
-      <h3 class="guest-returns__help-title">Need Help?</h3>
-      <div class="guest-returns__help-content">
-        <div class="guest-returns__help-item">
-          <h4 class="guest-returns__help-heading">Can't find your order number?</h4>
-          <p class="guest-returns__help-text">
-            Check your email inbox for your order confirmation. The subject line should be "Order Confirmation - {{ shop.name }}".
+    <div class='guest-returns__help-card'>
+      <h3 class='guest-returns__help-title'>Need Help?</h3>
+      <div class='guest-returns__help-content'>
+        <div class='guest-returns__help-item'>
+          <h4 class='guest-returns__help-heading'>Can't find your order number?</h4>
+          <p class='guest-returns__help-text'>
+            Check your email inbox for your order confirmation. The subject line should be "Order
+            Confirmation - {{ shop.name }}".
           </p>
         </div>
 
-        <div class="guest-returns__help-item">
-          <h4 class="guest-returns__help-heading">Have an account?</h4>
-          <p class="guest-returns__help-text">
-            Sign in to view your orders and account details.
-          </p>
+        <div class='guest-returns__help-item'>
+          <h4 class='guest-returns__help-heading'>Have an account?</h4>
+          <p class='guest-returns__help-text'>Sign in to view your orders and account details.</p>
           {% if customer %}
-            <a href="{{ routes.account_url }}" class="guest-returns__btn guest-returns__btn--outline guest-returns__btn--small">Go to My Account</a>
+            <a
+              href='{{ routes.account_url }}'
+              class='guest-returns__btn guest-returns__btn--outline guest-returns__btn--small'
+              >Go to My Account</a
+            >
           {% else %}
-            <a href="{{ routes.account_login_url }}" class="guest-returns__btn guest-returns__btn--outline guest-returns__btn--small">Sign In to Account</a>
+            <a
+              href='{{ routes.account_login_url }}'
+              class='guest-returns__btn guest-returns__btn--outline guest-returns__btn--small'
+              >Sign In to Account</a
+            >
           {% endif %}
         </div>
       </div>
     </div>
 
-    <div class="guest-returns__footer">
-      <p class="guest-returns__footer-text">For returns assistance, please contact our support team</p>
-      <a href="/pages/contact" class="guest-returns__link">Contact Support</a>
+    <div class='guest-returns__footer'>
+      <p class='guest-returns__footer-text'>
+        For returns assistance, please contact our support team
+      </p>
+      <a href='/pages/contact' class='guest-returns__link'>Contact Support</a>
     </div>
   </div>
 </div>
