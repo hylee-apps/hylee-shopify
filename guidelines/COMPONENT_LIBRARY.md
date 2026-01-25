@@ -1,635 +1,611 @@
 # Component Library
 
-> **Purpose**: This document catalogs all UI components in the Hy-lee Shopify Theme and provides usage guidelines.
+> **Purpose**: This document is the **single source of truth** for all UI components in ProjectHub. Before creating or modifying any UI element, consult this guide.
 
 ---
 
 ## Table of Contents
 
-1. [Philosophy](#philosophy)
-2. [Component Categories](#component-categories)
-3. [Form Components](#form-components)
-4. [Feedback Components](#feedback-components)
-5. [Layout Components](#layout-components)
-6. [Navigation Components](#navigation-components)
-7. [Commerce Components](#commerce-components)
-8. [Creating New Components](#creating-new-components)
+1. [Quick Reference](#quick-reference)
+2. [Decision Tree](#decision-tree)
+3. [Design Tokens](#design-tokens)
+4. [UI Primitives](#ui-primitives)
+5. [Feature Components](#feature-components)
+6. [Component Audit Checklist](#component-audit-checklist)
+7. [Testing Requirements](#testing-requirements)
+8. [Feature Flags](#feature-flags)
+9. [Storybook](#storybook)
 
 ---
 
-## Philosophy
+## Quick Reference
 
-### The Component Library Rule
+### When to Use What
 
-> **All UI elements MUST be rendered from `theme/snippets/`.** Sections and templates should ONLY compose components—never define inline UI.
-
-### Benefits
-
-1. **Consistency**: Same component looks the same everywhere
-2. **Maintainability**: Update once, fix everywhere
-3. **Testability**: Components can be tested in isolation
-4. **Documentation**: Parameters are self-documenting
-
----
-
-## Component Categories
-
-### Quick Reference
-
-| Category       | Components                                            |
-| -------------- | ----------------------------------------------------- |
-| **Form**       | input, select, checkbox, radio-group, textarea, label |
-| **Feedback**   | alert, badge, skeleton, helper-text                   |
-| **Layout**     | card, accordion, modal, tabs                          |
-| **Navigation** | button, link, breadcrumb, pagination                  |
-| **Commerce**   | product-card, product-card-b2b                        |
-| **Display**    | icon, pill                                            |
-| **Account**    | account-nav-card, address-card, selection-card        |
+| Need                | Component            | Storybook Path                           |
+| ------------------- | -------------------- | ---------------------------------------- |
+| Status indicator    | `StatusBadge`        | `/story/statusbadge--default`            |
+| Priority indicator  | `PriorityBadge`      | `/story/prioritybadge--default`          |
+| Loading spinner     | `Spinner`            | `/story/ui-spinner--default`             |
+| Empty data state    | `EmptyState`         | `/story/emptystate--default`             |
+| Confirmation prompt | `ConfirmationDialog` | `/story/ui-confirmation-dialog--default` |
+| Form in modal       | `FormDialog`         | `/story/formdialog--default`             |
+| Data list           | `DataTable`          | `/story/datatable--default`              |
+| Page title          | `PageHeader`         | `/story/pageheader--default`             |
+| User avatar + name  | `MemberCard`         | `/story/membercard--default`             |
 
 ---
 
-## Form Components
+## Decision Tree
 
-### Input
-
-Text input field with label and validation support.
-
-```liquid
-{% render 'input',
-  type: 'email',
-  name: 'email',
-  label: 'Email Address',
-  placeholder: 'you@example.com',
-  required: true,
-  error: form.errors.email,
-  value: form.email
-%}
 ```
-
-**Parameters:**
-
-- `type`: 'text' | 'email' | 'password' | 'tel' | 'number' (default: 'text')
-- `name`: string (required)
-- `label`: string
-- `placeholder`: string
-- `required`: boolean
-- `disabled`: boolean
-- `error`: string (error message)
-- `value`: string (pre-filled value)
-- `class`: string (additional classes)
-
----
-
-### Select
-
-Dropdown select field.
-
-```liquid
-{% render 'select',
-  name: 'country',
-  label: 'Country',
-  options: country_options,
-  selected: customer.default_address.country,
-  required: true
-%}
-```
-
-**Parameters:**
-
-- `name`: string (required)
-- `label`: string
-- `options`: array of { value, label } objects
-- `selected`: string (selected value)
-- `placeholder`: string (empty option text)
-- `required`: boolean
-- `disabled`: boolean
-- `error`: string
-
----
-
-### Checkbox
-
-Single checkbox input.
-
-```liquid
-{% render 'checkbox',
-  name: 'newsletter',
-  label: 'Subscribe to newsletter',
-  checked: customer.accepts_marketing,
-  required: false
-%}
-```
-
-**Parameters:**
-
-- `name`: string (required)
-- `label`: string (required)
-- `checked`: boolean
-- `required`: boolean
-- `disabled`: boolean
-- `value`: string (default: 'true')
-
----
-
-### Radio Group
-
-Group of radio button options.
-
-```liquid
-{% render 'radio-group',
-  name: 'shipping_method',
-  label: 'Shipping Method',
-  options: shipping_options,
-  selected: 'standard'
-%}
-```
-
-**Parameters:**
-
-- `name`: string (required)
-- `label`: string
-- `options`: array of { value, label, description } objects
-- `selected`: string (selected value)
-- `required`: boolean
-
----
-
-### Textarea
-
-Multi-line text input.
-
-```liquid
-{% render 'textarea',
-  name: 'message',
-  label: 'Message',
-  placeholder: 'Enter your message...',
-  rows: 4,
-  required: true
-%}
-```
-
-**Parameters:**
-
-- `name`: string (required)
-- `label`: string
-- `placeholder`: string
-- `rows`: number (default: 3)
-- `required`: boolean
-- `disabled`: boolean
-- `value`: string
-- `error`: string
-
----
-
-### Form Item
-
-Wrapper for form fields with consistent spacing.
-
-```liquid
-{% render 'form-item',
-  label: 'Email',
-  required: true,
-  error: form.errors.email,
-  helper_text: 'We will never share your email'
-%}
-  <input type="email" name="email" />
-{% endrender %}
+Need to render UI?
+│
+├─► Does a component exist in components/ui/?
+│   ├─► YES: Use it with existing variants
+│   │   └─► Need different behavior?
+│   │       ├─► Can be achieved with props? → Use props
+│   │       └─► Cannot? → Add variant, update Storybook + tests
+│   │
+│   └─► NO: Check Feature Components below
+│       ├─► Exists? → Use it
+│       └─► Doesn't exist?
+│           │
+│           ├─► Is it a one-off? → Ask: "Will this be used again?"
+│           │   ├─► YES → Create new component with:
+│           │   │         • Feature flag
+│           │   │         • Storybook story
+│           │   │         • Unit tests + snapshots
+│           │   │
+│           │   └─► NO → Implement inline (rare, justify in PR)
+│           │
+│           └─► Create new component (follow Component Creation Workflow)
 ```
 
 ---
 
-## Feedback Components
+## Design Tokens
 
-### Alert
+All design tokens are centralized in `lib/design-tokens.ts`. **Never hardcode colors or sizes.**
 
-Notification messages for success, error, warning, info.
+### Usage
 
-```liquid
-{% render 'alert',
-  type: 'success',
-  message: 'Your order has been placed!',
-  dismissible: true
-%}
+```typescript
+import {
+  statusColors,
+  priorityColors,
+  getAvatarGradient,
+  badgeSizes,
+  spinnerSizes
+} from "@/lib/design-tokens";
 
-{% render 'alert',
-  type: 'error',
-  title: 'Error',
-  message: 'Please fix the errors below.',
-  dismissible: false
-%}
+// Status colors
+<Badge className={statusColors["in-progress"]}>In Progress</Badge>
+
+// Priority colors
+<Badge className={priorityColors.high}>High</Badge>
+
+// Avatar gradient (deterministic by name)
+<Avatar className={getAvatarGradient(user.name)}>
+  {initials}
+</Avatar>
+
+// Sizes
+<div className={badgeSizes.md}>...</div>
+<div className={spinnerSizes.lg}>...</div>
 ```
 
-**Parameters:**
+### Available Tokens
 
-- `type`: 'success' | 'error' | 'warning' | 'info' (required)
-- `message`: string (required)
-- `title`: string (optional heading)
-- `dismissible`: boolean (default: false)
-- `icon`: boolean (default: true)
+| Token                    | Values                          | Purpose                   |
+| ------------------------ | ------------------------------- | ------------------------- |
+| `statusColors`           | todo, in-progress, review, done | Task status badge colors  |
+| `statusLabels`           | Human-readable status names     | Display labels            |
+| `statusIcons`            | Lucide icon names               | Icons for each status     |
+| `priorityColors`         | low, medium, high, critical     | Priority badge colors     |
+| `priorityLabels`         | Human-readable priority names   | Display labels            |
+| `priorityIcons`          | Lucide icon names               | Icons for each priority   |
+| `avatarGradients`        | 5 vibrant gradients             | User avatar backgrounds   |
+| `avatarGradientsNeutral` | 5 neutral gradients             | Subtle avatar backgrounds |
+| `badgeSizes`             | sm, md, lg                      | Badge padding/text sizes  |
+| `iconSizes`              | sm, md, lg                      | Icon dimensions           |
+| `spinnerSizes`           | xs, sm, md, lg, xl              | Spinner dimensions        |
+| `focusRing`              | default, inset, none            | Focus state styles        |
 
 ---
 
-### Badge
+## UI Primitives
 
-Status labels and tags.
+Located in `components/ui/`. These are the building blocks.
 
-```liquid
-{% render 'badge',
-  text: 'Sale',
-  variant: 'success'
-%}
+### Layout & Structure
 
-{% render 'badge',
-  text: 'Out of Stock',
-  variant: 'error',
-  size: 'sm'
-%}
-```
+| Component         | Purpose                | Variants                                    | Test File |
+| ----------------- | ---------------------- | ------------------------------------------- | --------- |
+| `card.tsx`        | Content container      | Header, Title, Description, Content, Footer | -         |
+| `dialog.tsx`      | Modal dialogs          | Default, with close button                  | -         |
+| `sheet.tsx`       | Side panels            | Positions: top, right, bottom, left         | -         |
+| `drawer.tsx`      | Bottom drawer (mobile) | Default                                     | -         |
+| `tabs.tsx`        | Tab navigation         | Default                                     | -         |
+| `separator.tsx`   | Visual dividers        | Horizontal, vertical                        | -         |
+| `scroll-area.tsx` | Scrollable containers  | Default                                     | -         |
+| `resizable.tsx`   | Resizable panels       | Default                                     | -         |
+| `collapsible.tsx` | Expandable sections    | Default                                     | -         |
+| `accordion.tsx`   | Multiple collapsibles  | Default                                     | -         |
+| `sidebar.tsx`     | Layout sidebar         | Collapsible states                          | -         |
 
-**Parameters:**
+### Form Elements
 
-- `text`: string (required)
-- `variant`: 'default' | 'success' | 'warning' | 'error' | 'info'
-- `size`: 'sm' | 'md' (default: 'md')
+| Component          | Purpose               | Variants                                                                            | Test File |
+| ------------------ | --------------------- | ----------------------------------------------------------------------------------- | --------- |
+| `button.tsx`       | Actions               | default, destructive, outline, secondary, ghost, link; Sizes: default, sm, lg, icon | -         |
+| `input.tsx`        | Text input            | Default                                                                             | -         |
+| `textarea.tsx`     | Multi-line input      | Default                                                                             | -         |
+| `select.tsx`       | Dropdown select       | Size: sm, default                                                                   | -         |
+| `multi-select.tsx` | Multi-select dropdown | Default                                                                             | -         |
+| `checkbox.tsx`     | Checkbox input        | Default                                                                             | -         |
+| `switch.tsx`       | Toggle switch         | Default                                                                             | -         |
+| `radio-group.tsx`  | Radio options         | Default                                                                             | -         |
+| `slider.tsx`       | Range slider          | Default                                                                             | -         |
+| `calendar.tsx`     | Date picker           | Default                                                                             | -         |
+| `input-otp.tsx`    | OTP input             | Default                                                                             | -         |
+| `form.tsx`         | Form primitives       | FormField, FormItem, FormLabel, FormControl, FormMessage                            | -         |
+| `label.tsx`        | Form labels           | Default                                                                             | -         |
 
----
+### Feedback & Display
 
-### Skeleton
+| Component                 | Purpose              | Variants                                 | Feature Flag          | Test File                      |
+| ------------------------- | -------------------- | ---------------------------------------- | --------------------- | ------------------------------ |
+| `badge.tsx`               | Status labels        | default, secondary, destructive, outline | -                     | -                              |
+| `alert.tsx`               | Alert messages       | default, destructive                     | -                     | -                              |
+| `alert-dialog.tsx`        | Confirmation modals  | Default                                  | -                     | -                              |
+| `skeleton.tsx`            | Loading placeholders | Default                                  | -                     | -                              |
+| `progress.tsx`            | Progress bar         | Default                                  | -                     | -                              |
+| `spinner.tsx`             | Loading spinner      | xs, sm, md, lg, xl                       | `SPINNER`             | `spinner.test.tsx`             |
+| `confirmation-dialog.tsx` | Standardized confirm | default, destructive                     | `CONFIRMATION_DIALOG` | `confirmation-dialog.test.tsx` |
+| `sonner.tsx`              | Toast notifications  | Default                                  | -                     | -                              |
+| `tooltip.tsx`             | Tooltips             | Default                                  | -                     | -                              |
+| `hover-card.tsx`          | Hover tooltips       | Default                                  | -                     | -                              |
+| `popover.tsx`             | Popovers             | Default                                  | -                     | -                              |
 
-Loading placeholder.
+### Navigation
 
-```liquid
-{% render 'skeleton',
-  type: 'text',
-  lines: 3
-%}
+| Component             | Purpose           | Variants | Test File |
+| --------------------- | ----------------- | -------- | --------- |
+| `dropdown-menu.tsx`   | Dropdown menus    | Default  | -         |
+| `context-menu.tsx`    | Right-click menus | Default  | -         |
+| `menubar.tsx`         | Menu bar          | Default  | -         |
+| `navigation-menu.tsx` | Navigation        | Default  | -         |
+| `breadcrumb.tsx`      | Breadcrumbs       | Default  | -         |
+| `command.tsx`         | Command palette   | Default  | -         |
+| `pagination.tsx`      | Page navigation   | Default  | -         |
 
-{% render 'skeleton',
-  type: 'image',
-  aspect_ratio: '1/1'
-%}
-```
+### Data Display
 
-**Parameters:**
+| Component          | Purpose                | Variants                        | Test File |
+| ------------------ | ---------------------- | ------------------------------- | --------- |
+| `table.tsx`        | Data tables            | Header, Body, Row, Cell, Footer | -         |
+| `avatar.tsx`       | User avatars           | Image + fallback                | -         |
+| `chart.tsx`        | Data visualization     | Recharts wrapper                | -         |
+| `carousel.tsx`     | Content carousel       | Default                         | -         |
+| `aspect-ratio.tsx` | Aspect ratio container | Default                         | -         |
 
-- `type`: 'text' | 'image' | 'card' | 'button'
-- `lines`: number (for text type)
-- `aspect_ratio`: string (for image type)
-- `width`: string
-- `height`: string
+### Toggles & Groups
 
----
-
-### Helper Text
-
-Form field helper or error text.
-
-```liquid
-{% render 'helper-text',
-  text: 'Password must be at least 8 characters',
-  type: 'default'
-%}
-
-{% render 'helper-text',
-  text: 'This field is required',
-  type: 'error'
-%}
-```
-
-**Parameters:**
-
-- `text`: string (required)
-- `type`: 'default' | 'error' | 'success'
-
----
-
-## Layout Components
-
-### Card
-
-Content container with optional header and footer.
-
-```liquid
-{% render 'card',
-  title: 'Order Summary',
-  padding: 'lg'
-%}
-  <p>Card content goes here</p>
-{% endrender %}
-```
-
-**Parameters:**
-
-- `title`: string
-- `subtitle`: string
-- `padding`: 'none' | 'sm' | 'md' | 'lg' (default: 'md')
-- `border`: boolean (default: true)
-- `shadow`: boolean (default: false)
-- `class`: string
+| Component          | Purpose             | Variants | Test File |
+| ------------------ | ------------------- | -------- | --------- |
+| `toggle.tsx`       | Toggle button       | Default  | -         |
+| `toggle-group.tsx` | Toggle button group | Default  | -         |
 
 ---
 
-### Accordion
+## Feature Components
 
-Expandable/collapsible content sections.
+Located in `components/`. These are composed from UI primitives.
 
-```liquid
-{% render 'accordion',
-  items: accordion_items,
-  allow_multiple: false
-%}
-```
+### Badges & Indicators
 
-**Parameters:**
+| Component           | Purpose            | Feature Flag   | Storybook                       | Test File              |
+| ------------------- | ------------------ | -------------- | ------------------------------- | ---------------------- |
+| `PriorityBadge.tsx` | Priority indicator | -              | `/story/prioritybadge--default` | -                      |
+| `StatusBadge.tsx`   | Status indicator   | `STATUS_BADGE` | `/story/statusbadge--default`   | `StatusBadge.test.tsx` |
 
-- `items`: array of { title, content } objects
-- `allow_multiple`: boolean (allow multiple open)
-- `default_open`: number (index of default open item)
+### Layout Components
 
----
+| Component        | Purpose              | Feature Flag  | Storybook                    | Test File             |
+| ---------------- | -------------------- | ------------- | ---------------------------- | --------------------- |
+| `EmptyState.tsx` | Empty data display   | `EMPTY_STATE` | `/story/emptystate--default` | `EmptyState.test.tsx` |
+| `PageHeader.tsx` | Page title + actions | `PAGE_HEADER` | `/story/pageheader--default` | `PageHeader.test.tsx` |
+| `MemberCard.tsx` | User avatar + info   | `MEMBER_CARD` | `/story/membercard--default` | `MemberCard.test.tsx` |
 
-### Modal
+### Data Components
 
-Dialog/modal overlay.
+| Component       | Purpose                           | Feature Flag | Storybook                   | Test File            |
+| --------------- | --------------------------------- | ------------ | --------------------------- | -------------------- |
+| `DataTable.tsx` | Table with sort/filter/pagination | `DATA_TABLE` | `/story/datatable--default` | `DataTable.test.tsx` |
 
-```liquid
-{% render 'modal',
-  id: 'confirm-modal',
-  title: 'Confirm Action',
-  size: 'sm'
-%}
-  <p>Are you sure you want to proceed?</p>
-  {% render 'button', text: 'Cancel', variant: 'secondary', data_modal_close: true %}
-  {% render 'button', text: 'Confirm', variant: 'primary' %}
-{% endrender %}
-```
+### Form Components
 
-**Parameters:**
+| Component                | Purpose                     | Feature Flag          | Storybook                            | Test File                     |
+| ------------------------ | --------------------------- | --------------------- | ------------------------------------ | ----------------------------- |
+| `FormDialog.tsx`         | Dialog with form            | `FORM_DIALOG`         | `/story/formdialog--default`         | `FormDialog.test.tsx`         |
+| `ConfirmationDialog.tsx` | Confirm destructive actions | `CONFIRMATION_DIALOG` | `/story/confirmationdialog--default` | `ConfirmationDialog.test.tsx` |
+| `Spinner.tsx`            | Loading indicator           | `SPINNER`             | `/story/spinner--default`            | `Spinner.test.tsx`            |
 
-- `id`: string (required, unique)
-- `title`: string
-- `size`: 'sm' | 'md' | 'lg' | 'full' (default: 'md')
-- `closable`: boolean (default: true)
+### Existing Feature Components (No Flag)
 
----
-
-### Tabs
-
-Tabbed content navigation.
-
-```liquid
-{% render 'tabs',
-  items: tab_items,
-  default_tab: 'description'
-%}
-```
-
-**Parameters:**
-
-- `items`: array of { id, label, content } objects
-- `default_tab`: string (id of default active tab)
+| Component               | Purpose                 | Location      |
+| ----------------------- | ----------------------- | ------------- |
+| `TaskCard.tsx`          | Kanban task card        | `components/` |
+| `TaskDialog.tsx`        | Task create/edit dialog | `components/` |
+| `SprintDialog.tsx`      | Sprint create/edit      | `components/` |
+| `BoardDialog.tsx`       | Board create/edit       | `components/` |
+| `ColumnDialog.tsx`      | Column create/edit      | `components/` |
+| `WorkspaceDialog.tsx`   | Workspace create/edit   | `components/` |
+| `Header.tsx`            | App header              | `components/` |
+| `Sidebar.tsx`           | App sidebar             | `components/` |
+| `NotificationPanel.tsx` | Notifications list      | `components/` |
 
 ---
 
-## Navigation Components
+## Dialog Patterns
 
-### Button
+All form dialogs should follow consistent patterns for user experience.
 
-Primary action element.
+### When to Use Each Dialog Component
 
-```liquid
-{% render 'button',
-  text: 'Add to Cart',
-  variant: 'primary',
-  size: 'lg',
-  type: 'submit'
-%}
+| Use Case                          | Component                       | Example                     |
+| --------------------------------- | ------------------------------- | --------------------------- |
+| Form with multiple fields         | `FormDialog`                    | Create Sprint, Create Board |
+| Destructive confirmation          | `ConfirmationDialog`            | Delete Task, Remove Member  |
+| Simple confirmation               | `ConfirmationDialog`            | Confirm Action              |
+| Complex form (many tabs/sections) | Custom with `Dialog` primitives | TaskDialog                  |
 
-{% render 'button',
-  text: 'Learn More',
-  variant: 'link',
-  href: '/about',
-  icon: 'arrow-right',
-  icon_position: 'right'
-%}
-```
+### FormDialog Usage
 
-**Parameters:**
+```tsx
+import {
+  FormDialog,
+  FormDialogSection,
+  FormDialogField,
+  useFormDialog,
+} from '@/components/FormDialog';
 
-- `text`: string (required)
-- `variant`: 'primary' | 'secondary' | 'ghost' | 'link' | 'destructive'
-- `size`: 'sm' | 'md' | 'lg' (default: 'md')
-- `type`: 'button' | 'submit' | 'reset'
-- `href`: string (renders as `<a>` if provided)
-- `icon`: string (icon name)
-- `icon_position`: 'left' | 'right'
-- `disabled`: boolean
-- `loading`: boolean
-- `full_width`: boolean
-- `class`: string
+function CreateSprintDialog() {
+  const { isOpen, isSubmitting, setIsSubmitting, open, close } = useFormDialog();
+  const [name, setName] = useState('');
 
----
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await createSprint({ name });
+      close();
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-### Link
-
-Styled anchor link.
-
-```liquid
-{% render 'link',
-  text: 'View all products',
-  href: '/collections/all',
-  variant: 'primary'
-%}
-```
-
-**Parameters:**
-
-- `text`: string (required)
-- `href`: string (required)
-- `variant`: 'default' | 'primary' | 'muted'
-- `underline`: boolean
-- `external`: boolean (opens in new tab)
-- `icon`: string
-
----
-
-### Breadcrumb
-
-Navigation breadcrumb trail.
-
-```liquid
-{% render 'breadcrumb',
-  items: breadcrumb_items
-%}
-```
-
-**Parameters:**
-
-- `items`: array of { label, url } objects (last item is current page)
-
----
-
-### Pagination
-
-Page navigation for collections.
-
-```liquid
-{% render 'pagination',
-  paginate: paginate
-%}
-```
-
-**Parameters:**
-
-- `paginate`: Shopify paginate object (required)
-- `show_page_numbers`: boolean (default: true)
-- `prev_text`: string (default: 'Previous')
-- `next_text`: string (default: 'Next')
-
----
-
-## Commerce Components
-
-### Product Card
-
-Product listing card for collections.
-
-```liquid
-{% render 'product-card',
-  product: product,
-  show_vendor: true,
-  show_rating: true,
-  image_ratio: '1/1'
-%}
-```
-
-**Parameters:**
-
-- `product`: product object (required)
-- `show_vendor`: boolean
-- `show_rating`: boolean
-- `show_quick_add`: boolean
-- `image_ratio`: string (aspect ratio)
-- `lazy_load`: boolean (default: true)
-
----
-
-### Product Card B2B
-
-Product card for wholesale/B2B customers.
-
-```liquid
-{% render 'product-card-b2b',
-  product: product,
-  show_sku: true,
-  show_stock: true
-%}
-```
-
-**Parameters:**
-
-- `product`: product object (required)
-- `show_sku`: boolean
-- `show_stock`: boolean
-- `show_bulk_pricing`: boolean
-
----
-
-## Creating New Components
-
-### 1. Create the Snippet
-
-Create `theme/snippets/{component-name}.liquid`:
-
-```liquid
-{% comment %}
-  Component Name
-
-  Description of what this component does.
-
-  Usage:
-  {% render 'component-name',
-    param1: 'value',
-    param2: true
-  %}
-
-  Parameters:
-  - param1: type (required/optional) - Description
-  - param2: type (default: value) - Description
-{% endcomment %}
-
-{%- liquid
-  assign param1_value = param1 | default: ''
-  assign param2_value = param2 | default: false
--%}
-
-<div class="component-name">
-  {{ param1_value }}
-</div>
-```
-
-### 2. Create the CSS
-
-Create `theme/assets/component-{name}.css`:
-
-```css
-/* ==========================================================================
-   Component Name
-   ========================================================================== */
-
-.component-name {
-  /* Use design tokens */
-  padding: var(--spacing-md);
-  background: var(--color-background);
-}
-
-/* Variants */
-.component-name--variant {
-  /* Variant styles */
-}
-
-/* States */
-.component-name:hover {
-  /* Hover styles */
+  return (
+    <>
+      <Button onClick={open}>Create Sprint</Button>
+      <FormDialog
+        open={isOpen}
+        onOpenChange={(open) => !open && close()}
+        title="Create Sprint"
+        description="Add a new sprint to your project"
+        onSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
+        submitText="Create"
+        gradientTitle // Use gradient for creation dialogs
+        size="md"
+      >
+        <FormDialogField label="Name" required htmlFor="sprint-name">
+          <Input
+            id="sprint-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Sprint 1"
+          />
+        </FormDialogField>
+      </FormDialog>
+    </>
+  );
 }
 ```
 
-### 3. Add JavaScript (if needed)
+### Dialog Size Guidelines
 
-Add to `theme/assets/component-scripts.js`:
+| Size   | Max Width | Use For                           |
+| ------ | --------- | --------------------------------- |
+| `sm`   | 400px     | Simple confirmation, single field |
+| `md`   | 500px     | Standard forms (2-5 fields)       |
+| `lg`   | 600px     | Larger forms with sections        |
+| `xl`   | 800px     | Complex forms, data tables        |
+| `full` | 90vw      | Very large content, multi-step    |
 
-```javascript
-/**
- * Component Name
- * Description of behavior
- */
-class ComponentName {
-  constructor(element) {
-    this.element = element;
-    this.init();
-  }
+### Title Styling
 
-  init() {
-    // Initialize component
-  }
+| Style    | Use For                                     | Prop                              |
+| -------- | ------------------------------------------- | --------------------------------- |
+| Gradient | Creation dialogs (Create Sprint, New Board) | `gradientTitle={true}`            |
+| Plain    | Edit dialogs, Settings                      | `gradientTitle={false}` (default) |
+
+### FormDialogSection
+
+Use sections to group related fields:
+
+```tsx
+<FormDialog {...props}>
+  <FormDialogSection title="Basic Info">
+    <FormDialogField label="Name" required>
+      <Input {...nameProps} />
+    </FormDialogField>
+    <FormDialogField label="Description">
+      <Textarea {...descProps} />
+    </FormDialogField>
+  </FormDialogSection>
+
+  <FormDialogSection title="Options">
+    <FormDialogField label="Active">
+      <Switch {...activeProps} />
+    </FormDialogField>
+  </FormDialogSection>
+</FormDialog>
+```
+
+### Error Handling
+
+Use `FormDialogField` error prop for validation:
+
+```tsx
+<FormDialogField label="Email" required error={errors.email?.message} htmlFor="email">
+  <Input id="email" {...register('email')} />
+</FormDialogField>
+```
+
+---
+
+## Component Audit Checklist
+
+Before creating or modifying a component, complete this checklist:
+
+### Pre-Work Audit
+
+- [ ] Checked `components/ui/` for existing primitive
+- [ ] Checked Feature Components list above
+- [ ] Checked Storybook for visual examples
+- [ ] Verified no existing component meets the need
+- [ ] If modifying: reviewed current tests and stories
+
+### New Component Requirements
+
+- [ ] Component file created: `components/[Name].tsx` or `components/ui/[name].tsx`
+- [ ] Uses design tokens from `lib/design-tokens.ts`
+- [ ] Has clear prop interface with JSDoc
+- [ ] Has feature flag (if applicable)
+- [ ] Storybook story created: `[Name].stories.tsx`
+- [ ] Unit tests created: `[Name].test.tsx`
+- [ ] Snapshot tests for each variant
+- [ ] Added to this document (COMPONENT_LIBRARY.md)
+
+### Variant Addition Requirements
+
+- [ ] Existing tests still pass
+- [ ] New variant has Storybook story
+- [ ] New variant has snapshot test
+- [ ] This document updated if needed
+
+---
+
+## Testing Requirements
+
+Every component in the library must have comprehensive tests.
+
+### Test File Structure
+
+```
+components/
+├── StatusBadge.tsx
+├── StatusBadge.stories.tsx
+├── StatusBadge.test.tsx
+└── __snapshots__/
+    └── StatusBadge.test.tsx.snap
+```
+
+### Required Test Coverage
+
+#### Behavioral Tests
+
+```typescript
+describe('StatusBadge', () => {
+  it('should render without crashing', () => {});
+  it('should render all status variants', () => {});
+  it('should apply correct colors for each status', () => {});
+  it('should respect size prop', () => {});
+  it('should apply custom className', () => {});
+  it('should handle feature flag disabled state', () => {});
+  it('should handle feature flag enabled state', () => {});
+});
+```
+
+#### Snapshot Tests
+
+```typescript
+describe("Snapshots", () => {
+  it.each(["todo", "in-progress", "review", "done"])
+    ("should match snapshot for status: %s", (status) => {
+      const { container } = render(<StatusBadge status={status} />);
+      expect(container).toMatchSnapshot();
+    });
+
+  it.each(["sm", "md", "lg"])
+    ("should match snapshot for size: %s", (size) => {
+      const { container } = render(<StatusBadge status="todo" size={size} />);
+      expect(container).toMatchSnapshot();
+    });
+});
+```
+
+### Running Tests
+
+```bash
+# Run all component tests
+pnpm test:components
+
+# Watch mode
+pnpm test:components:watch
+
+# Update snapshots (after intentional visual changes)
+pnpm test:update-snapshots
+```
+
+---
+
+## Feature Flags
+
+Components under development use feature flags for controlled rollout.
+
+### Available Flags
+
+| Flag                  | Component              | Default |
+| --------------------- | ---------------------- | ------- |
+| `STATUS_BADGE`        | StatusBadge            | `false` |
+| `SPINNER`             | Spinner                | `false` |
+| `CONFIRMATION_DIALOG` | ConfirmationDialog     | `false` |
+| `EMPTY_STATE`         | EmptyState             | `false` |
+| `FORM_DIALOG`         | FormDialog             | `false` |
+| `DATA_TABLE`          | DataTable              | `false` |
+| `PAGE_HEADER`         | PageHeader             | `false` |
+| `MEMBER_CARD`         | MemberCard             | `false` |
+| `DESIGN_TOKENS`       | Design token migration | `false` |
+
+### Enabling Flags
+
+Add to `.env.local`:
+
+```bash
+NEXT_PUBLIC_FEATURE_STATUS_BADGE=true
+NEXT_PUBLIC_FEATURE_SPINNER=true
+```
+
+### Using Flags in Code
+
+```typescript
+import { isFeatureEnabled, FeatureFlag } from "@/lib/feature-flags";
+
+function TaskRow({ task }) {
+  return (
+    <div>
+      {isFeatureEnabled(FeatureFlag.STATUS_BADGE) ? (
+        <StatusBadge status={task.status} />
+      ) : (
+        <LegacyStatusDisplay status={task.status} />
+      )}
+    </div>
+  );
 }
+```
 
-// Initialize on DOMContentLoaded
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('[data-component-name]').forEach((el) => {
-    new ComponentName(el);
+### Testing with Flags
+
+```typescript
+import { mockFeatureFlag, clearFeatureFlagMocks } from '@/lib/feature-flags';
+
+describe('Component with feature flag', () => {
+  afterEach(() => {
+    clearFeatureFlagMocks();
+  });
+
+  it('should render new component when flag enabled', () => {
+    mockFeatureFlag(FeatureFlag.STATUS_BADGE, true);
+    // test new behavior
+  });
+
+  it('should render fallback when flag disabled', () => {
+    mockFeatureFlag(FeatureFlag.STATUS_BADGE, false);
+    // test fallback behavior
   });
 });
 ```
 
-### 4. Document the Component
+---
 
-Add to `docs/COMPONENT_INVENTORY.md` and this file.
+## Storybook
+
+Local Storybook for visual documentation and testing.
+
+### Running Storybook
+
+```bash
+pnpm storybook
+```
+
+Opens at http://localhost:6006
+
+### Story Structure
+
+```typescript
+// StatusBadge.stories.tsx
+import type { Meta, StoryObj } from "@storybook/react";
+import { StatusBadge } from "./StatusBadge";
+
+const meta: Meta<typeof StatusBadge> = {
+  title: "Components/StatusBadge",
+  component: StatusBadge,
+  tags: ["autodocs"],
+  argTypes: {
+    status: {
+      control: "select",
+      options: ["todo", "in-progress", "review", "done"],
+    },
+    size: {
+      control: "select",
+      options: ["sm", "md", "lg"],
+    },
+  },
+};
+
+export default meta;
+type Story = StoryObj<typeof StatusBadge>;
+
+export const Default: Story = {
+  args: {
+    status: "todo",
+    size: "md",
+  },
+};
+
+// Additional stories for specific states
+export const InProgress: Story = {
+  args: {
+    status: "in-progress",
+  },
+};
+
+export const AllSizes: Story = {
+  render: () => (
+    <div className="flex gap-4">
+      <StatusBadge status="todo" size="sm" />
+      <StatusBadge status="todo" size="md" />
+      <StatusBadge status="todo" size="lg" />
+    </div>
+  ),
+};
+```
+
+### Story Guidelines
+
+1. **Keep stories minimal** - rely on Controls addon for testing variants
+2. **One default story** per component with all props controllable
+3. **Additional stories** only for complex compositions or states
+4. **Use `tags: ["autodocs"]`** for auto-generated documentation
+5. **Provide meaningful argTypes** with control types
 
 ---
 
-## Related Documents
+## Changelog
 
-- [SINGLE_SOURCE_OF_TRUTH.md](SINGLE_SOURCE_OF_TRUTH.md) - File locations
-- [AGENT_EDITING_INSTRUCTIONS.md](AGENT_EDITING_INSTRUCTIONS.md) - Coding standards
-- [docs/COMPONENT_INVENTORY.md](../docs/COMPONENT_INVENTORY.md) - Full inventory
+| Date       | Change                                          |
+| ---------- | ----------------------------------------------- |
+| 2026-01-10 | Initial component library documentation created |
