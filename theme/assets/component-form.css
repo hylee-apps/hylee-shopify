@@ -21,7 +21,7 @@
 }
 
 .form__label--required::after {
-  content: "*";
+  content: '*';
   color: rgb(239, 68, 68);
   margin-left: 0.25rem;
 }

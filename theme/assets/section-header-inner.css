@@ -79,10 +79,33 @@
 }
 
 .header-inner__logo-image {
-  display: block;
-  height: 2rem;
-  width: auto;
+  height: auto;
   object-fit: contain;
+}
+
+/* Desktop logo - hidden on mobile */
+.header-inner__logo-image--desktop {
+  display: none;
+  max-width: 128px;
+  max-height: 40px;
+}
+
+/* Mobile logo - shown on mobile by default */
+.header-inner__logo-image--mobile {
+  display: block;
+  max-width: 64px;
+  max-height: 32px;
+}
+
+/* Show desktop logo and hide mobile logo on larger screens */
+@media (min-width: 768px) {
+  .header-inner__logo-image--desktop {
+    display: block;
+  }
+
+  .header-inner__logo-image--mobile {
+    display: none;
+  }
 }
 
 .header-inner__logo-text {

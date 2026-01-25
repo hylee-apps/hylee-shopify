@@ -4,7 +4,14 @@
   background: #f8f9fa;
   color: #6c757d;
   border-top: 1px solid #e9ecef;
-  font-family: var(--font-body, 'Assistant', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  font-family: var(
+    --font-body,
+    'Assistant',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif
+  );
 }
 
 .footer__inner {
@@ -37,13 +44,37 @@
   align-items: center;
   gap: 0.625rem;
   margin-bottom: 0.75rem;
+  text-decoration: none;
 }
 
 .footer__logo-image {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 50%;
-  background: #495057;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Desktop logo - hidden on mobile */
+.footer__logo-image--desktop {
+  display: none;
+  max-width: 128px;
+  max-height: 40px;
+}
+
+/* Mobile logo - shown on mobile by default */
+.footer__logo-image--mobile {
+  display: block;
+  max-width: 64px;
+  max-height: 32px;
+}
+
+/* Show desktop logo and hide mobile logo on larger screens */
+@media (min-width: 768px) {
+  .footer__logo-image--desktop {
+    display: block;
+  }
+
+  .footer__logo-image--mobile {
+    display: none;
+  }
 }
 
 .footer__logo-text {
@@ -85,7 +116,7 @@
 }
 
 .footer__link:hover {
-  color: #2AC864;
+  color: #2ac864;
 }
 
 /* Footer Bottom */
@@ -129,7 +160,7 @@
   .footer--minimal .footer__inner {
     text-align: center;
   }
-  
+
   .footer--minimal .footer__links {
     justify-content: center;
   }

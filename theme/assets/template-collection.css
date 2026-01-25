@@ -256,7 +256,7 @@
   gap: 1.5rem;
 }
 
-.products-grid[data-view="list"] {
+.products-grid[data-view='list'] {
   grid-template-columns: 1fr;
 }
 

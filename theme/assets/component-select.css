@@ -39,7 +39,7 @@
   opacity: 0.5;
 }
 
-.select__trigger[aria-invalid="true"] {
+.select__trigger[aria-invalid='true'] {
   border-color: rgb(239, 68, 68);
   ring-color: rgba(239, 68, 68, 0.2);
 }
@@ -112,7 +112,7 @@
   opacity: 0.5;
 }
 
-.select__native[aria-invalid="true"] {
+.select__native[aria-invalid='true'] {
   border-color: rgb(239, 68, 68);
   ring-color: rgba(239, 68, 68, 0.2);
 }
@@ -132,7 +132,7 @@
 }
 
 .select__label--required::after {
-  content: "*";
+  content: '*';
   color: rgb(239, 68, 68);
   margin-left: 0.25rem;
 }
