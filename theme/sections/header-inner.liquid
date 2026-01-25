@@ -40,20 +40,27 @@
       class='header-inner__logo'
       aria-label='{{ shop.name }} - {{ 'general.accessibility.home' | t | default: 'Homepage' }}'
     >
-      {%- if section.settings.logo != blank -%}
-        <img
-          src='{{ section.settings.logo | image_url: width: 120 }}'
-          alt='{{ shop.name }}'
-          class='header-inner__logo-image'
-          width='120'
-          height='auto'
-          loading='eager'
-        >
-      {%- else -%}
-        <span class='header-inner__logo-text'>
-          {{- section.settings.logo_text | default: shop.name -}}
-        </span>
-      {%- endif -%}
+      {%- comment -%} Desktop Logo (hidden on mobile) {%- endcomment -%}
+      <img
+        src='{{ 'logo-128.png' | asset_url }}'
+        alt='{{ shop.name }}'
+        class='header-inner__logo-image header-inner__logo-image--desktop'
+        width='128'
+        height='auto'
+        loading='eager'
+      >
+      {%- comment -%} Mobile Logo (hidden on desktop) {%- endcomment -%}
+      <img
+        src='{{ 'logo-64.png' | asset_url }}'
+        alt='{{ shop.name }}'
+        class='header-inner__logo-image header-inner__logo-image--mobile'
+        width='64'
+        height='auto'
+        loading='eager'
+      >
+      <span class='header-inner__logo-text'>
+        {{- section.settings.logo_text | default: shop.name -}}
+      </span>
     </a>
 
     {%- comment -%} Search bar - Desktop {%- endcomment -%}

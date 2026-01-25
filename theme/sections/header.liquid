@@ -38,23 +38,48 @@
       </button>
 
       {%- comment -%} Logo {%- endcomment -%}
+      {%- liquid
+        assign desktop_logo = section.settings.logo
+        assign mobile_logo = section.settings.logo_mobile | default: desktop_logo
+      -%}
       <a href='{{ routes.root_url }}' class='header__logo'>
-        {% if section.settings.logo != blank %}
+        {% if desktop_logo != blank %}
+          {%- comment -%} Desktop Logo from theme settings (hidden on mobile) {%- endcomment -%}
           <img
-            src='{{ section.settings.logo | image_url: width: 28 }}'
+            src='{{ desktop_logo | image_url: width: 128 }}'
+            srcset='{{ desktop_logo | image_url: width: 128 }} 1x, {{ desktop_logo | image_url: width: 256 }} 2x'
             alt='{{ shop.name }}'
-            class='header__logo-image'
-            width='28'
-            height='28'
+            class='header__logo-image header__logo-image--desktop'
+            width='128'
+            height='auto'
+            loading='eager'
+          >
+          {%- comment -%} Mobile Logo from theme settings (hidden on desktop) {%- endcomment -%}
+          <img
+            src='{{ mobile_logo | image_url: width: 64 }}'
+            srcset='{{ mobile_logo | image_url: width: 64 }} 1x, {{ mobile_logo | image_url: width: 128 }} 2x'
+            alt='{{ shop.name }}'
+            class='header__logo-image header__logo-image--mobile'
+            width='64'
+            height='auto'
             loading='eager'
           >
         {% else %}
+          {%- comment -%} Fallback: Use logo PNG files from theme assets {%- endcomment -%}
           <img
-            src='https://placehold.co/28x28/71717a/ffffff?text=H'
+            src='{{ 'logo-128.png' | asset_url }}'
             alt='{{ shop.name }}'
-            class='header__logo-image'
-            width='28'
-            height='28'
+            class='header__logo-image header__logo-image--desktop'
+            width='128'
+            height='auto'
+            loading='eager'
+          >
+          <img
+            src='{{ 'logo-64.png' | asset_url }}'
+            alt='{{ shop.name }}'
+            class='header__logo-image header__logo-image--mobile'
+            width='64'
+            height='auto'
             loading='eager'
           >
         {% endif %}
@@ -634,7 +659,14 @@
     {
       "type": "image_picker",
       "id": "logo",
-      "label": "Logo Image"
+      "label": "Desktop Logo",
+      "info": "Displayed on desktop/tablet screens. Recommended: 128px wide."
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_mobile",
+      "label": "Mobile Logo",
+      "info": "Displayed on mobile screens. Recommended: 64px wide. Falls back to desktop logo if not set."
     },
     {
       "type": "text",
