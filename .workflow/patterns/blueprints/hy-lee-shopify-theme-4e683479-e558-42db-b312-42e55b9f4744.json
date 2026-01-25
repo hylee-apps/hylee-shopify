@@ -1,0 +1,45 @@
+{
+  "id": "4e683479-e558-42db-b312-42e55b9f4744",
+  "name": "Hy-lee Shopify Theme",
+  "description": "Walmart-style Shopify theme with CSS component library, customer account sections, Liquid templates, and Playwright E2E testing",
+  "tags": [
+    {
+      "category": "framework",
+      "name": "shopify"
+    }
+  ],
+  "stack": {
+    "framework": "shopify",
+    "language": "typescript",
+    "runtime": "node",
+    "packageManager": "pnpm",
+    "dependencies": [],
+    "devDependencies": []
+  },
+  "structure": {
+    "directories": [],
+    "keyFiles": []
+  },
+  "setup": {
+    "prerequisites": [],
+    "steps": [],
+    "configs": []
+  },
+  "compatibility": {
+    "framework": "shopify",
+    "frameworkVersion": ">=1.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "applications": 0,
+    "successes": 0,
+    "failures": 0,
+    "successRate": 0
+  },
+  "relatedPatterns": [],
+  "isPrivate": true,
+  "createdAt": "2026-01-25T12:54:34.374Z",
+  "updatedAt": "2026-01-25T12:54:34.374Z"
+}
