@@ -4,16 +4,21 @@
   Features:
   - Skip-to-main-content accessibility link
   - Logo with homepage link
-  - Full-width search bar with pill styling
+  - Categories dropdown button
+  - Full-width search bar spanning available space
+  - Orders quick link
   - Account dropdown with sign-in/orders/settings
   - Cart link with item count badge and total
   - Mobile: hamburger menu, search toggle, cart icon
+
+  Layout: [Logo] [Categories ▼] [======= Search =======] [Orders] [Account] [Cart]
 
   Usage:
     {% section 'header-inner' %}
 {% endcomment %}
 
 {{ 'section-header-inner.css' | asset_url | stylesheet_tag }}
+{{ 'component-search-input.css' | asset_url | stylesheet_tag }}
 
 <header class='header-inner' data-header-inner>
   {%- comment -%} Skip to main content link for accessibility {%- endcomment -%}
@@ -40,54 +45,74 @@
       class='header-inner__logo'
       aria-label='{{ shop.name }} - {{ 'general.accessibility.home' | t | default: 'Homepage' }}'
     >
-      {%- comment -%} Desktop Logo (hidden on mobile) {%- endcomment -%}
+      {%- comment -%} Desktop Logo (hidden on mobile) - universal logo for green background {%- endcomment -%}
       <img
-        src='{{ 'logo-128.png' | asset_url }}'
+        src='{{ 'logo-universal.png' | asset_url }}'
         alt='{{ shop.name }}'
         class='header-inner__logo-image header-inner__logo-image--desktop'
-        width='128'
-        height='auto'
+        width='auto'
+        height='48'
         loading='eager'
       >
-      {%- comment -%} Mobile Logo (hidden on desktop) {%- endcomment -%}
+      {%- comment -%} Mobile Logo (hidden on desktop) - universal logo for green background {%- endcomment -%}
       <img
-        src='{{ 'logo-64.png' | asset_url }}'
+        src='{{ 'logo-universal.png' | asset_url }}'
         alt='{{ shop.name }}'
         class='header-inner__logo-image header-inner__logo-image--mobile'
-        width='64'
-        height='auto'
+        width='auto'
+        height='36'
         loading='eager'
       >
-      <span class='header-inner__logo-text'>
-        {{- section.settings.logo_text | default: shop.name -}}
-      </span>
     </a>
 
-    {%- comment -%} Search bar - Desktop {%- endcomment -%}
-    <div class='header-inner__search' data-header-search>
-      <form
-        action='{{ routes.search_url }}'
-        method='get'
-        role='search'
-        class='header-inner__search-form'
-        aria-label='{{ 'general.search.search' | t | default: 'Search' }}'
+    {%- comment -%} Categories dropdown button (Walmart-style) {%- endcomment -%}
+    <div class='header-inner__categories' data-header-categories>
+      <button
+        type='button'
+        class='header-inner__categories-trigger'
+        data-header-categories-toggle
+        aria-haspopup='true'
+        aria-expanded='false'
       >
-        <input
-          type='search'
-          name='q'
-          class='header-inner__search-input'
-          placeholder='{{ section.settings.search_placeholder | default: 'Search products...' }}'
-          autocomplete='off'
-          aria-label='{{ 'general.search.search' | t | default: 'Search' }}'
-        >
-        <button
-          type='submit'
-          class='header-inner__search-button'
-          aria-label='{{ 'general.search.search' | t | default: 'Search' }}'
-        >
-          {% render 'icon', name: 'search', size: 20 %}
-        </button>
-      </form>
+        {% render 'icon', name: 'grid', size: 20 %}
+        <span class='header-inner__categories-text'>
+          <span class='header-inner__categories-label'>Shop by</span>
+          <span class='header-inner__categories-value'>Categories</span>
+        </span>
+        {% render 'icon',
+          name: 'chevron-down',
+          size: 12,
+          class: 'header-inner__categories-chevron'
+        %}
+      </button>
+
+      {%- comment -%} Categories flyout dropdown {%- endcomment -%}
+      <div class='header-inner__categories-flyout' data-header-categories-flyout hidden>
+        <div class='header-inner__categories-flyout-inner'>
+          {%- for link in section.settings.menu.links -%}
+            <a href='{{ link.url }}' class='header-inner__categories-link'>
+              {{ link.title }}
+            </a>
+          {%- endfor -%}
+          {%- if section.settings.menu.links.size == 0 -%}
+            <a href='{{ routes.collections_url }}' class='header-inner__categories-link'>
+              All Collections
+            </a>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+
+    {%- comment -%} Search bar - Desktop (spans remaining width) {%- endcomment -%}
+    <div class='header-inner__search' data-header-search>
+      {%
+        render 'search-input',
+        size: 'default',
+        color_scheme: 'default',
+        width: 'full',
+        placeholder: section.settings.search_placeholder | default: 'Search products...',
+        id: 'header-search'
+      %}
     </div>
 
     {%- comment -%} Mobile: Search toggle {%- endcomment -%}
@@ -101,11 +126,23 @@
       {% render 'icon', name: 'search', size: 24 %}
     </button>
 
-    {%- comment -%} Actions: Account & Cart {%- endcomment -%}
+    {%- comment -%} Actions: Orders, Account & Cart {%- endcomment -%}
     <nav
       class='header-inner__actions'
       aria-label='{{ 'sections.header.account_and_cart' | t | default: 'Account and Cart' }}'
     >
+      {%- comment -%} Orders quick link {%- endcomment -%}
+      <a
+        href='{{ routes.account_url | append: '#orders' | default: '/pages/orders' }}'
+        class='header-inner__orders-link'
+      >
+        {% render 'icon', name: 'package', size: 20 %}
+        <span class='header-inner__orders-text'>
+          <span class='header-inner__orders-label'>View</span>
+          <span class='header-inner__orders-value'>My Orders</span>
+        </span>
+      </a>
+
       {%- comment -%} Account dropdown {%- endcomment -%}
       {%- if section.settings.show_account -%}
         <div class='header-inner__account' data-header-account>
@@ -142,10 +179,6 @@
                 <a href='{{ routes.account_url }}' class='header-inner__flyout-link'>
                   {% render 'icon', name: 'user', size: 16 %}
                   My Account
-                </a>
-                <a href='/pages/orders' class='header-inner__flyout-link'>
-                  {% render 'icon', name: 'package', size: 16 %}
-                  Orders
                 </a>
                 <a href='/account/settings' class='header-inner__flyout-link'>
                   {% render 'icon', name: 'settings', size: 16 %}
@@ -352,9 +385,9 @@
     {
       "type": "link_list",
       "id": "menu",
-      "label": "Mobile menu",
+      "label": "Navigation menu",
       "default": "main-menu",
-      "info": "Select the menu to display in mobile navigation"
+      "info": "Used for Categories dropdown and mobile navigation"
     },
     {
       "type": "header",

@@ -18,25 +18,22 @@
 -%}
 
 <a href='{{ routes.root_url }}' class='{{ class_prefix }}__logo'>
-  {%- comment -%} Desktop Logo (hidden on mobile) {%- endcomment -%}
+  {%- comment -%} Desktop Logo (hidden on mobile) - using retina image {%- endcomment -%}
   <img
-    src='{{ 'logo-128.png' | asset_url }}'
+    src='{{ 'logo-4096.png' | asset_url }}'
     alt='{{ shop.name }}'
     class='{{ class_prefix }}__logo-image {{ class_prefix }}__logo-image--desktop'
-    width='128'
-    height='auto'
+    width='auto'
+    height='48'
     loading='eager'
   >
-  {%- comment -%} Mobile Logo (hidden on desktop) {%- endcomment -%}
+  {%- comment -%} Mobile Logo (hidden on desktop) - using retina image {%- endcomment -%}
   <img
-    src='{{ 'logo-64.png' | asset_url }}'
+    src='{{ 'logo-4096.png' | asset_url }}'
     alt='{{ shop.name }}'
     class='{{ class_prefix }}__logo-image {{ class_prefix }}__logo-image--mobile'
-    width='64'
-    height='auto'
+    width='auto'
+    height='36'
     loading='eager'
   >
-  {%- if show_text -%}
-    <span class='{{ class_prefix }}__logo-text'>{{ logo_text_display }}</span>
-  {%- endif -%}
 </a>

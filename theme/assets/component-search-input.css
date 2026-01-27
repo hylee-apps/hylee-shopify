@@ -1,0 +1,263 @@
+/**
+ * Search Input Component
+ * Reusable pill-shaped search input with multiple variants
+ * 
+ * Variants:
+ * - Size: --sm, --default (base), --lg
+ * - Color scheme: --default (bordered), --inverted (white with shadow)
+ * - Width: --full (100% width)
+ * - Button: --with-button (shows text button)
+ */
+
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
+
+.search-input {
+  display: flex;
+  width: auto;
+}
+
+.search-input--full {
+  width: 100%;
+}
+
+.search-input__wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-radius: var(--radius-full, 9999px);
+  overflow: hidden;
+  transition:
+    box-shadow var(--transition-base, 200ms) ease,
+    border-color var(--transition-base, 200ms) ease;
+}
+
+/* ==========================================================================
+   Input Field
+   ========================================================================== */
+
+.search-input__field {
+  flex: 1;
+  min-width: 0;
+  padding: 0.75rem 1.25rem;
+  padding-right: 3rem; /* Space for icon button */
+  border: none;
+  background: transparent;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: var(--color-text, #333333);
+  outline: none;
+}
+
+.search-input__field::placeholder {
+  color: var(--color-text-muted, #94a3b8);
+}
+
+/* Hide default search cancel button */
+.search-input__field::-webkit-search-cancel-button,
+.search-input__field::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* ==========================================================================
+   Icon Button (default - no text)
+   ========================================================================== */
+
+.search-input__icon-button {
+  position: absolute;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted, #94a3b8);
+  cursor: pointer;
+  transition: color var(--transition-fast, 150ms) ease;
+}
+
+.search-input__icon-button:hover {
+  color: var(--color-primary, #2ac864);
+}
+
+.search-input__wrapper:focus-within .search-input__icon-button {
+  color: var(--color-primary, #2ac864);
+}
+
+/* ==========================================================================
+   Text Button (--with-button variant)
+   ========================================================================== */
+
+.search-input--with-button .search-input__field {
+  padding-right: 1.25rem; /* Button has its own space */
+}
+
+.search-input__button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: var(--search-button-bg, var(--color-primary, #2ac864));
+  color: var(--search-button-color, #ffffff);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--transition-fast, 150ms) ease;
+}
+
+.search-input__button:hover {
+  background: var(--search-button-hover-bg, var(--color-primary-dark, #22a857));
+}
+
+.search-input__button .icon {
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Color Scheme: Default (for light backgrounds)
+   ========================================================================== */
+
+.search-input--default .search-input__wrapper {
+  background: var(--color-background, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+}
+
+.search-input--default .search-input__wrapper:hover {
+  border-color: var(--color-border-hover, #cbd5e1);
+}
+
+.search-input--default .search-input__wrapper:focus-within {
+  border-color: var(--color-primary, #2ac864);
+  box-shadow: 0 0 0 3px rgba(42, 200, 100, 0.15);
+}
+
+/* ==========================================================================
+   Color Scheme: Inverted (for dark/gradient backgrounds)
+   ========================================================================== */
+
+.search-input--inverted .search-input__wrapper {
+  background: #ffffff;
+  border: none;
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.search-input--inverted .search-input__wrapper:focus-within {
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.15),
+    0 8px 10px -6px rgba(0, 0, 0, 0.15);
+}
+
+.search-input--inverted .search-input__field {
+  color: #0f172a;
+}
+
+.search-input--inverted .search-input__icon-button {
+  color: #64748b;
+}
+
+.search-input--inverted .search-input__icon-button:hover,
+.search-input--inverted .search-input__wrapper:focus-within .search-input__icon-button {
+  color: var(--color-primary, #2ac864);
+}
+
+/* ==========================================================================
+   Size: Small (--sm)
+   ========================================================================== */
+
+.search-input--sm .search-input__field {
+  padding: 0.5rem 1rem;
+  padding-right: 2.5rem;
+  font-size: 0.875rem;
+}
+
+.search-input--sm .search-input__icon-button {
+  right: 0.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.search-input--sm .search-input__icon-button .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.search-input--sm.search-input--with-button .search-input__field {
+  padding-right: 1rem;
+}
+
+.search-input--sm .search-input__button {
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+}
+
+.search-input--sm .search-input__button .icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* ==========================================================================
+   Size: Large (--lg)
+   ========================================================================== */
+
+.search-input--lg .search-input__field {
+  padding: 1.125rem 1.5rem;
+  padding-right: 3.5rem;
+  font-size: 1rem;
+}
+
+.search-input--lg .search-input__icon-button {
+  right: 1rem;
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.search-input--lg.search-input--with-button .search-input__field {
+  padding-right: 1.5rem;
+}
+
+.search-input--lg .search-input__button {
+  padding: 1.125rem 2rem;
+  font-size: 1rem;
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+
+@media (max-width: 767px) {
+  /* Stack button below input on mobile for large variant */
+  .search-input--lg.search-input--with-button .search-input__wrapper {
+    flex-direction: column;
+    border-radius: var(--radius-lg, 0.75rem);
+  }
+
+  .search-input--lg.search-input--with-button .search-input__field {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+  }
+
+  .search-input--lg.search-input--with-button .search-input__button {
+    width: 100%;
+    justify-content: center;
+    border-radius: 0;
+    padding: 1rem 1.5rem;
+  }
+
+  /* Smaller sizes maintain horizontal layout */
+  .search-input--default .search-input__field,
+  .search-input--sm .search-input__field {
+    font-size: 0.875rem;
+  }
+}

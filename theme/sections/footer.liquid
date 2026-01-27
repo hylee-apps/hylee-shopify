@@ -29,27 +29,24 @@
         {%- if show_brand -%}
           <div class='footer__brand'>
             <div class='footer__logo'>
-              {%- comment -%} Desktop Logo (hidden on mobile) {%- endcomment -%}
+              {%- comment -%} Desktop Logo (hidden on mobile) - using retina image {%- endcomment -%}
               <img
-                src='{{ 'logo-128.png' | asset_url }}'
+                src='{{ 'logo-4096.png' | asset_url }}'
                 alt='{{ shop.name }}'
                 class='footer__logo-image footer__logo-image--desktop'
-                width='128'
-                height='auto'
+                width='auto'
+                height='36'
                 loading='lazy'
               >
-              {%- comment -%} Mobile Logo (hidden on desktop) {%- endcomment -%}
+              {%- comment -%} Mobile Logo (hidden on desktop) - using retina image {%- endcomment -%}
               <img
-                src='{{ 'logo-64.png' | asset_url }}'
+                src='{{ 'logo-4096.png' | asset_url }}'
                 alt='{{ shop.name }}'
                 class='footer__logo-image footer__logo-image--mobile'
-                width='64'
-                height='auto'
+                width='auto'
+                height='28'
                 loading='lazy'
               >
-              <span class='footer__logo-text'>
-                {{- section.settings.logo_text | default: shop.name -}}
-              </span>
             </div>
             {% if section.settings.description != blank %}
               <p class='footer__description'>{{ section.settings.description }}</p>

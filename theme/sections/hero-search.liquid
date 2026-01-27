@@ -3,207 +3,130 @@
   Customizable in theme editor
 {% endcomment %}
 
-<section class="hero-search" id="hero-search-{{ section.id }}">
-  <div class="hero-search__container">
-    
+{{ 'component-search-input.css' | asset_url | stylesheet_tag }}
+
+<section class='hero-search' id='hero-search-{{ section.id }}'>
+  <div class='hero-search__container'>
     {%- comment -%} Hero Content {%- endcomment -%}
-    <div class="hero-search__content">
+    <div class='hero-search__content'>
       {% if section.settings.heading != blank %}
-        <h1 class="hero-search__heading">{{ section.settings.heading }}</h1>
+        <h1 class='hero-search__heading'>{{ section.settings.heading }}</h1>
       {% endif %}
 
       {% if section.settings.subheading != blank %}
-        <p class="hero-search__subheading">{{ section.settings.subheading }}</p>
+        <p class='hero-search__subheading'>{{ section.settings.subheading }}</p>
       {% endif %}
 
       {%- comment -%} Search Form {%- endcomment -%}
-      <form action="/search" method="get" class="hero-search__form" role="search">
-        <div class="hero-search__input-wrapper">
-          <input
-            type="search"
-            name="q"
-            value="{{ search.terms | escape }}"
-            placeholder="{{ section.settings.search_placeholder | default: 'Search products...' }}"
-            class="hero-search__input"
-            aria-label="Search products"
-          />
-          
-          <button type="submit" class="hero-search__button">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/>
-              <path d="m21 21-4.35-4.35"/>
-            </svg>
-            <span>{{ section.settings.button_text | default: 'Search' }}</span>
-          </button>
-        </div>
-      </form>
+      <div class='hero-search__form-wrapper'>
+        {%
+          render 'search-input',
+          size: 'lg',
+          color_scheme: 'inverted',
+          width: 'full',
+          show_button: false,
+          placeholder: section.settings.search_placeholder | default: 'Search products...',
+          value: search.terms,
+          id: 'hero-search-form'
+        %}
+      </div>
     </div>
-
   </div>
 </section>
 
 <style>
-#hero-search-{{ section.id }} {
-  position: relative;
-  width: 100%;
-  padding: 5rem 1.5rem;
-  background: linear-gradient(135deg, {{ section.settings.gradient_start | default: '#14b8a6' }}, {{ section.settings.gradient_end | default: '#06b6d4' }});
-  overflow: hidden;
-  font-family: 'Assistant', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
-#hero-search-{{ section.id }} .hero-search__container {
-  max-width: 1280px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
-}
-
-#hero-search-{{ section.id }} .hero-search__content {
-  text-align: center;
-  max-width: 56rem;
-  margin: 0 auto;
-}
-
-/* Heading */
-#hero-search-{{ section.id }} .hero-search__heading {
-  margin: 0 0 1rem 0;
-  font-size: 3rem;
-  font-weight: 600;
-  color: {{ section.settings.heading_color | default: '#ffffff' }};
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-}
-
-/* Subheading */
-#hero-search-{{ section.id }} .hero-search__subheading {
-  margin: 0 0 2.5rem 0;
-  font-size: 1.25rem;
-  font-weight: 400;
-  color: {{ section.settings.subheading_color | default: 'rgba(255, 255, 255, 0.95)' }};
-  line-height: 1.6;
-}
-
-/* Search Form */
-#hero-search-{{ section.id }} .hero-search__form {
-  width: 100%;
-  max-width: 48rem;
-  margin: 0 auto;
-}
-
-#hero-search-{{ section.id }} .hero-search__input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  background: #ffffff;
-  border-radius: 0.75rem;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s;
-  overflow: hidden;
-}
-
-#hero-search-{{ section.id }} .hero-search__input-wrapper:focus-within {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.15);
-}
-
-/* Input */
-#hero-search-{{ section.id }} .hero-search__input {
-  flex: 1;
-  padding: 1.125rem 1.5rem;
-  border: none;
-  background: transparent;
-  font-size: 1rem;
-  color: #0f172a;
-  outline: none;
-  font-family: inherit;
-}
-
-#hero-search-{{ section.id }} .hero-search__input::placeholder {
-  color: #94a3b8;
-}
-
-/* Button */
-#hero-search-{{ section.id }} .hero-search__button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1.125rem 2rem;
-  background: {{ section.settings.button_background | default: '#10b981' }};
-  border: none;
-  color: {{ section.settings.button_text_color | default: '#ffffff' }};
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-  font-family: inherit;
-  border-radius: 0 0.75rem 0.75rem 0;
-  margin: 0;
-}
-
-#hero-search-{{ section.id }} .hero-search__button:hover {
-  background: {{ section.settings.button_hover_background | default: '#059669' }};
-}
-
-#hero-search-{{ section.id }} .hero-search__button:active {
-  transform: translateY(0);
-}
-
-#hero-search-{{ section.id }} .hero-search__button svg {
-  width: 20px;
-  height: 20px;
-  stroke-width: 2;
-}
-
-/* Tablet */
-@media (max-width: 1024px) {
   #hero-search-{{ section.id }} {
-    padding: 4rem 1.5rem;
-  }
-
-  #hero-search-{{ section.id }} .hero-search__heading {
-    font-size: 2.5rem;
-  }
-
-  #hero-search-{{ section.id }} .hero-search__subheading {
-    font-size: 1.125rem;
-  }
-}
-
-/* Mobile */
-@media (max-width: 767px) {
-  #hero-search-{{ section.id }} {
-    padding: 3rem 1rem;
-  }
-
-  #hero-search-{{ section.id }} .hero-search__heading {
-    font-size: 2rem;
-    margin-bottom: 0.75rem;
-  }
-
-  #hero-search-{{ section.id }} .hero-search__subheading {
-    font-size: 1rem;
-    margin-bottom: 2rem;
-  }
-
-  #hero-search-{{ section.id }} .hero-search__input-wrapper {
-    flex-direction: column;
-    border-radius: 0.75rem;
-  }
-
-  #hero-search-{{ section.id }} .hero-search__input {
+    position: relative;
     width: 100%;
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid #e2e8f0;
+    padding: 5rem 1.5rem;
+    background: linear-gradient(135deg, {{ section.settings.gradient_start | default: '#14b8a6' }}, {{ section.settings.gradient_end | default: '#06b6d4' }});
+    overflow: hidden;
+    font-family: 'Assistant', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 
-  #hero-search-{{ section.id }} .hero-search__button {
-    width: 100%;
-    justify-content: center;
-    border-radius: 0 0 0.75rem 0.75rem;
-    padding: 1rem 1.5rem;
+  #hero-search-{{ section.id }} .hero-search__container {
+    max-width: 1280px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
   }
-}
+
+  #hero-search-{{ section.id }} .hero-search__content {
+    text-align: center;
+    max-width: 56rem;
+    margin: 0 auto;
+  }
+
+  /* Heading */
+  #hero-search-{{ section.id }} .hero-search__heading {
+    margin: 0 0 1rem 0;
+    font-size: 3rem;
+    font-weight: 600;
+    color: {{ section.settings.heading_color | default: '#ffffff' }};
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  /* Subheading */
+  #hero-search-{{ section.id }} .hero-search__subheading {
+    margin: 0 0 2.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: {{ section.settings.subheading_color | default: 'rgba(255, 255, 255, 0.95)' }};
+    line-height: 1.6;
+  }
+
+  /* Search Form Wrapper */
+  #hero-search-{{ section.id }} .hero-search__form-wrapper {
+    width: 100%;
+    max-width: 48rem;
+    margin: 0 auto;
+  }
+
+  /* Custom button colors for this section */
+  #hero-search-{{ section.id }} .search-input__button {
+    --search-button-bg: {{ section.settings.button_background | default: '#10b981' }};
+    --search-button-hover-bg: {{ section.settings.button_hover_background | default: '#059669' }};
+    --search-button-color: {{ section.settings.button_text_color | default: '#ffffff' }};
+    background: var(--search-button-bg);
+    color: var(--search-button-color);
+  }
+
+  #hero-search-{{ section.id }} .search-input__button:hover {
+    background: var(--search-button-hover-bg);
+  }
+
+  /* Tablet */
+  @media (max-width: 1024px) {
+    #hero-search-{{ section.id }} {
+      padding: 4rem 1.5rem;
+    }
+
+    #hero-search-{{ section.id }} .hero-search__heading {
+      font-size: 2.5rem;
+    }
+
+    #hero-search-{{ section.id }} .hero-search__subheading {
+      font-size: 1.125rem;
+    }
+  }
+
+  /* Mobile */
+  @media (max-width: 767px) {
+    #hero-search-{{ section.id }} {
+      padding: 3rem 1rem;
+    }
+
+    #hero-search-{{ section.id }} .hero-search__heading {
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+    }
+
+    #hero-search-{{ section.id }} .hero-search__subheading {
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+  }
 </style>
 
 {% schema %}

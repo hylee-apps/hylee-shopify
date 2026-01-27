@@ -17,6 +17,7 @@
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
+  width: 100%;
   background-color: var(--color-primary);
   color: #ffffff;
 }
@@ -25,10 +26,15 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
   padding: var(--space-3) var(--space-4);
   min-height: 4rem;
+}
+
+/* Ensure Shopify section wrapper doesn't constrain width */
+.section-header-inner {
+  width: 100%;
+  max-width: none;
 }
 
 /* ===========================================
@@ -115,68 +121,145 @@
 }
 
 /* ===========================================
-   SEARCH BAR
+   CATEGORIES DROPDOWN (Walmart-style)
    =========================================== */
 
-.header-inner__search {
-  display: none;
-  flex: 1;
-  max-width: 600px;
-  margin: 0 var(--space-4);
-}
-
-.header-inner__search-form {
+.header-inner__categories {
   position: relative;
+  display: none;
+  flex-shrink: 0;
+}
+
+.header-inner__categories-trigger {
   display: flex;
   align-items: center;
-  width: 100%;
-}
-
-.header-inner__search-input {
-  width: 100%;
-  padding: var(--space-3) var(--space-10) var(--space-3) var(--space-5);
-  font-size: var(--text-base);
-  font-family: var(--font-body);
-  color: var(--color-text);
-  background-color: #ffffff;
-  border: none;
-  border-radius: var(--radius-full);
-  outline: none;
-  transition: box-shadow var(--transition-fast);
-}
-
-.header-inner__search-input::placeholder {
-  color: var(--color-text-muted);
-}
-
-.header-inner__search-input:focus {
-  box-shadow: 0 0 0 3px rgba(42, 200, 100, 0.3);
-}
-
-.header-inner__search-button {
-  position: absolute;
-  right: var(--space-1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 0;
-  background-color: var(--color-primary);
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
   color: #ffffff;
+  background: transparent;
   border: none;
   border-radius: var(--radius-full);
   cursor: pointer;
   transition: background-color var(--transition-fast);
 }
 
-.header-inner__search-button:hover {
-  background-color: var(--color-secondary);
+.header-inner__categories-trigger:hover,
+.header-inner__categories-trigger:focus-visible {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-.header-inner__search-button:focus-visible {
+.header-inner__categories-trigger:focus-visible {
   outline: 2px solid #ffffff;
   outline-offset: 2px;
+}
+
+.header-inner__categories-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  text-align: left;
+}
+
+.header-inner__categories-label {
+  font-size: var(--text-xs);
+  opacity: 0.85;
+}
+
+.header-inner__categories-value {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.header-inner__categories-chevron {
+  opacity: 0.8;
+  transition: transform var(--transition-fast);
+}
+
+.header-inner__categories-trigger[aria-expanded='true'] .header-inner__categories-chevron {
+  transform: rotate(180deg);
+}
+
+/* Categories Flyout */
+.header-inner__categories-flyout {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  min-width: 220px;
+  background-color: var(--color-background);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  z-index: var(--z-dropdown);
+  overflow: hidden;
+  animation: header-flyout-slide 200ms ease-out;
+}
+
+.header-inner__categories-flyout[hidden] {
+  display: none;
+}
+
+.header-inner__categories-flyout-inner {
+  padding: var(--space-2);
+}
+
+.header-inner__categories-link {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.header-inner__categories-link:hover {
+  background-color: var(--color-background-secondary);
+  color: var(--color-primary);
+}
+
+/* ===========================================
+   SEARCH BAR
+   =========================================== */
+
+.header-inner__search {
+  display: none;
+  flex: 1 1 0%;
+  min-width: 0;
+  margin: 0 var(--space-3);
+  width: 100%;
+}
+
+/* Search input component overrides for header context */
+.header-inner__search .search-input {
+  width: 100%;
+  max-width: 100%;
+  flex: 1 1 0%;
+}
+
+.header-inner__search .search-input__wrapper {
+  flex: 1 1 0%;
+  background-color: #ffffff;
+  width: 100%;
+}
+
+.header-inner__search .search-input__field {
+  width: 100%;
+  flex: 1 1 0%;
+  padding: var(--space-3) var(--space-10) var(--space-3) var(--space-5);
+  font-size: var(--text-base);
+}
+
+.header-inner__search .search-input__wrapper:focus-within {
+  box-shadow: 0 0 0 3px rgba(42, 200, 100, 0.3);
+}
+
+.header-inner__search .search-input__icon-button {
+  right: var(--space-3);
+  color: var(--color-text-muted);
+}
+
+.header-inner__search .search-input__icon-button:hover,
+.header-inner__search .search-input__wrapper:focus-within .search-input__icon-button {
+  color: var(--color-primary);
 }
 
 /* ===========================================
@@ -190,7 +273,6 @@
   width: 2.75rem;
   height: 2.75rem;
   padding: 0;
-  margin-left: auto;
   background: transparent;
   color: #ffffff;
   border: none;
@@ -210,13 +292,52 @@
 }
 
 /* ===========================================
-   ACTIONS (Account & Cart)
+   ACTIONS (Orders, Account & Cart)
    =========================================== */
 
 .header-inner__actions {
   display: flex;
   align-items: center;
+  gap: var(--space-1);
+  flex: 0 0 auto;
+}
+
+/* Orders Quick Link (Walmart-style "Reorder") */
+.header-inner__orders-link {
+  display: none;
+  align-items: center;
   gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: var(--radius-full);
+  transition: background-color var(--transition-fast);
+}
+
+.header-inner__orders-link:hover,
+.header-inner__orders-link:focus-visible {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.header-inner__orders-link:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.header-inner__orders-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.header-inner__orders-label {
+  font-size: var(--text-xs);
+  opacity: 0.85;
+}
+
+.header-inner__orders-value {
+  font-size: var(--text-sm);
+  font-weight: 600;
 }
 
 /* Account Dropdown */
@@ -253,12 +374,12 @@
 }
 
 .header-inner__account-label {
-  font-size: var(--text-sm);
-  opacity: 0.9;
+  font-size: var(--text-xs);
+  opacity: 0.85;
 }
 
 .header-inner__account-value {
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
@@ -736,12 +857,20 @@
     padding: var(--space-3) var(--space-6);
   }
 
+  .header-inner__categories {
+    display: flex;
+  }
+
   .header-inner__search {
-    display: block;
+    display: flex;
   }
 
   .header-inner__search-toggle {
     display: none;
+  }
+
+  .header-inner__orders-link {
+    display: flex;
   }
 
   .header-inner__account {
@@ -775,8 +904,8 @@
     height: 2.5rem;
   }
 
-  .header-inner__search {
-    max-width: 700px;
+  .header-inner__categories-trigger {
+    padding: var(--space-2) var(--space-4);
   }
 
   .header-inner__search-input {
@@ -788,6 +917,10 @@
     right: var(--space-2);
     width: 2.5rem;
     height: 2.5rem;
+  }
+
+  .header-inner__orders-link {
+    padding: var(--space-2) var(--space-4);
   }
 
   .header-inner__account-trigger {
@@ -812,7 +945,7 @@
 
 @media (min-width: 1280px) {
   .header-inner__search {
-    max-width: 800px;
+    max-width: none;
     margin: 0 var(--space-8);
   }
 }
