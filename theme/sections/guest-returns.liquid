@@ -11,23 +11,22 @@
   <header class='guest-returns__header'>
     <div class='guest-returns__header-inner'>
       <a href='{{ routes.root_url }}' class='guest-returns__logo'>
-        {%- comment -%} Desktop Logo {%- endcomment -%}
+        {%- comment -%} Desktop Logo - using retina image {%- endcomment -%}
         <img
-          src='{{ 'logo-128.png' | asset_url }}'
+          src='{{ 'logo-4096.png' | asset_url }}'
           alt='{{ shop.name }}'
           class='guest-returns__logo-image guest-returns__logo-image--desktop'
-          width='128'
-          height='auto'
+          width='auto'
+          height='48'
         >
-        {%- comment -%} Mobile Logo {%- endcomment -%}
+        {%- comment -%} Mobile Logo - using retina image {%- endcomment -%}
         <img
-          src='{{ 'logo-64.png' | asset_url }}'
+          src='{{ 'logo-4096.png' | asset_url }}'
           alt='{{ shop.name }}'
           class='guest-returns__logo-image guest-returns__logo-image--mobile'
-          width='64'
-          height='auto'
+          width='auto'
+          height='36'
         >
-        <span class='guest-returns__logo-text'>{{ shop.name }}</span>
       </a>
       <div class='guest-returns__header-actions'>
         {% if customer %}

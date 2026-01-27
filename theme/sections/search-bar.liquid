@@ -3,142 +3,69 @@
   Customizable in theme editor
 {% endcomment %}
 
-<section class="search-bar-section" id="search-{{ section.id }}">
-  <div class="search-bar-section__container">
+{{ 'component-search-input.css' | asset_url | stylesheet_tag }}
+
+<section class='search-bar-section' id='search-{{ section.id }}'>
+  <div class='search-bar-section__container'>
     {% if section.settings.heading != blank %}
-      <h3 class="search-bar-section__heading">{{ section.settings.heading }}</h3>
+      <h3 class='search-bar-section__heading'>{{ section.settings.heading }}</h3>
     {% endif %}
-    
-    <form action="/search" method="get" class="search-bar-section__form" role="search">
-      <div class="search-bar-section__input-wrapper">
-        <svg class="search-bar-section__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/>
-          <path d="m21 21-4.35-4.35"/>
-        </svg>
-        
-        <input
-          type="search"
-          name="q"
-          value="{{ search.terms | escape }}"
-          placeholder="{{ section.settings.placeholder | default: 'Search thousands of products...' }}"
-          class="search-bar-section__input"
-          aria-label="Search"
-        />
-        
-        <button type="submit" class="search-bar-section__button">
-          {{ section.settings.button_text | default: 'Search' }}
-        </button>
-      </div>
-    </form>
+
+    <div class='search-bar-section__form-wrapper'>
+      {%
+        render 'search-input',
+        size: 'default',
+        color_scheme: 'default',
+        width: 'full',
+        show_button: true,
+        button_text: section.settings.button_text | default: 'Search',
+        placeholder: section.settings.placeholder | default: 'Search thousands of products...',
+        value: search.terms,
+        id: 'search-bar-form'
+      %}
+    </div>
   </div>
 </section>
 
 <style>
-#search-{{ section.id }} {
-  padding: 3rem 1.5rem;
-  background: {{ section.settings.background_color | default: '#ffffff' }};
-  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
-}
-
-#search-{{ section.id }} .search-bar-section__container {
-  max-width: 56rem;
-  margin: 0 auto;
-}
-
-#search-{{ section.id }} .search-bar-section__heading {
-  text-align: center;
-  margin: 0 0 1.5rem 0;
-  color: {{ section.settings.heading_color | default: '#0f172a' }};
-  font-size: 1.125rem;
-  font-weight: 400;
-  line-height: 1.5;
-}
-
-#search-{{ section.id }} .search-bar-section__form {
-  width: 100%;
-}
-
-#search-{{ section.id }} .search-bar-section__input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  transition: all 0.2s;
-}
-
-#search-{{ section.id }} .search-bar-section__icon {
-  position: absolute;
-  left: 1.25rem;
-  color: #94a3b8;
-  pointer-events: none;
-  transition: color 0.2s;
-  z-index: 1;
-}
-
-#search-{{ section.id }} .search-bar-section__input-wrapper:focus-within .search-bar-section__icon {
-  color: #0ea5e9;
-}
-
-#search-{{ section.id }} .search-bar-section__input {
-  width: 100%;
-  padding: 1rem 1.5rem 1rem 3.5rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
-  background: #ffffff;
-  font-size: 1rem;
-  color: #0f172a;
-  transition: all 0.2s;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  outline: none;
-}
-
-#search-{{ section.id }} .search-bar-section__input:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-#search-{{ section.id }} .search-bar-section__input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-}
-
-#search-{{ section.id }} .search-bar-section__input::placeholder {
-  color: #94a3b8;
-}
-
-#search-{{ section.id }} .search-bar-section__button {
-  position: absolute;
-  right: 0.5rem;
-  padding: 0.5rem 1.5rem;
-  border: 2px solid {{ section.settings.button_border_color | default: '#2AC864' }};
-  color: {{ section.settings.button_text_color | default: '#2AC864' }};
-  background: transparent;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-#search-{{ section.id }} .search-bar-section__button:hover {
-  background: {{ section.settings.button_border_color | default: '#2AC864' }};
-  color: #ffffff;
-}
-
-@media (max-width: 768px) {
   #search-{{ section.id }} {
-    padding: 2rem 1rem;
+    padding: 3rem 1.5rem;
+    background: {{ section.settings.background_color | default: '#ffffff' }};
+    border-bottom: 1px solid rgba(226, 232, 240, 0.6);
   }
-  
-  #search-{{ section.id }} .search-bar-section__input {
-    padding-right: 5.5rem;
-    font-size: 0.875rem;
+
+  #search-{{ section.id }} .search-bar-section__container {
+    max-width: 56rem;
+    margin: 0 auto;
   }
-  
-  #search-{{ section.id }} .search-bar-section__button {
-    padding: 0.5rem 1rem;
-    font-size: 0.8125rem;
+
+  #search-{{ section.id }} .search-bar-section__heading {
+    text-align: center;
+    margin: 0 0 1.5rem 0;
+    color: {{ section.settings.heading_color | default: '#0f172a' }};
+    font-size: 1.125rem;
+    font-weight: 400;
+    line-height: 1.5;
   }
-}
+
+  #search-{{ section.id }} .search-bar-section__form-wrapper {
+    width: 100%;
+  }
+
+  /* Custom button colors for this section */
+  #search-{{ section.id }} .search-input__button {
+    --search-button-bg: {{ section.settings.button_border_color | default: '#2AC864' }};
+    --search-button-hover-bg: {{ section.settings.button_border_color | default: '#2AC864' }};
+    --search-button-color: #ffffff;
+    background: var(--search-button-bg);
+    color: var(--search-button-color);
+  }
+
+  @media (max-width: 768px) {
+    #search-{{ section.id }} {
+      padding: 2rem 1rem;
+    }
+  }
 </style>
 
 {% schema %}

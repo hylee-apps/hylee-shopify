@@ -501,6 +501,55 @@
       }
     }
 
+    // Categories dropdown (Walmart-style)
+    const categoriesContainer = header.querySelector('[data-header-categories]');
+    const categoriesToggle = header.querySelector('[data-header-categories-toggle]');
+    const categoriesFlyout = header.querySelector('[data-header-categories-flyout]');
+
+    if (categoriesToggle && categoriesFlyout) {
+      // Click toggle
+      categoriesToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        const isExpanded = categoriesToggle.getAttribute('aria-expanded') === 'true';
+        toggleCategoriesFlyout(!isExpanded);
+      });
+
+      // Desktop hover
+      if (categoriesContainer) {
+        let hoverTimeout;
+
+        categoriesContainer.addEventListener('mouseenter', () => {
+          clearTimeout(hoverTimeout);
+          if (window.innerWidth >= 768) {
+            toggleCategoriesFlyout(true);
+          }
+        });
+
+        categoriesContainer.addEventListener('mouseleave', () => {
+          hoverTimeout = setTimeout(() => {
+            if (window.innerWidth >= 768) {
+              toggleCategoriesFlyout(false);
+            }
+          }, 150);
+        });
+      }
+
+      // Keyboard navigation
+      categoriesFlyout.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          toggleCategoriesFlyout(false);
+          categoriesToggle.focus();
+        }
+      });
+    }
+
+    function toggleCategoriesFlyout(open) {
+      if (categoriesFlyout) {
+        categoriesFlyout.hidden = !open;
+        categoriesToggle.setAttribute('aria-expanded', open);
+      }
+    }
+
     // Account dropdown
     const accountContainer = header.querySelector('[data-header-account]');
     const accountToggle = header.querySelector('[data-header-account-toggle]');
@@ -550,6 +599,13 @@
 
     // Close dropdowns on outside click
     document.addEventListener('click', (e) => {
+      // Close categories flyout
+      if (categoriesFlyout && !categoriesFlyout.hidden) {
+        if (!e.target.closest('[data-header-categories]')) {
+          toggleCategoriesFlyout(false);
+        }
+      }
+
       // Close account flyout
       if (accountFlyout && !accountFlyout.hidden) {
         if (!e.target.closest('[data-header-account]')) {
@@ -587,6 +643,13 @@
             searchToggle.setAttribute('aria-expanded', 'false');
             searchToggle.focus();
           }
+          return;
+        }
+
+        // Close categories flyout
+        if (categoriesFlyout && !categoriesFlyout.hidden) {
+          toggleCategoriesFlyout(false);
+          if (categoriesToggle) categoriesToggle.focus();
           return;
         }
 

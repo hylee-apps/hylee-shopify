@@ -1,0 +1,101 @@
+{% comment %}
+  Search Input Component - Reusable search form with pill styling
+
+  Usage:
+    {% render 'search-input' %}
+    {% render 'search-input', size: 'lg', color_scheme: 'inverted' %}
+    {% render 'search-input',
+      size: 'lg',
+      color_scheme: 'inverted',
+      width: 'full',
+      show_button: true,
+      button_text: 'Search',
+      placeholder: 'Search products...'
+    %}
+
+  Parameters:
+    - size: sm, default, lg (default: 'default') - Input size
+    - color_scheme: default, inverted (default: 'default')
+        - default: bordered input for light backgrounds
+        - inverted: white input with shadow for dark/gradient backgrounds
+    - width: auto, full (default: 'auto') - Width behavior
+    - show_button: true/false (default: false) - Show text button vs icon only
+    - button_text: string (default: 'Search') - Button text when show_button is true
+    - placeholder: string (default: 'Search...') - Input placeholder
+    - class: string - Additional CSS classes for the form
+    - id: string - Form ID (defaults to 'search-input')
+    - value: string - Pre-filled search value
+    - button_background: string - Custom button background color (for inverted scheme)
+    - button_hover_background: string - Custom button hover color (for inverted scheme)
+{% endcomment %}
+
+{% liquid
+  assign search_size = size | default: 'default'
+  assign search_color_scheme = color_scheme | default: 'default'
+  assign search_width = width | default: 'auto'
+  assign search_show_button = show_button | default: false
+  assign search_button_text = button_text | default: 'Search'
+  assign search_placeholder = placeholder | default: 'Search...'
+  assign search_id = id | default: 'search-input'
+  assign search_value = value | default: ''
+
+  assign form_classes = 'search-input'
+  assign form_classes = form_classes | append: ' search-input--' | append: search_size
+  assign form_classes = form_classes | append: ' search-input--' | append: search_color_scheme
+
+  if search_width == 'full'
+    assign form_classes = form_classes | append: ' search-input--full'
+  endif
+
+  if show_button
+    assign form_classes = form_classes | append: ' search-input--with-button'
+  endif
+
+  if class and class != blank
+    assign form_classes = form_classes | append: ' ' | append: class
+  endif
+%}
+
+<form
+  action='{{ routes.search_url }}'
+  method='get'
+  role='search'
+  class='{{ form_classes }}'
+  id='{{ search_id }}'
+  aria-label='{{ 'general.search.search' | t | default: 'Search' }}'
+  {% if button_background %}
+    data-button-bg='{{ button_background }}'
+  {% endif %}
+  {% if button_hover_background %}
+    data-button-hover-bg='{{ button_hover_background }}'
+  {% endif %}
+>
+  <div class='search-input__wrapper'>
+    <input
+      type='search'
+      name='q'
+      class='search-input__field'
+      placeholder='{{ search_placeholder }}'
+      autocomplete='off'
+      aria-label='{{ 'general.search.search' | t | default: 'Search' }}'
+      {% if search_value != blank %}
+        value='{{ search_value | escape }}'
+      {% endif %}
+    >
+
+    {%- if show_button -%}
+      <button type='submit' class='search-input__button'>
+        {% render 'icon', name: 'search', size: 20 %}
+        <span class='search-input__button-text'>{{ search_button_text }}</span>
+      </button>
+    {%- else -%}
+      <button
+        type='submit'
+        class='search-input__icon-button'
+        aria-label='{{ 'general.search.search' | t | default: 'Search' }}'
+      >
+        {% render 'icon', name: 'search', size: 20 %}
+      </button>
+    {%- endif -%}
+  </div>
+</form>
