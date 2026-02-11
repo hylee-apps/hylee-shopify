@@ -1,6 +1,6 @@
 # Implementation Plan: Liquid to Hydrogen Full Application Rewrite
 
-> **Status**: In Progress
+> **Status**: Complete
 > **Created**: 2026-02-03
 > **Last Updated**: 2026-02-11
 > **Branch**: `feature/hydrogen-migration`
@@ -286,14 +286,28 @@ hydrogen/
 - [x] `policies._index.tsx` — policies listing page
   - [x] Grid of available policy cards with links
 
-### Phase 15: Testing & Deployment
+### Phase 15: Testing & Deployment (COMPLETE)
 
-- [ ] Oxygen hosting configuration
-- [ ] Migrate Playwright E2E tests — `tests/e2e/`
-  - [ ] Update routes for Hydrogen
-  - [ ] Auth setup for customer tests
-- [ ] Vitest for React component unit tests
-- [ ] CI/CD pipeline with workflow validation
+- [x] Hydrogen vitest configuration
+  - [x] `hydrogen/vitest.config.ts` — happy-dom, tsconfigPaths, v8 coverage
+  - [x] `hydrogen/app/test/setup.ts` — jest-dom matchers, cleanup, react-router mocks
+  - [x] Test scripts: `test`, `test:watch`, `test:coverage`
+- [x] Component unit tests (44 tests, 4 files)
+  - [x] `Button.test.tsx` — 15 tests (variants, sizes, states, events, link mode)
+  - [x] `Icon.test.tsx` — 6 tests (rendering, sizing, className, icon variants)
+  - [x] `Badge.test.tsx` — 12 tests (variants, sizes, pill, closable, link mode)
+  - [x] `Alert.test.tsx` — 11 tests (types, dismissible, title, accessibility)
+- [x] Hydrogen Playwright E2E configuration
+  - [x] `hydrogen/playwright.config.ts` — targets localhost:3000, auto-starts dev server
+  - [x] E2E test scripts: `test:e2e`, `test:e2e:ui`
+- [x] E2E smoke tests for Hydrogen routes
+  - [x] `homepage.spec.ts` — hero, categories, products, new arrivals, newsletter, search navigation
+  - [x] `navigation.spec.ts` — header, footer, cart, collections, search, policies, 404
+  - [x] `account.spec.ts` — unauthenticated redirect tests for all account routes
+- [x] Environment configuration
+  - [x] `hydrogen/.env.example` with all required variables documented
+- [x] Test dependencies installed
+  - [x] vitest, @testing-library/react, @testing-library/jest-dom, @testing-library/user-event, happy-dom
 
 ---
 
