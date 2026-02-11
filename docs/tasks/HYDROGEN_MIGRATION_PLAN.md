@@ -157,11 +157,13 @@ hydrogen/
 
 ### Phase 6: Compare Feature
 
-- [ ] `compare.tsx`
-  - [ ] Loader parsing `?compare=id1,id2,id3`
-  - [ ] Server-side product data fetching
-  - [ ] Comparison table component
-- [ ] Update `<CompareButton>` — `useSearchParams()` for URL state
+- [x] `compare.tsx`
+  - [x] Loader parsing `?compare=id1,id2,id3`
+  - [x] Server-side product data fetching
+  - [x] Comparison table component
+- [x] `<CompareButton>` — `useSearchParams()` for URL state
+- [x] `<CompareBar>` — floating bottom bar linking to `/compare`
+- [x] `<CompareTable>` — desktop table + mobile stacked cards
 
 ### Phase 7: Cart
 
