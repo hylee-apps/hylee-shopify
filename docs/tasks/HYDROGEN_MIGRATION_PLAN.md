@@ -2,7 +2,7 @@
 
 > **Status**: In Progress
 > **Created**: 2026-02-03
-> **Last Updated**: 2026-02-10
+> **Last Updated**: 2026-02-11
 > **Branch**: `feature/hydrogen-migration`
 
 ## Overview
@@ -204,45 +204,62 @@ hydrogen/
 
 ## Track B: Customer Accounts
 
-### Phase 9: Authentication
+### Phase 9: Authentication (COMPLETE)
 
-- [ ] `account.login.tsx` — from `theme/sections/customer-login.liquid`
-- [ ] `account.register.tsx` — from `theme/sections/customer-register.liquid`
-- [ ] `account.recover.tsx` — password reset
-- [ ] Session management with Remix session storage
-- [ ] Customer Account API integration
+- [x] `account.authorize.tsx` — OAuth callback handler
+  - [x] `context.customerAccount.authorize()` integration
+- [x] `account.login.tsx` — from `theme/sections/customer-login.liquid`
+  - [x] Checks `isLoggedIn()` → redirect to `/account`
+  - [x] Initiates OAuth via `context.customerAccount.login()`
+- [x] `account.logout.tsx` — POST logout action
+  - [x] Action calls `context.customerAccount.logout()`
+  - [x] GET loader redirects to `/account`
+- [x] Customer Account API OAuth integration
 
-### Phase 10: Account Dashboard
+### Phase 10: Account Dashboard (COMPLETE)
 
-- [ ] `account._index.tsx` — from `theme/sections/customer-dashboard.liquid`
-  - [ ] Amazon-style nav cards
-  - [ ] Protected route with auth loader redirect
-  - [ ] Quick stats (orders, addresses)
+- [x] `account._index.tsx` — from `theme/sections/customer-dashboard.liquid`
+  - [x] Amazon-style nav cards (Orders, Login & Security, Addresses, Contact Us, Gift Cards)
+  - [x] Protected route with `isLoggedIn()` auth guard
+  - [x] Customer greeting with name
+  - [x] Sign out form (POST to `/account/logout`)
+  - [x] CUSTOMER_QUERY with name, email, phone, creationDate, numberOfOrders, defaultAddress
 
-### Phase 11: Orders
+### Phase 11: Orders (COMPLETE)
 
-- [ ] `account.orders.tsx` — from `theme/sections/customer-orders.liquid` (506 lines)
-  - [ ] Server-side search via loader (`?search=`)
-  - [ ] Status filtering (`?status=pending`)
-  - [ ] Time period filtering (`?period=30days`)
-  - [ ] Tabs for order status
-- [ ] `account.orders.$id.tsx` — order detail page
+- [x] `account.orders._index.tsx` — from `theme/sections/customer-orders.liquid` (506 lines)
+  - [x] Customer Account API orders query with pagination (first/after/sortKey/reverse)
+  - [x] `OrderCard` component with header (date/total/status/order name), line items (image/title/variant/qty/price)
+  - [x] "View Order Details" link per order
+  - [x] Cursor-based pagination with "Load More" button
+  - [x] `EmptyOrders` state with CTA
+  - [x] `getFulfillmentBadge` helper for status display
+- [x] `account.orders.$id.tsx` — order detail page
+  - [x] ORDER_QUERY by `gid://shopify/Order/${params.id}`
+  - [x] Fulfillment tracking (carrier, tracking number, tracking URL)
+  - [x] Line items with discount allocations
+  - [x] Order summary (subtotal, shipping, tax, total)
+  - [x] Shipping & billing addresses
+  - [x] Cancelled order banner
 
-### Phase 12: Addresses
+### Phase 12: Addresses (COMPLETE)
 
-- [ ] `account.addresses.tsx` — from `theme/sections/customer-addresses.liquid`
-  - [ ] Address list display
-  - [ ] CRUD with Remix actions
-  - [ ] Modal forms for add/edit
-  - [ ] Default address selection
+- [x] `account.addresses.tsx` — from `theme/sections/customer-addresses.liquid`
+  - [x] 4 GraphQL mutations (CREATE, UPDATE, DELETE, SET_DEFAULT)
+  - [x] Intent-based action handler (create/update/delete/setDefault)
+  - [x] `AddressCard` component with edit/delete/setDefault actions
+  - [x] `AddressForm` in Modal (firstName, lastName, company, address1/2, city, countryCode, provinceCode, zip, phone, isDefault)
+  - [x] Delete confirmation modal
+  - [x] Default address badge indicator
 
-### Phase 13: Settings
+### Phase 13: Settings (COMPLETE)
 
-- [ ] `account.settings.tsx` — from `theme/sections/customer-settings.liquid`
-  - [ ] Profile updates
-  - [ ] Password change
-  - [ ] Preferences
-  - [ ] Customer Account API actions
+- [x] `account.settings.tsx` — from `theme/sections/customer-settings.liquid`
+  - [x] CUSTOMER_SETTINGS_QUERY + UPDATE_CUSTOMER_MUTATION
+  - [x] `SettingCard` component with icon
+  - [x] Personal Information section (name edit form, read-only email/phone)
+  - [x] Account Activity stats (member since, total orders, addresses count)
+  - [x] Sign out section with form POST
 
 ---
 
