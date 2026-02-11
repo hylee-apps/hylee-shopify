@@ -19,8 +19,7 @@ export default {
       },
     },
     'customer-account': {
-      schema:
-        'node_modules/@shopify/hydrogen/customer-account.schema.json',
+      schema: 'node_modules/@shopify/hydrogen/customer-account.schema.json',
       documents: ['./app/graphql/customer-account/*.{ts,tsx,js,jsx}'],
       extensions: {
         codegen: {

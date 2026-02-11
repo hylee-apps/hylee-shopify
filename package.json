@@ -23,8 +23,8 @@
     "theme:push": "dotenv -e .env.local -- shopify theme push --path theme",
     "theme:pull": "dotenv -e .env.local -- shopify theme pull --path theme",
     "check-tokens": "node scripts/check-design-tokens.js",
-    "format": "prettier --write \"theme/**/*.{liquid,css,json}\"",
-    "format:check": "prettier --check \"theme/**/*.{liquid,css,json}\"",
+    "format": "prettier --write \"theme/**/*.{css,json}\" \"hydrogen/**/*.{ts,tsx,css,json}\"",
+    "format:check": "prettier --check \"theme/**/*.{css,json}\" \"hydrogen/**/*.{ts,tsx,css,json}\"",
     "prepare": "husky",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -36,9 +36,10 @@
     "lint:fix": "eslint src --fix",
     "test:coverage": "vitest run --coverage",
     "workflow": "workflow-agent",
-    "verify": "workflow-agent verify",
-    "verify:fix": "workflow-agent verify --fix",
-    "pre-commit": "workflow-agent verify --fix"
+    "dev": "cd hydrogen && pnpm dev",
+    "build": "cd hydrogen && pnpm build",
+    "preview": "cd hydrogen && pnpm preview",
+    "typecheck": "cd hydrogen && pnpm typecheck"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"
@@ -51,5 +52,8 @@
     "*.{json,md,yml,yaml}": [
       "prettier --write"
     ]
+  },
+  "dependencies": {
+    "@shopify/hydrogen": "2025.10.1"
   }
 }

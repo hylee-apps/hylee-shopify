@@ -106,12 +106,22 @@ export {
   QuantitySelector,
   PriceDisplay,
   CompareButton,
+  CollectionHero,
+  FilterSidebar,
+  SortSelect,
+  ProductGrid,
+  CollectionToolbar,
   type ProductCardProps,
   type ProductCardPlaceholderProps,
   type AddToCartProps,
   type QuantitySelectorProps,
   type PriceDisplayProps,
   type CompareButtonProps,
+  type CollectionHeroProps,
+  type FilterSidebarProps,
+  type SortSelectProps,
+  type ProductGridProps,
+  type CollectionToolbarProps,
 } from './commerce';
 
 // Product components

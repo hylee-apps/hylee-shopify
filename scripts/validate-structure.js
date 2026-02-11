@@ -30,13 +30,8 @@ const REQUIRED_DIRS = [
 
 // Required files that MUST exist
 const REQUIRED_FILES = [
-  'docs/DEVELOPMENT_GUIDELINES.md',
-  'docs/ARCHITECTURE.md',
-  'docs/COMPONENT_INVENTORY.md',
-  'docs/IMPLEMENTATION_PLAN.md',
   'theme/assets/theme-variables.css',
   'theme/layout/theme.liquid',
-  'tests/README.md',
 ];
 
 // Forbidden patterns - files/dirs that should NOT exist

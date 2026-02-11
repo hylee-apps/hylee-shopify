@@ -2,7 +2,7 @@
 
 > **Status**: In Progress
 > **Created**: 2026-02-03
-> **Last Updated**: 2026-02-07
+> **Last Updated**: 2026-02-10
 > **Branch**: `feature/hydrogen-migration`
 
 ## Overview
@@ -141,13 +141,19 @@ hydrogen/
 
 ### Phase 5: Collection Pages
 
-- [ ] `collections.$handle.tsx` — from `theme/sections/collection-appliances.liquid`
-  - [ ] Loader with Storefront API filter params
-  - [ ] Server-side faceted filtering (`?filter.color=red&sort=price-asc`)
-  - [ ] `<ProductGrid>` component
-  - [ ] `<FilterSidebar>` with server-driven facets
-  - [ ] Pagination via loader
-- [ ] `collections._index.tsx` — collections list page
+- [x] `collections.$handle.tsx` — from `theme/sections/main-collection-product-grid.liquid` (1042 lines)
+  - [x] Loader with Storefront API filter params
+  - [x] Server-side faceted filtering (`?filter=<json>&sort=price-asc`)
+  - [x] `<ProductGrid>` component
+  - [x] `<FilterSidebar>` with server-driven facets
+  - [x] Pagination via Hydrogen `<Pagination>` (cursor-based)
+  - [x] `<CollectionHero>` from `collection-hero.liquid`
+  - [x] `<CollectionToolbar>` with sort, view toggle, product count
+  - [x] `<SortSelect>` with 6 sort options
+  - [x] Filter/sort URL utilities in `lib/collection/filters.ts`
+  - [x] Mobile filter drawer via Modal component
+  - [x] Empty state with "Clear Filters" CTA
+- [x] `collections._index.tsx` — collections list page
 
 ### Phase 6: Compare Feature
 

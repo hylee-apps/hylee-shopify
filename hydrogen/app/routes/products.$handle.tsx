@@ -191,14 +191,13 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
   const selectedVariant = product.selectedVariant ?? firstVariant;
 
   // Redirect to first variant if no options are selected
-  if (
-    !searchParams.size &&
-    firstVariant?.selectedOptions
-  ) {
+  if (!searchParams.size && firstVariant?.selectedOptions) {
     const params = new URLSearchParams();
-    firstVariant.selectedOptions.forEach((option: {name: string; value: string}) => {
-      params.set(option.name.toLowerCase(), option.value);
-    });
+    firstVariant.selectedOptions.forEach(
+      (option: {name: string; value: string}) => {
+        params.set(option.name.toLowerCase(), option.value);
+      },
+    );
     throw redirect(`/products/${handle}?${params.toString()}`);
   }
 
@@ -288,7 +287,9 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
         {/* Gallery Column */}
         <div className="lg:col-span-6">
           <ProductGallery
-            images={product.media.nodes.map((node: any) => node.image).filter(Boolean)}
+            images={product.media.nodes
+              .map((node: any) => node.image)
+              .filter(Boolean)}
             productTitle={product.title}
           />
         </div>
@@ -344,7 +345,9 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
             {/* Warranty */}
             {product.warranty?.value && (
               <AccordionItem id="warranty" title="Warranty">
-                <p className="text-sm text-text-muted">{product.warranty.value}</p>
+                <p className="text-sm text-text-muted">
+                  {product.warranty.value}
+                </p>
               </AccordionItem>
             )}
           </Accordion>
@@ -365,7 +368,8 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
                     selectedVariant.compareAtPrice
                       ? {
                           amount: selectedVariant.compareAtPrice.amount,
-                          currencyCode: selectedVariant.compareAtPrice.currencyCode,
+                          currencyCode:
+                            selectedVariant.compareAtPrice.currencyCode,
                         }
                       : undefined
                   }
@@ -424,7 +428,11 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
         </h2>
         <Suspense fallback={<RecommendedProductsSkeleton />}>
           <Await resolve={recommendedProducts}>
-            {(data) => <RecommendedProducts products={data?.productRecommendations || []} />}
+            {(data) => (
+              <RecommendedProducts
+                products={data?.productRecommendations || []}
+              />
+            )}
           </Await>
         </Suspense>
       </section>
@@ -447,11 +455,11 @@ interface RecommendedProduct {
     };
   };
   featuredImage?: {
-    id: string;
+    id?: string | null;
     url: string;
     altText?: string | null;
-    width: number;
-    height: number;
+    width?: number | null;
+    height?: number | null;
   } | null;
 }
 

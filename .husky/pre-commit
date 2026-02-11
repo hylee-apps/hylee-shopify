@@ -3,13 +3,20 @@
 # Run linting and formatting checks before commit
 echo "🔍 Running pre-commit checks..."
 
-# Run Shopify Theme Check
+# Run Shopify Theme Check (Liquid theme)
 echo "🛍️  Running Shopify Theme Check..."
 pnpm theme-check || exit 1
 
 # Run Prettier check
 echo "💅 Checking code formatting..."
 pnpm format:check || exit 1
+
+# Run Hydrogen typecheck if hydrogen files changed
+if git diff --cached --name-only | grep -q '^hydrogen/'; then
+  echo "⚛️  Running Hydrogen typecheck..."
+  cd hydrogen && pnpm typecheck || exit 1
+  cd ..
+fi
 
 # Validate project structure
 echo "📂 Validating project structure..."
