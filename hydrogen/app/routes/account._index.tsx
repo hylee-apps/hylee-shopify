@@ -30,7 +30,6 @@ const CUSTOMER_QUERY = `#graphql
         phoneNumber
       }
       creationDate
-      numberOfOrders
       defaultAddress {
         formatted
       }

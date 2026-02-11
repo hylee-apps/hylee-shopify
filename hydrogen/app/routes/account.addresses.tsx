@@ -44,10 +44,10 @@ const ADDRESSES_QUERY = `#graphql
           address1
           address2
           city
-          provinceCode
+          zoneCode
           zip
-          countryCodeV2
-          phone
+          territoryCode
+          phoneNumber
           formatted
         }
       }
@@ -97,11 +97,9 @@ const DELETE_ADDRESS_MUTATION = `#graphql
 
 const SET_DEFAULT_MUTATION = `#graphql
   mutation SetDefaultAddress($addressId: ID!) {
-    customerDefaultAddressUpdate(addressId: $addressId) {
-      customer {
-        defaultAddress {
-          id
-        }
+    customerAddressUpdate(addressId: $addressId, defaultAddress: true) {
+      customerAddress {
+        id
       }
       userErrors {
         field
@@ -205,7 +203,7 @@ export async function action({request, context}: Route.ActionArgs) {
         SET_DEFAULT_MUTATION,
         {variables: {addressId}},
       );
-      const errors = data?.customerDefaultAddressUpdate?.userErrors;
+      const errors = data?.customerAddressUpdate?.userErrors;
       if (errors?.length) {
         return {errors, intent};
       }
@@ -225,10 +223,10 @@ function extractAddressFromForm(formData: FormData) {
     address1: formData.get('address1') as string,
     address2: (formData.get('address2') as string) || undefined,
     city: formData.get('city') as string,
-    provinceCode: (formData.get('provinceCode') as string) || undefined,
+    zoneCode: (formData.get('zoneCode') as string) || undefined,
     zip: formData.get('zip') as string,
-    countryCode: formData.get('countryCode') as string,
-    phone: (formData.get('phone') as string) || undefined,
+    territoryCode: formData.get('territoryCode') as string,
+    phoneNumber: (formData.get('phoneNumber') as string) || undefined,
   };
 }
 
@@ -412,7 +410,7 @@ function AddressCard({
         {address.formatted?.map((line: string, idx: number) => (
           <p key={idx}>{line}</p>
         ))}
-        {address.phone && <p className="mt-1">{address.phone}</p>}
+        {address.phoneNumber && <p className="mt-1">{address.phoneNumber}</p>}
       </div>
       <div className="flex items-center gap-3 border-t border-border pt-3">
         <button
@@ -540,11 +538,11 @@ function AddressForm({
           />
         </div>
         <div>
-          <Label htmlFor="countryCode">Country</Label>
+          <Label htmlFor="territoryCode">Country</Label>
           <Select
-            id="countryCode"
-            name="countryCode"
-            defaultValue={address?.countryCodeV2 ?? 'US'}
+            id="territoryCode"
+            name="territoryCode"
+            defaultValue={address?.territoryCode ?? 'US'}
             options={[
               {label: 'United States', value: 'US'},
               {label: 'Canada', value: 'CA'},
@@ -557,11 +555,11 @@ function AddressForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="provinceCode">State / Province</Label>
+          <Label htmlFor="zoneCode">State / Province</Label>
           <Input
-            id="provinceCode"
-            name="provinceCode"
-            defaultValue={address?.provinceCode ?? ''}
+            id="zoneCode"
+            name="zoneCode"
+            defaultValue={address?.zoneCode ?? ''}
           />
         </div>
         <div>
@@ -576,12 +574,12 @@ function AddressForm({
       </div>
 
       <div>
-        <Label htmlFor="phone">Phone (Optional)</Label>
+        <Label htmlFor="phoneNumber">Phone (Optional)</Label>
         <Input
-          id="phone"
-          name="phone"
+          id="phoneNumber"
+          name="phoneNumber"
           type="tel"
-          defaultValue={address?.phone ?? ''}
+          defaultValue={address?.phoneNumber ?? ''}
         />
       </div>
 

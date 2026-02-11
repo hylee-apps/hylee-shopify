@@ -42,12 +42,10 @@ const CUSTOMER_ORDERS_QUERY = `#graphql
                 width
                 height
               }
-              variant {
-                title
-                price {
-                  amount
-                  currencyCode
-                }
+              variantTitle
+              price {
+                amount
+                currencyCode
               }
             }
           }
@@ -227,17 +225,17 @@ function OrderCard({order}: {order: any}) {
             )}
             <div className="flex-1">
               <p className="text-sm font-medium text-dark">{item.title}</p>
-              {item.variant?.title &&
-                item.variant.title !== 'Default Title' && (
+              {item.variantTitle &&
+                item.variantTitle !== 'Default Title' && (
                   <p className="text-xs text-text-muted">
-                    {item.variant.title}
+                    {item.variantTitle}
                   </p>
                 )}
               <p className="text-xs text-text-muted">Qty: {item.quantity}</p>
             </div>
-            {item.variant?.price && (
+            {item.price && (
               <span className="text-sm font-medium text-dark">
-                {formatMoney(item.variant.price)}
+                {formatMoney(item.price)}
               </span>
             )}
           </div>

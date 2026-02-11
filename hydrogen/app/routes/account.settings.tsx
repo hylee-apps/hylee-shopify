@@ -30,7 +30,6 @@ const CUSTOMER_SETTINGS_QUERY = `#graphql
         phoneNumber
       }
       creationDate
-      numberOfOrders
       defaultAddress {
         formatted
       }
@@ -225,7 +224,7 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
             </div>
             <div className="rounded-md bg-surface p-4">
               <p className="text-2xl font-bold text-dark">
-                {customer?.numberOfOrders ?? 0}
+                —
               </p>
               <p className="text-xs text-text-muted">Total Orders</p>
             </div>

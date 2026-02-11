@@ -51,7 +51,7 @@ const ORDER_QUERY = `#graphql
         address1
         address2
         city
-        provinceCode
+        zoneCode
         zip
         country
       }
@@ -73,12 +73,10 @@ const ORDER_QUERY = `#graphql
             amount
             currencyCode
           }
-          variant {
-            title
-            price {
-              amount
-              currencyCode
-            }
+          variantTitle
+          price {
+            amount
+            currencyCode
           }
           discountAllocations {
             allocatedAmount {
@@ -92,7 +90,7 @@ const ORDER_QUERY = `#graphql
               ... on ManualDiscountApplication {
                 title
               }
-              ... on CodeDiscountApplication {
+              ... on DiscountCodeApplication {
                 code
               }
             }
@@ -125,7 +123,7 @@ const ORDER_QUERY = `#graphql
               }
             }
           }
-          ... on CodeDiscountApplication {
+          ... on DiscountCodeApplication {
             code
             value {
               ... on MoneyV2 {
@@ -326,10 +324,10 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
                     <p className="text-sm font-medium text-dark">
                       {item.title}
                     </p>
-                    {item.variant?.title &&
-                      item.variant.title !== 'Default Title' && (
+                    {item.variantTitle &&
+                      item.variantTitle !== 'Default Title' && (
                         <p className="text-xs text-text-muted">
-                          {item.variant.title}
+                          {item.variantTitle}
                         </p>
                       )}
                     <p className="text-xs text-text-muted">

@@ -83,7 +83,7 @@ const HOMEPAGE_QUERY = `#graphql
       }
     }
     newArrivals: collection(handle: "all") {
-      products(first: $newArrivalsCount, sortKey: CREATED_AT, reverse: true) {
+      products(first: $newArrivalsCount, sortKey: CREATED, reverse: true) {
         nodes {
           ...HomepageProduct
         }
