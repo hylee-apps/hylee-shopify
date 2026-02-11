@@ -3,6 +3,7 @@
 import {useState, useCallback, useEffect, useRef} from 'react';
 import {Link, useLocation} from 'react-router';
 import {Icon} from '../display/Icon';
+import {PredictiveSearch} from '../navigation/PredictiveSearch';
 import type {HeaderQuery} from 'storefrontapi.generated';
 
 // ============================================================================
@@ -412,9 +413,15 @@ export function Header({
 }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [resolvedIsLoggedIn, setResolvedIsLoggedIn] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const location = useLocation();
+
+  // Close search on route change
+  useEffect(() => {
+    setSearchOpen(false);
+  }, [location]);
 
   // Resolve promises for isLoggedIn and cart
   useEffect(() => {
@@ -582,6 +589,16 @@ export function Header({
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            {/* Search */}
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              className="p-2 text-text transition-colors hover:text-primary"
+              aria-label="Search"
+            >
+              <Icon name="search" size={20} />
+            </button>
+
             {/* Orders link (if logged in) */}
             {resolvedIsLoggedIn && (
               <Link
@@ -635,6 +652,12 @@ export function Header({
         menu={menu}
         isLoggedIn={resolvedIsLoggedIn}
         categories={categories}
+      />
+
+      {/* Predictive Search Overlay */}
+      <PredictiveSearch
+        isOpen={searchOpen}
+        onClose={() => setSearchOpen(false)}
       />
     </header>
   );

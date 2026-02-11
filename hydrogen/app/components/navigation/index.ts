@@ -28,3 +28,6 @@ export {
 
 // Modal component
 export {Modal, type ModalProps, type ModalSize} from './Modal';
+
+// PredictiveSearch component
+export {PredictiveSearch, type PredictiveSearchProps} from './PredictiveSearch';

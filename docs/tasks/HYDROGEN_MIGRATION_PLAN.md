@@ -119,7 +119,7 @@ hydrogen/
 - [x] `Header.tsx` — from `theme/sections/header.liquid` (739 lines)
   - [x] Mega menu with dropdowns
   - [x] Mobile drawer navigation
-  - [ ] Predictive search integration
+  - [x] Predictive search integration
   - [x] Account dropdown
 - [x] `Footer.tsx` — from `theme/sections/footer.liquid`
 - [x] Shared layout route with header/footer
@@ -181,11 +181,24 @@ hydrogen/
 
 ### Phase 8: Search
 
-- [ ] `search.tsx`
-  - [ ] `<SearchForm>` from Hydrogen
-  - [ ] Predictive search component
-  - [ ] Instant results dropdown in header
-  - [ ] Full results page with filtering
+- [x] `search.tsx` — full search results page
+  - [x] `SearchForm` component with icon + input + button
+  - [x] Storefront API `search` query with `getPaginationVariables`
+  - [x] `SearchResults` grid using `<ProductCard>`
+  - [x] `EmptySearchResults` state with helpful messaging
+  - [x] SEO meta with dynamic search term
+- [x] `api.predictive-search.tsx` — resource route (JSON API)
+  - [x] Storefront API `predictiveSearch` query (products, collections, queries)
+  - [x] Configurable limit with cap
+- [x] `PredictiveSearch` component — full-screen overlay
+  - [x] Debounced typeahead (300ms)
+  - [x] Suggested queries, product results with images/prices, collection chips
+  - [x] "View all results" link to full search page
+  - [x] Keyboard navigation (Escape to close)
+- [x] Header search integration
+  - [x] Search icon button in header actions
+  - [x] PredictiveSearch overlay toggled from header
+  - [x] Auto-close on route change
 
 ---
 
