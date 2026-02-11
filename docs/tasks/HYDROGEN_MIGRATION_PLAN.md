@@ -263,14 +263,28 @@ hydrogen/
 
 ---
 
-## Phase 14: Homepage & Marketing
+## Phase 14: Homepage & Marketing (COMPLETE)
 
-- [ ] `_index.tsx` — homepage
-  - [ ] Loaders for featured collections
-  - [ ] Hero sections
-  - [ ] Product carousels
-  - [ ] Newsletter signup
-- [ ] Static pages (about, contact, policies)
+- [x] `_index.tsx` — homepage (replaced design token showcase with real storefront)
+  - [x] Storefront API loader for featured products (best selling, 8) + new arrivals (newest, 4) + collections (6)
+  - [x] `HeroSearch` section — gradient banner with centered search form, decorative elements
+  - [x] `FeaturedCategories` section — 6-column responsive grid with emoji icons, linking to collections
+  - [x] `FeaturedProducts` section — 4-column ProductCard grid with vendor, quick add, discount badges
+  - [x] `NewArrivals` section — 4-column ProductCard grid with custom "New" badge (#059669)
+  - [x] `WhyChooseUs` section — 2-column layout: feature list with icons + 2×2 value cards
+  - [x] `Newsletter` section — promo carousel (auto-play, prev/next, pause, dots) + email signup form
+  - [x] SEO meta with description
+- [x] `pages.$handle.tsx` — generic CMS page route
+  - [x] Storefront API page query by handle
+  - [x] HTML body rendering with prose styling
+  - [x] Breadcrumb navigation
+  - [x] SEO meta from page.seo fields
+- [x] `policies.$handle.tsx` — Shopify shop policy pages
+  - [x] Queries all 5 shop policies (privacy, refund, shipping, terms, subscription)
+  - [x] Dynamic handle-to-policy mapping
+  - [x] HTML body rendering with Breadcrumb
+- [x] `policies._index.tsx` — policies listing page
+  - [x] Grid of available policy cards with links
 
 ### Phase 15: Testing & Deployment
 
