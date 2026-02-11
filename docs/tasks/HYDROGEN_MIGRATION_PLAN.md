@@ -167,12 +167,17 @@ hydrogen/
 
 ### Phase 7: Cart
 
-- [ ] `cart.tsx` — from `theme/templates/cart.liquid` (312 lines)
-  - [ ] Hydrogen cart hooks (`useCart`, `CartForm`)
-  - [ ] Line item display
-  - [ ] Quantity updates
-  - [ ] Discount display
-  - [ ] Checkout redirect
+- [x] `cart.tsx` — from `theme/templates/cart.liquid` (312 lines)
+  - [x] Hydrogen `CartForm` actions (LinesAdd, LinesUpdate, LinesRemove, NoteUpdate, DiscountCodesUpdate)
+  - [x] `useOptimisticCart` for instant UI feedback
+  - [x] `CartLineItem` — image, title, vendor, variant options, properties, pricing with compare-at, line discounts
+  - [x] `CartLineQuantity` — increment/decrement via CartForm
+  - [x] `CartLineRemove` — remove line via CartForm
+  - [x] `CartSummary` — subtotal, cart-level discounts, savings, shipping note, total, trust badges
+  - [x] `DiscountCodeInput` — apply/remove discount codes
+  - [x] `CartNoteInput` — auto-save on blur order notes
+  - [x] `CartEmpty` — empty state with CTA
+  - [x] Checkout redirect via `checkoutUrl`
 
 ### Phase 8: Search
 
