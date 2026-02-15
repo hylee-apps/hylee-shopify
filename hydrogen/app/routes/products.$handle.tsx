@@ -102,7 +102,6 @@ const PRODUCT_FRAGMENT = `#graphql
       key
       value
     }
-    }
     featuredImage {
       id
       url
