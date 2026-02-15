@@ -497,9 +497,7 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
             />
           )}
           {activeTab === 'reviews' && (
-            <div className="text-text-muted">
-              <p>No reviews yet.</p>
-            </div>
+            <ReviewsTab rating={rating} ratingCount={ratingCount} />
           )}
         </div>
       </section>
@@ -719,6 +717,285 @@ function DescriptionTab({
           </ul>
         </div>
       )}
+    </div>
+  );
+}
+
+// ============================================================================
+// Reviews Tab
+// ============================================================================
+
+function StarRating({
+  rating,
+  size = 16,
+  className = '',
+}: {
+  rating: number;
+  size?: number;
+  className?: string;
+}) {
+  return (
+    <div className={`flex items-center gap-0.5 ${className}`}>
+      {Array.from({length: 5}).map((_, i) => (
+        <svg
+          key={i}
+          width={size}
+          height={size}
+          viewBox="0 0 24 24"
+          fill={i < Math.round(rating) ? '#e8a43a' : 'none'}
+          stroke={i < Math.round(rating) ? '#e8a43a' : '#d1d5db'}
+          strokeWidth="1.5"
+        >
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
+function InteractiveStarRating({
+  rating,
+  onChange,
+}: {
+  rating: number;
+  onChange: (rating: number) => void;
+}) {
+  return (
+    <div className="flex items-center gap-1">
+      {Array.from({length: 5}).map((_, i) => (
+        <button
+          key={i}
+          type="button"
+          onClick={() => onChange(i + 1)}
+          className="focus:outline-none"
+          aria-label={`Rate ${i + 1} star${i > 0 ? 's' : ''}`}
+        >
+          <svg
+            width={22}
+            height={22}
+            viewBox="0 0 24 24"
+            fill={i < rating ? '#e8a43a' : 'none'}
+            stroke={i < rating ? '#e8a43a' : '#d1d5db'}
+            strokeWidth="1.5"
+            className="cursor-pointer hover:scale-110 transition-transform"
+          >
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+interface ReviewsTabProps {
+  rating: number | null;
+  ratingCount: number | null;
+}
+
+function ReviewsTab({rating, ratingCount}: ReviewsTabProps) {
+  const displayRating = rating ?? 4.8;
+  const displayCount = ratingCount ?? 0;
+
+  // Simulated rating distribution
+  const distribution = [
+    {stars: 5, percent: 70},
+    {stars: 4, percent: 15},
+    {stars: 3, percent: 10},
+    {stars: 2, percent: 3},
+    {stars: 1, percent: 2},
+  ];
+
+  // Review form state
+  const [formRating, setFormRating] = useState(5);
+  const [reviewTitle, setReviewTitle] = useState('');
+  const [reviewContent, setReviewContent] = useState('');
+
+  // Sample reviews
+  const sampleReviews = [
+    {
+      id: '1',
+      initials: 'A.T',
+      name: 'Nicolas Cage',
+      date: '3 Days ago',
+      rating: 5,
+      title: 'Greate Product',
+      body: 'There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour.',
+    },
+    {
+      id: '2',
+      initials: 'A.T',
+      name: 'Sr.Robert Downey',
+      date: 'Days ago',
+      rating: 5,
+      title: 'The best product in Market',
+      body: "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.",
+    },
+  ];
+
+  return (
+    <div className="max-w-3xl space-y-10">
+      {/* Customers Feedback */}
+      <div>
+        <h3 className="mb-6 text-lg font-bold text-dark">
+          Customers Feedback
+        </h3>
+        <div className="flex items-start gap-10 rounded-lg border border-border p-6">
+          {/* Left: Overall Rating */}
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-5xl font-bold text-[#3a4980]">
+              {displayRating.toFixed(1)}
+            </span>
+            <StarRating rating={displayRating} size={18} />
+            <span className="mt-1 text-sm text-text-muted">
+              Product Rating
+            </span>
+          </div>
+
+          {/* Right: Distribution Bars */}
+          <div className="flex-1 space-y-2">
+            {distribution.map((row) => (
+              <div key={row.stars} className="flex items-center gap-3">
+                <div className="h-2.5 flex-1 rounded-full bg-[#e5e7eb]">
+                  <div
+                    className="h-full rounded-full bg-[#3e9242]"
+                    style={{width: `${row.percent}%`}}
+                  />
+                </div>
+                <StarRating rating={row.stars} size={12} />
+                <span className="w-8 text-right text-xs font-medium text-[#e8a43a]">
+                  {row.percent}%
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Reviews List */}
+      <div>
+        <h3 className="mb-6 text-lg font-bold text-dark">Reviews</h3>
+        <div className="space-y-6">
+          {sampleReviews.map((review) => (
+            <div
+              key={review.id}
+              className="rounded-lg border border-border p-5"
+            >
+              {/* Header */}
+              <div className="mb-3 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#3e9242] text-sm font-bold text-white">
+                  {review.initials}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-dark">
+                      {review.name}
+                    </span>
+                    <span className="text-xs text-text-muted">
+                      {review.date}
+                    </span>
+                  </div>
+                  <StarRating rating={review.rating} size={14} />
+                </div>
+              </div>
+              {/* Body */}
+              <p className="mb-1 text-sm font-semibold text-dark">
+                {review.title}
+              </p>
+              <p className="text-sm leading-relaxed text-[#726c6c]">
+                {review.body}
+              </p>
+              {/* Actions */}
+              <div className="mt-3 flex items-center gap-4 text-sm">
+                <button className="flex items-center gap-1 text-text-muted hover:text-dark transition-colors">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+                    <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                  </svg>
+                  Like
+                </button>
+                <button className="font-medium text-[#3a4980] hover:underline">
+                  Reply
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* View All Reviews */}
+        <div className="mt-6 text-center">
+          <button className="text-sm font-medium text-[#3a4980] underline hover:text-[#3a4980]/80">
+            View All Reviews
+          </button>
+        </div>
+      </div>
+
+      {/* Write a Review */}
+      <div>
+        <h3 className="mb-6 text-lg font-bold text-dark">Write a Review</h3>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            // Future: submit review via API
+          }}
+          className="space-y-5"
+        >
+          {/* Star Rating */}
+          <div>
+            <label className="mb-2 block text-sm text-text-muted">
+              What is it like to Product?
+            </label>
+            <InteractiveStarRating
+              rating={formRating}
+              onChange={setFormRating}
+            />
+          </div>
+
+          {/* Review Title */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-dark">
+              Review Title
+            </label>
+            <input
+              type="text"
+              value={reviewTitle}
+              onChange={(e) => setReviewTitle(e.target.value)}
+              placeholder="Great Products"
+              className="w-full rounded-lg border border-border px-4 py-3 text-sm text-dark placeholder:text-text-muted/50 focus:border-[#3a4980] focus:outline-none focus:ring-1 focus:ring-[#3a4980]"
+            />
+          </div>
+
+          {/* Review Content */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-dark">
+              Review Content
+            </label>
+            <textarea
+              value={reviewContent}
+              onChange={(e) => setReviewContent(e.target.value)}
+              placeholder="Share your experience with this product..."
+              rows={5}
+              className="w-full resize-none rounded-lg border border-border px-4 py-3 text-sm text-dark placeholder:text-text-muted/50 focus:border-[#3a4980] focus:outline-none focus:ring-1 focus:ring-[#3a4980]"
+            />
+          </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            className="rounded-full bg-[#3a4980] px-8 py-3 text-sm font-semibold text-white hover:bg-[#3a4980]/90 transition-colors"
+          >
+            Submit Review
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
