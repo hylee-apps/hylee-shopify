@@ -118,19 +118,22 @@ function ColorSwatch({
     black: '#000000',
     red: '#ef4444',
     blue: '#3b82f6',
-    green: '#22c55e',
+    green: '#a3b87c',
     yellow: '#eab308',
     orange: '#f97316',
     purple: '#a855f7',
-    pink: '#ec4899',
+    pink: '#f0c4d4',
     gray: '#6b7280',
     grey: '#6b7280',
     brown: '#92400e',
     navy: '#1e3a5a',
-    beige: '#d4b896',
+    beige: '#c8b8a8',
     cream: '#fffdd0',
     silver: '#c0c0c0',
     gold: '#ffd700',
+    lavender: '#b8b8e8',
+    peach: '#d4b8a8',
+    olive: '#a3b87c',
   };
 
   const backgroundColor =
@@ -141,16 +144,32 @@ function ColorSwatch({
       type="button"
       onClick={onClick}
       disabled={!isAvailable}
-      className={`relative w-8 h-8 rounded-full border-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+      className={`relative w-11 h-11 rounded-full border-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
         isSelected
-          ? 'border-primary ring-2 ring-primary ring-offset-2'
-          : 'border-border hover:border-primary/50'
+          ? 'border-[#3a4980] ring-2 ring-[#3a4980]/20 ring-offset-1'
+          : 'border-transparent hover:border-primary/30'
       } ${!isAvailable ? 'opacity-40 cursor-not-allowed' : ''}`}
       style={{backgroundColor}}
       aria-label={`${value}${!isAvailable ? ' (Out of stock)' : ''}`}
       title={value}
     >
-      {!isAvailable && (
+      {isSelected && (
+        <span className="absolute inset-0 flex items-center justify-center">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </span>
+      )}
+      {!isAvailable && !isSelected && (
         <span className="absolute inset-0 flex items-center justify-center">
           <span className="block w-full h-0.5 bg-text-muted rotate-45 transform" />
         </span>
@@ -177,13 +196,23 @@ function SizeButton({
       type="button"
       onClick={onClick}
       disabled={!isAvailable}
-      className={`px-4 py-2 min-w-12 text-sm font-medium rounded-md border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+      className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
         isSelected
-          ? 'bg-primary text-white border-primary'
-          : 'bg-white text-text border-border hover:border-primary hover:text-primary'
-      } ${!isAvailable ? 'opacity-40 cursor-not-allowed line-through' : ''}`}
+          ? 'border-[#3a4980] text-[#3a4980]'
+          : 'border-border text-text-muted hover:border-primary/50'
+      } ${!isAvailable ? 'opacity-40 cursor-not-allowed' : ''}`}
       aria-label={`${value}${!isAvailable ? ' (Out of stock)' : ''}`}
     >
+      {/* Radio circle */}
+      <span
+        className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+          isSelected ? 'border-[#3a4980]' : 'border-border'
+        }`}
+      >
+        {isSelected && (
+          <span className="w-2 h-2 rounded-full bg-[#3a4980]" />
+        )}
+      </span>
       {value}
     </button>
   );
@@ -264,15 +293,14 @@ export function VariantSelector({
         return (
           <div key={option.name}>
             {/* Option Label */}
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-sm font-medium text-text">
-                {option.name}:
+            <div className="mb-3">
+              <span className="text-sm text-text-muted">
+                Choose a {option.name}
               </span>
-              <span className="text-sm text-text-muted">{currentValue}</span>
             </div>
 
             {/* Option Values */}
-            <div className="flex flex-wrap gap-2">
+            <div className={`flex flex-wrap ${isColorOption ? 'gap-3' : 'gap-2'}`}>
               {option.values.map((value) => {
                 const isSelected = currentValue === value;
                 const isAvailable = isOptionValueAvailable(

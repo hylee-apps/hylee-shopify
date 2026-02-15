@@ -1,6 +1,6 @@
 'use client';
 
-import {useState, useCallback} from 'react';
+import {useState, useCallback, useRef} from 'react';
 import {Image} from '@shopify/hydrogen';
 import type {
   ProductVariant,
@@ -38,14 +38,12 @@ export interface ProductGalleryProps {
 // ============================================================================
 
 /**
- * ProductGallery - Image gallery with thumbnails for product pages
+ * ProductGallery - Image gallery with horizontal thumbnails below
  *
  * Features:
- * - Vertical thumbnail strip (desktop)
- * - Horizontal thumbnail strip (mobile)
- * - Main image with navigation arrows
+ * - Large main image
+ * - Horizontal thumbnail strip below with left/right navigation
  * - Keyboard navigation support
- * - Touch swipe support (basic)
  */
 export function ProductGallery({
   images,
@@ -59,6 +57,7 @@ export function ProductGallery({
     : 0;
 
   const [currentIndex, setCurrentIndex] = useState(Math.max(0, initialIndex));
+  const thumbnailsRef = useRef<HTMLDivElement>(null);
 
   const currentImage = images[currentIndex];
   const hasMultipleImages = images.length > 1;
@@ -80,6 +79,15 @@ export function ProductGallery({
     setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0));
   }, [images.length]);
 
+  const scrollThumbnails = useCallback((direction: 'left' | 'right') => {
+    if (!thumbnailsRef.current) return;
+    const scrollAmount = 200;
+    thumbnailsRef.current.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth',
+    });
+  }, []);
+
   // Handle keyboard navigation
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -93,64 +101,20 @@ export function ProductGallery({
   );
 
   return (
-    <div className={`flex gap-4 ${className}`}>
-      {/* Desktop Thumbnails (vertical) */}
-      {hasMultipleImages && (
-        <div className="hidden lg:flex flex-col gap-2 w-20">
-          <button
-            onClick={goToPrevious}
-            className="flex items-center justify-center p-2 rounded-md border border-border text-text-muted hover:text-text hover:border-primary transition-colors"
-            aria-label="Previous image"
-          >
-            <Icon name="chevron-up" size={16} />
-          </button>
-
-          <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto scrollbar-hide">
-            {images.map((image, index) => (
-              <button
-                key={image.id}
-                onClick={() => goToImage(index)}
-                className={`relative aspect-square rounded-md overflow-hidden border-2 transition-colors ${
-                  index === currentIndex
-                    ? 'border-primary'
-                    : 'border-border hover:border-primary/50'
-                }`}
-                aria-label={`View image ${index + 1}`}
-                aria-current={index === currentIndex}
-              >
-                <Image
-                  data={image}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  sizes="80px"
-                />
-              </button>
-            ))}
-          </div>
-
-          <button
-            onClick={goToNext}
-            className="flex items-center justify-center p-2 rounded-md border border-border text-text-muted hover:text-text hover:border-primary transition-colors"
-            aria-label="Next image"
-          >
-            <Icon name="chevron-down" size={16} />
-          </button>
-        </div>
-      )}
-
+    <div className={`flex flex-col ${className}`}>
       {/* Main Image */}
       <div
-        className="relative flex-1"
+        className="relative"
         role="region"
         aria-label="Product gallery"
         tabIndex={0}
         onKeyDown={handleKeyDown}
       >
-        <div className="relative aspect-square rounded-lg overflow-hidden bg-surface">
+        <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-surface">
           {currentImage ? (
             <Image
               data={currentImage}
-              className="w-full h-full object-contain"
+              className="w-full h-full object-cover"
               loading="eager"
               sizes="(min-width: 1024px) 50vw, 100vw"
             />
@@ -159,46 +123,34 @@ export function ProductGallery({
               <Icon name="image" size={64} />
             </div>
           )}
-
-          {/* Navigation Arrows */}
-          {hasMultipleImages && (
-            <>
-              <button
-                onClick={goToPrevious}
-                className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-white/90 shadow-md text-text hover:bg-white hover:text-primary transition-colors"
-                aria-label="Previous image"
-              >
-                <Icon name="chevron-left" size={20} />
-              </button>
-              <button
-                onClick={goToNext}
-                className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-white/90 shadow-md text-text hover:bg-white hover:text-primary transition-colors"
-                aria-label="Next image"
-              >
-                <Icon name="chevron-right" size={20} />
-              </button>
-            </>
-          )}
-
-          {/* Image Counter */}
-          {hasMultipleImages && (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/60 text-white text-sm">
-              {currentIndex + 1} / {images.length}
-            </div>
-          )}
         </div>
+      </div>
 
-        {/* Mobile Thumbnails (horizontal) */}
-        {hasMultipleImages && (
-          <div className="lg:hidden flex gap-2 mt-3 overflow-x-auto pb-2 scrollbar-hide">
+      {/* Horizontal Thumbnails */}
+      {hasMultipleImages && (
+        <div className="mt-4 flex items-center gap-2">
+          {/* Left Arrow */}
+          <button
+            onClick={() => scrollThumbnails('left')}
+            className="flex shrink-0 items-center justify-center w-8 h-8 rounded-full border border-border text-text-muted hover:text-text hover:border-primary transition-colors"
+            aria-label="Scroll thumbnails left"
+          >
+            <Icon name="chevron-left" size={16} />
+          </button>
+
+          {/* Thumbnail Strip */}
+          <div
+            ref={thumbnailsRef}
+            className="flex gap-3 overflow-x-auto scrollbar-hide"
+          >
             {images.map((image, index) => (
               <button
                 key={image.id}
                 onClick={() => goToImage(index)}
-                className={`relative shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-colors ${
+                className={`relative shrink-0 w-[88px] h-[88px] rounded-lg overflow-hidden border-2 transition-colors ${
                   index === currentIndex
                     ? 'border-primary'
-                    : 'border-border hover:border-primary/50'
+                    : 'border-transparent hover:border-primary/50'
                 }`}
                 aria-label={`View image ${index + 1}`}
                 aria-current={index === currentIndex}
@@ -207,13 +159,22 @@ export function ProductGallery({
                   data={image}
                   className="w-full h-full object-cover"
                   loading="lazy"
-                  sizes="64px"
+                  sizes="88px"
                 />
               </button>
             ))}
           </div>
-        )}
-      </div>
+
+          {/* Right Arrow */}
+          <button
+            onClick={() => scrollThumbnails('right')}
+            className="flex shrink-0 items-center justify-center w-8 h-8 rounded-full border border-border text-text-muted hover:text-text hover:border-primary transition-colors"
+            aria-label="Scroll thumbnails right"
+          >
+            <Icon name="chevron-right" size={16} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

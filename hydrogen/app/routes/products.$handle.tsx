@@ -1,6 +1,6 @@
 import {type LoaderFunctionArgs, redirect} from 'react-router';
 import type {Route} from './+types/products.$handle';
-import {Suspense} from 'react';
+import {Suspense, useState} from 'react';
 import {Await, Link} from 'react-router';
 import {Image, getSeoMeta} from '@shopify/hydrogen';
 import {
@@ -256,6 +256,9 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
 
   const isOutOfStock = !selectedVariant?.availableForSale;
 
+  // Quantity state
+  const [quantity, setQuantity] = useState(1);
+
   // Parse rating from metafields
   const ratingMeta = product.metafields?.find(
     (m: any) => m?.key === 'rating',
@@ -314,31 +317,36 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
                 </p>
               )}
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {/* Wishlist */}
-              <button className="flex items-center gap-1.5 rounded-lg bg-[#fff0f0] px-2.5 py-1.5">
-                <Icon name="heart" size={20} className="text-[#d46f77]" />
+              <button className="inline-flex items-center gap-1.5 rounded-lg border border-[#e8b4b8] px-3 py-1.5 text-sm font-medium text-[#d46f77]">
+                <Icon name="heart" size={18} className="text-[#d46f77]" />
+                109
+              </button>
+              {/* Bookmark */}
+              <button className="flex items-center justify-center w-9 h-9 rounded-lg border border-border text-text-muted hover:text-[#3a4980] transition-colors">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                </svg>
               </button>
               {/* Share */}
-              <button className="rounded-lg bg-[#edf0f8] p-1.5">
-                <Icon name="external-link" size={20} className="text-[#3a4980]" />
+              <button className="flex items-center justify-center w-9 h-9 rounded-lg border border-border text-text-muted hover:text-[#3a4980] transition-colors">
+                <Icon name="external-link" size={18} />
               </button>
             </div>
           </div>
 
-          <hr className="border-border" />
-
           {/* Price + Rating */}
-          <div className="flex flex-wrap items-center gap-6 lg:gap-10">
+          <div className="flex flex-wrap items-start gap-8 lg:gap-12">
             {/* Price */}
-            <div className="flex items-baseline gap-3">
+            <div className="flex flex-col">
               {selectedVariant && (
                 <>
-                  <span className="text-[34px] font-bold text-[#3a4980]">
+                  <span className="text-[34px] font-bold leading-tight text-[#3a4980]">
                     ${parseFloat(selectedVariant.price.amount).toFixed(2)}
                   </span>
                   {isOnSale && selectedVariant.compareAtPrice && (
-                    <span className="text-xl text-black/50 line-through">
+                    <span className="text-base text-black/40 line-through">
                       $
                       {parseFloat(
                         selectedVariant.compareAtPrice.amount,
@@ -350,17 +358,19 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
             </div>
 
             {/* Rating + Reviews */}
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2 pt-1">
               <div className="flex items-center gap-3">
                 {rating !== null && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#fbf3ea] px-2.5 py-1.5 text-sm font-semibold text-[#d48d3b]">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#fbf3ea] px-3 py-1.5 text-sm font-semibold text-[#d48d3b]">
                     <Icon name="star" size={16} className="text-[#d48d3b]" />
                     {rating.toFixed(1)}
                   </span>
                 )}
                 {ratingCount !== null && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#edf0f8] px-2.5 py-1.5 text-sm font-semibold text-[#3a4980]">
-                    <Icon name="star" size={16} />
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#edf0f8] px-3 py-1.5 text-sm font-semibold text-[#3a4980]">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#3a4980]">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
                     {ratingCount} Reviews
                   </span>
                 )}
@@ -374,8 +384,6 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
             </div>
           </div>
 
-          <hr className="border-border" />
-
           {/* Variant Selector (Color, Size, etc.) */}
           <VariantSelector
             options={product.options}
@@ -384,14 +392,20 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
             productHandle={product.handle}
           />
 
-          <hr className="border-border" />
-
           {/* Quantity + Add to Cart */}
           <div className="flex items-center gap-4">
             {selectedVariant && (
               <>
+                <QuantitySelector
+                  quantity={quantity}
+                  onChange={setQuantity}
+                  min={1}
+                  max={selectedVariant.quantityAvailable ?? 99}
+                  className="shrink-0"
+                />
                 <AddToCart
                   variantId={selectedVariant.id}
+                  quantity={quantity}
                   available={!isOutOfStock}
                   className="flex-1 rounded-full bg-[#3a4980] px-8 py-4 text-base font-semibold text-white hover:bg-[#3a4980]/90"
                 >
@@ -405,45 +419,36 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
           </div>
 
           {/* Delivery Info Card */}
-          <div className="rounded-xl border border-[#e4e4e4] p-4">
-            <div className="flex gap-3.5">
-              <Icon name="truck" size={24} className="shrink-0 text-dark" />
+          <div className="rounded-xl border border-[#e4e4e4] p-5">
+            <div className="flex gap-4">
+              <div className="flex shrink-0 items-center justify-center w-10 h-10">
+                <Icon name="truck" size={26} className="text-[#e07575]" />
+              </div>
               <div>
                 <p className="text-[17px] font-bold text-[#1d364d]">
                   Free Delivery
                 </p>
-                <p className="text-sm text-[#726c6c] underline">
+                <p className="text-sm text-[#726c6c] underline cursor-pointer">
                   Enter your Postal code for Delivery Availability
                 </p>
               </div>
             </div>
             <hr className="my-4 border-border" />
-            <div className="flex gap-3.5">
-              <Icon name="refresh" size={24} className="shrink-0 text-dark" />
+            <div className="flex gap-4">
+              <div className="flex shrink-0 items-center justify-center w-10 h-10">
+                <Icon name="package" size={26} className="text-[#e07575]" />
+              </div>
               <div>
                 <p className="text-[17px] font-bold text-[#1d364d]">
                   Return Delivery
                 </p>
                 <p className="text-sm text-[#726c6c]">
                   Free 30 days Delivery Return.{' '}
-                  <span className="underline">Details</span>
+                  <span className="underline cursor-pointer">Details</span>
                 </p>
               </div>
             </div>
           </div>
-
-          {/* Product Description */}
-          {product.descriptionHtml && (
-            <div>
-              <h3 className="mb-3 text-lg font-semibold text-dark">
-                Description
-              </h3>
-              <div
-                className="prose prose-sm text-text-muted"
-                dangerouslySetInnerHTML={{__html: product.descriptionHtml}}
-              />
-            </div>
-          )}
         </div>
       </div>
 
