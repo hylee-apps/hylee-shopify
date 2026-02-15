@@ -70,8 +70,8 @@ function NewsletterSignup() {
   };
 
   return (
-    <div className="space-y-6 text-center">
-      <h3 className="text-xl font-normal text-text pb-4">
+    <div className="text-center">
+      <h3 className="text-xl font-normal text-text mb-8">
         Sign Up for HyLee news &amp; updates!
       </h3>
       <form
