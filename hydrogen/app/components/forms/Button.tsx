@@ -1,5 +1,52 @@
 import React, {forwardRef} from 'react';
 import {Link, type LinkProps} from 'react-router';
+import {cva, type VariantProps} from 'class-variance-authority';
+import {cn} from '~/lib/utils';
+
+// ============================================================================
+// Variants (cva)
+// ============================================================================
+
+export const buttonVariants = cva(
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[0.75rem] font-medium leading-none transition-all duration-200 cursor-pointer outline-none border focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 focus-visible:ring-4 focus-visible:ring-primary/15 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed',
+  {
+    variants: {
+      variant: {
+        primary:
+          'bg-gradient-to-br from-primary to-accent text-white border-transparent hover:from-primary/90 hover:to-accent/90 hover:-translate-y-px hover:shadow-lg',
+        secondary:
+          'bg-slate-100 text-slate-700 border-transparent hover:bg-slate-200',
+        destructive:
+          'bg-red-500 text-white border-transparent hover:bg-red-600',
+        outline:
+          'bg-transparent border-slate-200 text-slate-700 hover:bg-slate-50',
+        ghost:
+          'bg-transparent border-transparent text-slate-700 hover:bg-slate-50',
+        link: 'bg-transparent border-transparent text-primary underline underline-offset-4 hover:no-underline',
+      },
+      size: {
+        default: 'h-9 px-4 py-2 text-sm',
+        sm: 'h-8 px-3 text-xs',
+        lg: 'h-10 px-6 text-base',
+        icon: 'h-9 w-9 p-0',
+      },
+      fullWidth: {
+        true: 'w-full',
+      },
+      pill: {
+        true: 'rounded-full',
+      },
+    },
+    defaultVariants: {
+      variant: 'primary',
+      size: 'default',
+    },
+  },
+);
+
+// ============================================================================
+// Types
+// ============================================================================
 
 export type ButtonVariant =
   | 'primary'
@@ -47,60 +94,6 @@ export interface ButtonAsLinkProps
 }
 
 export type ButtonProps = ButtonAsButtonProps | ButtonAsLinkProps;
-
-const variantStyles: Record<ButtonVariant, string> = {
-  primary:
-    'bg-gradient-to-br from-primary to-accent text-white border-transparent hover:from-primary/90 hover:to-accent/90 hover:-translate-y-px hover:shadow-lg',
-  secondary:
-    'bg-slate-100 text-slate-700 border-transparent hover:bg-slate-200',
-  destructive: 'bg-red-500 text-white border-transparent hover:bg-red-600',
-  outline: 'bg-transparent border-slate-200 text-slate-700 hover:bg-slate-50',
-  ghost: 'bg-transparent border-transparent text-slate-700 hover:bg-slate-50',
-  link: 'bg-transparent border-transparent text-primary underline underline-offset-4 hover:no-underline',
-};
-
-const sizeStyles: Record<ButtonSize, string> = {
-  default: 'h-9 px-4 py-2 text-sm',
-  sm: 'h-8 px-3 text-xs',
-  lg: 'h-10 px-6 text-base',
-  icon: 'h-9 w-9 p-0',
-};
-
-function getButtonClasses({
-  variant = 'primary',
-  size = 'default',
-  fullWidth,
-  pill,
-  loading,
-  disabled,
-  className,
-}: Pick<
-  ButtonBaseProps,
-  'variant' | 'size' | 'fullWidth' | 'pill' | 'loading' | 'className'
-> & {disabled?: boolean}) {
-  const baseClasses =
-    'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[0.75rem] font-medium leading-none transition-all duration-200 cursor-pointer outline-none border focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 focus-visible:ring-4 focus-visible:ring-primary/15';
-
-  const disabledClasses =
-    disabled || loading
-      ? 'pointer-events-none opacity-50 cursor-not-allowed'
-      : '';
-
-  const widthClasses = fullWidth ? 'w-full' : '';
-  const pillClasses = pill ? 'rounded-full' : '';
-
-  return [
-    baseClasses,
-    variantStyles[variant],
-    sizeStyles[size],
-    disabledClasses,
-    widthClasses,
-    pillClasses,
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ');
-}
 
 function LoadingSpinner() {
   return (
@@ -158,15 +151,11 @@ export const Button = forwardRef<
     ...rest
   } = props;
 
-  const classes = getButtonClasses({
-    variant,
-    size,
-    fullWidth,
-    pill,
-    loading,
-    disabled: props.disabled,
+  const classes = cn(
+    buttonVariants({variant, size, fullWidth: fullWidth || undefined, pill: pill || undefined}),
+    (props.disabled || loading) && 'pointer-events-none opacity-50 cursor-not-allowed',
     className,
-  });
+  );
 
   const content = (
     <>

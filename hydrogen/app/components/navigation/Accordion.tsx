@@ -1,5 +1,7 @@
-import React, {useState, useId, useCallback} from 'react';
+import React from 'react';
+import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import {Icon} from '../display/Icon';
+import {cn} from '~/lib/utils';
 
 export interface AccordionItemProps {
   /** Unique key/id for the item */
@@ -8,11 +10,11 @@ export interface AccordionItemProps {
   title: React.ReactNode;
   /** Accordion content */
   children: React.ReactNode;
-  /** Initially open state */
+  /** @deprecated Managed by parent Accordion via Radix */
   defaultOpen?: boolean;
-  /** Controlled open state */
+  /** @deprecated Managed by parent Accordion via Radix */
   open?: boolean;
-  /** Callback when open state changes */
+  /** @deprecated Managed by parent Accordion via Radix */
   onOpenChange?: (open: boolean) => void;
   /** Show chevron icon */
   showIcon?: boolean;
@@ -23,93 +25,58 @@ export interface AccordionItemProps {
 }
 
 /**
- * AccordionItem component
+ * AccordionItem component — powered by Radix Accordion.
  *
- * A single expandable accordion panel.
+ * Must be a child of `<Accordion>`. Open/close state is managed by the parent.
  *
  * @example
- * <AccordionItem id="faq-1" title="How does shipping work?">
- *   <p>We ship within 2-3 business days...</p>
- * </AccordionItem>
+ * <Accordion>
+ *   <AccordionItem id="faq-1" title="How does shipping work?">
+ *     <p>We ship within 2-3 business days...</p>
+ *   </AccordionItem>
+ * </Accordion>
  */
 export function AccordionItem({
   id,
   title,
   children,
-  defaultOpen = false,
-  open: controlledOpen,
-  onOpenChange,
   showIcon = true,
   disabled = false,
   className,
 }: AccordionItemProps) {
-  const baseId = useId();
-  const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
-
-  const isControlled = controlledOpen !== undefined;
-  const isOpen = isControlled ? controlledOpen : uncontrolledOpen;
-
-  const triggerId = `${baseId}-trigger-${id}`;
-  const contentId = `${baseId}-content-${id}`;
-
-  const handleToggle = useCallback(() => {
-    if (disabled) return;
-
-    const newOpen = !isOpen;
-    if (!isControlled) {
-      setUncontrolledOpen(newOpen);
-    }
-    onOpenChange?.(newOpen);
-  }, [isOpen, isControlled, disabled, onOpenChange]);
-
-  const baseClasses = [
-    'accordion-item border-b border-slate-200 last:border-b-0',
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ');
-
   return (
-    <div className={baseClasses}>
-      <button
-        type="button"
-        id={triggerId}
-        aria-expanded={isOpen}
-        aria-controls={contentId}
-        disabled={disabled}
-        onClick={handleToggle}
-        className={[
-          'flex w-full items-center justify-between py-4 text-left text-sm font-medium text-slate-900 transition-colors',
-          disabled
-            ? 'opacity-50 cursor-not-allowed'
-            : 'hover:text-primary cursor-pointer',
-        ]
-          .filter(Boolean)
-          .join(' ')}
-      >
-        <span className="accordion-title">{title}</span>
-        {showIcon && (
-          <Icon
-            name="chevron-down"
-            size={20}
-            className={`shrink-0 text-slate-500 transition-transform duration-200 ${
-              isOpen ? 'rotate-180' : ''
-            }`}
-          />
-        )}
-      </button>
-      <div
-        id={contentId}
-        role="region"
-        aria-labelledby={triggerId}
-        hidden={!isOpen}
-        className={`accordion-content overflow-hidden transition-all duration-200 ${
-          isOpen ? 'pb-4' : ''
-        }`}
-      >
-        <div className="text-sm text-slate-600">{children}</div>
-      </div>
-    </div>
+    <AccordionPrimitive.Item
+      value={id}
+      disabled={disabled}
+      className={cn(
+        'accordion-item border-b border-slate-200 last:border-b-0',
+        className,
+      )}
+    >
+      <AccordionPrimitive.Header className="flex">
+        <AccordionPrimitive.Trigger
+          className={cn(
+            'flex w-full items-center justify-between py-4 text-left text-sm font-medium text-slate-900 transition-colors',
+            disabled
+              ? 'opacity-50 cursor-not-allowed'
+              : 'hover:text-primary cursor-pointer',
+            '[&[data-state=open]>svg]:rotate-180',
+          )}
+        >
+          <span className="accordion-title">{title}</span>
+          {showIcon && (
+            <Icon
+              name="chevron-down"
+              size={20}
+              className="shrink-0 text-slate-500 transition-transform duration-200"
+            />
+          )}
+        </AccordionPrimitive.Trigger>
+      </AccordionPrimitive.Header>
+      <AccordionPrimitive.Content className="accordion-content overflow-hidden text-sm text-slate-600 transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+        <div className="pb-4">{children}</div>
+      </AccordionPrimitive.Content>
+    </AccordionPrimitive.Item>
   );
 }
 
@@ -129,9 +96,8 @@ export interface AccordionProps {
 }
 
 /**
- * Accordion component - migrated from theme/snippets/accordion.liquid
- *
- * A container for expandable accordion items.
+ * Accordion component — powered by Radix Accordion for accessible
+ * keyboard navigation, ARIA attributes, and animated expand/collapse.
  *
  * @example
  * <Accordion>
@@ -152,59 +118,43 @@ export interface AccordionProps {
 export function Accordion({
   multiple = false,
   defaultOpenKeys = [],
-  openKeys: controlledOpenKeys,
+  openKeys,
   onOpenKeysChange,
   className,
   children,
 }: AccordionProps) {
-  const [uncontrolledOpenKeys, setUncontrolledOpenKeys] =
-    useState(defaultOpenKeys);
-
-  const isControlled = controlledOpenKeys !== undefined;
-  const openKeys = isControlled ? controlledOpenKeys : uncontrolledOpenKeys;
-
-  const handleItemOpenChange = useCallback(
-    (itemId: string, isOpen: boolean) => {
-      let newOpenKeys: string[];
-
-      if (isOpen) {
-        if (multiple) {
-          newOpenKeys = [...openKeys, itemId];
-        } else {
-          newOpenKeys = [itemId];
-        }
-      } else {
-        newOpenKeys = openKeys.filter((key) => key !== itemId);
-      }
-
-      if (!isControlled) {
-        setUncontrolledOpenKeys(newOpenKeys);
-      }
-      onOpenKeysChange?.(newOpenKeys);
-    },
-    [multiple, openKeys, isControlled, onOpenKeysChange],
-  );
-
-  const baseClasses = [
+  const baseClassName = cn(
     'accordion border border-slate-200 rounded-xl',
     className,
-  ]
-    .filter(Boolean)
-    .join(' ');
+  );
 
-  // Clone children and inject open state
-  const enhancedChildren = React.Children.map(children, (child) => {
-    if (React.isValidElement<AccordionItemProps>(child)) {
-      const itemId = child.props.id;
-      return React.cloneElement(child, {
-        open: openKeys.includes(itemId),
-        onOpenChange: (isOpen: boolean) => handleItemOpenChange(itemId, isOpen),
-      });
-    }
-    return child;
-  });
+  // Radix uses discriminated-union props depending on type
+  if (multiple) {
+    return (
+      <AccordionPrimitive.Root
+        type="multiple"
+        value={openKeys}
+        defaultValue={defaultOpenKeys}
+        onValueChange={onOpenKeysChange}
+        className={baseClassName}
+      >
+        {children}
+      </AccordionPrimitive.Root>
+    );
+  }
 
-  return <div className={baseClasses}>{enhancedChildren}</div>;
+  return (
+    <AccordionPrimitive.Root
+      type="single"
+      collapsible
+      value={openKeys?.[0]}
+      defaultValue={defaultOpenKeys[0]}
+      onValueChange={(value) => onOpenKeysChange?.(value ? [value] : [])}
+      className={baseClassName}
+    >
+      {children}
+    </AccordionPrimitive.Root>
+  );
 }
 
 export default Accordion;

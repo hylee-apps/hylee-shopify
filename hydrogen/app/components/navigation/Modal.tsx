@@ -1,6 +1,8 @@
-import React, {useEffect, useCallback, useRef, useId} from 'react';
-import {createPortal} from 'react-dom';
+import React from 'react';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
+import {VisuallyHidden} from '@radix-ui/react-visually-hidden';
 import {Icon} from '../display/Icon';
+import {cn} from '~/lib/utils';
 
 export type ModalSize = 'small' | 'medium' | 'large' | 'full';
 
@@ -35,9 +37,10 @@ const sizeStyles: Record<ModalSize, string> = {
 };
 
 /**
- * Modal component - migrated from theme/snippets/modal.liquid
+ * Modal component — powered by Radix Dialog for accessible focus trapping,
+ * keyboard handling, and portal rendering.
  *
- * A dialog overlay for focused interactions.
+ * Keeps the same external API as the original Liquid migration.
  *
  * @example
  * const [isOpen, setIsOpen] = useState(false);
@@ -63,147 +66,90 @@ export function Modal({
   className,
   children,
 }: ModalProps) {
-  const modalId = useId();
-  const titleId = `${modalId}-title`;
-  const previousActiveElement = useRef<HTMLElement | null>(null);
-  const modalRef = useRef<HTMLDivElement>(null);
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) onClose();
+  };
 
-  // Handle escape key
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (closeOnEscape && e.key === 'Escape') {
-        onClose();
-      }
-    },
-    [closeOnEscape, onClose],
-  );
+  return (
+    <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange}>
+      <DialogPrimitive.Portal>
+        {/* Backdrop / Overlay */}
+        <DialogPrimitive.Overlay className="fixed inset-0 z-[var(--z-modal-backdrop,1040)] bg-black/50 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
 
-  // Handle backdrop click
-  const handleBackdropClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (closeOnBackdropClick && e.target === e.currentTarget) {
-        onClose();
-      }
-    },
-    [closeOnBackdropClick, onClose],
-  );
-
-  // Focus management
-  useEffect(() => {
-    if (open) {
-      previousActiveElement.current = document.activeElement as HTMLElement;
-      modalRef.current?.focus();
-      document.body.style.overflow = 'hidden';
-      document.addEventListener('keydown', handleKeyDown);
-    } else {
-      document.body.style.overflow = '';
-      document.removeEventListener('keydown', handleKeyDown);
-      previousActiveElement.current?.focus();
-    }
-
-    return () => {
-      document.body.style.overflow = '';
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [open, handleKeyDown]);
-
-  // Focus trap
-  const handleTabKey = useCallback((e: React.KeyboardEvent) => {
-    if (e.key !== 'Tab' || !modalRef.current) return;
-
-    const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-    );
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-
-    if (e.shiftKey) {
-      if (document.activeElement === firstElement) {
-        e.preventDefault();
-        lastElement?.focus();
-      }
-    } else {
-      if (document.activeElement === lastElement) {
-        e.preventDefault();
-        firstElement?.focus();
-      }
-    }
-  }, []);
-
-  if (!open) return null;
-
-  const modalClasses = [
-    'modal-container w-full mx-auto bg-white rounded-xl shadow-xl',
-    sizeStyles[size],
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ');
-
-  const modalContent = (
-    <div
-      className="fixed inset-0 z-[var(--z-modal,1050)] flex items-center justify-center p-4"
-      onClick={handleBackdropClick}
-      role="presentation"
-    >
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 transition-opacity"
-        aria-hidden="true"
-      />
-
-      {/* Modal panel */}
-      <div
-        ref={modalRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={title ? titleId : undefined}
-        tabIndex={-1}
-        onKeyDown={handleTabKey}
-        className={`${modalClasses} relative z-10 animate-in fade-in zoom-in-95 duration-200`}
-      >
-        {/* Header */}
-        {(title || closable) && (
-          <div className="flex items-center justify-between p-4 border-b border-slate-200">
-            {title && (
-              <h2 id={titleId} className="text-lg font-semibold text-slate-900">
-                {title}
-              </h2>
+        {/* Content */}
+        <DialogPrimitive.Content
+          className={cn(
+            'fixed left-1/2 top-1/2 z-[var(--z-modal,1050)] w-full -translate-x-1/2 -translate-y-1/2 p-4',
+            'outline-none',
+          )}
+          onPointerDownOutside={(e) => {
+            if (!closeOnBackdropClick) e.preventDefault();
+          }}
+          onEscapeKeyDown={(e) => {
+            if (!closeOnEscape) e.preventDefault();
+          }}
+          onInteractOutside={(e) => {
+            if (!closeOnBackdropClick) e.preventDefault();
+          }}
+        >
+          <div
+            className={cn(
+              'modal-container mx-auto w-full bg-white rounded-xl shadow-xl',
+              'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
+              'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
+              'duration-200',
+              sizeStyles[size],
+              className,
             )}
-            {closable && (
-              <button
-                type="button"
-                onClick={onClose}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors ml-auto"
-                aria-label="Close modal"
-              >
-                <Icon name="x" size={20} />
-              </button>
+          >
+            {/* Header */}
+            {(title || closable) && (
+              <div className="flex items-center justify-between p-4 border-b border-slate-200">
+                {title ? (
+                  <DialogPrimitive.Title className="text-lg font-semibold text-slate-900">
+                    {title}
+                  </DialogPrimitive.Title>
+                ) : (
+                  <VisuallyHidden asChild>
+                    <DialogPrimitive.Title>Dialog</DialogPrimitive.Title>
+                  </VisuallyHidden>
+                )}
+                {closable && (
+                  <DialogPrimitive.Close
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors ml-auto cursor-pointer"
+                    aria-label="Close modal"
+                  >
+                    <Icon name="x" size={20} />
+                  </DialogPrimitive.Close>
+                )}
+              </div>
+            )}
+
+            {/* Provide a hidden description if none supplied to satisfy Radix */}
+            {!title && (
+              <VisuallyHidden asChild>
+                <DialogPrimitive.Description>
+                  Dialog content
+                </DialogPrimitive.Description>
+              </VisuallyHidden>
+            )}
+
+            {/* Body */}
+            <div className="p-4 max-h-[calc(100vh-12rem)] overflow-y-auto">
+              {children}
+            </div>
+
+            {/* Footer */}
+            {footer && (
+              <div className="flex items-center justify-end gap-3 p-4 border-t border-slate-200">
+                {footer}
+              </div>
             )}
           </div>
-        )}
-
-        {/* Body */}
-        <div className="p-4 max-h-[calc(100vh-12rem)] overflow-y-auto">
-          {children}
-        </div>
-
-        {/* Footer */}
-        {footer && (
-          <div className="flex items-center justify-end gap-3 p-4 border-t border-slate-200">
-            {footer}
-          </div>
-        )}
-      </div>
-    </div>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
-
-  // Portal to document body
-  if (typeof document !== 'undefined') {
-    return createPortal(modalContent, document.body);
-  }
-
-  return null;
 }
 
 export default Modal;

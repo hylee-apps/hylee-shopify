@@ -2,6 +2,7 @@
  * Display Components - Hydrogen Design System
  *
  * Migrated from theme/snippets/ Liquid components
+ * Enhanced with Radix UI primitives and shadcn/ui patterns
  */
 
 // Card component
@@ -26,3 +27,24 @@ export {Skeleton, type SkeletonProps, type SkeletonType} from './Skeleton';
 
 // Alert component
 export {Alert, type AlertProps, type AlertType} from './Alert';
+
+// Toast component (Radix)
+export {
+  Toast,
+  ToastViewport,
+  ToastProvider,
+  toastVariants,
+  type ToastProps,
+  type ToastVariant,
+  type ToasterProps,
+} from './Toast';
+
+// Tooltip component (Radix)
+export {
+  Tooltip,
+  TooltipProvider,
+  TooltipRoot,
+  TooltipTrigger,
+  TooltipContent,
+  type TooltipProps,
+} from './Tooltip';

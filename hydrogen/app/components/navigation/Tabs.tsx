@@ -1,4 +1,6 @@
-import React, {useState, useId, useCallback} from 'react';
+import React from 'react';
+import * as TabsPrimitive from '@radix-ui/react-tabs';
+import {cn} from '~/lib/utils';
 
 export interface TabItem {
   /** Unique tab key/id */
@@ -25,9 +27,9 @@ export interface TabsProps {
 }
 
 /**
- * Tabs component - migrated from theme/snippets/tabs.liquid
- *
- * A tabbed interface for organizing content into sections.
+ * Tabs component — powered by Radix Tabs for accessible
+ * keyboard navigation (Arrow, Home, End), ARIA attributes,
+ * and focus management out of the box.
  *
  * @example
  * <Tabs
@@ -48,141 +50,50 @@ export interface TabsProps {
 export function Tabs({
   tabs,
   defaultTab,
-  activeTab: controlledActiveTab,
+  activeTab,
   onChange,
   className,
 }: TabsProps) {
-  const baseId = useId();
-  const [uncontrolledActiveTab, setUncontrolledActiveTab] = useState(
-    defaultTab || tabs[0]?.key || '',
-  );
-
-  const isControlled = controlledActiveTab !== undefined;
-  const activeTab = isControlled ? controlledActiveTab : uncontrolledActiveTab;
-
-  const handleTabChange = useCallback(
-    (key: string) => {
-      if (!isControlled) {
-        setUncontrolledActiveTab(key);
-      }
-      onChange?.(key);
-    },
-    [isControlled, onChange],
-  );
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent, currentIndex: number) => {
-      const enabledTabs = tabs.filter((t) => !t.disabled);
-      const currentEnabledIndex = enabledTabs.findIndex(
-        (t) => t.key === tabs[currentIndex].key,
-      );
-
-      let nextIndex: number | null = null;
-
-      switch (e.key) {
-        case 'ArrowLeft':
-          nextIndex =
-            currentEnabledIndex > 0
-              ? currentEnabledIndex - 1
-              : enabledTabs.length - 1;
-          break;
-        case 'ArrowRight':
-          nextIndex =
-            currentEnabledIndex < enabledTabs.length - 1
-              ? currentEnabledIndex + 1
-              : 0;
-          break;
-        case 'Home':
-          nextIndex = 0;
-          break;
-        case 'End':
-          nextIndex = enabledTabs.length - 1;
-          break;
-        default:
-          return;
-      }
-
-      if (nextIndex !== null) {
-        e.preventDefault();
-        const nextTab = enabledTabs[nextIndex];
-        handleTabChange(nextTab.key);
-
-        // Focus the next tab button
-        const nextButton = document.getElementById(
-          `${baseId}-tab-${nextTab.key}`,
-        );
-        nextButton?.focus();
-      }
-    },
-    [tabs, baseId, handleTabChange],
-  );
-
-  const baseClasses = ['tabs', className].filter(Boolean).join(' ');
-
   return (
-    <div className={baseClasses}>
+    <TabsPrimitive.Root
+      value={activeTab}
+      defaultValue={defaultTab || tabs[0]?.key || ''}
+      onValueChange={onChange}
+      className={cn('tabs', className)}
+    >
       {/* Tab List */}
-      <div
-        className="tabs-list flex border-b border-slate-200"
-        role="tablist"
-        aria-label="Tabs"
-      >
-        {tabs.map((tab, index) => {
-          const isActive = tab.key === activeTab;
-          const tabId = `${baseId}-tab-${tab.key}`;
-          const panelId = `${baseId}-panel-${tab.key}`;
-
-          return (
-            <button
-              key={tab.key}
-              id={tabId}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              aria-controls={panelId}
-              tabIndex={isActive ? 0 : -1}
-              disabled={tab.disabled}
-              onClick={() => handleTabChange(tab.key)}
-              onKeyDown={(e) => handleKeyDown(e, index)}
-              className={[
-                'px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors',
-                isActive
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300',
-                tab.disabled
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'cursor-pointer',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
+      <TabsPrimitive.List className="tabs-list flex border-b border-slate-200">
+        {tabs.map((tab) => (
+          <TabsPrimitive.Trigger
+            key={tab.key}
+            value={tab.key}
+            disabled={tab.disabled}
+            className={cn(
+              'px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors',
+              'data-[state=active]:border-primary data-[state=active]:text-primary',
+              'data-[state=inactive]:border-transparent data-[state=inactive]:text-slate-600',
+              'data-[state=inactive]:hover:text-slate-900 data-[state=inactive]:hover:border-slate-300',
+              tab.disabled
+                ? 'opacity-50 cursor-not-allowed'
+                : 'cursor-pointer',
+            )}
+          >
+            {tab.label}
+          </TabsPrimitive.Trigger>
+        ))}
+      </TabsPrimitive.List>
 
       {/* Tab Panels */}
-      {tabs.map((tab) => {
-        const isActive = tab.key === activeTab;
-        const tabId = `${baseId}-tab-${tab.key}`;
-        const panelId = `${baseId}-panel-${tab.key}`;
-
-        return (
-          <div
-            key={tab.key}
-            id={panelId}
-            role="tabpanel"
-            aria-labelledby={tabId}
-            hidden={!isActive}
-            tabIndex={0}
-            className="tabs-panel pt-4"
-          >
-            {tab.content}
-          </div>
-        );
-      })}
-    </div>
+      {tabs.map((tab) => (
+        <TabsPrimitive.Content
+          key={tab.key}
+          value={tab.key}
+          className="tabs-panel pt-4"
+        >
+          {tab.content}
+        </TabsPrimitive.Content>
+      ))}
+    </TabsPrimitive.Root>
   );
 }
 
