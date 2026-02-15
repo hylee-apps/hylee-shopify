@@ -1,15 +1,11 @@
 import {type LoaderFunctionArgs, redirect} from 'react-router';
 import type {Route} from './+types/products.$handle';
 import {Suspense} from 'react';
-import {Await} from 'react-router';
+import {Await, Link} from 'react-router';
 import {Image, getSeoMeta} from '@shopify/hydrogen';
 import {
   ProductGallery,
   VariantSelector,
-  Breadcrumb,
-  Badge,
-  Accordion,
-  AccordionItem,
   Icon,
   Skeleton,
 } from '~/components';
@@ -98,6 +94,14 @@ const PRODUCT_FRAGMENT = `#graphql
     }
     specifications: metafield(namespace: "custom", key: "specifications") {
       value
+    }
+    metafields(identifiers: [
+      {namespace: "reviews", key: "rating"},
+      {namespace: "reviews", key: "rating_count"}
+    ]) {
+      key
+      value
+    }
     }
     featuredImage {
       id
@@ -246,46 +250,49 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
     return null;
   }
 
-  // Parse specifications JSON if exists
-  let specifications: Record<string, string> = {};
-  if (product.specifications?.value) {
-    try {
-      const parsed = JSON.parse(product.specifications.value);
-      if (typeof parsed === 'object' && parsed !== null) {
-        specifications = parsed as Record<string, string>;
-      }
-    } catch {
-      // Invalid JSON, ignore
-    }
-  }
-
   const isOnSale =
     selectedVariant?.compareAtPrice &&
     parseFloat(selectedVariant.compareAtPrice.amount) >
       parseFloat(selectedVariant.price.amount);
 
   const isOutOfStock = !selectedVariant?.availableForSale;
-  const isLowStock =
-    selectedVariant?.quantityAvailable &&
-    selectedVariant.quantityAvailable <= 5 &&
-    selectedVariant.quantityAvailable > 0;
+
+  // Parse rating from metafields
+  const ratingMeta = product.metafields?.find(
+    (m: any) => m?.key === 'rating',
+  );
+  const ratingCountMeta = product.metafields?.find(
+    (m: any) => m?.key === 'rating_count',
+  );
+  const rating = ratingMeta?.value ? parseFloat(ratingMeta.value) : null;
+  const ratingCount = ratingCountMeta?.value
+    ? parseInt(ratingCountMeta.value, 10)
+    : null;
 
   return (
-    <div className="mx-auto max-w-350 px-4 py-8 lg:px-6">
-      {/* Breadcrumbs */}
-      <Breadcrumb
-        items={[
-          {label: 'Home', url: '/'},
-          {label: 'Products', url: '/collections/all'},
-          {label: product.title},
-        ]}
-        className="mb-6"
-      />
+    <div className="mx-auto max-w-7xl px-4 py-8 lg:px-8">
+      {/* Breadcrumb */}
+      <div className="mb-6">
+        <nav className="inline-flex items-center gap-2 rounded-lg bg-[#edf0f8] px-3 py-2 text-sm">
+          <Link to="/" className="text-text-muted hover:text-primary">
+            Home
+          </Link>
+          <Icon name="chevron-right" size={14} className="text-text-muted" />
+          <Link
+            to="/collections/all"
+            className="text-text-muted hover:text-primary"
+          >
+            Products
+          </Link>
+          <Icon name="chevron-right" size={14} className="text-text-muted" />
+          <span className="font-semibold text-[#3a4980]">{product.title}</span>
+        </nav>
+      </div>
 
-      {/* Main Product Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-        {/* Gallery Column */}
-        <div className="lg:col-span-6">
+      {/* Main 2-Column Layout */}
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
+        {/* Left: Product Gallery */}
+        <div>
           <ProductGallery
             images={product.media.nodes
               .map((node: any) => node.image)
@@ -294,136 +301,156 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
           />
         </div>
 
-        {/* Product Info Column */}
-        <div className="lg:col-span-3 space-y-6">
-          {/* Title & Vendor */}
-          <div>
-            {product.vendor && (
-              <p className="text-sm text-text-muted mb-1">{product.vendor}</p>
-            )}
-            <h1 className="text-2xl lg:text-3xl font-semibold text-dark">
-              {product.title}
-            </h1>
+        {/* Right: Product Info */}
+        <div className="space-y-6">
+          {/* Title + Vendor + Actions */}
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-[28px] font-semibold text-dark">
+                {product.title}
+              </h1>
+              {product.vendor && (
+                <p className="mt-2 text-base text-[#b9bbbf]">
+                  {product.vendor}
+                </p>
+              )}
+            </div>
+            <div className="flex items-center gap-3">
+              {/* Wishlist */}
+              <button className="flex items-center gap-1.5 rounded-lg bg-[#fff0f0] px-2.5 py-1.5">
+                <Icon name="heart" size={20} className="text-[#d46f77]" />
+              </button>
+              {/* Share */}
+              <button className="rounded-lg bg-[#edf0f8] p-1.5">
+                <Icon name="external-link" size={20} className="text-[#3a4980]" />
+              </button>
+            </div>
           </div>
 
-          {/* Badges */}
-          <div className="flex flex-wrap gap-2">
-            {isOnSale && <Badge variant="success">Sale</Badge>}
-            {isOutOfStock && <Badge variant="destructive">Sold Out</Badge>}
-            {isLowStock && (
-              <Badge variant="warning">
-                Only {selectedVariant.quantityAvailable} left
-              </Badge>
+          <hr className="border-border" />
+
+          {/* Price + Rating */}
+          <div className="flex flex-wrap items-center gap-6 lg:gap-10">
+            {/* Price */}
+            <div className="flex items-baseline gap-3">
+              {selectedVariant && (
+                <>
+                  <span className="text-[34px] font-bold text-[#3a4980]">
+                    ${parseFloat(selectedVariant.price.amount).toFixed(2)}
+                  </span>
+                  {isOnSale && selectedVariant.compareAtPrice && (
+                    <span className="text-xl text-black/50 line-through">
+                      $
+                      {parseFloat(
+                        selectedVariant.compareAtPrice.amount,
+                      ).toFixed(2)}
+                    </span>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Rating + Reviews */}
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                {rating !== null && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#fbf3ea] px-2.5 py-1.5 text-sm font-semibold text-[#d48d3b]">
+                    <Icon name="star" size={16} className="text-[#d48d3b]" />
+                    {rating.toFixed(1)}
+                  </span>
+                )}
+                {ratingCount !== null && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#edf0f8] px-2.5 py-1.5 text-sm font-semibold text-[#3a4980]">
+                    <Icon name="star" size={16} />
+                    {ratingCount} Reviews
+                  </span>
+                )}
+              </div>
+              {ratingCount !== null && ratingCount > 0 && (
+                <p className="text-sm text-[#b9bbbf]">
+                  <span className="font-semibold text-[#3e9242]">93%</span> of
+                  buyers have recommended this.
+                </p>
+              )}
+            </div>
+          </div>
+
+          <hr className="border-border" />
+
+          {/* Variant Selector (Color, Size, etc.) */}
+          <VariantSelector
+            options={product.options}
+            variants={product.variants.nodes}
+            selectedVariant={selectedVariant}
+            productHandle={product.handle}
+          />
+
+          <hr className="border-border" />
+
+          {/* Quantity + Add to Cart */}
+          <div className="flex items-center gap-4">
+            {selectedVariant && (
+              <>
+                <AddToCart
+                  variantId={selectedVariant.id}
+                  available={!isOutOfStock}
+                  className="flex-1 rounded-full bg-[#3a4980] px-8 py-4 text-base font-semibold text-white hover:bg-[#3a4980]/90"
+                >
+                  <span className="flex items-center justify-center gap-2.5">
+                    <Icon name="shopping-bag" size={20} />
+                    Add To Cart
+                  </span>
+                </AddToCart>
+              </>
             )}
           </div>
 
-          {/* Description Accordion */}
-          <Accordion defaultOpenKeys={['description']}>
-            <AccordionItem id="description" title="Description">
+          {/* Delivery Info Card */}
+          <div className="rounded-xl border border-[#e4e4e4] p-4">
+            <div className="flex gap-3.5">
+              <Icon name="truck" size={24} className="shrink-0 text-dark" />
+              <div>
+                <p className="text-[17px] font-bold text-[#1d364d]">
+                  Free Delivery
+                </p>
+                <p className="text-sm text-[#726c6c] underline">
+                  Enter your Postal code for Delivery Availability
+                </p>
+              </div>
+            </div>
+            <hr className="my-4 border-border" />
+            <div className="flex gap-3.5">
+              <Icon name="refresh" size={24} className="shrink-0 text-dark" />
+              <div>
+                <p className="text-[17px] font-bold text-[#1d364d]">
+                  Return Delivery
+                </p>
+                <p className="text-sm text-[#726c6c]">
+                  Free 30 days Delivery Return.{' '}
+                  <span className="underline">Details</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Product Description */}
+          {product.descriptionHtml && (
+            <div>
+              <h3 className="mb-3 text-lg font-semibold text-dark">
+                Description
+              </h3>
               <div
                 className="prose prose-sm text-text-muted"
                 dangerouslySetInnerHTML={{__html: product.descriptionHtml}}
               />
-            </AccordionItem>
-
-            {/* Specifications */}
-            {Object.keys(specifications).length > 0 && (
-              <AccordionItem id="specs" title="Specifications">
-                <table className="w-full text-sm">
-                  <tbody>
-                    {Object.entries(specifications).map(([key, value]) => (
-                      <tr key={key} className="border-b border-border">
-                        <td className="py-2 font-medium text-text">{key}</td>
-                        <td className="py-2 text-text-muted">{value}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </AccordionItem>
-            )}
-
-            {/* Warranty */}
-            {product.warranty?.value && (
-              <AccordionItem id="warranty" title="Warranty">
-                <p className="text-sm text-text-muted">
-                  {product.warranty.value}
-                </p>
-              </AccordionItem>
-            )}
-          </Accordion>
-        </div>
-
-        {/* Buy Box Column */}
-        <div className="lg:col-span-3">
-          <div className="lg:sticky lg:top-24 space-y-6 bg-surface p-6 rounded-lg border border-border">
-            {/* Price */}
-            <div>
-              {selectedVariant && (
-                <PriceDisplay
-                  price={{
-                    amount: selectedVariant.price.amount,
-                    currencyCode: selectedVariant.price.currencyCode,
-                  }}
-                  compareAtPrice={
-                    selectedVariant.compareAtPrice
-                      ? {
-                          amount: selectedVariant.compareAtPrice.amount,
-                          currencyCode:
-                            selectedVariant.compareAtPrice.currencyCode,
-                        }
-                      : undefined
-                  }
-                  size="lg"
-                />
-              )}
             </div>
-
-            {/* Variant Selector */}
-            <VariantSelector
-              options={product.options}
-              variants={product.variants.nodes}
-              selectedVariant={selectedVariant}
-              productHandle={product.handle}
-            />
-
-            {/* Add to Cart */}
-            {selectedVariant && (
-              <AddToCart
-                variantId={selectedVariant.id}
-                available={!isOutOfStock}
-                fullWidth
-              />
-            )}
-
-            {/* SKU */}
-            {selectedVariant?.sku && (
-              <p className="text-xs text-text-muted text-center">
-                SKU: {selectedVariant.sku}
-              </p>
-            )}
-
-            {/* Trust badges */}
-            <div className="border-t border-border pt-6 space-y-3">
-              <div className="flex items-center gap-3 text-sm text-text-muted">
-                <Icon name="truck" size={16} />
-                <span>Free shipping on orders over $99</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-text-muted">
-                <Icon name="refresh" size={16} />
-                <span>30-day returns</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-text-muted">
-                <Icon name="shield" size={16} />
-                <span>2-year warranty</span>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
       {/* Recommended Products */}
       <section className="mt-16">
-        <h2 className="text-2xl font-semibold text-dark mb-8">
+        <h2 className="mb-8 text-2xl font-semibold text-dark">
           You might also like
         </h2>
         <Suspense fallback={<RecommendedProductsSkeleton />}>
