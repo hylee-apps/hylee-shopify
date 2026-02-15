@@ -259,6 +259,11 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
   // Quantity state
   const [quantity, setQuantity] = useState(1);
 
+  // Active tab state
+  const [activeTab, setActiveTab] = useState<'description' | 'reviews'>(
+    'description',
+  );
+
   // Parse rating from metafields
   const ratingMeta = product.metafields?.find(
     (m: any) => m?.key === 'rating',
@@ -452,10 +457,57 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
         </div>
       </div>
 
+      {/* Description / Reviews Tabs */}
+      <section className="mt-16">
+        {/* Tab Bar */}
+        <div className="border-b border-border">
+          <div className="flex gap-8">
+            <button
+              onClick={() => setActiveTab('description')}
+              className={`pb-3 text-base font-semibold transition-colors ${
+                activeTab === 'description'
+                  ? 'border-b-[3px] border-[#3a4980] text-[#3a4980]'
+                  : 'text-text-muted hover:text-text'
+              }`}
+            >
+              Description
+            </button>
+            <button
+              onClick={() => setActiveTab('reviews')}
+              className={`pb-3 text-base font-semibold transition-colors ${
+                activeTab === 'reviews'
+                  ? 'border-b-[3px] border-[#3a4980] text-[#3a4980]'
+                  : 'text-text-muted hover:text-text'
+              }`}
+            >
+              Reviews
+            </button>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        <div className="py-8">
+          {activeTab === 'description' && (
+            <DescriptionTab
+              descriptionHtml={product.descriptionHtml}
+              tags={product.tags}
+              productType={product.productType}
+              vendor={product.vendor}
+              specifications={product.specifications?.value}
+            />
+          )}
+          {activeTab === 'reviews' && (
+            <div className="text-text-muted">
+              <p>No reviews yet.</p>
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* Recommended Products */}
       <section className="mt-16">
-        <h2 className="mb-8 text-2xl font-semibold text-dark">
-          You might also like
+        <h2 className="mb-8 text-2xl font-bold text-dark">
+          Similar Items You Might Also Like
         </h2>
         <Suspense fallback={<RecommendedProductsSkeleton />}>
           <Await resolve={recommendedProducts}>
@@ -546,6 +598,127 @@ function RecommendedProductsSkeleton() {
           <Skeleton type="text" className="w-1/2" />
         </div>
       ))}
+    </div>
+  );
+}
+
+// ============================================================================
+// Description Tab
+// ============================================================================
+
+function CheckIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      className="shrink-0 mt-0.5 text-[#3a4980]"
+    >
+      <path
+        d="M9 12l2 2 4-4"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="2"
+        opacity="0.15"
+      />
+    </svg>
+  );
+}
+
+interface DescriptionTabProps {
+  descriptionHtml: string;
+  tags: string[];
+  productType: string;
+  vendor: string;
+  specifications?: string | null;
+}
+
+function DescriptionTab({
+  descriptionHtml,
+  tags,
+  productType,
+  vendor,
+  specifications,
+}: DescriptionTabProps) {
+  // Parse specifications JSON if available
+  let specs: Record<string, string> = {};
+  if (specifications) {
+    try {
+      specs = JSON.parse(specifications) as Record<string, string>;
+    } catch {
+      // ignore invalid JSON
+    }
+  }
+
+  // Build product details from available data
+  const productDetails: string[] = [];
+  if (productType) productDetails.push(`Type: ${productType}`);
+  if (vendor) productDetails.push(`Brand: ${vendor}`);
+
+  // Build more details from tags and specs
+  const moreDetails: string[] = [];
+  if (Object.keys(specs).length > 0) {
+    Object.entries(specs).forEach(([key, value]) => {
+      moreDetails.push(`${key}: ${value}`);
+    });
+  }
+  if (tags.length > 0) {
+    tags.forEach((tag) => {
+      moreDetails.push(tag);
+    });
+  }
+
+  return (
+    <div className="max-w-3xl space-y-8">
+      {/* Product Description */}
+      <div>
+        <h3 className="mb-3 text-lg font-bold text-dark">
+          Product Description
+        </h3>
+        <div
+          className="prose prose-sm text-[#726c6c] leading-relaxed"
+          dangerouslySetInnerHTML={{__html: descriptionHtml}}
+        />
+      </div>
+
+      {/* Product Details */}
+      {productDetails.length > 0 && (
+        <div>
+          <h3 className="mb-3 text-lg font-bold text-dark">Product Details</h3>
+          <ul className="space-y-2.5">
+            {productDetails.map((detail, i) => (
+              <li key={i} className="flex items-start gap-2.5">
+                <CheckIcon />
+                <span className="text-sm text-[#726c6c]">{detail}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* More Details */}
+      {moreDetails.length > 0 && (
+        <div>
+          <h3 className="mb-3 text-lg font-bold text-dark">More Details</h3>
+          <ul className="space-y-2.5">
+            {moreDetails.map((detail, i) => (
+              <li key={i} className="flex items-start gap-2.5">
+                <CheckIcon />
+                <span className="text-sm text-[#726c6c]">{detail}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
