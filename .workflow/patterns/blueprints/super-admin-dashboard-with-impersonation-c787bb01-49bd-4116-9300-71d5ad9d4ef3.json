@@ -1,0 +1,74 @@
+{
+  "id": "c787bb01-49bd-4116-9300-71d5ad9d4ef3",
+  "name": "Super Admin Dashboard with Impersonation",
+  "description": "Super admin control panel featuring user impersonation with audit logging, system alerts management, cross-organization entity browsing, and comprehensive audit trail for all admin actions",
+  "tags": [
+    {
+      "name": "next",
+      "category": "framework"
+    },
+    {
+      "name": "super-admin",
+      "category": "feature"
+    },
+    {
+      "name": "impersonation",
+      "category": "feature"
+    },
+    {
+      "name": "audit-log",
+      "category": "security"
+    },
+    {
+      "name": "admin-panel",
+      "category": "pattern"
+    }
+  ],
+  "stack": {
+    "framework": "next",
+    "language": "typescript",
+    "runtime": "node",
+    "packageManager": "pnpm",
+    "dependencies": [],
+    "devDependencies": []
+  },
+  "structure": {
+    "directories": [],
+    "keyFiles": [
+      {
+        "path": "app/actions/impersonation.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "app/actions/superAdminAudit.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "components/super-admin/",
+        "purpose": "Core implementation file"
+      }
+    ]
+  },
+  "setup": {
+    "prerequisites": [],
+    "steps": [],
+    "configs": []
+  },
+  "compatibility": {
+    "framework": "next",
+    "frameworkVersion": "^14.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 0,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "relatedPatterns": [],
+  "isPrivate": false,
+  "createdAt": "2026-01-20T22:23:46.831Z",
+  "updatedAt": "2026-01-20T22:23:46.831Z"
+}

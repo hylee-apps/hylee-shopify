@@ -61,7 +61,7 @@ export function PageLayout({children}: PageLayoutProps) {
         fallback={
           <Footer
             shopName={header?.shop?.name ?? 'Hy-lee'}
-            logoUrl={header?.shop?.brand?.logo?.image?.url}
+            logoUrl="/logo-universal.png"
             description="Premium wholesale marketplace for small businesses worldwide"
           />
         }
@@ -71,7 +71,7 @@ export function PageLayout({children}: PageLayoutProps) {
             <Footer
               menu={resolvedFooter?.menu}
               shopName={header?.shop?.name ?? 'Hy-lee'}
-              logoUrl={header?.shop?.brand?.logo?.image?.url}
+              logoUrl="/logo-universal.png"
               description="Premium wholesale marketplace for small businesses worldwide"
             />
           )}

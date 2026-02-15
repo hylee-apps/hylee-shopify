@@ -1,0 +1,78 @@
+{
+  "id": "61459094-ad3f-438c-8b1c-03fc9b8a0ec9",
+  "name": "Organization Invitation System",
+  "description": "Token-based invitation system for organizations and teams with email delivery via Resend, expiration handling, role assignment on acceptance, and invitation status tracking",
+  "tags": [
+    {
+      "name": "next",
+      "category": "framework"
+    },
+    {
+      "name": "invitations",
+      "category": "feature"
+    },
+    {
+      "name": "email",
+      "category": "feature"
+    },
+    {
+      "name": "resend",
+      "category": "tool"
+    },
+    {
+      "name": "token-auth",
+      "category": "pattern"
+    },
+    {
+      "name": "supabase",
+      "category": "database"
+    }
+  ],
+  "stack": {
+    "framework": "next",
+    "language": "typescript",
+    "runtime": "node",
+    "packageManager": "pnpm",
+    "dependencies": [],
+    "devDependencies": []
+  },
+  "structure": {
+    "directories": [],
+    "keyFiles": [
+      {
+        "path": "app/actions/invites.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "app/invite/",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "types/index.ts",
+        "purpose": "Core implementation file"
+      }
+    ]
+  },
+  "setup": {
+    "prerequisites": [],
+    "steps": [],
+    "configs": []
+  },
+  "compatibility": {
+    "framework": "next",
+    "frameworkVersion": "^14.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 0,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "relatedPatterns": [],
+  "isPrivate": false,
+  "createdAt": "2026-01-20T22:23:46.831Z",
+  "updatedAt": "2026-01-20T22:23:46.831Z"
+}

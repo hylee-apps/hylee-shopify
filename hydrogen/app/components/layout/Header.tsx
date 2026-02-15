@@ -480,7 +480,7 @@ export function Header({
 
   return (
     <header
-      className={`sticky top-0 bg-white z-sticky ${
+      className={`sticky top-0 bg-white z-1020 ${
         variant === 'minimal' ? '' : 'shadow-sm'
       }`}
     >
@@ -504,24 +504,12 @@ export function Header({
 
           {/* Logo */}
           <Link to="/" className="shrink-0">
-            {shop.brand?.logo?.image?.url ? (
-              <>
-                <img
-                  src={shop.brand.logo.image.url}
-                  alt={shop.name}
-                  className="hidden sm:block h-8 w-auto"
-                  loading="eager"
-                />
-                <img
-                  src={shop.brand.logo.image.url}
-                  alt={shop.name}
-                  className="sm:hidden h-6 w-auto"
-                  loading="eager"
-                />
-              </>
-            ) : (
-              <span className="text-xl font-bold text-dark">{shop.name}</span>
-            )}
+            <img
+              src="/logo-universal.png"
+              alt={shop.name}
+              className="h-6 sm:h-8 w-auto"
+              loading="eager"
+            />
           </Link>
 
           {/* Desktop navigation */}

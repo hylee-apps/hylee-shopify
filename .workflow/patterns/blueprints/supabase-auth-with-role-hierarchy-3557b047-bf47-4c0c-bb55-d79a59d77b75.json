@@ -1,0 +1,140 @@
+{
+  "id": "3557b047-bf47-4c0c-bb55-d79a59d77b75",
+  "name": "Supabase Auth with Role Hierarchy",
+  "description": "Multi-client Supabase setup with server-side authorization, role hierarchy (viewer to super_admin), and middleware route protection for Next.js App Router",
+  "tags": [
+    {
+      "name": "next",
+      "category": "framework"
+    },
+    {
+      "name": "supabase",
+      "category": "tool"
+    },
+    {
+      "name": "roles",
+      "category": "auth"
+    },
+    {
+      "name": "rls",
+      "category": "security"
+    },
+    {
+      "name": "typescript",
+      "category": "language"
+    }
+  ],
+  "stack": {
+    "framework": "next",
+    "language": "typescript",
+    "runtime": "node",
+    "packageManager": "pnpm",
+    "dependencies": [
+      {
+        "name": "@supabase/supabase-js",
+        "version": "^2.89.0",
+        "compatibleRange": ">=2.0.0"
+      },
+      {
+        "name": "@supabase/ssr",
+        "version": "^0.8.0",
+        "compatibleRange": ">=0.5.0"
+      }
+    ],
+    "devDependencies": []
+  },
+  "structure": {
+    "directories": [
+      {
+        "path": "lib/supabase",
+        "purpose": "Supabase client factories"
+      },
+      {
+        "path": "utils",
+        "purpose": "Authorization utilities"
+      }
+    ],
+    "keyFiles": [
+      {
+        "path": "lib/supabase/client.ts",
+        "purpose": "Browser client (singleton)"
+      },
+      {
+        "path": "lib/supabase/server.ts",
+        "purpose": "Server client (async cookies)"
+      },
+      {
+        "path": "lib/supabase/admin.ts",
+        "purpose": "Admin client (bypasses RLS)"
+      },
+      {
+        "path": "lib/supabase/middleware.ts",
+        "purpose": "Session refresh for middleware"
+      },
+      {
+        "path": "utils/authorization.ts",
+        "purpose": "Client-side role constants"
+      },
+      {
+        "path": "utils/authorization.server.ts",
+        "purpose": "Server-side verification"
+      },
+      {
+        "path": "middleware.ts",
+        "purpose": "Route protection"
+      }
+    ]
+  },
+  "setup": {
+    "prerequisites": [
+      "Supabase project created",
+      "NEXT_PUBLIC_SUPABASE_URL environment variable",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable",
+      "SUPABASE_SERVICE_ROLE_KEY for admin operations"
+    ],
+    "steps": [
+      {
+        "order": 1,
+        "command": "pnpm add @supabase/supabase-js @supabase/ssr",
+        "description": "Install Supabase packages",
+        "optional": false
+      },
+      {
+        "order": 2,
+        "command": "mkdir -p lib/supabase utils",
+        "description": "Create directory structure",
+        "optional": false
+      },
+      {
+        "order": 3,
+        "command": "touch lib/supabase/{client,server,admin,middleware}.ts",
+        "description": "Create client files",
+        "optional": false
+      },
+      {
+        "order": 4,
+        "command": "touch utils/authorization.ts utils/authorization.server.ts",
+        "description": "Create auth utilities",
+        "optional": false
+      }
+    ],
+    "configs": []
+  },
+  "compatibility": {
+    "framework": "next",
+    "frameworkVersion": "^16.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 100,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "relatedPatterns": [],
+  "isPrivate": false,
+  "createdAt": "2026-01-22T23:00:00.000Z",
+  "updatedAt": "2026-01-22T23:00:00.000Z"
+}

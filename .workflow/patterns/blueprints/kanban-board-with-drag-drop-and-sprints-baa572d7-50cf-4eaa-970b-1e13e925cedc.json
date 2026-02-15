@@ -1,0 +1,82 @@
+{
+  "id": "baa572d7-50cf-4eaa-970b-1e13e925cedc",
+  "name": "Kanban Board with Drag-Drop and Sprints",
+  "description": "Full-featured Kanban board system using react-dnd for drag-drop, with customizable columns, sprint management, task cards, and real-time updates via Supabase subscriptions",
+  "tags": [
+    {
+      "name": "next",
+      "category": "framework"
+    },
+    {
+      "name": "react-dnd",
+      "category": "ui"
+    },
+    {
+      "name": "kanban",
+      "category": "pattern"
+    },
+    {
+      "name": "drag-drop",
+      "category": "feature"
+    },
+    {
+      "name": "sprints",
+      "category": "feature"
+    },
+    {
+      "name": "supabase",
+      "category": "database"
+    }
+  ],
+  "stack": {
+    "framework": "next",
+    "language": "typescript",
+    "runtime": "node",
+    "packageManager": "pnpm",
+    "dependencies": [],
+    "devDependencies": []
+  },
+  "structure": {
+    "directories": [],
+    "keyFiles": [
+      {
+        "path": "components/KanbanBoardView.tsx",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "components/TaskCard.tsx",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "app/actions/tasks.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "app/actions/sprints.ts",
+        "purpose": "Core implementation file"
+      }
+    ]
+  },
+  "setup": {
+    "prerequisites": [],
+    "steps": [],
+    "configs": []
+  },
+  "compatibility": {
+    "framework": "next",
+    "frameworkVersion": "^14.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 0,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "relatedPatterns": [],
+  "isPrivate": false,
+  "createdAt": "2026-01-20T22:23:46.830Z",
+  "updatedAt": "2026-01-20T22:23:46.830Z"
+}

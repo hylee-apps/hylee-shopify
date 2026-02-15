@@ -1,2 +1,8 @@
+packages:
+  - hydrogen
+
 onlyBuiltDependencies:
+  - esbuild
+  - unrs-resolver
+  - workerd
   - workflow-agent-cli

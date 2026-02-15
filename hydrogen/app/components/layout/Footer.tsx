@@ -179,20 +179,12 @@ export function Footer({
           <div className="col-span-2 md:col-span-4 lg:col-span-2 space-y-4">
             <div className="flex items-center">
               {logoUrl ? (
-                <>
-                  <img
-                    src={logoUrl}
-                    alt={shopName}
-                    className="hidden sm:block h-9 w-auto"
-                    loading="lazy"
-                  />
-                  <img
-                    src={logoUrl}
-                    alt={shopName}
-                    className="sm:hidden h-7 w-auto"
-                    loading="lazy"
-                  />
-                </>
+                <img
+                  src={logoUrl}
+                  alt={shopName}
+                  className="h-7 sm:h-9 w-auto"
+                  loading="lazy"
+                />
               ) : (
                 <span className="text-xl font-bold text-dark">{shopName}</span>
               )}

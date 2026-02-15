@@ -1,0 +1,103 @@
+{
+  "id": "e6a2b3c8-d9f0-4e1a-2b3c-5d6e7f8a9b0c",
+  "name": "FormDialog Component Pattern",
+  "description": "Standardized form dialogs with FormDialogSection and Field composition, design token integration, and accessible ID generation",
+  "category": "config",
+  "tags": [
+    {
+      "name": "forms",
+      "category": "ui"
+    },
+    {
+      "name": "components",
+      "category": "pattern"
+    },
+    {
+      "name": "accessible",
+      "category": "feature"
+    },
+    {
+      "name": "next",
+      "category": "framework"
+    },
+    {
+      "name": "typescript",
+      "category": "language"
+    }
+  ],
+  "trigger": {
+    "errorPattern": "form dialog|modal form|create dialog|edit dialog",
+    "errorMessage": "Need to create a form in a dialog/modal",
+    "filePattern": "components/*.tsx"
+  },
+  "solution": {
+    "type": "file-change",
+    "steps": [
+      {
+        "order": 1,
+        "action": "modify",
+        "target": "components/<EntityName>Dialog.tsx",
+        "description": "Import FormDialog, FormDialogSection, FormDialogField from components/FormDialog"
+      },
+      {
+        "order": 2,
+        "action": "modify",
+        "target": "components/<EntityName>Dialog.tsx",
+        "description": "Use useFormDialog hook for state management: const { isOpen, isSubmitting, setIsSubmitting, open, close } = useFormDialog()"
+      },
+      {
+        "order": 3,
+        "action": "modify",
+        "target": "components/<EntityName>Dialog.tsx",
+        "description": "Wrap form content in FormDialog with props: open, onOpenChange, title, description, onSubmit, isSubmitting, submitText"
+      },
+      {
+        "order": 4,
+        "action": "modify",
+        "target": "components/<EntityName>Dialog.tsx",
+        "description": "Use gradientTitle={true} for creation dialogs, gradientTitle={false} for edit dialogs"
+      },
+      {
+        "order": 5,
+        "action": "modify",
+        "target": "components/<EntityName>Dialog.tsx",
+        "description": "Group related fields with FormDialogSection: <FormDialogSection title=\"Details\">...</FormDialogSection>"
+      },
+      {
+        "order": 6,
+        "action": "modify",
+        "target": "components/<EntityName>Dialog.tsx",
+        "description": "Wrap each input with FormDialogField: <FormDialogField label=\"Name\" required error={errors.name} htmlFor=\"name\"><FormInput id=\"name\" /></FormDialogField>"
+      },
+      {
+        "order": 7,
+        "action": "modify",
+        "target": "components/<EntityName>Dialog.tsx",
+        "description": "Use form components from components/ui/forms (FormInput, FormSelect, FormTextarea, FormSwitch) which integrate design tokens"
+      },
+      {
+        "order": 8,
+        "action": "modify",
+        "target": "components/<EntityName>Dialog.tsx",
+        "description": "Choose appropriate size: sm (single field), md (2-5 fields), lg (sections), xl (complex), full (multi-step)"
+      }
+    ]
+  },
+  "compatibility": {
+    "framework": "next",
+    "frameworkVersion": "^16.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 100,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "source": "manual",
+  "isPrivate": false,
+  "createdAt": "2026-01-22T23:00:00.000Z",
+  "updatedAt": "2026-01-22T23:00:00.000Z"
+}

@@ -1,0 +1,139 @@
+{
+  "id": "2f6a5f25-2b55-4952-8cf1-5b028b2c875c",
+  "name": "Hydrogen Shopify Storefront Foundation",
+  "description": "Complete Hydrogen/Remix scaffold with Tailwind v4 design tokens, Storefront API client, session management, CSP with GA/GTM, and React Router file-based routing in a monorepo subdirectory alongside an existing Liquid theme",
+  "tags": [
+    {
+      "name": "vitest",
+      "category": "tool"
+    },
+    {
+      "name": "testing",
+      "category": "testing"
+    },
+    {
+      "name": "css",
+      "category": "file-type"
+    },
+    {
+      "name": "typescript",
+      "category": "language"
+    },
+    {
+      "name": "react",
+      "category": "framework"
+    },
+    {
+      "name": "utilities",
+      "category": "library"
+    },
+    {
+      "name": "configuration",
+      "category": "file-type"
+    }
+  ],
+  "stack": {
+    "framework": "shopify",
+    "language": "typescript",
+    "runtime": "node",
+    "packageManager": "pnpm",
+    "dependencies": [],
+    "devDependencies": []
+  },
+  "structure": {
+    "directories": [
+      {
+        "path": "hydrogen/app/styles",
+        "purpose": "Directory for styles files"
+      },
+      {
+        "path": "hydrogen/app",
+        "purpose": "Directory for app files"
+      },
+      {
+        "path": "hydrogen/app/lib",
+        "purpose": "Directory for lib files"
+      },
+      {
+        "path": "hydrogen",
+        "purpose": "Directory for hydrogen files"
+      }
+    ],
+    "keyFiles": [
+      {
+        "path": "hydrogen/app/styles/app.css",
+        "purpose": "css file"
+      },
+      {
+        "path": "hydrogen/app/root.tsx",
+        "purpose": "typescript file"
+      },
+      {
+        "path": "hydrogen/app/lib/context.ts",
+        "purpose": "typescript file"
+      },
+      {
+        "path": "hydrogen/app/lib/session.ts",
+        "purpose": "typescript file"
+      },
+      {
+        "path": "hydrogen/app/lib/fragments.ts",
+        "purpose": "typescript file"
+      },
+      {
+        "path": "hydrogen/vite.config.ts",
+        "purpose": "typescript file"
+      },
+      {
+        "path": "hydrogen/server.ts",
+        "purpose": "typescript file"
+      },
+      {
+        "path": "hydrogen/react-router.config.ts",
+        "purpose": "typescript file"
+      },
+      {
+        "path": "hydrogen/app/entry.server.tsx",
+        "purpose": "typescript file"
+      },
+      {
+        "path": "hydrogen/app/entry.client.tsx",
+        "purpose": "typescript file"
+      },
+      {
+        "path": "hydrogen/app/routes.ts",
+        "purpose": "typescript file"
+      },
+      {
+        "path": "hydrogen/env.d.ts",
+        "purpose": "typescript file"
+      },
+      {
+        "path": "hydrogen/.graphqlrc.ts",
+        "purpose": "typescript file"
+      }
+    ]
+  },
+  "setup": {
+    "prerequisites": [],
+    "steps": [],
+    "configs": []
+  },
+  "compatibility": {
+    "framework": "shopify",
+    "frameworkVersion": ">=1.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 0,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "relatedPatterns": [],
+  "isPrivate": false,
+  "createdAt": "2026-02-09T12:49:27.805Z",
+  "updatedAt": "2026-02-09T12:54:37.559Z"
+}

@@ -1,0 +1,57 @@
+{
+  "id": "09f6365a-0994-4488-ab7f-81009691499e",
+  "name": "Tailwind v4 @theme does not support transitions or z-index",
+  "description": "When migrating CSS custom properties to Tailwind v4's @theme directive, transitions (timing functions) and z-index values are not supported inside @theme. They must be placed in a separate :root {} block as standard CSS custom properties. Colors, fonts, spacing, radius, and shadows all work inside @theme.",
+  "category": "config",
+  "tags": [
+    {
+      "name": "tailwindcss",
+      "category": "tool"
+    },
+    {
+      "name": "design-tokens",
+      "category": "custom"
+    },
+    {
+      "name": "tailwind-v4",
+      "category": "custom"
+    },
+    {
+      "name": "css",
+      "category": "file-type"
+    }
+  ],
+  "trigger": {
+    "errorPattern": ".*",
+    "errorMessage": "Transition duration/timing and z-index values silently ignored when placed inside @theme directive in Tailwind v4",
+    "filePattern": "**/*.css"
+  },
+  "solution": {
+    "type": "file-change",
+    "steps": [
+      {
+        "order": 1,
+        "action": "modify",
+        "target": "app.css or tailwind theme file",
+        "description": "Place colors, fonts, spacing, radius, and shadows inside @theme {}. Place transitions (--transition-fast, etc.) and z-index values (--z-modal, etc.) in a separate :root {} block below the @theme block."
+      }
+    ]
+  },
+  "compatibility": {
+    "framework": "shopify",
+    "frameworkVersion": ">=2025.1.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 100,
+    "applications": 1,
+    "successes": 1,
+    "failures": 0
+  },
+  "source": "manual",
+  "isPrivate": false,
+  "createdAt": "2026-02-08T00:00:00.000Z",
+  "updatedAt": "2026-02-09T12:54:37.554Z"
+}

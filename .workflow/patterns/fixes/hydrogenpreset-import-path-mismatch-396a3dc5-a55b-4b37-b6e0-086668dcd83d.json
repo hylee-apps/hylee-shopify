@@ -1,0 +1,57 @@
+{
+  "id": "396a3dc5-a55b-4b37-b6e0-086668dcd83d",
+  "name": "hydrogenPreset import path mismatch",
+  "description": "The hydrogenPreset function must be imported from '@shopify/hydrogen/react-router-preset', NOT '@shopify/hydrogen/vite'. The /vite subpath only exports the 'hydrogen' vite plugin. Using the wrong import causes 'hydrogenPreset is not a function' error during react-router typegen or vite build.",
+  "category": "build",
+  "tags": [
+    {
+      "name": "hydrogen",
+      "category": "custom"
+    },
+    {
+      "name": "vite",
+      "category": "tool"
+    },
+    {
+      "name": "react-router",
+      "category": "tool"
+    },
+    {
+      "name": "import-path",
+      "category": "error-type"
+    }
+  ],
+  "trigger": {
+    "errorPattern": "hydrogenPreset.*is not a function",
+    "errorMessage": "TypeError: (0 , __vite_ssr_import_0__.hydrogenPreset) is not a function when running react-router typegen or vite build",
+    "filePattern": "react-router.config.ts"
+  },
+  "solution": {
+    "type": "file-change",
+    "steps": [
+      {
+        "order": 1,
+        "action": "modify",
+        "target": "react-router.config.ts",
+        "description": "Change import from '@shopify/hydrogen/vite' to '@shopify/hydrogen/react-router-preset'"
+      }
+    ]
+  },
+  "compatibility": {
+    "framework": "shopify",
+    "frameworkVersion": ">=2025.7.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 100,
+    "applications": 1,
+    "successes": 1,
+    "failures": 0
+  },
+  "source": "manual",
+  "isPrivate": false,
+  "createdAt": "2026-02-08T00:00:00.000Z",
+  "updatedAt": "2026-02-09T12:54:37.548Z"
+}

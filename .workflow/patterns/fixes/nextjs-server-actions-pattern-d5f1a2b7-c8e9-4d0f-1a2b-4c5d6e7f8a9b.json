@@ -1,0 +1,93 @@
+{
+  "id": "d5f1a2b7-c8e9-4d0f-1a2b-4c5d6e7f8a9b",
+  "name": "Next.js Server Actions Pattern",
+  "description": "Authorization-first server actions with snake_case to camelCase transform, data-error returns, revalidation, and notification triggers",
+  "category": "runtime",
+  "tags": [
+    {
+      "name": "next",
+      "category": "framework"
+    },
+    {
+      "name": "server-actions",
+      "category": "pattern"
+    },
+    {
+      "name": "authorization",
+      "category": "auth"
+    },
+    {
+      "name": "typescript",
+      "category": "language"
+    }
+  ],
+  "trigger": {
+    "errorPattern": "server action|data fetching|authorization|RLS|snake_case",
+    "errorMessage": "Need to create a server action for data operations",
+    "filePattern": "app/actions/*.ts"
+  },
+  "solution": {
+    "type": "file-change",
+    "steps": [
+      {
+        "order": 1,
+        "action": "create",
+        "target": "app/actions/<entity>.ts",
+        "description": "Add 'use server' directive as first line of file"
+      },
+      {
+        "order": 2,
+        "action": "modify",
+        "target": "app/actions/<entity>.ts",
+        "description": "Import createServerClient from lib/supabase/server and verify functions from utils/authorization.server"
+      },
+      {
+        "order": 3,
+        "action": "modify",
+        "target": "app/actions/<entity>.ts",
+        "description": "Define DatabaseRow interface with snake_case fields matching database schema"
+      },
+      {
+        "order": 4,
+        "action": "modify",
+        "target": "app/actions/<entity>.ts",
+        "description": "Create transform function to convert snake_case to camelCase: transformEntity(row: EntityRow): Entity"
+      },
+      {
+        "order": 5,
+        "action": "modify",
+        "target": "app/actions/<entity>.ts",
+        "description": "Implement action with authorization check FIRST: const access = await verifyEntityAccess(id); if (!access.hasAccess) return { data: null, error: access.error }"
+      },
+      {
+        "order": 6,
+        "action": "modify",
+        "target": "app/actions/<entity>.ts",
+        "description": "Execute Supabase query and return { data: transformedData, error: null } or { data: null, error: message }"
+      },
+      {
+        "order": 7,
+        "action": "modify",
+        "target": "app/actions/<entity>.ts",
+        "description": "For mutations: call revalidatePath() after successful update and trigger notifications if needed"
+      }
+    ]
+  },
+  "compatibility": {
+    "framework": "next",
+    "frameworkVersion": "^16.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 100,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "source": "manual",
+  "isPrivate": false,
+  "createdAt": "2026-01-22T23:00:00.000Z",
+  "updatedAt": "2026-01-22T23:00:00.000Z"
+}

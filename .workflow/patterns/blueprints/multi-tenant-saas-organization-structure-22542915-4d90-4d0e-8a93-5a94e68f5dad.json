@@ -1,0 +1,82 @@
+{
+  "id": "22542915-4d90-4d0e-8a93-5a94e68f5dad",
+  "name": "Multi-Tenant SaaS Organization Structure",
+  "description": "Complete multi-tenant architecture with organizations, teams, workspaces, and hierarchical role-based access control (RBAC) supporting super_admin, owner, admin, manager, developer, and viewer roles",
+  "tags": [
+    {
+      "name": "next",
+      "category": "framework"
+    },
+    {
+      "name": "multi-tenant",
+      "category": "pattern"
+    },
+    {
+      "name": "rbac",
+      "category": "pattern"
+    },
+    {
+      "name": "saas",
+      "category": "pattern"
+    },
+    {
+      "name": "supabase",
+      "category": "database"
+    }
+  ],
+  "stack": {
+    "framework": "next",
+    "language": "typescript",
+    "runtime": "node",
+    "packageManager": "pnpm",
+    "dependencies": [],
+    "devDependencies": []
+  },
+  "structure": {
+    "directories": [],
+    "keyFiles": [
+      {
+        "path": "types/index.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "utils/authorization.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "utils/authorization.server.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "app/actions/organizations.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "app/actions/teams.ts",
+        "purpose": "Core implementation file"
+      }
+    ]
+  },
+  "setup": {
+    "prerequisites": [],
+    "steps": [],
+    "configs": []
+  },
+  "compatibility": {
+    "framework": "next",
+    "frameworkVersion": "^14.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 0,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "relatedPatterns": [],
+  "isPrivate": false,
+  "createdAt": "2026-01-20T22:23:46.824Z",
+  "updatedAt": "2026-01-20T22:23:46.824Z"
+}

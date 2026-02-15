@@ -1,0 +1,74 @@
+{
+  "id": "ec7d4983-a319-4883-b7a2-334cc1ea597b",
+  "name": "React Context Provider Architecture",
+  "description": "Modular React context provider structure for auth, organizations, teams, notifications, preferences, and impersonation with custom hooks (useAuth, useOrganization, useTeams) and proper provider composition",
+  "tags": [
+    {
+      "name": "next",
+      "category": "framework"
+    },
+    {
+      "name": "context-providers",
+      "category": "pattern"
+    },
+    {
+      "name": "react",
+      "category": "architecture"
+    },
+    {
+      "name": "custom-hooks",
+      "category": "pattern"
+    },
+    {
+      "name": "state-management",
+      "category": "pattern"
+    }
+  ],
+  "stack": {
+    "framework": "next",
+    "language": "typescript",
+    "runtime": "node",
+    "packageManager": "pnpm",
+    "dependencies": [],
+    "devDependencies": []
+  },
+  "structure": {
+    "directories": [],
+    "keyFiles": [
+      {
+        "path": "app/providers.tsx",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "app/providers/",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "hooks/",
+        "purpose": "Core implementation file"
+      }
+    ]
+  },
+  "setup": {
+    "prerequisites": [],
+    "steps": [],
+    "configs": []
+  },
+  "compatibility": {
+    "framework": "next",
+    "frameworkVersion": "^14.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 0,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "relatedPatterns": [],
+  "isPrivate": false,
+  "createdAt": "2026-01-20T22:23:46.832Z",
+  "updatedAt": "2026-01-20T22:23:46.832Z"
+}

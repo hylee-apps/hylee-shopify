@@ -1,0 +1,62 @@
+{
+  "id": "ae301c88-ebde-4fac-a2f6-b0e63628fce6",
+  "name": "CI/CD Pipeline",
+  "description": "GitHub Actions workflows",
+  "category": "deployment",
+  "tags": [
+    {
+      "name": "deployment",
+      "category": "custom"
+    }
+  ],
+  "problem": {
+    "keywords": [
+      "workflow",
+      "actions",
+      "cicd"
+    ],
+    "description": "Solution for: GitHub Actions workflows",
+    "errorPatterns": []
+  },
+  "implementation": {
+    "files": [
+      {
+        "path": "ci.yml",
+        "purpose": "Utility functions for ci",
+        "role": "util",
+        "content": "name: CI\n\non:\n  push:\n    branches:\n      - main\n      - 'release/**'\n      - 'hotfix/**'\n  pull_request:\n    branches:\n      - main\n      - 'release/**'\n\nconcurrency:\n  group: ${{ github.workflow }}-${{ github.ref }}\n  cancel-in-progress: true\n\njobs:\n  build:\n    name: Build\n    runs-on: ubuntu-latest\n    steps:\n      - name: Checkout\n        uses: actions/checkout@v4\n\n      - name: Setup pnpm\n        uses: pnpm/action-setup@v4\n        with:\n          version: 9\n\n      - name: Setup Node.js\n        uses: actions/setup-node@v4\n        with:\n          node-version: 20\n          cache: 'pnpm'\n\n      - name: Install dependencies\n        run: pnpm install --frozen-lockfile\n\n      - name: Build\n        run: pnpm build\n        env:\n          # Skip env script for CI builds\n          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}\n          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}\n\n  lint:\n    name: Lint\n    runs-on: ubuntu-latest\n    steps:\n      - name: Checkout\n        uses: actions/checkout@v4\n\n      - name: Setup pnpm\n        uses: pnpm/action-setup@v4\n        with:\n          version: 9\n\n      - name: Setup Node.js\n        uses: actions/setup-node@v4\n        with:\n          node-version: 20\n          cache: 'pnpm'\n\n      - name: Install dependencies\n        run: pnpm install --frozen-lockfile\n\n      - name: Lint\n        run: pnpm lint\n\n  prettier:\n    name: Prettier\n    runs-on: ubuntu-latest\n    steps:\n      - name: Checkout\n        uses: actions/checkout@v4\n\n      - name: Setup pnpm\n        uses: pnpm/action-setup@v4\n        with:\n          version: 9\n\n      - name: Setup Node.js\n        uses: actions/setup-node@v4\n        with:\n          node-version: 20\n          cache: 'pnpm'\n\n      - name: Install dependencies\n        run: pnpm install --frozen-lockfile\n\n      - name: Check formatting\n        run: pnpm format:check\n\n  typecheck:\n    name: TypeCheck\n    runs-on: ubuntu-latest\n    steps:\n      - name: Checkout\n        uses: actions/checkout@v4\n\n      - name: Setup pnpm\n        uses: pnpm/action-setup@v4\n        with:\n          version: 9\n\n      - name: Setup Node.js\n        uses: actions/setup-node@v4\n        with:\n          node-version: 20\n          cache: 'pnpm'\n\n      - name: Install dependencies\n        run: pnpm install --frozen-lockfile\n\n      - name: TypeCheck\n        run: pnpm typecheck\n",
+        "exports": [],
+        "imports": [],
+        "lineCount": 118
+      }
+    ],
+    "dependencies": [],
+    "devDependencies": [],
+    "envVars": []
+  },
+  "architecture": {
+    "entryPoints": [
+      "ci.yml"
+    ],
+    "dataFlow": "Entry -> Processing -> Output",
+    "keyDecisions": []
+  },
+  "compatibility": {
+    "framework": "generic",
+    "frameworkVersion": "*",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 0,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "relatedPatterns": [],
+  "source": "manual",
+  "isPrivate": false,
+  "createdAt": "2026-01-26T21:38:30.703Z",
+  "updatedAt": "2026-01-26T21:38:30.703Z",
+  "conflictVersion": 2,
+  "originalId": "51a99f0b-8abf-47d5-8a8a-1f9d2d334598"
+}

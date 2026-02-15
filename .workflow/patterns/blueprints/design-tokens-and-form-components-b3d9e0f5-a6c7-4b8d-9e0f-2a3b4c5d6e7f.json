@@ -1,0 +1,158 @@
+{
+  "id": "b3d9e0f5-a6c7-4b8d-9e0f-2a3b4c5d6e7f",
+  "name": "Design Tokens and Form Components",
+  "description": "Centralized design tokens (status and priority colors, sizes, gradients) with feature-flagged form components and test mocking support for consistent UI",
+  "tags": [
+    {
+      "name": "tailwind",
+      "category": "tool"
+    },
+    {
+      "name": "tokens",
+      "category": "ui"
+    },
+    {
+      "name": "forms",
+      "category": "ui"
+    },
+    {
+      "name": "feature-flags",
+      "category": "pattern"
+    },
+    {
+      "name": "next",
+      "category": "framework"
+    },
+    {
+      "name": "typescript",
+      "category": "language"
+    }
+  ],
+  "stack": {
+    "framework": "next",
+    "language": "typescript",
+    "runtime": "node",
+    "packageManager": "pnpm",
+    "dependencies": [
+      {
+        "name": "tailwindcss",
+        "version": "^4.0.0",
+        "compatibleRange": ">=3.0.0"
+      },
+      {
+        "name": "clsx",
+        "version": "^2.1.0",
+        "compatibleRange": ">=2.0.0"
+      },
+      {
+        "name": "tailwind-merge",
+        "version": "^3.0.0",
+        "compatibleRange": ">=2.0.0"
+      },
+      {
+        "name": "lucide-react",
+        "version": "^0.400.0",
+        "compatibleRange": ">=0.300.0"
+      }
+    ],
+    "devDependencies": []
+  },
+  "structure": {
+    "directories": [
+      {
+        "path": "lib",
+        "purpose": "Utility functions and tokens"
+      },
+      {
+        "path": "components/ui",
+        "purpose": "Base UI primitives"
+      },
+      {
+        "path": "components/ui/forms",
+        "purpose": "Form components with tokens"
+      }
+    ],
+    "keyFiles": [
+      {
+        "path": "lib/design-tokens.ts",
+        "purpose": "Centralized color, size, and style tokens"
+      },
+      {
+        "path": "lib/feature-flags.ts",
+        "purpose": "Feature flag system with test mocking"
+      },
+      {
+        "path": "lib/utils.ts",
+        "purpose": "cn() utility for class merging"
+      },
+      {
+        "path": "components/ui/forms/form-input.tsx",
+        "purpose": "Standardized input component"
+      },
+      {
+        "path": "components/ui/forms/form-select.tsx",
+        "purpose": "Standardized select component"
+      },
+      {
+        "path": "components/ui/forms/form-textarea.tsx",
+        "purpose": "Standardized textarea component"
+      },
+      {
+        "path": "components/ui/forms/form-switch.tsx",
+        "purpose": "Standardized toggle switch"
+      },
+      {
+        "path": "components/ui/forms/form-checkbox.tsx",
+        "purpose": "Standardized checkbox"
+      },
+      {
+        "path": "components/ui/forms/index.ts",
+        "purpose": "Barrel export for all form components"
+      }
+    ]
+  },
+  "setup": {
+    "prerequisites": [
+      "Tailwind CSS configured",
+      "React 18+"
+    ],
+    "steps": [
+      {
+        "order": 1,
+        "command": "pnpm add clsx tailwind-merge lucide-react",
+        "description": "Install utility packages",
+        "optional": false
+      },
+      {
+        "order": 2,
+        "command": "mkdir -p lib components/ui/forms",
+        "description": "Create directory structure",
+        "optional": false
+      },
+      {
+        "order": 3,
+        "command": "touch lib/design-tokens.ts lib/feature-flags.ts lib/utils.ts",
+        "description": "Create core utility files",
+        "optional": false
+      }
+    ],
+    "configs": []
+  },
+  "compatibility": {
+    "framework": "next",
+    "frameworkVersion": "^16.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 100,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "relatedPatterns": [],
+  "isPrivate": false,
+  "createdAt": "2026-01-22T23:00:00.000Z",
+  "updatedAt": "2026-01-22T23:00:00.000Z"
+}
