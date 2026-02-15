@@ -115,9 +115,9 @@ export function Footer({
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-[59px]">
-        {/* Top row: Logo + Social | Newsletter */}
-        <div className="flex flex-col lg:flex-row lg:items-start gap-10 lg:gap-20">
-          {/* Left: Logo + social media */}
+        {/* 3-column grid: logo left, newsletter center, empty right */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          {/* Column 1: Logo + social media */}
           <div className="shrink-0 space-y-3">
             <Link to="/">
               {logoUrl ? (
@@ -157,27 +157,29 @@ export function Footer({
             </div>
           </div>
 
-          {/* Right: Newsletter signup */}
-          <div className="flex-1 lg:pt-1">
+          {/* Column 2: Newsletter + nav links, centered */}
+          <div className="flex flex-col items-center gap-6">
             <NewsletterSignup />
-          </div>
-        </div>
 
-        {/* Bottom row: Navigation links */}
-        <nav className="mt-8 flex justify-center">
-          <ul className="flex flex-wrap items-center justify-center gap-y-2">
-            {displayLinks.map((link, index) => (
-              <li key={link.url}>
-                <Link
-                  to={link.url}
-                  className="block px-5 text-sm font-medium text-text-muted hover:text-primary transition-colors whitespace-nowrap"
-                >
-                  {link.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+            <nav>
+              <ul className="flex flex-wrap items-center justify-center gap-y-2">
+                {displayLinks.map((link) => (
+                  <li key={link.url}>
+                    <Link
+                      to={link.url}
+                      className="block px-5 text-sm font-medium text-text-muted hover:text-primary transition-colors whitespace-nowrap"
+                    >
+                      {link.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
+
+          {/* Column 3: empty for balance */}
+          <div className="hidden lg:block" />
+        </div>
       </div>
 
       {/* Bottom accent line */}
