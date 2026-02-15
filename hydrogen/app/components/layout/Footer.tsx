@@ -71,10 +71,13 @@ function NewsletterSignup() {
 
   return (
     <div className="space-y-6 text-center">
-      <h3 className="text-xl font-normal text-text">
+      <h3 className="text-xl font-normal text-text pb-4">
         Sign Up for HyLee news &amp; updates!
       </h3>
-      <form onSubmit={handleSubmit} className="flex items-center justify-center gap-3">
+      <form
+        onSubmit={handleSubmit}
+        className="flex items-center justify-center gap-3"
+      >
         <input
           type="email"
           value={email}
@@ -98,12 +101,7 @@ function NewsletterSignup() {
 // Main Component
 // ============================================================================
 
-export function Footer({
-  menu,
-  shopName,
-  logoUrl,
-  links,
-}: FooterProps) {
+export function Footer({menu, shopName, logoUrl, links}: FooterProps) {
   // Use provided links, otherwise always use hardcoded Figma links
   const displayLinks = links && links.length > 0 ? links : DEFAULT_LINKS;
 
