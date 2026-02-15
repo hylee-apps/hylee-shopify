@@ -70,7 +70,7 @@ function NewsletterSignup() {
   };
 
   return (
-    <div className="space-y-4 text-center">
+    <div className="space-y-6 text-center">
       <h3 className="text-xl font-normal text-text">
         Sign Up for HyLee news &amp; updates!
       </h3>
@@ -81,11 +81,11 @@ function NewsletterSignup() {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Placeholder text"
           required
-          className="min-w-[270px] rounded-full border-2 border-primary bg-white px-5 py-3.5 text-sm text-text placeholder:text-text/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+          className="min-w-[270px] rounded-full border-2 border-primary bg-white px-5 py-2.5 text-sm text-text placeholder:text-text/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
         />
         <button
           type="submit"
-          className="rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-primary/90"
+          className="rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90"
         >
           {submitted ? 'Sent!' : 'Submit'}
         </button>
