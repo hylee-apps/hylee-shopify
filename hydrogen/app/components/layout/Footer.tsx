@@ -1,3 +1,4 @@
+import {useState} from 'react';
 import {Link} from 'react-router';
 import type {FooterQuery} from 'storefrontapi.generated';
 
@@ -52,6 +53,48 @@ const SOCIAL_LINKS = [
 ];
 
 // ============================================================================
+// Newsletter Input
+// ============================================================================
+
+function NewsletterSignup() {
+  const [email, setEmail] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    // TODO: Wire to Shopify customer/newsletter API
+    setSubmitted(true);
+    setEmail('');
+    setTimeout(() => setSubmitted(false), 3000);
+  };
+
+  return (
+    <div className="space-y-3">
+      <h3 className="text-lg font-normal text-text leading-snug">
+        Sign Up for HyLee news &amp; updates!
+      </h3>
+      <form onSubmit={handleSubmit} className="relative">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter your email"
+          required
+          className="w-full min-w-[270px] rounded-full border-2 border-primary bg-white py-3.5 pl-4 pr-[100px] text-sm text-text placeholder:text-text/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+        />
+        <button
+          type="submit"
+          className="absolute right-0 top-0 h-full rounded-lg bg-primary px-5 text-sm font-medium text-white transition-colors hover:bg-primary/90"
+        >
+          {submitted ? 'Sent!' : 'Submit'}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+// ============================================================================
 // Main Component
 // ============================================================================
 
@@ -67,6 +110,7 @@ export function Footer({
   return (
     <footer className="bg-white border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-[59px]">
+        {/* Top row: Logo + Social | Newsletter */}
         <div className="flex flex-col lg:flex-row lg:items-start gap-10 lg:gap-20">
           {/* Left: Logo + social media */}
           <div className="shrink-0 space-y-3">
@@ -108,25 +152,30 @@ export function Footer({
             </div>
           </div>
 
-          {/* Footer links with vertical dividers - centered */}
-          <nav className="flex flex-1 items-start justify-center pt-1">
-            <ul className="flex flex-wrap items-center">
-              {displayLinks.map((link, index) => (
-                <li
-                  key={link.url}
-                  className={`${index > 0 ? 'border-l border-text-muted/40' : ''}`}
-                >
-                  <Link
-                    to={link.url}
-                    className="block px-4 text-sm font-medium text-text-muted hover:text-primary transition-colors whitespace-nowrap"
-                  >
-                    {link.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          {/* Right: Newsletter signup */}
+          <div className="flex-1 lg:pt-1">
+            <NewsletterSignup />
+          </div>
         </div>
+
+        {/* Bottom row: Navigation links */}
+        <nav className="mt-8 flex justify-center lg:justify-start lg:pl-[240px]">
+          <ul className="flex flex-wrap items-center gap-y-2">
+            {displayLinks.map((link, index) => (
+              <li
+                key={link.url}
+                className={`${index > 0 ? 'border-l border-text-muted/40' : ''}`}
+              >
+                <Link
+                  to={link.url}
+                  className="block px-4 text-sm font-medium text-text-muted hover:text-primary transition-colors whitespace-nowrap"
+                >
+                  {link.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
     </footer>
   );
