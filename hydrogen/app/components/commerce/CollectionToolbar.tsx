@@ -5,8 +5,9 @@ import {SortSelect} from './SortSelect';
 
 export interface CollectionToolbarProps {
   productCount: number;
-  viewMode: 'grid' | 'list';
-  onViewModeChange: (mode: 'grid' | 'list') => void;
+  totalCount?: number;
+  viewMode?: 'grid' | 'list';
+  onViewModeChange?: (mode: 'grid' | 'list') => void;
   searchParams: URLSearchParams;
   onOpenFilters?: () => void;
   className?: string;
@@ -14,10 +15,11 @@ export interface CollectionToolbarProps {
 
 /**
  * CollectionToolbar — toolbar above the product grid with count, sort,
- * view toggle, and mobile filter button.
+ * and optional view toggle / mobile filter button.
  */
 export function CollectionToolbar({
   productCount,
+  totalCount,
   viewMode,
   onViewModeChange,
   searchParams,
@@ -26,12 +28,16 @@ export function CollectionToolbar({
 }: CollectionToolbarProps) {
   return (
     <div
-      className={`flex flex-wrap items-center justify-between gap-3 py-4 ${className ?? ''}`}
+      className={`flex flex-wrap items-center justify-between gap-3 py-5 ${className ?? ''}`}
     >
-      {/* Product count */}
-      <p className="text-sm text-slate-600">
-        <span className="font-medium text-slate-900">{productCount}</span>{' '}
-        {productCount === 1 ? 'product' : 'products'}
+      {/* Result count */}
+      <p className="text-sm font-medium text-dark">
+        Showing{' '}
+        <span className="font-semibold">{productCount}</span>{' '}
+        {productCount === 1 ? 'Result' : 'Results'}
+        {totalCount !== undefined && (
+          <> from total <span className="font-semibold">{totalCount}</span></>
+        )}
       </p>
 
       <div className="flex items-center gap-3">
@@ -40,7 +46,7 @@ export function CollectionToolbar({
           <button
             type="button"
             onClick={onOpenFilters}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 transition-colors hover:border-slate-400 lg:hidden"
+            className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 text-sm font-medium text-dark transition-colors hover:border-text-muted lg:hidden"
             aria-label="Open filters"
           >
             <Icon name="filter" size={16} />
@@ -48,38 +54,40 @@ export function CollectionToolbar({
           </button>
         )}
 
-        {/* Sort */}
+        {/* Sort (pill-shaped) */}
         <SortSelect searchParams={searchParams} />
 
-        {/* View toggle */}
-        <div className="hidden items-center gap-1 rounded-lg border border-slate-300 p-0.5 sm:flex">
-          <button
-            type="button"
-            onClick={() => onViewModeChange('grid')}
-            className={`rounded-md p-1.5 transition-colors ${
-              viewMode === 'grid'
-                ? 'bg-primary text-white'
-                : 'text-slate-500 hover:text-slate-700'
-            }`}
-            aria-label="Grid view"
-            aria-pressed={viewMode === 'grid'}
-          >
-            <Icon name="grid" size={16} />
-          </button>
-          <button
-            type="button"
-            onClick={() => onViewModeChange('list')}
-            className={`rounded-md p-1.5 transition-colors ${
-              viewMode === 'list'
-                ? 'bg-primary text-white'
-                : 'text-slate-500 hover:text-slate-700'
-            }`}
-            aria-label="List view"
-            aria-pressed={viewMode === 'list'}
-          >
-            <Icon name="list" size={16} />
-          </button>
-        </div>
+        {/* View toggle (optional) */}
+        {viewMode && onViewModeChange && (
+          <div className="hidden items-center gap-1 rounded-full border border-border p-0.5 sm:flex">
+            <button
+              type="button"
+              onClick={() => onViewModeChange('grid')}
+              className={`rounded-full p-1.5 transition-colors ${
+                viewMode === 'grid'
+                  ? 'bg-primary text-white'
+                  : 'text-text-muted hover:text-dark'
+              }`}
+              aria-label="Grid view"
+              aria-pressed={viewMode === 'grid'}
+            >
+              <Icon name="grid" size={16} />
+            </button>
+            <button
+              type="button"
+              onClick={() => onViewModeChange('list')}
+              className={`rounded-full p-1.5 transition-colors ${
+                viewMode === 'list'
+                  ? 'bg-primary text-white'
+                  : 'text-text-muted hover:text-dark'
+              }`}
+              aria-label="List view"
+              aria-pressed={viewMode === 'list'}
+            >
+              <Icon name="list" size={16} />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

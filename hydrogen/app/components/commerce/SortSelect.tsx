@@ -29,7 +29,7 @@ export function SortSelect({searchParams, className}: SortSelectProps) {
         const url = buildSortUrl(pathname, searchParams, e.target.value);
         navigate(url);
       }}
-      className={`rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 transition-colors hover:border-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary ${className ?? ''}`}
+      className={`cursor-pointer rounded-full border border-border bg-white px-4 py-2.5 text-sm font-medium text-dark transition-colors hover:border-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary ${className ?? ''}`}
       aria-label="Sort products"
     >
       {SORT_OPTIONS.map((option) => (
