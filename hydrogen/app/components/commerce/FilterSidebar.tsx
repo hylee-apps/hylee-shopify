@@ -1,299 +1,347 @@
-'use client';
-
-import {useState} from 'react';
+import {useState, useCallback} from 'react';
 import {Link, useLocation, useNavigate} from 'react-router';
 import type {Filter} from '@shopify/hydrogen/storefront-api-types';
-import {AccordionItem} from '../navigation/Accordion';
 import {Icon} from '../display/Icon';
 import {
   buildFilterUrl,
   buildPriceFilterUrl,
   clearAllFiltersUrl,
-  type AppliedFilter,
 } from '~/lib/collection/filters';
 
+// ============================================================================
+// Types
+// ============================================================================
+
 export interface FilterSidebarProps {
+  /** Filters returned from the Storefront API */
   filters: Filter[];
-  appliedFilters: AppliedFilter[];
+  /** Current URL search params */
   searchParams: URLSearchParams;
+  /** Whether the mobile drawer is open */
+  isOpen?: boolean;
+  /** Callback to close the mobile drawer */
+  onClose?: () => void;
+  /** Additional class name */
   className?: string;
 }
 
-/**
- * FilterSidebar — migrated from the filter sidebar in
- * theme/sections/main-collection-product-grid.liquid
- *
- * Server-driven faceted filtering via Storefront API. Each filter option
- * is a `<Link>` so filtering works without JavaScript.
- */
-export function FilterSidebar({
-  filters,
-  appliedFilters,
-  searchParams,
-  className,
-}: FilterSidebarProps) {
-  const {pathname} = useLocation();
+// ============================================================================
+// Sub-components
+// ============================================================================
 
-  return (
-    <aside className={`filter-sidebar ${className ?? ''}`}>
-      {/* Applied filters */}
-      {appliedFilters.length > 0 && (
-        <div className="mb-4">
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium text-slate-900">
-              Active Filters
-            </span>
-            <Link
-              to={clearAllFiltersUrl(pathname, searchParams)}
-              className="text-xs text-primary hover:underline"
-              preventScrollReset
-            >
-              Clear All
-            </Link>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {appliedFilters.map((af) => (
-              <Link
-                key={af.urlToRemove}
-                to={af.urlToRemove}
-                preventScrollReset
-                className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
-              >
-                {af.label}
-                <Icon name="x" size={12} />
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Filter groups */}
-      <div className="divide-y divide-slate-200">
-        {filters.map((filter) => (
-          <FilterGroup
-            key={filter.id}
-            filter={filter}
-            searchParams={searchParams}
-            pathname={pathname}
-          />
-        ))}
-      </div>
-    </aside>
-  );
+interface FilterSectionProps {
+  title: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
 }
 
-// ============================================================================
-// FilterGroup — renders a single filter as an AccordionItem
-// ============================================================================
+function FilterSection({
+  title,
+  children,
+  defaultOpen = true,
+}: FilterSectionProps) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
 
-function FilterGroup({
-  filter,
-  searchParams,
-  pathname,
-}: {
-  filter: Filter;
-  searchParams: URLSearchParams;
-  pathname: string;
-}) {
-  const activeCount = getActiveCountForFilter(filter, searchParams);
-  const title = (
-    <span className="flex items-center gap-2">
-      {filter.label}
-      {activeCount > 0 && (
-        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-medium text-white">
-          {activeCount}
-        </span>
-      )}
-    </span>
-  );
-
-  if (filter.type === 'PRICE_RANGE') {
-    return (
-      <AccordionItem id={filter.id} title={title} defaultOpen>
-        <PriceRangeFilter
-          filter={filter}
-          searchParams={searchParams}
-          pathname={pathname}
+  return (
+    <div className="border-b border-border py-5">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex w-full items-center justify-between text-left"
+      >
+        <span className="text-sm font-bold text-dark">{title}</span>
+        <Icon
+          name={isOpen ? 'chevron-up' : 'chevron-down'}
+          size={16}
+          className="text-text-muted"
         />
-      </AccordionItem>
-    );
-  }
+      </button>
+      {isOpen && <div className="mt-4">{children}</div>}
+    </div>
+  );
+}
 
+interface CheckboxFilterItemProps {
+  label: string;
+  count?: number;
+  isActive: boolean;
+  href: string;
+}
+
+function CheckboxFilterItem({
+  label,
+  count,
+  isActive,
+  href,
+}: CheckboxFilterItemProps) {
   return (
-    <AccordionItem id={filter.id} title={title} defaultOpen>
-      <div className="space-y-1">
-        {filter.values.map((filterValue) => {
-          const input =
-            typeof filterValue.input === 'string'
-              ? filterValue.input
-              : JSON.stringify(filterValue.input);
-          const isActive = searchParams.getAll('filter').includes(input);
-          const url = buildFilterUrl(pathname, searchParams, input, 'toggle');
-
-          return (
-            <Link
-              key={filterValue.id}
-              to={url}
-              preventScrollReset
-              className={`flex items-center justify-between rounded-md px-2 py-1.5 text-sm transition-colors ${
-                isActive
-                  ? 'bg-primary/10 font-medium text-primary'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-              }`}
-            >
-              <span className="flex items-center gap-2">
-                <span
-                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
-                    isActive ? 'border-primary bg-primary' : 'border-slate-300'
-                  }`}
-                >
-                  {isActive && (
-                    <Icon name="check" size={10} className="text-white" />
-                  )}
-                </span>
-                {filterValue.label}
-              </span>
-              <span className="text-xs text-slate-400">
-                ({filterValue.count})
-              </span>
-            </Link>
-          );
-        })}
-      </div>
-    </AccordionItem>
+    <Link
+      to={href}
+      preventScrollReset
+      className="flex items-center gap-2.5 py-1.5 group"
+    >
+      <span
+        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
+          isActive
+            ? 'border-[#3a4980] bg-[#3a4980]'
+            : 'border-border group-hover:border-text-muted'
+        }`}
+      >
+        {isActive && (
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        )}
+      </span>
+      <span className="text-sm text-text-muted group-hover:text-dark transition-colors">
+        {label}
+      </span>
+      {count !== undefined && (
+        <span className="ml-auto text-xs text-text-muted">({count})</span>
+      )}
+    </Link>
   );
 }
 
 // ============================================================================
-// PriceRangeFilter
+// Price Range
 // ============================================================================
 
 function PriceRangeFilter({
-  filter,
   searchParams,
-  pathname,
 }: {
-  filter: Filter;
   searchParams: URLSearchParams;
-  pathname: string;
 }) {
+  const {pathname} = useLocation();
   const navigate = useNavigate();
 
-  // Extract current price range from active filters
-  const activeFilters = searchParams.getAll('filter');
-  let currentMin = '';
-  let currentMax = '';
-  for (const f of activeFilters) {
+  // Parse current price filter from search params
+  let currentMin = 0;
+  let currentMax = 200;
+  for (const val of searchParams.getAll('filter')) {
     try {
-      const parsed = JSON.parse(f) as Record<string, Record<string, number>>;
+      const parsed = JSON.parse(val) as Record<string, Record<string, number>>;
       if (parsed.price) {
-        if (parsed.price.min != null) currentMin = String(parsed.price.min);
-        if (parsed.price.max != null) currentMax = String(parsed.price.max);
+        if (parsed.price.min != null) currentMin = parsed.price.min;
+        if (parsed.price.max != null) currentMax = parsed.price.max;
       }
     } catch {
       // skip
     }
   }
 
-  const [min, setMin] = useState(currentMin);
-  const [max, setMax] = useState(currentMax);
+  const [minVal, setMinVal] = useState(String(currentMin));
+  const [maxVal, setMaxVal] = useState(String(currentMax));
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const minVal = min ? Number(min) : undefined;
-    const maxVal = max ? Number(max) : undefined;
-    const url = buildPriceFilterUrl(pathname, searchParams, minVal, maxVal);
-    navigate(url);
-  };
+  const applyPrice = useCallback(() => {
+    const min = parseInt(minVal, 10) || 0;
+    const max = parseInt(maxVal, 10) || undefined;
+    const url = buildPriceFilterUrl(pathname, searchParams, min, max);
+    navigate(url, {preventScrollReset: true});
+  }, [minVal, maxVal, pathname, searchParams, navigate]);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
-      <div className="flex items-center gap-2">
-        <div className="flex-1">
-          <label className="sr-only" htmlFor="price-min">
-            Min price
-          </label>
-          <div className="relative">
-            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-slate-400">
-              $
-            </span>
-            <input
-              id="price-min"
-              type="number"
-              min="0"
-              step="1"
-              placeholder="Min"
-              value={min}
-              onChange={(e) => setMin(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 py-2 pl-6 pr-2 text-sm text-slate-700 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
-        </div>
-        <span className="text-sm text-slate-400">—</span>
-        <div className="flex-1">
-          <label className="sr-only" htmlFor="price-max">
-            Max price
-          </label>
-          <div className="relative">
-            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-slate-400">
-              $
-            </span>
-            <input
-              id="price-max"
-              type="number"
-              min="0"
-              step="1"
-              placeholder="Max"
-              value={max}
-              onChange={(e) => setMax(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 py-2 pl-6 pr-2 text-sm text-slate-700 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
-        </div>
-      </div>
-      <button
-        type="submit"
-        className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90"
-      >
-        Apply
-      </button>
-    </form>
+    <div className="flex items-center gap-3">
+      <input
+        type="number"
+        value={minVal}
+        onChange={(e) => setMinVal(e.target.value)}
+        onBlur={applyPrice}
+        onKeyDown={(e) => e.key === 'Enter' && applyPrice()}
+        placeholder="0"
+        min={0}
+        className="w-16 rounded-md border border-border px-2 py-1.5 text-center text-sm text-dark focus:border-[#3a4980] focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+      />
+      <span className="text-xs text-text-muted">to</span>
+      <input
+        type="number"
+        value={maxVal}
+        onChange={(e) => setMaxVal(e.target.value)}
+        onBlur={applyPrice}
+        onKeyDown={(e) => e.key === 'Enter' && applyPrice()}
+        placeholder="200"
+        min={0}
+        className="w-16 rounded-md border border-border px-2 py-1.5 text-center text-sm text-dark focus:border-[#3a4980] focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+      />
+    </div>
   );
 }
 
 // ============================================================================
-// Helpers
+// Expandable List Helper
 // ============================================================================
 
-function getActiveCountForFilter(
-  filter: Filter,
-  searchParams: URLSearchParams,
-): number {
-  const activeParams = searchParams.getAll('filter');
-  let count = 0;
-
-  for (const filterValue of filter.values) {
-    const input =
-      typeof filterValue.input === 'string'
-        ? filterValue.input
-        : JSON.stringify(filterValue.input);
-
-    if (activeParams.includes(input)) {
-      count++;
-    }
-  }
-
-  // Also check for price range
-  if (filter.type === 'PRICE_RANGE') {
-    for (const param of activeParams) {
-      try {
-        const parsed = JSON.parse(param) as Record<string, unknown>;
-        if (parsed.price) count++;
-      } catch {
-        // skip
-      }
-    }
-  }
-
-  return count;
+interface ExpandableListProps {
+  items: Filter['values'];
+  searchParams: URLSearchParams;
+  pathname: string;
+  initialShow?: number;
 }
+
+function ExpandableList({
+  items,
+  searchParams,
+  pathname,
+  initialShow = 6,
+}: ExpandableListProps) {
+  const [showAll, setShowAll] = useState(false);
+  const activeFilters = searchParams.getAll('filter');
+
+  const displayed = showAll ? items : items.slice(0, initialShow);
+  const hasMore = items.length > initialShow;
+
+  return (
+    <div>
+      <div className="space-y-0.5">
+        {displayed.map((value) => {
+          const inputStr =
+            typeof value.input === 'string'
+              ? value.input
+              : JSON.stringify(value.input);
+          const isActive = activeFilters.includes(inputStr);
+          const href = buildFilterUrl(
+            pathname,
+            searchParams,
+            inputStr,
+            'toggle',
+          );
+
+          return (
+            <CheckboxFilterItem
+              key={value.id}
+              label={value.label}
+              count={value.count}
+              isActive={isActive}
+              href={href}
+            />
+          );
+        })}
+      </div>
+      {hasMore && (
+        <button
+          type="button"
+          onClick={() => setShowAll(!showAll)}
+          className="mt-2 text-xs font-medium text-[#3a4980] hover:underline"
+        >
+          {showAll ? 'Show less' : 'Show more'}
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
+// Main Component
+// ============================================================================
+
+/**
+ * FilterSidebar — collapsible filter panel for collection pages.
+ *
+ * On desktop it renders as a static left sidebar.
+ * On mobile it renders as a slide-over drawer (controlled by isOpen/onClose).
+ */
+export function FilterSidebar({
+  filters,
+  searchParams,
+  isOpen = false,
+  onClose,
+  className = '',
+}: FilterSidebarProps) {
+  const {pathname} = useLocation();
+  const hasActiveFilters = searchParams.getAll('filter').length > 0;
+
+  const filterContent = (
+    <div className={className}>
+      {/* Header */}
+      <div className="flex items-center justify-between pb-4 border-b border-border">
+        <h2 className="text-lg font-bold text-dark">Filters</h2>
+        <div className="flex items-center gap-3">
+          {hasActiveFilters && (
+            <Link
+              to={clearAllFiltersUrl(pathname, searchParams)}
+              preventScrollReset
+              className="text-xs font-medium text-text-muted hover:text-dark transition-colors border border-border rounded-md px-3 py-1"
+            >
+              Clear All
+            </Link>
+          )}
+          {/* Mobile close button */}
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="lg:hidden flex items-center justify-center w-8 h-8 rounded-full hover:bg-surface"
+              aria-label="Close filters"
+            >
+              <Icon name="x" size={18} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Filter Sections */}
+      {filters.map((filter) => {
+        // Skip empty filters
+        if (!filter.values || filter.values.length === 0) return null;
+
+        const isPriceFilter = filter.type === 'PRICE_RANGE';
+
+        if (isPriceFilter) {
+          return (
+            <FilterSection key={filter.id} title={filter.label}>
+              <PriceRangeFilter searchParams={searchParams} />
+            </FilterSection>
+          );
+        }
+
+        return (
+          <FilterSection key={filter.id} title={filter.label}>
+            <ExpandableList
+              items={filter.values}
+              searchParams={searchParams}
+              pathname={pathname}
+            />
+          </FilterSection>
+        );
+      })}
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop: static sidebar */}
+      <aside className="hidden lg:block w-60 shrink-0">
+        {filterContent}
+      </aside>
+
+      {/* Mobile: slide-over drawer */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/30"
+            onClick={onClose}
+            aria-hidden="true"
+          />
+          {/* Drawer */}
+          <div className="absolute inset-y-0 left-0 flex w-80 max-w-full flex-col bg-white shadow-xl">
+            <div className="flex-1 overflow-y-auto px-5 py-5">
+              {filterContent}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+export default FilterSidebar;
