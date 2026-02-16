@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './reset.css' layer(base);
 
 /*
  * Hy-lee Design System
