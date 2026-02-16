@@ -71,7 +71,7 @@ function NewsletterSignup() {
 
   return (
     <div className="text-center">
-      <h3 className="block text-xl font-normal text-text pb-2">
+      <h3 className="text-xl font-normal text-text" style={{paddingBottom: '0.5rem'}}>
         Sign Up for HyLee news &amp; updates!
       </h3>
       <form
