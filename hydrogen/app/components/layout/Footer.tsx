@@ -113,10 +113,9 @@ export function Footer({menu, shopName, logoUrl, links}: FooterProps) {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-[59px]">
-        {/* 3-column grid: logo left, newsletter center, empty right */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          {/* Column 1: Logo + social media */}
-          <div className="shrink-0 space-y-3">
+        <div className="relative flex flex-col lg:block">
+          {/* Logo + social media — floated left on desktop */}
+          <div className="lg:float-left lg:mr-10 shrink-0 space-y-3 mb-8 lg:mb-0">
             <Link to="/">
               {logoUrl ? (
                 <img
@@ -155,7 +154,7 @@ export function Footer({menu, shopName, logoUrl, links}: FooterProps) {
             </div>
           </div>
 
-          {/* Column 2: Newsletter + nav links, centered */}
+          {/* Newsletter + nav links — centered in full width */}
           <div className="flex flex-col items-center gap-6">
             <NewsletterSignup />
 
@@ -174,9 +173,6 @@ export function Footer({menu, shopName, logoUrl, links}: FooterProps) {
               </ul>
             </nav>
           </div>
-
-          {/* Column 3: empty for balance */}
-          <div className="hidden lg:block" />
         </div>
       </div>
 
