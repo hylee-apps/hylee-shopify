@@ -1,1 +1,10 @@
 .shopify
+
+# Playwright
+playwright-report/
+test-results/
+tests/e2e/visual/screenshots/
+
+# Design references (binary + generated)
+design-references/**/screenshot.png
+design-references/**/comparison.html
