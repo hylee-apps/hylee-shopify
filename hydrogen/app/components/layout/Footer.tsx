@@ -11,8 +11,6 @@ export interface FooterProps {
   menu?: FooterQuery['menu'] | null;
   /** Shop name for copyright */
   shopName: string;
-  /** Logo URL (optional) */
-  logoUrl?: string;
   /** Override footer links (otherwise uses defaults) */
   links?: Array<{title: string; url: string}>;
 }
@@ -71,12 +69,12 @@ function NewsletterSignup() {
 
   return (
     <div className="text-center">
-      <h3 className="text-xl font-normal text-text pb-2">
+      <h3 className="text-[20px] font-normal text-black leading-[1.2] pb-3">
         Sign Up for HyLee news &amp; updates!
       </h3>
       <form
         onSubmit={handleSubmit}
-        className="flex items-center justify-center gap-3"
+        className="flex items-center justify-center"
       >
         <input
           type="email"
@@ -84,11 +82,11 @@ function NewsletterSignup() {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Placeholder text"
           required
-          className="min-w-[270px] rounded-full border-2 border-primary bg-white px-5 py-2.5 text-sm text-text placeholder:text-text/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+          className="min-w-[270px] w-[270px] h-[41px] rounded-[25px] border border-secondary bg-white px-4 text-[14px] font-medium text-text placeholder:text-black/50 focus:outline-none focus:ring-2 focus:ring-secondary/30"
         />
         <button
           type="submit"
-          className="rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90"
+          className="ml-2 w-[100px] h-[40px] rounded-[25px] bg-secondary text-[14px] font-medium text-white transition-colors hover:bg-secondary/90"
         >
           {submitted ? 'Sent!' : 'Submit'}
         </button>
@@ -101,37 +99,27 @@ function NewsletterSignup() {
 // Main Component
 // ============================================================================
 
-export function Footer({menu, shopName, logoUrl, links}: FooterProps) {
-  // Use provided links, otherwise always use hardcoded Figma links
+export function Footer({menu, shopName, links}: FooterProps) {
   const displayLinks = links && links.length > 0 ? links : DEFAULT_LINKS;
 
   return (
     <footer className="bg-white">
-      {/* Top accent line */}
-      <div className="flex justify-center">
-        <div className="h-[2px] w-8 bg-[#4cb5f5]" />
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-[59px]">
-        <div className="relative flex flex-col lg:block">
-          {/* Logo + social media — floated left on desktop */}
-          <div className="lg:float-left lg:mr-10 shrink-0 space-y-3 mb-8 lg:mb-0">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-16 xl:px-[122px] py-12 lg:py-[59px]">
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
+          {/* Left column: Logo + social (Figma: 240px, gap-5) */}
+          <div className="flex flex-col gap-[5px] items-start shrink-0 lg:w-[240px]">
             <Link to="/">
-              {logoUrl ? (
-                <img
-                  src={logoUrl}
-                  alt={shopName}
-                  className="h-[59px] w-auto"
-                  loading="lazy"
-                />
-              ) : (
-                <span className="text-xl font-bold text-dark">{shopName}</span>
-              )}
+              <img
+                src="/logo-full.png"
+                alt={shopName}
+                className="h-[102px] w-[183px] object-cover"
+                loading="lazy"
+              />
             </Link>
-            <p className="text-sm font-medium text-text">
+            <p className="text-[14px] font-medium text-black">
               Follow us on social media
             </p>
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-[10px]">
               {SOCIAL_LINKS.map((social) => (
                 <a
                   key={social.label}
@@ -139,12 +127,12 @@ export function Footer({menu, shopName, logoUrl, links}: FooterProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  className="flex items-center justify-center w-7 h-7 rounded-full bg-dark/10 hover:bg-primary/80 transition-colors"
+                  className="flex items-center justify-center size-[20px] rounded bg-black/20 hover:bg-secondary/80 transition-colors"
                 >
                   <svg
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    className="w-4 h-4 text-dark"
+                    className="size-3 text-white"
                     aria-hidden="true"
                   >
                     <path d={social.icon} />
@@ -154,17 +142,17 @@ export function Footer({menu, shopName, logoUrl, links}: FooterProps) {
             </div>
           </div>
 
-          {/* Newsletter + nav links — centered in full width */}
-          <div className="flex flex-col items-center gap-6">
+          {/* Right area: Newsletter + nav links (centered) */}
+          <div className="flex flex-col items-center flex-1 gap-6">
             <NewsletterSignup />
 
-            <nav>
+            <nav className="p-[10px]">
               <ul className="flex flex-wrap items-center justify-center gap-y-2">
                 {displayLinks.map((link) => (
                   <li key={link.url}>
                     <Link
                       to={link.url}
-                      className="block px-5 text-sm font-medium text-text-muted hover:text-primary transition-colors whitespace-nowrap"
+                      className="flex items-center h-[40px] px-4 py-2.5 text-[14px] font-medium text-text-muted hover:text-primary transition-colors whitespace-nowrap"
                     >
                       {link.title}
                     </Link>
@@ -174,11 +162,6 @@ export function Footer({menu, shopName, logoUrl, links}: FooterProps) {
             </nav>
           </div>
         </div>
-      </div>
-
-      {/* Bottom accent line */}
-      <div className="flex justify-center pb-4">
-        <div className="h-[2px] w-8 bg-[#4cb5f5]" />
       </div>
     </footer>
   );
