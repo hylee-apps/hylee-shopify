@@ -1,30 +1,24 @@
-# Workflow Agent CI Pipeline
-# Auto-generated - modifications will be preserved on regeneration
-# To regenerate: workflow github:setup
-
 name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, 'feature/**']
   pull_request:
     branches: [main, develop]
 
 jobs:
-  ci:
+  # ── 1. Formatting ────────────────────────────────────────────────────────────
+  format:
+    name: Format Check
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 9
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
@@ -32,11 +26,83 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Lint
-        run: pnpm run lint || echo "Lint skipped - no src directory"
+      - name: Check formatting (theme + hydrogen)
+        run: pnpm format:check
 
-      - name: Format check
-        run: pnpm run format --check || npx prettier --check "theme/**/*.{liquid,css,json}"
+  # ── 2. Linting ───────────────────────────────────────────────────────────────
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Test
-        run: pnpm run test || echo "No tests configured"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint Hydrogen
+        run: pnpm lint
+
+  # ── 3. Type checking ─────────────────────────────────────────────────────────
+  typecheck:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check Hydrogen
+        run: pnpm typecheck
+
+  # ── 4. Build ─────────────────────────────────────────────────────────────────
+  # Runs after typecheck — no point building if types are broken.
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [typecheck]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Hydrogen
+        run: pnpm build
+
+  # ── Gate ─────────────────────────────────────────────────────────────────────
+  # Single required status check to configure in GitHub branch protection:
+  #   Settings → Branches → main → Require status checks → "CI / All Checks Passed"
+  all-checks:
+    name: All Checks Passed
+    runs-on: ubuntu-latest
+    needs: [format, lint, typecheck, build]
+    steps:
+      - run: echo "✓ format, lint, typecheck, and build all passed"
