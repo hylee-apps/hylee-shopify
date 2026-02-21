@@ -97,6 +97,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # shopify hydrogen build looks for a lockfile in the hydrogen/ dir.
+      # Since this is a pnpm workspace the lockfile lives at the root,
+      # so we copy it in before building.
+      - name: Copy lockfile into hydrogen workspace
+        run: cp pnpm-lock.yaml hydrogen/pnpm-lock.yaml
+
       - name: Build Hydrogen
         run: pnpm build
 
