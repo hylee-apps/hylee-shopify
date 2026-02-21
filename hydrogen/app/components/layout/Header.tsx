@@ -1,8 +1,24 @@
 'use client';
 
-import {useState, useCallback, useEffect, useRef} from 'react';
-import {Link, useLocation} from 'react-router';
-import {Icon} from '../display/Icon';
+import {useState, useCallback, useEffect} from 'react';
+import {Link, Form, useLocation} from 'react-router';
+import {Menu, ChevronDown, User, Search, ShoppingCart} from 'lucide-react';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '~/components/ui/sheet';
+import {Button} from '~/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuTrigger,
+} from '~/components/ui/dropdown-menu';
 import type {HeaderQuery} from 'storefrontapi.generated';
 
 // ============================================================================
@@ -10,37 +26,27 @@ import type {HeaderQuery} from 'storefrontapi.generated';
 // ============================================================================
 
 export interface HeaderProps {
-  /** Shop data from Storefront API */
   shop: HeaderQuery['shop'];
-  /** Header menu from Storefront API */
   menu: HeaderQuery['menu'];
-  /** Whether customer is logged in */
   isLoggedIn?: boolean | Promise<boolean>;
-  /** Cart data for cart count */
-  cart?: {totalQuantity?: number} | null | Promise<unknown>;
-  /** Optional announcement bar text */
+  cart?: CartLike | null | Promise<unknown>;
   announcement?: string;
-  /** Header variant */
-  variant?: 'default' | 'minimal';
-  /** Show product categories dropdown */
-  showCategories?: boolean;
-  /** Categories for the dropdown menu */
   categories?: Array<{
     id: string;
     title: string;
     handle: string;
     subcategories?: Array<{id: string; title: string; handle: string}>;
   }>;
-  /** Custom CTA button */
-  cta?: {text: string; href: string};
 }
 
-interface NavDropdownProps {
-  label: string;
-  items: Array<{title: string; url: string}>;
-  isOpen: boolean;
-  onToggle: () => void;
-  onClose: () => void;
+interface CartLike {
+  totalQuantity?: number;
+  cost?: {
+    totalAmount?: {
+      amount?: string;
+      currencyCode?: string;
+    };
+  };
 }
 
 interface MobileMenuProps {
@@ -52,187 +58,118 @@ interface MobileMenuProps {
 }
 
 // ============================================================================
-// Subcomponents
+// Helpers
+// ============================================================================
+
+function formatCartTotal(amount?: string, currencyCode?: string): string {
+  if (!amount) return '$0.00';
+  const num = parseFloat(amount);
+  if (isNaN(num)) return '$0.00';
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currencyCode || 'USD',
+    }).format(num);
+  } catch {
+    return `$${num.toFixed(2)}`;
+  }
+}
+
+// Shared trigger class for nav link/button items
+const NAV_TRIGGER_CLASS =
+  'flex items-center gap-[2px] h-[40px] px-4 py-2.5 text-[14px] font-medium text-text-muted hover:text-primary transition-colors focus:outline-none';
+
+// ============================================================================
+// NavDropdown — shadcn DropdownMenu
 // ============================================================================
 
 function NavDropdown({
   label,
   items,
-  isOpen,
-  onToggle,
-  onClose,
-}: NavDropdownProps) {
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        onClose();
-      }
-    }
-
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.addEventListener('keydown', handleEscape);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isOpen, onClose]);
-
+}: {
+  label: string;
+  items: Array<{title: string; url: string}>;
+}) {
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-text hover:text-primary transition-colors"
-        aria-expanded={isOpen}
-        onClick={onToggle}
-      >
-        {label}
-        <Icon
-          name="chevron-down"
-          size={12}
-          className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}
-        />
-      </button>
-
-      {isOpen && (
-        <div className="absolute top-full left-0 mt-1 min-w-48 rounded-md bg-white shadow-lg ring-1 ring-border z-dropdown">
-          <div className="py-2">
-            {items.map((item) => (
-              <Link
-                key={item.url}
-                to={item.url}
-                className="block px-4 py-2 text-sm text-text hover:bg-surface hover:text-primary transition-colors"
-                onClick={onClose}
-              >
-                {item.title}
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className={NAV_TRIGGER_CLASS}>
+          {label}
+          <ChevronDown size={10} />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="min-w-48">
+        {items.map((item) => (
+          <DropdownMenuItem key={item.url} asChild>
+            <Link to={item.url} className="cursor-pointer text-[14px]">
+              {item.title}
+            </Link>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
+
+// ============================================================================
+// CategoryDropdown — shadcn DropdownMenu with sub-menus for subcategories
+// ============================================================================
 
 function CategoryDropdown({
   categories,
-  isOpen,
-  onToggle,
-  onClose,
 }: {
   categories: NonNullable<HeaderProps['categories']>;
-  isOpen: boolean;
-  onToggle: () => void;
-  onClose: () => void;
 }) {
-  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        onClose();
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen, onClose]);
-
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-text hover:text-primary transition-colors"
-        aria-expanded={isOpen}
-        onClick={onToggle}
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className={NAV_TRIGGER_CLASS}>
+          Categories
+          <ChevronDown size={10} />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="start"
+        className="min-w-64 max-h-96 overflow-y-auto"
       >
-        Product Category
-        <Icon
-          name="chevron-down"
-          size={12}
-          className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}
-        />
-      </button>
-
-      {isOpen && (
-        <div className="absolute top-full left-0 mt-1 min-w-64 rounded-md bg-white shadow-lg ring-1 ring-border z-dropdown">
-          <div className="p-2 border-b border-border">
-            <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">
-              Categories
-            </span>
-          </div>
-          <div className="py-2 max-h-96 overflow-y-auto">
-            {categories.map((category) => (
-              <div
-                key={category.id}
-                className="relative"
-                onMouseEnter={() => setHoveredCategory(category.id)}
-                onMouseLeave={() => setHoveredCategory(null)}
+        {categories.map((category) =>
+          category.subcategories && category.subcategories.length > 0 ? (
+            <DropdownMenuSub key={category.id}>
+              <DropdownMenuSubTrigger className="text-[14px]">
+                {category.title}
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="min-w-48">
+                {category.subcategories.map((sub) => (
+                  <DropdownMenuItem key={sub.id} asChild>
+                    <Link
+                      to={`/collections/${sub.handle}`}
+                      className="cursor-pointer text-[14px]"
+                    >
+                      {sub.title}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+          ) : (
+            <DropdownMenuItem key={category.id} asChild>
+              <Link
+                to={`/collections/${category.handle}`}
+                className="cursor-pointer text-[14px]"
               >
-                <Link
-                  to={`/collections/${category.handle}`}
-                  className="flex items-center justify-between px-4 py-2 text-sm text-text hover:bg-surface hover:text-primary transition-colors"
-                  onClick={onClose}
-                >
-                  {category.title}
-                  {category.subcategories &&
-                    category.subcategories.length > 0 && (
-                      <Icon name="chevron-right" size={16} />
-                    )}
-                </Link>
-
-                {/* Subcategory flyout */}
-                {category.subcategories &&
-                  category.subcategories.length > 0 &&
-                  hoveredCategory === category.id && (
-                    <div className="absolute left-full top-0 ml-1 min-w-48 rounded-md bg-white shadow-lg ring-1 ring-border">
-                      <div className="p-2 border-b border-border">
-                        <span className="text-xs font-semibold text-text-muted">
-                          {category.title}
-                        </span>
-                      </div>
-                      <div className="py-2">
-                        {category.subcategories.map((sub) => (
-                          <Link
-                            key={sub.id}
-                            to={`/collections/${sub.handle}`}
-                            className="block px-4 py-2 text-sm text-text hover:bg-surface hover:text-primary transition-colors"
-                            onClick={onClose}
-                          >
-                            {sub.title}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+                {category.title}
+              </Link>
+            </DropdownMenuItem>
+          ),
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
+
+// ============================================================================
+// MobileMenu — shadcn Sheet
+// ============================================================================
 
 function MobileMenu({
   isOpen,
@@ -243,60 +180,34 @@ function MobileMenu({
 }: MobileMenuProps) {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
-  // Prevent body scroll when menu is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
-
   const toggleSection = useCallback((section: string) => {
     setExpandedSection((prev) => (prev === section ? null : section));
   }, []);
 
-  if (!isOpen) return null;
-
   return (
-    <>
-      {/* Overlay */}
-      <div
-        className="fixed inset-0 bg-black/50 z-fixed"
-        onClick={onClose}
-        aria-hidden="true"
-      />
+    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <SheetContent
+        side="left"
+        className="w-80 max-w-[calc(100%-3rem)] p-0 flex flex-col"
+      >
+        <SheetHeader className="px-4 py-3 border-b border-border shrink-0">
+          <SheetTitle className="text-lg font-semibold text-dark text-left">
+            Menu
+          </SheetTitle>
+        </SheetHeader>
 
-      {/* Menu panel */}
-      <div className="fixed inset-y-0 left-0 w-80 max-w-[calc(100%-3rem)] bg-white z-modal shadow-xl">
-        <div className="flex items-center justify-between p-4 border-b border-border">
-          <span className="text-lg font-semibold text-dark">Menu</span>
-          <button
-            onClick={onClose}
-            className="p-2 -mr-2 text-text-muted hover:text-text transition-colors"
-            aria-label="Close menu"
-          >
-            <Icon name="x" size={24} />
-          </button>
-        </div>
-
-        <nav className="overflow-y-auto h-[calc(100%-4rem)]">
-          {/* Categories section */}
+        <nav className="overflow-y-auto flex-1">
           {categories && categories.length > 0 && (
             <div className="border-b border-border">
               <button
                 className="flex items-center justify-between w-full px-4 py-3 text-text font-medium"
                 onClick={() => toggleSection('categories')}
               >
-                <span>Product Category</span>
-                <Icon
-                  name="chevron-right"
+                <span>Categories</span>
+                <ChevronDown
                   size={16}
                   className={`transition-transform ${
-                    expandedSection === 'categories' ? 'rotate-90' : ''
+                    expandedSection === 'categories' ? 'rotate-180' : ''
                   }`}
                 />
               </button>
@@ -317,10 +228,8 @@ function MobileMenu({
             </div>
           )}
 
-          {/* Menu items */}
           {menu?.items?.map((item) => {
             const hasChildren = item.items && item.items.length > 0;
-
             if (hasChildren) {
               return (
                 <div key={item.id} className="border-b border-border">
@@ -329,11 +238,10 @@ function MobileMenu({
                     onClick={() => toggleSection(item.id)}
                   >
                     <span>{item.title}</span>
-                    <Icon
-                      name="chevron-right"
+                    <ChevronDown
                       size={16}
                       className={`transition-transform ${
-                        expandedSection === item.id ? 'rotate-90' : ''
+                        expandedSection === item.id ? 'rotate-180' : ''
                       }`}
                     />
                   </button>
@@ -354,7 +262,6 @@ function MobileMenu({
                 </div>
               );
             }
-
             return (
               <Link
                 key={item.id}
@@ -367,7 +274,6 @@ function MobileMenu({
             );
           })}
 
-          {/* Account section */}
           <div className="mt-4 px-4 py-3 border-t border-border">
             {isLoggedIn ? (
               <Link
@@ -375,23 +281,34 @@ function MobileMenu({
                 className="flex items-center gap-2 text-text hover:text-primary"
                 onClick={onClose}
               >
-                <Icon name="user" size={20} />
+                <User size={20} />
                 <span>Account</span>
               </Link>
             ) : (
-              <Link
-                to="/account/login"
-                className="flex items-center gap-2 text-text hover:text-primary"
-                onClick={onClose}
-              >
-                <Icon name="user" size={20} />
-                <span>Sign In</span>
-              </Link>
+              <div className="space-y-3">
+                <Link
+                  to="/account/login"
+                  className="flex items-center gap-2 text-text hover:text-primary"
+                  onClick={onClose}
+                >
+                  <User size={20} />
+                  <span>Sign In</span>
+                </Link>
+                <Button
+                  variant="outline"
+                  asChild
+                  className="w-full border-primary text-primary hover:bg-primary hover:text-white"
+                >
+                  <Link to="/account/register" onClick={onClose}>
+                    Register
+                  </Link>
+                </Button>
+              </div>
             )}
           </div>
         </nav>
-      </div>
-    </>
+      </SheetContent>
+    </Sheet>
   );
 }
 
@@ -405,18 +322,14 @@ export function Header({
   isLoggedIn = false,
   cart,
   announcement,
-  variant = 'default',
-  showCategories = true,
   categories = [],
-  cta,
 }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [resolvedIsLoggedIn, setResolvedIsLoggedIn] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const location = useLocation();
+  const isHomePage = location.pathname === '/';
 
-  // Resolve promises for isLoggedIn and cart
   useEffect(() => {
     if (typeof isLoggedIn === 'boolean') {
       setResolvedIsLoggedIn(isLoggedIn);
@@ -426,217 +339,257 @@ export function Header({
   }, [isLoggedIn]);
 
   useEffect(() => {
-    if (
-      cart &&
-      'totalQuantity' in cart &&
-      typeof cart.totalQuantity === 'number'
-    ) {
-      setCartCount(cart.totalQuantity);
+    function extractCartData(cartData: unknown) {
+      if (!cartData || typeof cartData !== 'object') return;
+      const c = cartData as CartLike;
+      if (typeof c.totalQuantity === 'number') setCartCount(c.totalQuantity);
+    }
+    if (cart && typeof cart === 'object' && 'totalQuantity' in cart) {
+      extractCartData(cart);
     } else if (cart instanceof Promise) {
-      cart.then((resolved: unknown) => {
-        if (
-          resolved &&
-          typeof resolved === 'object' &&
-          'totalQuantity' in resolved
-        ) {
-          setCartCount((resolved as {totalQuantity: number}).totalQuantity);
-        }
-      });
+      cart.then(extractCartData);
     }
   }, [cart]);
 
-  // Close dropdown when route changes
   useEffect(() => {
-    setActiveDropdown(null);
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
-  const toggleDropdown = useCallback((id: string) => {
-    setActiveDropdown((prev) => (prev === id ? null : id));
-  }, []);
-
-  const closeDropdown = useCallback(() => {
-    setActiveDropdown(null);
-  }, []);
-
-  const closeMobileMenu = useCallback(() => {
-    setMobileMenuOpen(false);
-  }, []);
-
-  // Convert menu items for dropdown
-  const whatsNewItems = [
-    {title: 'Deals & Promotions', url: '/collections/deals-promotions'},
-    {title: 'New Additions', url: '/collections/new-arrivals'},
-    {title: 'Season Item Spotlights', url: '/collections/seasonal'},
-    {title: 'Special Events', url: '/collections/special-events'},
+  const categoryFallbackItems = [
+    {title: 'All Products', url: '/collections/all'},
   ];
+  const languageItems = [
+    {title: 'English', url: '?lang=en'},
+    {title: 'Spanish', url: '?lang=es'},
+    {title: 'French', url: '?lang=fr'},
+  ];
+  const accountItems = resolvedIsLoggedIn
+    ? [
+        {title: 'My Account', url: '/account'},
+        {title: 'My Orders', url: '/account/orders'},
+        {title: 'Sign Out', url: '/account/logout'},
+      ]
+    : [
+        {title: 'Sign In', url: '/account/login'},
+        {title: 'Register', url: '/account/register'},
+      ];
 
   return (
-    <header
-      className={`sticky top-0 bg-white z-sticky ${
-        variant === 'minimal' ? '' : 'shadow-sm'
-      }`}
-    >
-      {/* Announcement bar */}
-      {announcement && (
-        <div className="bg-primary text-white text-center text-sm py-2 px-4">
-          {announcement}
-        </div>
-      )}
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Mobile menu toggle */}
-          <button
-            className="lg:hidden p-2 -ml-2 text-text hover:text-primary transition-colors"
-            onClick={() => setMobileMenuOpen(true)}
-            aria-label="Open menu"
-          >
-            <Icon name="menu" size={24} />
-          </button>
-
-          {/* Logo */}
-          <Link to="/" className="shrink-0">
-            {shop.brand?.logo?.image?.url ? (
-              <>
-                <img
-                  src={shop.brand.logo.image.url}
-                  alt={shop.name}
-                  className="hidden sm:block h-8 w-auto"
-                  loading="eager"
-                />
-                <img
-                  src={shop.brand.logo.image.url}
-                  alt={shop.name}
-                  className="sm:hidden h-6 w-auto"
-                  loading="eager"
-                />
-              </>
-            ) : (
-              <span className="text-xl font-bold text-dark">{shop.name}</span>
-            )}
-          </Link>
-
-          {/* Desktop navigation */}
-          {variant === 'default' && (
-            <nav
-              className="hidden lg:flex items-center gap-1"
-              role="navigation"
-            >
-              {/* Product Categories */}
-              {showCategories && categories.length > 0 && (
-                <CategoryDropdown
-                  categories={categories}
-                  isOpen={activeDropdown === 'categories'}
-                  onToggle={() => toggleDropdown('categories')}
-                  onClose={closeDropdown}
-                />
-              )}
-
-              {/* What's New */}
-              <NavDropdown
-                label="What's New"
-                items={whatsNewItems}
-                isOpen={activeDropdown === 'whatsNew'}
-                onToggle={() => toggleDropdown('whatsNew')}
-                onClose={closeDropdown}
-              />
-
-              {/* Blog */}
-              <Link
-                to="/blogs/news"
-                className="px-3 py-2 text-sm font-medium text-text hover:text-primary transition-colors"
-              >
-                Blog
-              </Link>
-
-              {/* Additional menu items */}
-              {menu?.items?.map((item) => {
-                if (item.items && item.items.length > 0) {
-                  return (
-                    <NavDropdown
-                      key={item.id}
-                      label={item.title}
-                      items={item.items.map((child) => ({
-                        title: child.title,
-                        url: child.url ?? '#',
-                      }))}
-                      isOpen={activeDropdown === item.id}
-                      onToggle={() => toggleDropdown(item.id)}
-                      onClose={closeDropdown}
-                    />
-                  );
-                }
-                return (
-                  <Link
-                    key={item.id}
-                    to={item.url ?? '#'}
-                    className="px-3 py-2 text-sm font-medium text-text hover:text-primary transition-colors"
-                  >
-                    {item.title}
-                  </Link>
-                );
-              })}
-            </nav>
-          )}
-
-          {/* Actions */}
-          <div className="flex items-center gap-2">
-            {/* Orders link (if logged in) */}
-            {resolvedIsLoggedIn && (
-              <Link
-                to="/account/orders"
-                className="hidden md:block text-sm font-medium text-text hover:text-primary transition-colors"
-              >
-                Orders
-              </Link>
-            )}
-
-            {/* Account */}
-            <Link
-              to={resolvedIsLoggedIn ? '/account' : '/account/login'}
-              className="hidden sm:flex items-center gap-1 px-3 py-2 text-sm font-medium text-text border border-border rounded-md hover:border-primary hover:text-primary transition-colors"
-            >
-              <Icon name="user" size={16} />
-              <span>{resolvedIsLoggedIn ? 'Account' : 'Sign In'}</span>
-            </Link>
-
-            {/* CTA Button */}
-            {cta && (
-              <Link
-                to={cta.href}
-                className="hidden md:inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 transition-colors"
-              >
-                {cta.text}
-              </Link>
-            )}
-
-            {/* Cart (mobile icon only) */}
-            <Link
-              to="/cart"
-              className="relative p-2 text-text hover:text-primary transition-colors"
-              aria-label={`Cart (${cartCount} items)`}
-            >
-              <Icon name="cart" size={24} />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-primary rounded-full">
-                  {cartCount > 99 ? '99+' : cartCount}
-                </span>
-              )}
-            </Link>
+    <>
+      <header
+        className={`sticky top-0 z-[1020] ${
+          isHomePage ? 'bg-white' : 'bg-white border-b border-primary'
+        }`}
+      >
+        {announcement && (
+          <div className="bg-dark text-white text-center text-sm py-2 px-4">
+            {announcement}
           </div>
-        </div>
-      </div>
+        )}
 
-      {/* Mobile menu */}
+        <div
+          className={`mx-auto px-4 sm:px-6 lg:px-16 xl:px-30.5 max-w-360 ${
+            isHomePage ? 'py-2.5' : 'py-3.5'
+          }`}
+        >
+          {isHomePage ? (
+            /* ── HOMEPAGE HEADER (Main variant) ── */
+            <div className="flex items-center">
+              <button
+                className="lg:hidden p-2 -ml-2 text-text hover:text-primary transition-colors"
+                onClick={() => setMobileMenuOpen(true)}
+                aria-label="Open menu"
+              >
+                <Menu size={24} />
+              </button>
+
+              <Link to="/" className="shrink-0">
+                <img
+                  src="/logo-condensed.png"
+                  alt={shop.name}
+                  className="h-[50px] w-[65px] object-contain"
+                  loading="eager"
+                />
+              </Link>
+
+              <nav className="hidden lg:flex items-center justify-center flex-1 gap-[10px]">
+                {categories.length > 0 ? (
+                  <CategoryDropdown categories={categories} />
+                ) : (
+                  <NavDropdown
+                    label="Categories"
+                    items={categoryFallbackItems}
+                  />
+                )}
+
+                <Link
+                  to="/collections/new-arrivals"
+                  className={NAV_TRIGGER_CLASS}
+                >
+                  What&apos;s New
+                </Link>
+
+                <Link to="/blogs/news" className={NAV_TRIGGER_CLASS}>
+                  Blog &amp; Media
+                </Link>
+
+                <NavDropdown label="EN" items={languageItems} />
+              </nav>
+
+              <div className="hidden lg:flex items-center justify-between shrink-0 w-[166px]">
+                <Link
+                  to={resolvedIsLoggedIn ? '/account' : '/account/login'}
+                  className={NAV_TRIGGER_CLASS}
+                >
+                  {resolvedIsLoggedIn ? 'Account' : 'Sign In'}
+                </Link>
+                {!resolvedIsLoggedIn && (
+                  <Link
+                    to="/account/register"
+                    className="flex items-center h-[40px] px-4 py-2.5 text-[14px] font-medium text-secondary border border-secondary rounded-sm hover:bg-secondary hover:text-white transition-colors"
+                  >
+                    Register
+                  </Link>
+                )}
+              </div>
+
+              <div className="lg:hidden flex items-center gap-1 ml-auto">
+                <Link
+                  to={resolvedIsLoggedIn ? '/account' : '/account/login'}
+                  className="p-2 text-text hover:text-primary transition-colors"
+                  aria-label="Account"
+                >
+                  <User size={20} />
+                </Link>
+              </div>
+            </div>
+          ) : (
+            /* ── ALTERNATE HEADER (non-homepage) ── */
+            /* Figma node 2766:311: condensed logo + hamburger + search + DropdownMenu nav + cart */
+            <div className="flex items-center gap-4 lg:gap-[26px]">
+              {/* Mobile: hamburger */}
+              <button
+                className="lg:hidden p-2 -ml-2 text-text hover:text-primary transition-colors"
+                onClick={() => setMobileMenuOpen(true)}
+                aria-label="Open menu"
+              >
+                <Menu size={24} />
+              </button>
+
+              {/* Desktop left group: logo + categories button + search bar */}
+              <div className="hidden lg:flex items-center gap-[15px] flex-1">
+                <Link to="/" className="shrink-0">
+                  <img
+                    src="/logo-condensed.png"
+                    alt={shop.name}
+                    className="h-[50px] w-[65px] object-contain"
+                    loading="eager"
+                  />
+                </Link>
+
+                {/* Categories hamburger → opens Sheet (Figma: 40×40, border-1 secondary, rounded-6) */}
+                <button
+                  className="flex items-center justify-center size-[40px] border border-secondary rounded-xs shrink-0 hover:bg-secondary/5 transition-colors"
+                  onClick={() => setMobileMenuOpen(true)}
+                  aria-label="Open categories menu"
+                >
+                  <Menu size={24} className="text-secondary" />
+                </button>
+
+                {/* Search bar (Figma: flex-1, border secondary, rounded-25, h-40) */}
+                <Form
+                  action="/search"
+                  method="get"
+                  className="flex flex-1 items-center border border-secondary rounded-[25px] h-[40px] px-[13px] bg-white overflow-hidden"
+                >
+                  <input
+                    type="search"
+                    name="q"
+                    placeholder="Search products..."
+                    autoComplete="off"
+                    className="flex-1 text-[14px] font-medium text-dark placeholder:text-black/50 bg-transparent outline-none focus:outline-none focus:ring-0 border-none min-w-0"
+                  />
+                  <button
+                    type="submit"
+                    aria-label="Search"
+                    className="shrink-0 flex items-center pl-2 focus:outline-none"
+                  >
+                    <Search size={28} className="text-text-muted" />
+                  </button>
+                </Form>
+              </div>
+
+              {/* Mobile: logo */}
+              <Link to="/" className="shrink-0 lg:hidden">
+                <img
+                  src="/logo-condensed.png"
+                  alt={shop.name}
+                  className="h-[50px] w-[65px] object-contain"
+                  loading="eager"
+                />
+              </Link>
+
+              {/* Desktop right: DropdownMenu nav links + cart */}
+              <div className="hidden lg:flex items-center shrink-0">
+                <NavDropdown
+                  label="My Orders"
+                  items={[
+                    {title: 'All Orders', url: '/account/orders'},
+                    {title: 'Track Order', url: '/account/orders'},
+                  ]}
+                />
+
+                <NavDropdown label="Account" items={accountItems} />
+
+                <Link
+                  to="/cart"
+                  className="relative flex items-center justify-center w-[54px] h-[40px] shrink-0"
+                  aria-label={`Cart (${cartCount} items)`}
+                >
+                  <ShoppingCart size={40} className="text-secondary" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 right-0 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[11px] font-medium text-white bg-primary rounded-full">
+                      {cartCount > 99 ? '99+' : cartCount}
+                    </span>
+                  )}
+                </Link>
+              </div>
+
+              {/* Mobile: search + cart */}
+              <div className="lg:hidden flex items-center gap-1 ml-auto">
+                <Link
+                  to="/search"
+                  className="p-2 text-text-muted hover:text-primary transition-colors"
+                  aria-label="Search"
+                >
+                  <Search size={20} />
+                </Link>
+                <Link
+                  to="/cart"
+                  className="relative p-2 text-text-muted hover:text-primary transition-colors"
+                  aria-label={`Cart (${cartCount} items)`}
+                >
+                  <ShoppingCart size={24} />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-[9px] font-medium text-black bg-primary rounded-full">
+                      {cartCount > 99 ? '99+' : cartCount}
+                    </span>
+                  )}
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
+
       <MobileMenu
         isOpen={mobileMenuOpen}
-        onClose={closeMobileMenu}
+        onClose={() => setMobileMenuOpen(false)}
         menu={menu}
         isLoggedIn={resolvedIsLoggedIn}
         categories={categories}
       />
-    </header>
+    </>
   );
 }
 

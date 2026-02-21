@@ -1,0 +1,78 @@
+{
+  "id": "a11e31d3-c2b0-43a5-a69a-8735cf836a39",
+  "name": "Supabase Multi-Client Architecture",
+  "description": "Structured Supabase client pattern with separate clients for browser (singleton), server (async cookies), admin (RLS bypass), and middleware (session refresh), ensuring proper client usage in each context",
+  "tags": [
+    {
+      "name": "next",
+      "category": "framework"
+    },
+    {
+      "name": "supabase",
+      "category": "database"
+    },
+    {
+      "name": "client-architecture",
+      "category": "pattern"
+    },
+    {
+      "name": "ssr",
+      "category": "architecture"
+    },
+    {
+      "name": "rls",
+      "category": "security"
+    }
+  ],
+  "stack": {
+    "framework": "next",
+    "language": "typescript",
+    "runtime": "node",
+    "packageManager": "pnpm",
+    "dependencies": [],
+    "devDependencies": []
+  },
+  "structure": {
+    "directories": [],
+    "keyFiles": [
+      {
+        "path": "lib/supabase/client.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "lib/supabase/server.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "lib/supabase/admin.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "lib/supabase/middleware.ts",
+        "purpose": "Core implementation file"
+      }
+    ]
+  },
+  "setup": {
+    "prerequisites": [],
+    "steps": [],
+    "configs": []
+  },
+  "compatibility": {
+    "framework": "next",
+    "frameworkVersion": "^14.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 0,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "relatedPatterns": [],
+  "isPrivate": false,
+  "createdAt": "2026-01-20T22:23:46.831Z",
+  "updatedAt": "2026-01-20T22:23:46.831Z"
+}

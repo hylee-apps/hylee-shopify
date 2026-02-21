@@ -57,22 +57,12 @@ export function PageLayout({children}: PageLayoutProps) {
 
       <main className="flex-1">{children ?? <Outlet />}</main>
 
-      <Suspense
-        fallback={
-          <Footer
-            shopName={header?.shop?.name ?? 'Hy-lee'}
-            logoUrl={header?.shop?.brand?.logo?.image?.url}
-            description="Premium wholesale marketplace for small businesses worldwide"
-          />
-        }
-      >
+      <Suspense fallback={<Footer shopName={header?.shop?.name ?? 'Hy-lee'} />}>
         <Await resolve={footer}>
           {(resolvedFooter) => (
             <Footer
               menu={resolvedFooter?.menu}
               shopName={header?.shop?.name ?? 'Hy-lee'}
-              logoUrl={header?.shop?.brand?.logo?.image?.url}
-              description="Premium wholesale marketplace for small businesses worldwide"
             />
           )}
         </Await>

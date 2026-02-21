@@ -1,0 +1,78 @@
+{
+  "id": "3214ca5f-2c24-4b9b-b942-1c435adeefdf",
+  "name": "Comments System with Rich Text and Mentions",
+  "description": "Task commenting system using TipTap rich text editor with @mention support, mention extraction, notification triggers, and activity tracking for comment additions and updates",
+  "tags": [
+    {
+      "name": "next",
+      "category": "framework"
+    },
+    {
+      "name": "tiptap",
+      "category": "ui"
+    },
+    {
+      "name": "comments",
+      "category": "feature"
+    },
+    {
+      "name": "mentions",
+      "category": "feature"
+    },
+    {
+      "name": "rich-text",
+      "category": "feature"
+    },
+    {
+      "name": "supabase",
+      "category": "database"
+    }
+  ],
+  "stack": {
+    "framework": "next",
+    "language": "typescript",
+    "runtime": "node",
+    "packageManager": "pnpm",
+    "dependencies": [],
+    "devDependencies": []
+  },
+  "structure": {
+    "directories": [],
+    "keyFiles": [
+      {
+        "path": "components/CommentsSection.tsx",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "components/EnhancedRichTextEditor.tsx",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "app/actions/comments.ts",
+        "purpose": "Core implementation file"
+      }
+    ]
+  },
+  "setup": {
+    "prerequisites": [],
+    "steps": [],
+    "configs": []
+  },
+  "compatibility": {
+    "framework": "next",
+    "frameworkVersion": "^14.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 0,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "relatedPatterns": [],
+  "isPrivate": false,
+  "createdAt": "2026-01-20T22:23:46.831Z",
+  "updatedAt": "2026-01-20T22:23:46.831Z"
+}

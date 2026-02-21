@@ -1,0 +1,86 @@
+{
+  "id": "a36e587f-97ad-4750-918b-cfc5271049f6",
+  "name": "Component Library with Storybook and Design Tokens",
+  "description": "shadcn/ui-based component library with centralized design tokens, feature flags for controlled rollout, Storybook documentation, comprehensive snapshot testing, and consistent styling via tailwind-merge",
+  "tags": [
+    {
+      "name": "next",
+      "category": "framework"
+    },
+    {
+      "name": "shadcn",
+      "category": "ui"
+    },
+    {
+      "name": "radix",
+      "category": "ui"
+    },
+    {
+      "name": "storybook",
+      "category": "tool"
+    },
+    {
+      "name": "design-tokens",
+      "category": "pattern"
+    },
+    {
+      "name": "snapshots",
+      "category": "testing"
+    },
+    {
+      "name": "tailwind",
+      "category": "ui"
+    }
+  ],
+  "stack": {
+    "framework": "next",
+    "language": "typescript",
+    "runtime": "node",
+    "packageManager": "pnpm",
+    "dependencies": [],
+    "devDependencies": []
+  },
+  "structure": {
+    "directories": [],
+    "keyFiles": [
+      {
+        "path": "components/ui/",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "lib/design-tokens.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "lib/feature-flags.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": ".storybook/",
+        "purpose": "Core implementation file"
+      }
+    ]
+  },
+  "setup": {
+    "prerequisites": [],
+    "steps": [],
+    "configs": []
+  },
+  "compatibility": {
+    "framework": "next",
+    "frameworkVersion": "^14.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 0,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "relatedPatterns": [],
+  "isPrivate": false,
+  "createdAt": "2026-01-20T22:23:46.832Z",
+  "updatedAt": "2026-01-20T22:23:46.832Z"
+}

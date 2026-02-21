@@ -20,7 +20,7 @@
 <a href='{{ routes.root_url }}' class='{{ class_prefix }}__logo'>
   {%- comment -%} Desktop Logo (hidden on mobile) - using retina image {%- endcomment -%}
   <img
-    src='{{ 'logo-4096.png' | asset_url }}'
+    src='{{ 'logo-universal.png' | asset_url }}'
     alt='{{ shop.name }}'
     class='{{ class_prefix }}__logo-image {{ class_prefix }}__logo-image--desktop'
     width='auto'
@@ -29,7 +29,7 @@
   >
   {%- comment -%} Mobile Logo (hidden on desktop) - using retina image {%- endcomment -%}
   <img
-    src='{{ 'logo-4096.png' | asset_url }}'
+    src='{{ 'logo-universal.png' | asset_url }}'
     alt='{{ shop.name }}'
     class='{{ class_prefix }}__logo-image {{ class_prefix }}__logo-image--mobile'
     width='auto'

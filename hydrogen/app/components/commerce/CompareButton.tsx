@@ -2,7 +2,7 @@
 
 import {useCallback} from 'react';
 import {useSearchParams} from 'react-router';
-import {Icon} from '../display/Icon';
+import {Columns2} from 'lucide-react';
 
 // ============================================================================
 // Types
@@ -113,7 +113,7 @@ export function CompareButton({
               : 'Add to compare'
         }
       >
-        <Icon name="columns" size={sizes.icon} />
+        <Columns2 size={sizes.icon} />
       </button>
     );
   }
@@ -129,7 +129,7 @@ export function CompareButton({
         } ${isDisabled ? 'cursor-not-allowed opacity-50' : ''} ${className}`}
         aria-label={isComparing ? 'Remove from compare' : 'Add to compare'}
       >
-        <Icon name="columns" size={sizes.icon} />
+        <Columns2 size={sizes.icon} />
         <span>{isComparing ? 'Comparing' : 'Compare'}</span>
       </button>
     );
@@ -148,7 +148,7 @@ export function CompareButton({
       } ${isDisabled ? 'cursor-not-allowed opacity-50' : ''} ${className}`}
       aria-label={isComparing ? 'Remove from compare' : 'Add to compare'}
     >
-      <Icon name="columns" size={sizes.icon} />
+      <Columns2 size={sizes.icon} />
       <span>{isComparing ? 'Remove from Compare' : 'Add to Compare'}</span>
     </button>
   );

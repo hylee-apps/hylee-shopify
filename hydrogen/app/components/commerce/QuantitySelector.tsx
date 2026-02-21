@@ -1,7 +1,7 @@
 'use client';
 
 import {useCallback} from 'react';
-import {Icon} from '../display/Icon';
+import {Minus, Plus} from 'lucide-react';
 
 // ============================================================================
 // Types
@@ -92,17 +92,17 @@ export function QuantitySelector({
 
   return (
     <div
-      className={`inline-flex items-center rounded-md border border-border ${sizes.container} ${className}`}
+      className={`inline-flex items-center rounded-full border border-border ${sizes.container} ${className}`}
     >
       {/* Decrement button */}
       <button
         type="button"
         onClick={handleDecrement}
         disabled={isDecrementDisabled}
-        className={`flex items-center justify-center ${sizes.button} rounded-l-md border-r border-border text-text transition-colors hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent`}
+        className={`flex items-center justify-center ${sizes.button} rounded-l-full border-r border-border text-text transition-colors hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent`}
         aria-label="Decrease quantity"
       >
-        <Icon name="minus" size={sizes.icon} />
+        <Minus size={sizes.icon} />
       </button>
 
       {/* Quantity input */}
@@ -122,10 +122,10 @@ export function QuantitySelector({
         type="button"
         onClick={handleIncrement}
         disabled={isIncrementDisabled}
-        className={`flex items-center justify-center ${sizes.button} rounded-r-md border-l border-border text-text transition-colors hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent`}
+        className={`flex items-center justify-center ${sizes.button} rounded-r-full border-l border-border text-text transition-colors hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent`}
         aria-label="Increase quantity"
       >
-        <Icon name="plus" size={sizes.icon} />
+        <Plus size={sizes.icon} />
       </button>
     </div>
   );

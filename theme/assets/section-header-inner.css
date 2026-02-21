@@ -208,7 +208,9 @@
   text-decoration: none;
   font-size: var(--text-sm);
   border-radius: var(--radius-md);
-  transition: background-color var(--transition-fast), color var(--transition-fast);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .header-inner__categories-link:hover {

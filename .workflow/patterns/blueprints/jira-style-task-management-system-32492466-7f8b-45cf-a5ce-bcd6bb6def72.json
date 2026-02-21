@@ -1,0 +1,86 @@
+{
+  "id": "32492466-7f8b-45cf-a5ce-bcd6bb6def72",
+  "name": "JIRA-style Task Management System",
+  "description": "Complete task management with JIRA-like ticket IDs (PREFIX-0001), task types (story, task, bug, epic), priority levels, status workflow, assignees, reporters, story points, time tracking, labels, and watchers",
+  "tags": [
+    {
+      "name": "next",
+      "category": "framework"
+    },
+    {
+      "name": "project-management",
+      "category": "pattern"
+    },
+    {
+      "name": "tickets",
+      "category": "feature"
+    },
+    {
+      "name": "epics",
+      "category": "feature"
+    },
+    {
+      "name": "labels",
+      "category": "feature"
+    },
+    {
+      "name": "watchers",
+      "category": "feature"
+    },
+    {
+      "name": "supabase",
+      "category": "database"
+    }
+  ],
+  "stack": {
+    "framework": "next",
+    "language": "typescript",
+    "runtime": "node",
+    "packageManager": "pnpm",
+    "dependencies": [],
+    "devDependencies": []
+  },
+  "structure": {
+    "directories": [],
+    "keyFiles": [
+      {
+        "path": "types/index.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "app/actions/tasks.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "components/TaskDialog.tsx",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "components/TaskDetailPanel.tsx",
+        "purpose": "Core implementation file"
+      }
+    ]
+  },
+  "setup": {
+    "prerequisites": [],
+    "steps": [],
+    "configs": []
+  },
+  "compatibility": {
+    "framework": "next",
+    "frameworkVersion": "^14.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 0,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "relatedPatterns": [],
+  "isPrivate": false,
+  "createdAt": "2026-01-20T22:23:46.830Z",
+  "updatedAt": "2026-01-20T22:23:46.830Z"
+}

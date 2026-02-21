@@ -67,7 +67,7 @@
         {% else %}
           {%- comment -%} Fallback: Use retina logo from theme assets {%- endcomment -%}
           <img
-            src='{{ 'logo-4096.png' | asset_url }}'
+            src='{{ 'logo-universal.png' | asset_url }}'
             alt='{{ shop.name }}'
             class='header__logo-image header__logo-image--desktop'
             width='auto'
@@ -75,7 +75,7 @@
             loading='eager'
           >
           <img
-            src='{{ 'logo-4096.png' | asset_url }}'
+            src='{{ 'logo-universal.png' | asset_url }}'
             alt='{{ shop.name }}'
             class='header__logo-image header__logo-image--mobile'
             width='auto'

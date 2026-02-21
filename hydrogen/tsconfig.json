@@ -9,7 +9,13 @@
     "*.d.ts",
     ".react-router/types/**/*"
   ],
-  "exclude": ["node_modules", "dist", "build", "packages/**/dist/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "packages/**/dist/**/*",
+    "vitest.config.ts"
+  ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "isolatedModules": true,

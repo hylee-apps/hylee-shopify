@@ -1,0 +1,57 @@
+{
+  "id": "6de29904-4791-49ae-b3aa-c3ba14674667",
+  "name": "Shopify CLI monorepo binary resolution",
+  "description": "In a pnpm workspace with both @shopify/theme (root) and @shopify/hydrogen (subdirectory), pnpm --filter resolves the root shopify binary which has @shopify/theme but lacks hydrogen commands. The Shopify CLI walks up the directory tree and identifies the root as a theme project, causing 'Looks like you are trying to run a Hydrogen command outside of a Hydrogen project' error. Fix: use 'cd <hydrogen-dir> && pnpm dev' in root scripts instead of 'pnpm --filter <pkg> dev'.",
+  "category": "config",
+  "tags": [
+    {
+      "name": "shopify-cli",
+      "category": "tool"
+    },
+    {
+      "name": "pnpm",
+      "category": "tool"
+    },
+    {
+      "name": "monorepo",
+      "category": "custom"
+    },
+    {
+      "name": "hydrogen",
+      "category": "custom"
+    }
+  ],
+  "trigger": {
+    "errorPattern": "Looks like you.*trying to run a Hydrogen command outside of a Hydrogen project",
+    "errorMessage": "Shopify CLI resolves to root project containing @shopify/theme instead of workspace hydrogen package",
+    "filePattern": "package.json"
+  },
+  "solution": {
+    "type": "config-update",
+    "steps": [
+      {
+        "order": 1,
+        "action": "modify",
+        "target": "package.json (root)",
+        "description": "Change root scripts from 'pnpm --filter <hydrogen-pkg> dev' to 'cd <hydrogen-dir> && pnpm dev' so the Shopify CLI resolves from within the hydrogen directory where @shopify/hydrogen is a dependency"
+      }
+    ]
+  },
+  "compatibility": {
+    "framework": "shopify",
+    "frameworkVersion": ">=2025.1.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 100,
+    "applications": 1,
+    "successes": 1,
+    "failures": 0
+  },
+  "source": "manual",
+  "isPrivate": false,
+  "createdAt": "2026-02-08T00:00:00.000Z",
+  "updatedAt": "2026-02-09T12:54:37.552Z"
+}

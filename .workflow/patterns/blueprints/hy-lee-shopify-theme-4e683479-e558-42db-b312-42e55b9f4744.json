@@ -4,8 +4,8 @@
   "description": "Walmart-style Shopify theme with CSS component library, customer account sections, Liquid templates, and Playwright E2E testing",
   "tags": [
     {
-      "category": "framework",
-      "name": "shopify"
+      "name": "shopify",
+      "category": "framework"
     }
   ],
   "stack": {
@@ -33,13 +33,13 @@
     "dependencies": []
   },
   "metrics": {
+    "successRate": 0,
     "applications": 0,
     "successes": 0,
-    "failures": 0,
-    "successRate": 0
+    "failures": 0
   },
   "relatedPatterns": [],
-  "isPrivate": true,
+  "isPrivate": false,
   "createdAt": "2026-01-25T12:54:34.374Z",
-  "updatedAt": "2026-01-25T12:54:34.374Z"
+  "updatedAt": "2026-02-09T12:54:37.557Z"
 }

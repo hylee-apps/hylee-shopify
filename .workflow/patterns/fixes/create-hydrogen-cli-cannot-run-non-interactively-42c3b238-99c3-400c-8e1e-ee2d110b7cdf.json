@@ -1,0 +1,63 @@
+{
+  "id": "42c3b238-99c3-400c-8e1e-ee2d110b7cdf",
+  "name": "create-hydrogen CLI cannot run non-interactively",
+  "description": "The npx create-hydrogen@latest CLI always requires interactive prompts (store selection, template choice, styling) and throws 'Failed to prompt' errors in non-interactive environments like CI or piped processes. Fix: manually scaffold the Hydrogen app by creating files based on the official skeleton template from the Hydrogen GitHub repo.",
+  "category": "config",
+  "tags": [
+    {
+      "name": "shopify-cli",
+      "category": "tool"
+    },
+    {
+      "name": "hydrogen",
+      "category": "custom"
+    },
+    {
+      "name": "scaffold",
+      "category": "custom"
+    },
+    {
+      "name": "non-interactive",
+      "category": "custom"
+    }
+  ],
+  "trigger": {
+    "errorPattern": "Failed to prompt.*This usually happens when running a command non-interactively",
+    "errorMessage": "create-hydrogen requires interactive terminal for store selection and template configuration",
+    "filePattern": "*"
+  },
+  "solution": {
+    "type": "file-change",
+    "steps": [
+      {
+        "order": 1,
+        "action": "create",
+        "target": "<hydrogen-dir>/",
+        "description": "Manually create the Hydrogen app directory structure with files from the official skeleton template: package.json, vite.config.ts, tsconfig.json, server.ts, react-router.config.ts, env.d.ts, .graphqlrc.ts, and app/ directory with root.tsx, entry.server.tsx, entry.client.tsx, routes.ts, lib/context.ts, lib/session.ts, lib/fragments.ts, styles/app.css, styles/reset.css"
+      },
+      {
+        "order": 2,
+        "action": "run",
+        "target": "pnpm install",
+        "description": "Install dependencies from the manually created package.json"
+      }
+    ]
+  },
+  "compatibility": {
+    "framework": "shopify",
+    "frameworkVersion": ">=2025.1.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 100,
+    "applications": 1,
+    "successes": 1,
+    "failures": 0
+  },
+  "source": "manual",
+  "isPrivate": false,
+  "createdAt": "2026-02-08T00:00:00.000Z",
+  "updatedAt": "2026-02-09T12:54:37.533Z"
+}

@@ -1,0 +1,78 @@
+{
+  "id": "f685b48e-6d8e-4bda-8ef3-69ec53c41a44",
+  "name": "User Preferences System with Theme Support",
+  "description": "Comprehensive user preferences including theme (light/dark/system), notifications settings, date/time formats, language, default views, working hours, and auto-save with localStorage persistence and next-themes integration",
+  "tags": [
+    {
+      "name": "next",
+      "category": "framework"
+    },
+    {
+      "name": "preferences",
+      "category": "feature"
+    },
+    {
+      "name": "theme",
+      "category": "feature"
+    },
+    {
+      "name": "next-themes",
+      "category": "tool"
+    },
+    {
+      "name": "user-settings",
+      "category": "pattern"
+    },
+    {
+      "name": "localization",
+      "category": "feature"
+    }
+  ],
+  "stack": {
+    "framework": "next",
+    "language": "typescript",
+    "runtime": "node",
+    "packageManager": "pnpm",
+    "dependencies": [],
+    "devDependencies": []
+  },
+  "structure": {
+    "directories": [],
+    "keyFiles": [
+      {
+        "path": "types/index.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "app/providers.tsx",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "components/settings/",
+        "purpose": "Core implementation file"
+      }
+    ]
+  },
+  "setup": {
+    "prerequisites": [],
+    "steps": [],
+    "configs": []
+  },
+  "compatibility": {
+    "framework": "next",
+    "frameworkVersion": "^14.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 0,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "relatedPatterns": [],
+  "isPrivate": false,
+  "createdAt": "2026-01-20T22:23:46.832Z",
+  "updatedAt": "2026-01-20T22:23:46.832Z"
+}

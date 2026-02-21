@@ -12,7 +12,6 @@ import {
 } from 'react-router';
 import type {Route} from './+types/root';
 import {PageLayout} from '~/components/layout';
-import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 
 export type RootLoader = typeof loader;
@@ -32,6 +31,7 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
 
 export function links() {
   return [
+    {rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'},
     {rel: 'preconnect', href: 'https://fonts.googleapis.com'},
     {
       rel: 'preconnect',
@@ -40,7 +40,7 @@ export function links() {
     },
     {
       rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&display=swap',
+      href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Assistant:wght@300;400;500;600;700;800&display=swap',
     },
     {rel: 'preconnect', href: 'https://cdn.shopify.com'},
     {rel: 'preconnect', href: 'https://shop.app'},
@@ -116,7 +116,6 @@ export function Layout({children}: {children?: React.ReactNode}) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <link rel="stylesheet" href={resetStyles} />
         <link rel="stylesheet" href={appStyles} />
         <Meta />
         <Links />

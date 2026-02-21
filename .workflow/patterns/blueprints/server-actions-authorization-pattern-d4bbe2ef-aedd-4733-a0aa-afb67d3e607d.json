@@ -1,0 +1,74 @@
+{
+  "id": "d4bbe2ef-aedd-4733-a0aa-afb67d3e607d",
+  "name": "Server Actions Authorization Pattern",
+  "description": "Secure server action architecture with centralized authorization utilities (verifyBoardAccess, verifyTaskAccess, requireAdminAccess), role hierarchy validation, and consistent error handling returning { data, error } pattern",
+  "tags": [
+    {
+      "name": "next",
+      "category": "framework"
+    },
+    {
+      "name": "server-actions",
+      "category": "pattern"
+    },
+    {
+      "name": "authorization",
+      "category": "security"
+    },
+    {
+      "name": "rbac",
+      "category": "pattern"
+    },
+    {
+      "name": "app-router",
+      "category": "architecture"
+    }
+  ],
+  "stack": {
+    "framework": "next",
+    "language": "typescript",
+    "runtime": "node",
+    "packageManager": "pnpm",
+    "dependencies": [],
+    "devDependencies": []
+  },
+  "structure": {
+    "directories": [],
+    "keyFiles": [
+      {
+        "path": "utils/authorization.server.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "app/actions/tasks.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "app/actions/boards.ts",
+        "purpose": "Core implementation file"
+      }
+    ]
+  },
+  "setup": {
+    "prerequisites": [],
+    "steps": [],
+    "configs": []
+  },
+  "compatibility": {
+    "framework": "next",
+    "frameworkVersion": "^14.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 0,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "relatedPatterns": [],
+  "isPrivate": false,
+  "createdAt": "2026-01-20T22:23:46.831Z",
+  "updatedAt": "2026-01-20T22:23:46.831Z"
+}

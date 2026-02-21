@@ -2,15 +2,15 @@
 
 import {useState} from 'react';
 import {Link} from 'react-router';
-import {Image} from '@shopify/hydrogen';
+import {Image, CartForm} from '@shopify/hydrogen';
 import type {
   Product,
   ProductVariant,
 } from '@shopify/hydrogen/storefront-api-types';
-import {Badge} from '../display/Badge';
-import {Icon} from '../display/Icon';
-import {PriceDisplay} from './PriceDisplay';
+import {ImageIcon, Heart, Plus} from 'lucide-react';
 import {AddToCart} from './AddToCart';
+import {Button} from '~/components/ui/button';
+import {FaceIcon, toFaceRating} from './FaceRating';
 
 // ============================================================================
 // Types
@@ -65,6 +65,13 @@ type ProductCardProduct = Pick<
 export interface ProductCardProps {
   /** Product data */
   product: ProductCardProduct;
+  /**
+   * Card size variant.
+   * - 'default': standard grid card (homepage-style)
+   * - 'small': PLP compact card — Figma Card=ProductSmall (173×191px image,
+   *   bg-secondary Add button, superscript price, 14px title)
+   */
+  size?: 'default' | 'small';
   /** Show vendor name */
   showVendor?: boolean;
   /** Show quick add button */
@@ -99,27 +106,14 @@ export interface ProductCardPlaceholderProps {
 }
 
 // ============================================================================
-// Subcomponents
+// Helpers
 // ============================================================================
 
-function StarRating({rating, count}: {rating: number; count?: number}) {
-  return (
-    <div className="flex items-center gap-1">
-      <div className="flex">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Icon
-            key={star}
-            name={star <= rating ? 'star' : 'star'}
-            size={14}
-            className={star <= rating ? 'text-warning' : 'text-border'}
-          />
-        ))}
-      </div>
-      {count !== undefined && (
-        <span className="text-xs text-text-muted">({count})</span>
-      )}
-    </div>
-  );
+function formatPrice(amount: string, currencyCode: string): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currencyCode,
+  }).format(parseFloat(amount));
 }
 
 // ============================================================================
@@ -134,11 +128,9 @@ export function ProductCardPlaceholder({
   className = '',
 }: ProductCardPlaceholderProps) {
   return (
-    <article
-      className={`group relative flex flex-col overflow-hidden rounded-lg border border-border bg-white transition-shadow hover:shadow-md ${className}`}
-    >
+    <article className={`group flex flex-col ${className}`}>
       {/* Image */}
-      <div className="relative aspect-square overflow-hidden bg-surface">
+      <div className="relative aspect-square overflow-hidden rounded-lg bg-surface">
         <Link to="#">
           <img
             src={imageUrl}
@@ -147,21 +139,25 @@ export function ProductCardPlaceholder({
             loading="lazy"
           />
         </Link>
-        {customBadge && (
-          <div className="absolute left-2 top-2">
-            <Badge variant="secondary">{customBadge}</Badge>
-          </div>
-        )}
+        <button
+          type="button"
+          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-text-muted hover:text-primary transition-colors"
+          aria-label="Add to wishlist"
+        >
+          <Heart size={18} />
+        </button>
       </div>
 
       {/* Info */}
-      <div className="flex flex-1 flex-col gap-1 p-3">
-        <h3 className="line-clamp-2 text-sm font-medium text-dark">
-          <Link to="#" className="hover:text-primary">
-            {title}
-          </Link>
-        </h3>
-        <div className="text-sm font-semibold text-dark">{price}</div>
+      <div className="mt-3 space-y-1.5">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="text-sm font-semibold text-dark line-clamp-1">
+            <Link to="#" className="hover:text-primary">
+              {title}
+            </Link>
+          </h3>
+          <span className="shrink-0 text-sm font-bold text-dark">{price}</span>
+        </div>
       </div>
     </article>
   );
@@ -173,29 +169,20 @@ export function ProductCardPlaceholder({
 
 export function ProductCard({
   product,
-  showVendor = false,
+  size = 'default',
   showQuickAdd = true,
   showRating = true,
   showSecondaryImage = true,
-  showDiscountPercentage = true,
   lazyLoad = true,
-  customBadge,
-  customBadgeColor,
   className = '',
 }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
 
   // Get first available variant
   const firstVariant = product.variants.nodes[0];
   const price = firstVariant?.price;
-  const compareAtPrice = firstVariant?.compareAtPrice;
-
-  // Check sale and availability status
-  const isOnSale =
-    compareAtPrice &&
-    parseFloat(compareAtPrice.amount) > parseFloat(price.amount);
   const isSoldOut = !product.availableForSale;
-  const isNew = product.tags?.includes('new');
 
   // Get images
   const primaryImage = product.images.nodes[0];
@@ -210,14 +197,101 @@ export function ProductCard({
     ? parseInt(countMetafield.value, 10)
     : undefined;
 
+  // Variant count for subtitle
+  const variantCount = product.variants.nodes.length;
+
+  // ============================================================================
+  // Small variant — Figma Card=ProductSmall (PLP)
+  // flex-col gap-[10px] p-[10px], image 173×191px, bg-secondary Add btn,
+  // superscript price ($12px + amount 24px), 14px Medium title
+  // ============================================================================
+
+  if (size === 'small') {
+    return (
+      <article
+        className={`flex flex-col gap-[10px] p-[10px] shrink-0 ${className}`}
+      >
+        {/* Image — Figma: 173×191px, bg-surface */}
+        <div className="relative h-[191px] w-[173px] bg-surface overflow-hidden shrink-0">
+          <Link to={`/products/${product.handle}`}>
+            {primaryImage ? (
+              <Image
+                data={primaryImage}
+                sizes="173px"
+                className="h-full w-full object-cover"
+                loading={lazyLoad ? 'lazy' : 'eager'}
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-text-muted">
+                <ImageIcon size={32} />
+              </div>
+            )}
+          </Link>
+        </div>
+
+        {/* Add button — Figma: bg-secondary rounded-[25px] h-[40px] px-[20px] */}
+        <CartForm
+          route="/cart"
+          action={CartForm.ACTIONS.LinesAdd}
+          inputs={{
+            lines: [{merchandiseId: firstVariant?.id ?? '', quantity: 1}],
+          }}
+        >
+          {() => (
+            <Button
+              type="submit"
+              disabled={isSoldOut || !firstVariant}
+              className="bg-secondary hover:bg-secondary/90 rounded-[25px] h-10 px-5 has-[>svg]:px-5 text-white gap-2.5 [&_svg:not([class*='size-'])]:size-6.25"
+            >
+              {isSoldOut ? (
+                'Sold Out'
+              ) : (
+                <>
+                  <Plus className="text-white" />
+                  <span className="text-[14px] font-medium">Add</span>
+                </>
+              )}
+            </Button>
+          )}
+        </CartForm>
+
+        {/* Price — Figma: $ at 12px (top-left), amount at 24px, SemiBold, tracking-[0.5px] */}
+        {price && (
+          <div className="relative h-[28px] w-[64px] font-semibold text-black tracking-[0.5px] whitespace-nowrap shrink-0">
+            <span className="absolute left-0 top-[4px] text-[12px] leading-[24px]">
+              $
+            </span>
+            <span className="absolute left-[8px] top-0 text-[24px] leading-[24px]">
+              {parseFloat(price.amount).toFixed(2)}
+            </span>
+          </div>
+        )}
+
+        {/* Title — Figma: 14px Inter Medium, text-black */}
+        <p className="text-[14px] font-medium text-black line-clamp-2">
+          <Link
+            to={`/products/${product.handle}`}
+            className="hover:text-primary"
+          >
+            {product.title}
+          </Link>
+        </p>
+      </article>
+    );
+  }
+
+  // ============================================================================
+  // Default variant
+  // ============================================================================
+
   return (
     <article
-      className={`group relative flex flex-col overflow-hidden rounded-lg border border-border bg-white transition-shadow hover:shadow-md ${className}`}
+      className={`group flex flex-col ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Image Container */}
-      <div className="relative aspect-square overflow-hidden bg-surface">
+      <div className="relative aspect-square overflow-hidden rounded-lg bg-surface">
         <Link to={`/products/${product.handle}`}>
           {primaryImage ? (
             <>
@@ -242,70 +316,70 @@ export function ProductCard({
             </>
           ) : (
             <div className="flex h-full w-full items-center justify-center text-text-muted">
-              <Icon name="image" size={48} />
+              <ImageIcon size={48} />
             </div>
           )}
         </Link>
 
-        {/* Badges */}
-        <div className="absolute left-2 top-2 flex flex-col gap-1">
-          {isSoldOut && <Badge variant="destructive">Sold Out</Badge>}
-          {!isSoldOut && isOnSale && showDiscountPercentage && (
-            <Badge variant="success">Sale</Badge>
-          )}
-          {isNew && !isSoldOut && <Badge variant="info">New</Badge>}
-          {customBadge && (
-            <Badge
-              style={
-                customBadgeColor
-                  ? {backgroundColor: customBadgeColor}
-                  : undefined
-              }
-            >
-              {customBadge}
-            </Badge>
-          )}
-        </div>
+        {/* Wishlist heart icon */}
+        <button
+          type="button"
+          onClick={() => setWishlisted(!wishlisted)}
+          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-text-muted hover:text-primary transition-colors"
+          aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+        >
+          <Heart
+            size={18}
+            fill={wishlisted ? 'currentColor' : 'none'}
+            className={wishlisted ? 'text-primary' : ''}
+          />
+        </button>
       </div>
 
       {/* Product Info */}
-      <div className="flex flex-1 flex-col gap-1 p-3">
-        {/* Vendor */}
-        {showVendor && product.vendor && (
-          <p className="text-xs text-text-muted">{product.vendor}</p>
+      <div className="mt-3 space-y-1">
+        {/* Title + Price row */}
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="text-sm font-semibold text-dark line-clamp-1">
+            <Link
+              to={`/products/${product.handle}`}
+              className="hover:text-primary"
+            >
+              {product.title}
+            </Link>
+          </h3>
+          {price && (
+            <span className="shrink-0 text-sm font-bold text-dark">
+              {formatPrice(price.amount, price.currencyCode)}
+            </span>
+          )}
+        </div>
+
+        {/* Variant subtitle */}
+        {variantCount > 1 && (
+          <p className="text-xs text-text-muted">
+            {variantCount} types available
+          </p>
         )}
-
-        {/* Title */}
-        <h3 className="line-clamp-2 text-sm font-medium text-dark">
-          <Link
-            to={`/products/${product.handle}`}
-            className="hover:text-primary"
-          >
-            {product.title}
-          </Link>
-        </h3>
-
-        {/* Price */}
-        <PriceDisplay
-          price={price}
-          compareAtPrice={compareAtPrice}
-          showDiscountPercentage={showDiscountPercentage}
-          size="sm"
-        />
 
         {/* Rating */}
         {showRating && rating !== null && (
-          <StarRating rating={rating} count={reviewCount} />
+          <div className="flex items-center gap-1">
+            <FaceIcon value={toFaceRating(rating)} size={14} showLabel />
+            {reviewCount !== undefined && (
+              <span className="text-xs text-text-muted">({reviewCount})</span>
+            )}
+          </div>
         )}
       </div>
 
-      {/* Quick Add Button */}
+      {/* Actions: Add To Cart + Add Shortlist */}
       {showQuickAdd && (
-        <div className="p-3 pt-0">
+        <div className="mt-3 flex items-center gap-3">
           {isSoldOut ? (
             <button
               disabled
-              className="w-full rounded-md bg-surface py-2 text-sm font-medium text-text-muted"
+              className="rounded-md bg-surface px-4 py-2 text-xs font-medium text-text-muted"
             >
               Sold Out
             </button>
@@ -314,9 +388,18 @@ export function ProductCard({
               variantId={firstVariant.id}
               available={product.availableForSale}
               size="sm"
-              fullWidth
-            />
+              className="!rounded-md !px-4 !py-2 !text-xs"
+            >
+              Add To Cart
+            </AddToCart>
           )}
+          <button
+            type="button"
+            className="text-xs font-medium text-text-muted hover:text-primary transition-colors"
+            onClick={() => setWishlisted(!wishlisted)}
+          >
+            Add Shortlist
+          </button>
         </div>
       )}
     </article>

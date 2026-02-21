@@ -1,15 +1,23 @@
 #!/usr/bin/env sh
 
-# Run linting and formatting checks before commit
 echo "🔍 Running pre-commit checks..."
 
-# Run Shopify Theme Check
-echo "🛍️  Running Shopify Theme Check..."
-pnpm theme-check || exit 1
+# Only run Shopify theme check when Liquid theme files are staged
+if git diff --cached --name-only | grep -q '^theme/'; then
+  echo "🛍️  Running Shopify Theme Check..."
+  pnpm theme-check || exit 1
+fi
 
-# Run Prettier check
+# Always check formatting (covers both theme and hydrogen)
 echo "💅 Checking code formatting..."
 pnpm format:check || exit 1
+
+# Only run Hydrogen typecheck when hydrogen files are staged
+if git diff --cached --name-only | grep -q '^hydrogen/'; then
+  echo "⚛️  Running Hydrogen typecheck..."
+  cd hydrogen && pnpm typecheck || exit 1
+  cd ..
+fi
 
 # Validate project structure
 echo "📂 Validating project structure..."

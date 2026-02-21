@@ -6,4 +6,8 @@
 
 export {ProductGallery} from './ProductGallery';
 export {VariantSelector} from './VariantSelector';
-export type {VariantSelectorProps, VariantSelectorVariant, VariantOption} from './VariantSelector';
+export type {
+  VariantSelectorProps,
+  VariantSelectorVariant,
+  VariantOption,
+} from './VariantSelector';

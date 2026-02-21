@@ -1,0 +1,78 @@
+{
+  "id": "9650db16-2cf0-4bb9-b74e-f77df181ccf7",
+  "name": "Real-time Notification System with Mentions",
+  "description": "Comprehensive notification system supporting task assignments, @mentions in comments and descriptions, status changes, due date alerts, sprint events, and team/project additions with real-time updates",
+  "tags": [
+    {
+      "name": "next",
+      "category": "framework"
+    },
+    {
+      "name": "notifications",
+      "category": "feature"
+    },
+    {
+      "name": "mentions",
+      "category": "feature"
+    },
+    {
+      "name": "real-time",
+      "category": "feature"
+    },
+    {
+      "name": "supabase",
+      "category": "database"
+    },
+    {
+      "name": "sonner",
+      "category": "ui"
+    }
+  ],
+  "stack": {
+    "framework": "next",
+    "language": "typescript",
+    "runtime": "node",
+    "packageManager": "pnpm",
+    "dependencies": [],
+    "devDependencies": []
+  },
+  "structure": {
+    "directories": [],
+    "keyFiles": [
+      {
+        "path": "app/actions/notifications.ts",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "components/NotificationPanel.tsx",
+        "purpose": "Core implementation file"
+      },
+      {
+        "path": "app/providers.tsx",
+        "purpose": "Core implementation file"
+      }
+    ]
+  },
+  "setup": {
+    "prerequisites": [],
+    "steps": [],
+    "configs": []
+  },
+  "compatibility": {
+    "framework": "next",
+    "frameworkVersion": "^14.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 0,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "relatedPatterns": [],
+  "isPrivate": false,
+  "createdAt": "2026-01-20T22:23:46.830Z",
+  "updatedAt": "2026-01-20T22:23:46.830Z"
+}

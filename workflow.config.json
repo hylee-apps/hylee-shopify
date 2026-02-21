@@ -108,6 +108,12 @@
       "description": "Liquid snippets and partials",
       "emoji": "✂️",
       "category": "features"
+    },
+    {
+      "name": "hydrogen",
+      "description": "Hydrogen/Remix storefront app",
+      "emoji": "⚡",
+      "category": "infrastructure"
     }
   ],
   "enforcement": "strict",

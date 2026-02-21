@@ -1,0 +1,142 @@
+{
+  "id": "c4e0f1a6-b7d8-4c9e-0f1a-3b4c5d6e7f8a",
+  "name": "Zod and TanStack Query Data Layer",
+  "description": "Type-safe validation with Zod schemas, hierarchical query keys, and mutation hooks with cache invalidation for React applications",
+  "tags": [
+    {
+      "name": "zod",
+      "category": "tool"
+    },
+    {
+      "name": "tanstack-query",
+      "category": "tool"
+    },
+    {
+      "name": "validation",
+      "category": "feature"
+    },
+    {
+      "name": "mutations",
+      "category": "pattern"
+    },
+    {
+      "name": "next",
+      "category": "framework"
+    },
+    {
+      "name": "typescript",
+      "category": "language"
+    }
+  ],
+  "stack": {
+    "framework": "next",
+    "language": "typescript",
+    "runtime": "node",
+    "packageManager": "pnpm",
+    "dependencies": [
+      {
+        "name": "@tanstack/react-query",
+        "version": "^5.0.0",
+        "compatibleRange": ">=5.0.0"
+      },
+      {
+        "name": "zod",
+        "version": "^4.0.0",
+        "compatibleRange": ">=3.0.0"
+      },
+      {
+        "name": "react-hook-form",
+        "version": "^7.50.0",
+        "compatibleRange": ">=7.0.0"
+      },
+      {
+        "name": "@hookform/resolvers",
+        "version": "^3.3.0",
+        "compatibleRange": ">=3.0.0"
+      }
+    ],
+    "devDependencies": []
+  },
+  "structure": {
+    "directories": [
+      {
+        "path": "lib/validations",
+        "purpose": "Zod schemas for all entities"
+      },
+      {
+        "path": "hooks/queries",
+        "purpose": "TanStack Query hooks"
+      },
+      {
+        "path": "hooks/mutations",
+        "purpose": "Mutation hooks with invalidation"
+      }
+    ],
+    "keyFiles": [
+      {
+        "path": "lib/validations/index.ts",
+        "purpose": "Barrel export for all schemas"
+      },
+      {
+        "path": "lib/validations/task.ts",
+        "purpose": "Task validation schema example"
+      },
+      {
+        "path": "hooks/queries/query-keys.ts",
+        "purpose": "Hierarchical query key factory"
+      },
+      {
+        "path": "hooks/queries/index.ts",
+        "purpose": "Query hooks barrel export"
+      },
+      {
+        "path": "hooks/mutations/index.ts",
+        "purpose": "Mutation hooks barrel export"
+      }
+    ]
+  },
+  "setup": {
+    "prerequisites": [
+      "React 18+",
+      "QueryClientProvider configured in app"
+    ],
+    "steps": [
+      {
+        "order": 1,
+        "command": "pnpm add @tanstack/react-query zod react-hook-form @hookform/resolvers",
+        "description": "Install data layer packages",
+        "optional": false
+      },
+      {
+        "order": 2,
+        "command": "mkdir -p lib/validations hooks/queries hooks/mutations",
+        "description": "Create directory structure",
+        "optional": false
+      },
+      {
+        "order": 3,
+        "command": "touch lib/validations/index.ts hooks/queries/query-keys.ts hooks/queries/index.ts hooks/mutations/index.ts",
+        "description": "Create core files",
+        "optional": false
+      }
+    ],
+    "configs": []
+  },
+  "compatibility": {
+    "framework": "next",
+    "frameworkVersion": "^16.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 100,
+    "applications": 0,
+    "successes": 0,
+    "failures": 0
+  },
+  "relatedPatterns": [],
+  "isPrivate": false,
+  "createdAt": "2026-01-22T23:00:00.000Z",
+  "updatedAt": "2026-01-22T23:00:00.000Z"
+}
