@@ -5,8 +5,15 @@ import {
   CompareTable,
   type CompareProduct,
 } from '~/components/commerce/CompareTable';
-import {Breadcrumb} from '~/components/navigation';
-import {Icon} from '~/components/display';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
+import {X, Plus, Columns2} from 'lucide-react';
 
 // ============================================================================
 // GraphQL Query
@@ -146,10 +153,19 @@ export default function ComparePage({loaderData}: Route.ComponentProps) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Breadcrumb */}
-      <Breadcrumb
-        items={[{label: 'Home', url: '/'}, {label: 'Compare Products'}]}
-        className="mb-6"
-      />
+      <Breadcrumb className="mb-6">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Compare Products</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -171,14 +187,14 @@ export default function ComparePage({loaderData}: Route.ComponentProps) {
               onClick={clearAll}
               className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-slate-300 hover:text-slate-900"
             >
-              <Icon name="x" size={16} />
+              <X size={16} />
               Clear All
             </button>
             <Link
               to="/collections/all"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90"
             >
-              <Icon name="plus" size={16} />
+              <Plus size={16} />
               Add More
             </Link>
           </div>
@@ -199,7 +215,7 @@ function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 py-16 text-center">
       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-        <Icon name="columns" size={28} />
+        <Columns2 size={28} />
       </div>
       <h2 className="mb-2 text-lg font-semibold text-slate-900">
         No products to compare

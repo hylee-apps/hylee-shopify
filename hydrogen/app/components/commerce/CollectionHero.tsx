@@ -1,6 +1,3 @@
-import {Image} from '@shopify/hydrogen';
-import {Link} from 'react-router';
-
 export interface CollectionHeroProps {
   title: string;
   description?: string | null;
@@ -11,97 +8,80 @@ export interface CollectionHeroProps {
     width?: number | null;
     height?: number | null;
   } | null;
-  /** Optional promotional headline (overrides title in banner) */
+  /** @deprecated Not shown in Figma design — kept for prop compatibility */
   promoHeadline?: string;
-  /** Optional promotional CTA label */
+  /** @deprecated Not shown in Figma design — kept for prop compatibility */
   promoCta?: string;
-  /** Optional promotional CTA link */
+  /** @deprecated Not shown in Figma design — kept for prop compatibility */
   promoCtaUrl?: string;
   className?: string;
 }
 
 /**
- * CollectionHero — promotional gradient banner or collection image hero.
+ * CollectionHero — PLP hero matching Figma node 2766:608.
  *
- * When a collection image exists, shows an image-based hero.
- * Otherwise shows a gradient promotional banner matching the PLP Figma design.
+ * Desktop: collection image on the left (328×260px) + collection title on
+ * the right (57px Regular, #1d1b20, tracking-[-0.25px]).
+ * Mobile: image stacked above title.
+ *
+ * Figma: file d52sF4D2B0bIzt3A4z3UjE, node 2766:608
+ * Total frame: 1440×260px. Image: absolute left-0 top-0, 328×260px.
+ * Title: absolute left-521 top-98. Gap image→title = 193px.
  */
-export function CollectionHero({
-  title,
-  description,
-  descriptionHtml,
-  image,
-  promoHeadline,
-  promoCta = 'Shop Now',
-  promoCtaUrl,
-  className,
-}: CollectionHeroProps) {
-  // Gradient promotional banner (default for collections without images)
-  if (!image) {
-    const headline = promoHeadline || title;
-
-    return (
-      <section
-        className={`collection-hero relative w-full overflow-hidden rounded-xl ${className ?? ''}`}
+export function CollectionHero({title, image, className}: CollectionHeroProps) {
+  return (
+    <section className={`w-full overflow-hidden ${className ?? ''}`}>
+      {/* ------------------------------------------------------------------ */}
+      {/* Desktop — Figma exact layout                                        */}
+      {/* ------------------------------------------------------------------ */}
+      {/*
+       * 3-column grid: [image | title | spacer]
+       * Left and right columns are always equal (min(480px, 35%)), so the
+       * center column is mathematically centered on the page at every width.
+       * The image and title live in separate columns — overlap is impossible.
+       */}
+      <div
+        className="hidden lg:grid h-[260px] w-full"
         style={{
-          backgroundImage:
-            'linear-gradient(37deg, rgb(244, 232, 243) 0%, rgb(243, 239, 246) 52%, rgb(238, 224, 249) 102%)',
+          gridTemplateColumns: 'min(480px, 35%) 1fr min(480px, 35%)',
+          gridTemplateRows: '260px',
         }}
       >
-        <div className="flex min-h-[200px] items-center justify-between px-8 py-10 md:min-h-[280px] md:px-12">
-          <div className="relative z-10 max-w-md">
-            <h1 className="text-2xl font-bold leading-tight text-dark md:text-[34px]">
-              {headline}
-            </h1>
-            {descriptionHtml ? (
-              <div
-                className="mt-3 text-sm text-text-muted"
-                dangerouslySetInnerHTML={{__html: descriptionHtml}}
-              />
-            ) : description ? (
-              <p className="mt-3 text-sm text-text-muted">{description}</p>
-            ) : null}
-            {promoCtaUrl && (
-              <Link
-                to={promoCtaUrl}
-                className="mt-5 inline-flex items-center rounded-full bg-dark px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-dark/90"
-              >
-                {promoCta}
-              </Link>
-            )}
-          </div>
+        {/* Left: hero image */}
+        <div className="h-full">
+          <img
+            src="/hero-plp.png"
+            alt=""
+            className="h-full w-full object-cover"
+            loading="eager"
+          />
         </div>
-      </section>
-    );
-  }
 
-  // Image-based collection hero
-  return (
-    <section
-      className={`collection-hero relative w-full overflow-hidden rounded-xl ${className ?? ''}`}
-    >
-      <div className="aspect-[4.8/1] w-full">
-        <Image
-          data={image}
-          sizes="100vw"
-          className="h-full w-full object-cover"
-        />
-      </div>
-      <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-        <div className="mx-auto max-w-3xl px-6 text-center">
-          <h1 className="text-3xl font-bold text-white drop-shadow-md md:text-5xl">
+        {/* Center: title — justify-center here = centered on the full page */}
+        <div className="flex items-center justify-center min-w-0 px-4">
+          <h1 className="text-[57px] font-normal leading-[64px] tracking-[-0.25px] text-[#1d1b20] text-center">
             {title}
           </h1>
-          {descriptionHtml ? (
-            <div
-              className="mt-3 text-base text-white/90 drop-shadow md:text-lg"
-              dangerouslySetInnerHTML={{__html: descriptionHtml}}
-            />
-          ) : description ? (
-            <p className="mt-3 text-base text-white/90 drop-shadow md:text-lg">
-              {description}
-            </p>
-          ) : null}
+        </div>
+
+        {/* Right: invisible spacer that mirrors image column width */}
+        <div aria-hidden="true" />
+      </div>
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Mobile — stacked layout                                             */}
+      {/* ------------------------------------------------------------------ */}
+      <div className="lg:hidden">
+        <div className="h-[200px] w-full">
+          <img
+            src="/hero-plp.png"
+            alt=""
+            className="h-full w-full object-cover"
+            loading="eager"
+          />
+        </div>
+        <div className="px-4 py-6">
+          <h1 className="text-3xl font-normal text-[#1d1b20]">{title}</h1>
         </div>
       </div>
     </section>

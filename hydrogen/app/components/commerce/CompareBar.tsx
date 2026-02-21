@@ -1,7 +1,7 @@
 'use client';
 
 import {Link, useSearchParams} from 'react-router';
-import {Icon} from '../display/Icon';
+import {Columns2} from 'lucide-react';
 
 // ============================================================================
 // Types
@@ -48,7 +48,7 @@ export function CompareBar({maxCompare = 4, className = ''}: CompareBarProps) {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <Icon name="columns" size={16} />
+            <Columns2 size={16} />
           </div>
           <span className="text-sm font-medium text-slate-700">
             {count} product{count !== 1 ? 's' : ''} selected
@@ -68,7 +68,7 @@ export function CompareBar({maxCompare = 4, className = ''}: CompareBarProps) {
             to={`/compare?compare=${compareParam}`}
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90"
           >
-            <Icon name="columns" size={16} />
+            <Columns2 size={16} />
             Compare Now
           </Link>
         </div>

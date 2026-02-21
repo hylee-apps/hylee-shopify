@@ -18,9 +18,7 @@ const imgLogoCondensedDefault =
 function MenuMain({className}: {className?: string}) {
   return (
     <div
-      className={
-        className || 'content-stretch flex items-center relative'
-      }
+      className={className || 'content-stretch flex items-center relative'}
       data-name="Menu, Main"
       data-node-id="4567:100"
     >

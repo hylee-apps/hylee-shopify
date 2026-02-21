@@ -39,3 +39,13 @@ export {
   type CompareTableProps,
   type CompareProduct,
 } from './CompareTable';
+
+export {
+  FaceIcon,
+  FaceRatingSummary,
+  toFaceRating,
+  FACE_CONFIG,
+  type FaceRatingValue,
+  type FaceRatingSummaryProps,
+  type FaceIconProps,
+} from './FaceRating';

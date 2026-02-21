@@ -209,9 +209,7 @@ function SizeButton({
           isSelected ? 'border-[#3a4980]' : 'border-border'
         }`}
       >
-        {isSelected && (
-          <span className="w-2 h-2 rounded-full bg-[#3a4980]" />
-        )}
+        {isSelected && <span className="w-2 h-2 rounded-full bg-[#3a4980]" />}
       </span>
       {value}
     </button>
@@ -278,13 +276,19 @@ export function VariantSelector({
     }
   };
 
-  if (options.length === 0) {
+  // Shopify creates a default "Title" option for single-variant products.
+  // It's a placeholder with value "Default Title" — never show it.
+  const filteredOptions = options.filter(
+    (opt) => opt.name.toLowerCase() !== 'title',
+  );
+
+  if (filteredOptions.length === 0) {
     return null;
   }
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {options.map((option) => {
+      {filteredOptions.map((option) => {
         const currentValue = currentSelections[option.name.toLowerCase()];
         const isColorOption =
           option.name.toLowerCase() === 'color' ||
@@ -300,7 +304,9 @@ export function VariantSelector({
             </div>
 
             {/* Option Values */}
-            <div className={`flex flex-wrap ${isColorOption ? 'gap-3' : 'gap-2'}`}>
+            <div
+              className={`flex flex-wrap ${isColorOption ? 'gap-3' : 'gap-2'}`}
+            >
               {option.values.map((value) => {
                 const isSelected = currentValue === value;
                 const isAvailable = isOptionValueAvailable(

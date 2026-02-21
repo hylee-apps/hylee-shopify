@@ -49,7 +49,10 @@ function MediaIconSocial({className}: {className?: string}) {
       data-name="Media Icon, Social"
       data-node-id="799:55"
     >
-      <div className="absolute bg-black inset-0 opacity-20" data-node-id="797:72" />
+      <div
+        className="absolute bg-black inset-0 opacity-20"
+        data-node-id="797:72"
+      />
     </div>
   );
 }
@@ -82,10 +85,7 @@ export default function Footer({className}: {className?: string}) {
       data-name="Footer"
       data-node-id="1796:105"
     >
-      <div
-        className="h-[148px] relative shrink-0 w-full"
-        data-node-id="856:63"
-      >
+      <div className="h-[148px] relative shrink-0 w-full" data-node-id="856:63">
         {/* Nav links row: left-[318px], top-[91px], p-[10px] */}
         <div
           className="absolute content-stretch flex items-end justify-center left-[318px] p-[10px] top-[91px]"
@@ -101,10 +101,7 @@ export default function Footer({className}: {className?: string}) {
         </div>
 
         {/* Left column: logo + social */}
-        <div
-          className="absolute left-0 top-0 w-[240px]"
-          data-node-id="811:59"
-        >
+        <div className="absolute left-0 top-0 w-[240px]" data-node-id="811:59">
           <div className="content-stretch flex flex-col gap-[5px] items-start w-[240px]">
             <Logo className="h-[101.865px] relative shrink-0 w-[183px]" />
             <div className="font-['Inter:Medium',sans-serif] font-medium text-[14px] text-black">
@@ -124,7 +121,7 @@ export default function Footer({className}: {className?: string}) {
 
         {/* Newsletter heading: left-[409px], top-[12px] */}
         <div className="absolute font-['Inter:Regular',sans-serif] font-normal text-[20px] text-black left-[409px] top-[12px] w-[351px]">
-          <p>Sign Up for HyLee news &amp; updates!</p>
+          <p>Sign Up for Hylee news &amp; updates!</p>
         </div>
       </div>
     </div>

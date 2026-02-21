@@ -31,14 +31,22 @@ if (!component) {
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const REFS_DIR = path.join(ROOT, 'design-references', component);
-const SCREENSHOTS_DIR = path.join(ROOT, 'tests', 'e2e', 'visual', 'screenshots');
+const SCREENSHOTS_DIR = path.join(
+  ROOT,
+  'tests',
+  'e2e',
+  'visual',
+  'screenshots',
+);
 
 const refScreenshot = path.join(REFS_DIR, 'screenshot.png');
 const hasRef = fs.existsSync(refScreenshot);
 
 // Find all Playwright captures for this component
 const captureFiles = fs.existsSync(SCREENSHOTS_DIR)
-  ? fs.readdirSync(SCREENSHOTS_DIR).filter((f) => f.startsWith(component) && f.endsWith('.png'))
+  ? fs
+      .readdirSync(SCREENSHOTS_DIR)
+      .filter((f) => f.startsWith(component) && f.endsWith('.png'))
   : [];
 
 if (!hasRef && captureFiles.length === 0) {
@@ -220,7 +228,9 @@ fs.writeFileSync(outputPath, html, 'utf-8');
 console.log(`Comparison report generated:`);
 console.log(`  ${outputPath}`);
 console.log('');
-console.log(`Figma reference: ${hasRef ? 'Found' : 'MISSING (save screenshot.png to enable overlay)'}`);
+console.log(
+  `Figma reference: ${hasRef ? 'Found' : 'MISSING (save screenshot.png to enable overlay)'}`,
+);
 console.log(`Captures found: ${captures.length}`);
 captures.forEach((c) => console.log(`  - ${c.name}`));
 console.log('');

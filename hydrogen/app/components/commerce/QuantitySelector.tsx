@@ -1,7 +1,7 @@
 'use client';
 
 import {useCallback} from 'react';
-import {Icon} from '../display/Icon';
+import {Minus, Plus} from 'lucide-react';
 
 // ============================================================================
 // Types
@@ -102,7 +102,7 @@ export function QuantitySelector({
         className={`flex items-center justify-center ${sizes.button} rounded-l-full border-r border-border text-text transition-colors hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent`}
         aria-label="Decrease quantity"
       >
-        <Icon name="minus" size={sizes.icon} />
+        <Minus size={sizes.icon} />
       </button>
 
       {/* Quantity input */}
@@ -125,7 +125,7 @@ export function QuantitySelector({
         className={`flex items-center justify-center ${sizes.button} rounded-r-full border-l border-border text-text transition-colors hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent`}
         aria-label="Increase quantity"
       >
-        <Icon name="plus" size={sizes.icon} />
+        <Plus size={sizes.icon} />
       </button>
     </div>
   );

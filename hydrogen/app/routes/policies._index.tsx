@@ -1,7 +1,14 @@
 import {Link} from 'react-router';
 import type {Route} from './+types/policies._index';
-import {Breadcrumb} from '~/components/navigation';
-import {Icon} from '~/components/display';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
+import {Info, ChevronRight} from 'lucide-react';
 
 // ============================================================================
 // GraphQL
@@ -84,12 +91,19 @@ export default function PoliciesIndex({loaderData}: Route.ComponentProps) {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:py-12">
-      <Breadcrumb
-        items={[
-          {label: 'Home', url: '/'},
-          {label: 'Policies', url: '/policies'},
-        ]}
-      />
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Policies</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       <h1 className="mt-6 mb-8 text-3xl font-bold text-dark sm:text-4xl">
         Store Policies
@@ -104,7 +118,7 @@ export default function PoliciesIndex({loaderData}: Route.ComponentProps) {
               className="group flex items-center gap-4 rounded-xl border border-border bg-white p-6 shadow-sm transition hover:shadow-md hover:border-primary/30"
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                <Icon name="info" size={20} className="text-primary" />
+                <Info size={20} className="text-primary" />
               </div>
               <div>
                 <h2 className="font-semibold text-dark group-hover:text-primary">
@@ -114,8 +128,7 @@ export default function PoliciesIndex({loaderData}: Route.ComponentProps) {
                   View our {policy.title.toLowerCase()}
                 </p>
               </div>
-              <Icon
-                name="chevron-right"
+              <ChevronRight
                 size={20}
                 className="ml-auto text-text-muted group-hover:text-primary"
               />

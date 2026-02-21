@@ -1,7 +1,9 @@
 'use client';
 
-import {Icon} from '../display/Icon';
+import {SlidersHorizontal, LayoutGrid, List} from 'lucide-react';
 import {SortSelect} from './SortSelect';
+import {Button} from '~/components/ui/button';
+import {cn} from '~/lib/utils';
 
 export interface CollectionToolbarProps {
   productCount: number;
@@ -32,26 +34,29 @@ export function CollectionToolbar({
     >
       {/* Result count */}
       <p className="text-sm font-medium text-dark">
-        Showing{' '}
-        <span className="font-semibold">{productCount}</span>{' '}
+        Showing <span className="font-semibold">{productCount}</span>{' '}
         {productCount === 1 ? 'Result' : 'Results'}
         {totalCount !== undefined && (
-          <> from total <span className="font-semibold">{totalCount}</span></>
+          <>
+            {' '}
+            from total <span className="font-semibold">{totalCount}</span>
+          </>
         )}
       </p>
 
       <div className="flex items-center gap-3">
         {/* Mobile filter toggle */}
         {onOpenFilters && (
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={onOpenFilters}
-            className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 text-sm font-medium text-dark transition-colors hover:border-text-muted lg:hidden"
+            className="rounded-full border-border px-4 py-2.5 text-dark hover:border-text-muted hover:bg-transparent shadow-none lg:hidden"
             aria-label="Open filters"
           >
-            <Icon name="filter" size={16} />
+            <SlidersHorizontal size={16} />
             <span>Filters</span>
-          </button>
+          </Button>
         )}
 
         {/* Sort (pill-shaped) */}
@@ -60,32 +65,36 @@ export function CollectionToolbar({
         {/* View toggle (optional) */}
         {viewMode && onViewModeChange && (
           <div className="hidden items-center gap-1 rounded-full border border-border p-0.5 sm:flex">
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => onViewModeChange('grid')}
-              className={`rounded-full p-1.5 transition-colors ${
+              className={cn(
+                'rounded-full p-1.5 h-auto w-auto',
                 viewMode === 'grid'
-                  ? 'bg-primary text-white'
-                  : 'text-text-muted hover:text-dark'
-              }`}
+                  ? 'bg-primary text-white hover:bg-primary/90 hover:text-white'
+                  : 'text-text-muted hover:text-dark hover:bg-transparent',
+              )}
               aria-label="Grid view"
               aria-pressed={viewMode === 'grid'}
             >
-              <Icon name="grid" size={16} />
-            </button>
-            <button
+              <LayoutGrid size={16} />
+            </Button>
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => onViewModeChange('list')}
-              className={`rounded-full p-1.5 transition-colors ${
+              className={cn(
+                'rounded-full p-1.5 h-auto w-auto',
                 viewMode === 'list'
-                  ? 'bg-primary text-white'
-                  : 'text-text-muted hover:text-dark'
-              }`}
+                  ? 'bg-primary text-white hover:bg-primary/90 hover:text-white'
+                  : 'text-text-muted hover:text-dark hover:bg-transparent',
+              )}
               aria-label="List view"
               aria-pressed={viewMode === 'list'}
             >
-              <Icon name="list" size={16} />
-            </button>
+              <List size={16} />
+            </Button>
           </div>
         )}
       </div>

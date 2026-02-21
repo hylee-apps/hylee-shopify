@@ -1,7 +1,17 @@
 import type {Route} from './+types/account.orders._index';
 import {redirect, Link, useSearchParams} from 'react-router';
 import {getSeoMeta, Image} from '@shopify/hydrogen';
-import {Breadcrumb, Icon, Badge, Button} from '~/components';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
+import {Badge} from '~/components/ui/badge';
+import {Button} from '~/components/ui/button';
+import {ChevronDown, ChevronRight, ImageIcon, Package} from 'lucide-react';
 
 // ============================================================================
 // Route Meta
@@ -125,15 +135,27 @@ function getFulfillmentBadge(status: string | null): {
 export default function OrdersPage({loaderData}: Route.ComponentProps) {
   const {orders, pageInfo} = loaderData;
 
-  const breadcrumbs = [
-    {label: 'Home', url: '/'},
-    {label: 'Account', url: '/account'},
-    {label: 'Your Orders'},
-  ];
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <Breadcrumb items={breadcrumbs} className="mb-6" />
+      <Breadcrumb className="mb-6">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/account">Account</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Your Orders</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-dark">Your Orders</h1>
@@ -158,7 +180,7 @@ export default function OrdersPage({loaderData}: Route.ComponentProps) {
                 className="inline-flex items-center gap-2 rounded-md border border-border px-5 py-2.5 text-sm font-medium text-text transition-colors hover:border-primary hover:text-primary"
               >
                 Load More Orders
-                <Icon name="chevron-down" size={16} />
+                <ChevronDown size={16} />
               </Link>
             </div>
           )}
@@ -168,6 +190,29 @@ export default function OrdersPage({loaderData}: Route.ComponentProps) {
       )}
     </div>
   );
+}
+
+// ============================================================================
+// StatusBadge Component
+// ============================================================================
+
+function StatusBadge({
+  variant,
+  children,
+}: {
+  variant: 'success' | 'warning' | 'info' | 'default';
+  children: React.ReactNode;
+}) {
+  const cls = {
+    success:
+      'inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800',
+    warning:
+      'inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800',
+    info: 'inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800',
+    default:
+      'inline-flex items-center rounded-full bg-surface px-2.5 py-0.5 text-xs font-medium text-text',
+  }[variant];
+  return <span className={cls}>{children}</span>;
 }
 
 // ============================================================================
@@ -199,9 +244,7 @@ function OrderCard({order}: {order: any}) {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Badge variant={statusVariant} size="sm">
-            {statusLabel}
-          </Badge>
+          <StatusBadge variant={statusVariant}>{statusLabel}</StatusBadge>
           <span className="text-sm text-text-muted">{order.name}</span>
         </div>
       </div>
@@ -220,17 +263,14 @@ function OrderCard({order}: {order: any}) {
               />
             ) : (
               <div className="flex h-16 w-16 items-center justify-center rounded-md bg-surface">
-                <Icon name="image" size={24} className="text-text-muted" />
+                <ImageIcon size={24} className="text-text-muted" />
               </div>
             )}
             <div className="flex-1">
               <p className="text-sm font-medium text-dark">{item.title}</p>
-              {item.variantTitle &&
-                item.variantTitle !== 'Default Title' && (
-                  <p className="text-xs text-text-muted">
-                    {item.variantTitle}
-                  </p>
-                )}
+              {item.variantTitle && item.variantTitle !== 'Default Title' && (
+                <p className="text-xs text-text-muted">{item.variantTitle}</p>
+              )}
               <p className="text-xs text-text-muted">Qty: {item.quantity}</p>
             </div>
             {item.price && (
@@ -249,7 +289,7 @@ function OrderCard({order}: {order: any}) {
           className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
         >
           View Order Details
-          <Icon name="chevron-right" size={14} />
+          <ChevronRight size={14} />
         </Link>
       </div>
     </div>
@@ -263,13 +303,13 @@ function OrderCard({order}: {order: any}) {
 function EmptyOrders() {
   return (
     <div className="flex flex-col items-center py-16 text-center">
-      <Icon name="package" size={64} className="mb-4 text-text-muted" />
+      <Package size={64} className="mb-4 text-text-muted" />
       <h2 className="mb-2 text-xl font-semibold text-dark">No orders yet</h2>
       <p className="mb-6 text-text-muted">
         When you place your first order, it will appear here.
       </p>
-      <Button as="link" to="/collections">
-        Start Shopping
+      <Button asChild>
+        <Link to="/collections">Start Shopping</Link>
       </Button>
     </div>
   );

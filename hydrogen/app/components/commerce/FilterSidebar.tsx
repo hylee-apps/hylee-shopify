@@ -1,12 +1,23 @@
+'use client';
+
 import {useState, useCallback} from 'react';
 import {Link, useLocation, useNavigate} from 'react-router';
 import type {Filter} from '@shopify/hydrogen/storefront-api-types';
-import {Icon} from '../display/Icon';
 import {
   buildFilterUrl,
   buildPriceFilterUrl,
   clearAllFiltersUrl,
 } from '~/lib/collection/filters';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '~/components/ui/accordion';
+import {Checkbox} from '~/components/ui/checkbox';
+import {Input} from '~/components/ui/input';
+import {Button} from '~/components/ui/button';
+import {Sheet, SheetContent, SheetTitle} from '~/components/ui/sheet';
 
 // ============================================================================
 // Types
@@ -29,38 +40,6 @@ export interface FilterSidebarProps {
 // Sub-components
 // ============================================================================
 
-interface FilterSectionProps {
-  title: string;
-  children: React.ReactNode;
-  defaultOpen?: boolean;
-}
-
-function FilterSection({
-  title,
-  children,
-  defaultOpen = true,
-}: FilterSectionProps) {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-
-  return (
-    <div className="border-b border-border py-5">
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between text-left"
-      >
-        <span className="text-sm font-bold text-dark">{title}</span>
-        <Icon
-          name={isOpen ? 'chevron-up' : 'chevron-down'}
-          size={16}
-          className="text-text-muted"
-        />
-      </button>
-      {isOpen && <div className="mt-4">{children}</div>}
-    </div>
-  );
-}
-
 interface CheckboxFilterItemProps {
   label: string;
   count?: number;
@@ -74,41 +53,22 @@ function CheckboxFilterItem({
   isActive,
   href,
 }: CheckboxFilterItemProps) {
+  const navigate = useNavigate();
+
   return (
-    <Link
-      to={href}
-      preventScrollReset
-      className="flex items-center gap-2.5 py-1.5 group"
-    >
-      <span
-        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
-          isActive
-            ? 'border-[#3a4980] bg-[#3a4980]'
-            : 'border-border group-hover:border-text-muted'
-        }`}
-      >
-        {isActive && (
-          <svg
-            width="10"
-            height="10"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="white"
-            strokeWidth="4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        )}
-      </span>
-      <span className="text-sm text-text-muted group-hover:text-dark transition-colors">
+    <label className="flex cursor-pointer items-center gap-2.5 py-1.5 group">
+      <Checkbox
+        checked={isActive}
+        onCheckedChange={() => navigate(href, {preventScrollReset: true})}
+        className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+      />
+      <span className="text-sm text-text-muted transition-colors group-hover:text-dark">
         {label}
       </span>
       {count !== undefined && (
         <span className="ml-auto text-xs text-text-muted">({count})</span>
       )}
-    </Link>
+    </label>
   );
 }
 
@@ -116,11 +76,7 @@ function CheckboxFilterItem({
 // Price Range
 // ============================================================================
 
-function PriceRangeFilter({
-  searchParams,
-}: {
-  searchParams: URLSearchParams;
-}) {
+function PriceRangeFilter({searchParams}: {searchParams: URLSearchParams}) {
   const {pathname} = useLocation();
   const navigate = useNavigate();
 
@@ -151,7 +107,7 @@ function PriceRangeFilter({
 
   return (
     <div className="flex items-center gap-3">
-      <input
+      <Input
         type="number"
         value={minVal}
         onChange={(e) => setMinVal(e.target.value)}
@@ -159,10 +115,10 @@ function PriceRangeFilter({
         onKeyDown={(e) => e.key === 'Enter' && applyPrice()}
         placeholder="0"
         min={0}
-        className="w-16 rounded-md border border-border px-2 py-1.5 text-center text-sm text-dark focus:border-[#3a4980] focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        className="w-16 text-center text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
       <span className="text-xs text-text-muted">to</span>
-      <input
+      <Input
         type="number"
         value={maxVal}
         onChange={(e) => setMaxVal(e.target.value)}
@@ -170,7 +126,7 @@ function PriceRangeFilter({
         onKeyDown={(e) => e.key === 'Enter' && applyPrice()}
         placeholder="200"
         min={0}
-        className="w-16 rounded-md border border-border px-2 py-1.5 text-center text-sm text-dark focus:border-[#3a4980] focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        className="w-16 text-center text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
     </div>
   );
@@ -227,15 +183,66 @@ function ExpandableList({
         })}
       </div>
       {hasMore && (
-        <button
+        <Button
           type="button"
+          variant="link"
+          size="xs"
           onClick={() => setShowAll(!showAll)}
-          className="mt-2 text-xs font-medium text-[#3a4980] hover:underline"
+          className="mt-2 h-auto px-0 text-primary"
         >
           {showAll ? 'Show less' : 'Show more'}
-        </button>
+        </Button>
       )}
     </div>
+  );
+}
+
+// ============================================================================
+// Filter Sections (shared between desktop and mobile Sheet)
+// ============================================================================
+
+interface FilterSectionsProps {
+  filters: Filter[];
+  searchParams: URLSearchParams;
+  pathname: string;
+  className?: string;
+}
+
+function FilterSections({
+  filters,
+  searchParams,
+  pathname,
+  className,
+}: FilterSectionsProps) {
+  const defaultOpen = filters.map((f) => f.id);
+
+  return (
+    <Accordion type="multiple" defaultValue={defaultOpen} className={className}>
+      {filters.map((filter) => {
+        if (!filter.values || filter.values.length === 0) return null;
+
+        const isPriceFilter = filter.type === 'PRICE_RANGE';
+
+        return (
+          <AccordionItem key={filter.id} value={filter.id}>
+            <AccordionTrigger className="py-5 text-sm font-bold text-dark hover:no-underline">
+              {filter.label}
+            </AccordionTrigger>
+            <AccordionContent>
+              {isPriceFilter ? (
+                <PriceRangeFilter searchParams={searchParams} />
+              ) : (
+                <ExpandableList
+                  items={filter.values}
+                  searchParams={searchParams}
+                  pathname={pathname}
+                />
+              )}
+            </AccordionContent>
+          </AccordionItem>
+        );
+      })}
+    </Accordion>
   );
 }
 
@@ -247,7 +254,7 @@ function ExpandableList({
  * FilterSidebar — collapsible filter panel for collection pages.
  *
  * On desktop it renders as a static left sidebar.
- * On mobile it renders as a slide-over drawer (controlled by isOpen/onClose).
+ * On mobile it renders as a slide-over Sheet drawer (controlled by isOpen/onClose).
  */
 export function FilterSidebar({
   filters,
@@ -259,87 +266,48 @@ export function FilterSidebar({
   const {pathname} = useLocation();
   const hasActiveFilters = searchParams.getAll('filter').length > 0;
 
-  const filterContent = (
-    <div className={className}>
-      {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-border">
-        <h2 className="text-lg font-bold text-dark">Filters</h2>
-        <div className="flex items-center gap-3">
-          {hasActiveFilters && (
-            <Link
-              to={clearAllFiltersUrl(pathname, searchParams)}
-              preventScrollReset
-              className="text-xs font-medium text-text-muted hover:text-dark transition-colors border border-border rounded-md px-3 py-1"
-            >
-              Clear All
-            </Link>
-          )}
-          {/* Mobile close button */}
-          {onClose && (
-            <button
-              type="button"
-              onClick={onClose}
-              className="lg:hidden flex items-center justify-center w-8 h-8 rounded-full hover:bg-surface"
-              aria-label="Close filters"
-            >
-              <Icon name="x" size={18} />
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Filter Sections */}
-      {filters.map((filter) => {
-        // Skip empty filters
-        if (!filter.values || filter.values.length === 0) return null;
-
-        const isPriceFilter = filter.type === 'PRICE_RANGE';
-
-        if (isPriceFilter) {
-          return (
-            <FilterSection key={filter.id} title={filter.label}>
-              <PriceRangeFilter searchParams={searchParams} />
-            </FilterSection>
-          );
-        }
-
-        return (
-          <FilterSection key={filter.id} title={filter.label}>
-            <ExpandableList
-              items={filter.values}
-              searchParams={searchParams}
-              pathname={pathname}
-            />
-          </FilterSection>
-        );
-      })}
-    </div>
+  const clearAllLink = (
+    <Button variant="outline" size="xs" asChild>
+      <Link to={clearAllFiltersUrl(pathname, searchParams)} preventScrollReset>
+        Clear All
+      </Link>
+    </Button>
   );
 
   return (
     <>
       {/* Desktop: static sidebar */}
-      <aside className="hidden lg:block w-60 shrink-0">
-        {filterContent}
+      <aside className="hidden w-60 shrink-0 lg:block">
+        <div className="flex items-center justify-between border-b border-border pb-4">
+          <h2 className="text-lg font-bold text-dark">Filters</h2>
+          {hasActiveFilters && clearAllLink}
+        </div>
+        <FilterSections
+          filters={filters}
+          searchParams={searchParams}
+          pathname={pathname}
+          className={className}
+        />
       </aside>
 
-      {/* Mobile: slide-over drawer */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/30"
-            onClick={onClose}
-            aria-hidden="true"
-          />
-          {/* Drawer */}
-          <div className="absolute inset-y-0 left-0 flex w-80 max-w-full flex-col bg-white shadow-xl">
-            <div className="flex-1 overflow-y-auto px-5 py-5">
-              {filterContent}
-            </div>
+      {/* Mobile: Sheet drawer */}
+      <Sheet open={isOpen} onOpenChange={(open) => !open && onClose?.()}>
+        <SheetContent side="left" className="flex w-80 max-w-full flex-col p-0">
+          <div className="flex shrink-0 items-center justify-between border-b border-border px-5 py-4">
+            <SheetTitle className="text-lg font-bold text-dark">
+              Filters
+            </SheetTitle>
+            {hasActiveFilters && clearAllLink}
           </div>
-        </div>
-      )}
+          <div className="flex-1 overflow-y-auto px-5">
+            <FilterSections
+              filters={filters}
+              searchParams={searchParams}
+              pathname={pathname}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }

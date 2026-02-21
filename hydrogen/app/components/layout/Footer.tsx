@@ -1,6 +1,8 @@
 import {useState} from 'react';
 import {Link} from 'react-router';
 import type {FooterQuery} from 'storefrontapi.generated';
+import {Input} from '~/components/ui/input';
+import {Button} from '~/components/ui/button';
 
 // ============================================================================
 // Types
@@ -27,11 +29,12 @@ const DEFAULT_LINKS = [
   {title: 'Become a Supplier', url: '/pages/become-a-supplier'},
 ];
 
+// Figma: X, Instagram, YouTube, LinkedIn (24×24px each, bare icons — no container box)
 const SOCIAL_LINKS = [
   {
-    label: 'Facebook',
-    url: 'https://facebook.com',
-    icon: 'M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z',
+    label: 'X',
+    url: 'https://x.com',
+    icon: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z',
   },
   {
     label: 'Instagram',
@@ -39,19 +42,22 @@ const SOCIAL_LINKS = [
     icon: 'M12 2.163c3.204 0 3.584.012 4.85.07 1.17.054 1.97.24 2.43.403a4.088 4.088 0 011.523.99 4.088 4.088 0 01.99 1.524c.163.46.349 1.26.403 2.43.058 1.265.07 1.645.07 4.849s-.012 3.584-.07 4.849c-.054 1.17-.24 1.97-.403 2.43a4.088 4.088 0 01-.99 1.524 4.088 4.088 0 01-1.524.99c-.46.163-1.26.349-2.43.403-1.265.058-1.645.07-4.849.07s-3.584-.012-4.849-.07c-1.17-.054-1.97-.24-2.43-.403a4.088 4.088 0 01-1.524-.99 4.088 4.088 0 01-.99-1.524c-.163-.46-.349-1.26-.403-2.43C2.175 15.584 2.163 15.204 2.163 12s.012-3.584.07-4.849c.054-1.17.24-1.97.403-2.43a4.088 4.088 0 01.99-1.524A4.088 4.088 0 015.15 2.636c.46-.163 1.26-.349 2.43-.403C8.845 2.175 9.225 2.163 12 2.163zm0 1.802c-3.15 0-3.504.013-4.743.069-.985.045-1.52.208-1.876.346-.472.183-.808.403-1.162.756a3.13 3.13 0 00-.756 1.162c-.138.356-.301.891-.346 1.876-.056 1.24-.069 1.593-.069 4.743s.013 3.504.069 4.743c.045.985.208 1.52.346 1.876.183.472.403.808.756 1.162.354.354.69.573 1.162.756.356.138.891.301 1.876.346 1.24.056 1.593.069 4.743.069s3.504-.013 4.743-.069c.985-.045 1.52-.208 1.876-.346.472-.183.808-.403 1.162-.756.354-.354.573-.69.756-1.162.138-.356.301-.891.346-1.876.056-1.24.069-1.593.069-4.743s-.013-3.504-.069-4.743c-.045-.985-.208-1.52-.346-1.876a3.13 3.13 0 00-.756-1.162 3.13 3.13 0 00-1.162-.756c-.356-.138-.891-.301-1.876-.346C15.504 3.978 15.15 3.965 12 3.965zm0 3.067a4.968 4.968 0 110 9.936 4.968 4.968 0 010-9.936zm0 8.19a3.223 3.223 0 100-6.446 3.223 3.223 0 000 6.446zm5.168-8.452a1.16 1.16 0 11-2.32 0 1.16 1.16 0 012.32 0z',
   },
   {
-    label: 'X',
-    url: 'https://x.com',
-    icon: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z',
+    label: 'YouTube',
+    url: 'https://youtube.com',
+    icon: 'M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z',
   },
   {
-    label: 'TikTok',
-    url: 'https://tiktok.com',
-    icon: 'M16.6 5.82A4.278 4.278 0 0115.54 3h-3.09v12.4a2.592 2.592 0 01-2.59 2.5c-1.42 0-2.6-1.16-2.6-2.6 0-1.72 1.66-3.01 3.37-2.48V9.66c-3.45-.46-6.47 2.22-6.47 5.64 0 3.33 2.76 5.7 5.69 5.7 3.14 0 5.69-2.55 5.69-5.7V9.01a7.35 7.35 0 004.3 1.38V7.3s-1.88.09-3.24-1.48z',
+    label: 'LinkedIn',
+    url: 'https://linkedin.com',
+    icon: 'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z',
   },
 ];
 
 // ============================================================================
 // Newsletter Input
+// Figma: heading 20px Inter Regular, gap-[13px] between heading/input/links
+// Input: min-w-[275px], border-1 secondary, rounded-[25px], h-[40px]
+// Button: bg-secondary, rounded-[25px], h-[40px], px-[26px]
 // ============================================================================
 
 function NewsletterSignup() {
@@ -68,28 +74,26 @@ function NewsletterSignup() {
   };
 
   return (
-    <div className="text-center">
-      <h3 className="text-[20px] font-normal text-black leading-[1.2] pb-3">
-        Sign Up for HyLee news &amp; updates!
+    <div className="flex flex-col gap-[13px] items-center w-[560px] max-w-full">
+      <h3 className="text-[20px] font-normal text-black leading-[1.2] text-center">
+        Sign up for Hylee news &amp; updates!
       </h3>
-      <form
-        onSubmit={handleSubmit}
-        className="flex items-center justify-center"
-      >
-        <input
+      <form onSubmit={handleSubmit} className="flex items-center gap-[5px]">
+        <Input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Placeholder text"
+          placeholder="Enter your email"
           required
-          className="min-w-[270px] w-[270px] h-[41px] rounded-[25px] border border-secondary bg-white px-4 text-[14px] font-medium text-text placeholder:text-black/50 focus:outline-none focus:ring-2 focus:ring-secondary/30"
+          className="min-w-[275px] h-[40px] rounded-[25px] border-secondary text-[14px] font-medium text-text-muted placeholder:text-text-muted"
         />
-        <button
+        <Button
           type="submit"
-          className="ml-2 w-[100px] h-[40px] rounded-[25px] bg-secondary text-[14px] font-medium text-white transition-colors hover:bg-secondary/90"
+          variant="secondary"
+          className="h-[40px] rounded-[25px] px-6.5 text-[14px] whitespace-nowrap"
         >
           {submitted ? 'Sent!' : 'Submit'}
-        </button>
+        </Button>
       </form>
     </div>
   );
@@ -97,6 +101,7 @@ function NewsletterSignup() {
 
 // ============================================================================
 // Main Component
+// Figma: px-[122px] py-[59px], left-col 240px, gap-[78px] between columns
 // ============================================================================
 
 export function Footer({menu, shopName, links}: FooterProps) {
@@ -105,20 +110,21 @@ export function Footer({menu, shopName, links}: FooterProps) {
   return (
     <footer className="bg-white">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-16 xl:px-[122px] py-12 lg:py-[59px]">
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
-          {/* Left column: Logo + social (Figma: 240px, gap-5) */}
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-[78px] items-start justify-center-safe">
+          {/* Left column — Logo + social (Figma: 240px, gap-[5px]) */}
           <div className="flex flex-col gap-[5px] items-start shrink-0 lg:w-[240px]">
             <Link to="/">
               <img
                 src="/logo-full.png"
                 alt={shopName}
-                className="h-[102px] w-[183px] object-cover"
+                className="h-[101.865px] w-[183px] object-cover"
                 loading="lazy"
               />
             </Link>
             <p className="text-[14px] font-medium text-black">
               Follow us on social media
             </p>
+            {/* Figma: 24×24px bare icons, gap-[10px] — no container box */}
             <div className="flex items-center gap-[10px]">
               {SOCIAL_LINKS.map((social) => (
                 <a
@@ -127,12 +133,12 @@ export function Footer({menu, shopName, links}: FooterProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  className="flex items-center justify-center size-[20px] rounded bg-black/20 hover:bg-secondary/80 transition-colors"
+                  className="flex items-center justify-center size-[24px] text-black hover:text-secondary transition-colors"
                 >
                   <svg
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    className="size-3 text-white"
+                    className="size-[24px]"
                     aria-hidden="true"
                   >
                     <path d={social.icon} />
@@ -142,20 +148,23 @@ export function Footer({menu, shopName, links}: FooterProps) {
             </div>
           </div>
 
-          {/* Right area: Newsletter + nav links (centered) */}
-          <div className="flex flex-col items-center flex-1 gap-6">
+          {/* Center/right area — Newsletter heading + input + nav links */}
+          {/* Figma: w-[560px], flex-col, gap-[13px], items-center, justify-center */}
+          <div className="flex flex-col items-center lg:w-140 gap-3.25">
             <NewsletterSignup />
 
+            {/* Nav links — Figma: p-[10px] wrapper, links h-[40px] px-[16px] py-[10px] rounded-[8px] */}
             <nav className="p-[10px]">
-              <ul className="flex flex-wrap items-center justify-center gap-y-2">
+              <ul className="flex flex-wrap items-center justify-center">
                 {displayLinks.map((link) => (
                   <li key={link.url}>
-                    <Link
-                      to={link.url}
-                      className="flex items-center h-[40px] px-4 py-2.5 text-[14px] font-medium text-text-muted hover:text-primary transition-colors whitespace-nowrap"
+                    <Button
+                      variant="ghost"
+                      asChild
+                      className="h-10 px-4 text-[14px] font-medium text-text-muted hover:text-primary whitespace-nowrap rounded-lg"
                     >
-                      {link.title}
-                    </Link>
+                      <Link to={link.url}>{link.title}</Link>
+                    </Button>
                   </li>
                 ))}
               </ul>

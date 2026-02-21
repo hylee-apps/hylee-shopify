@@ -1,7 +1,15 @@
 import type {Route} from './+types/account.orders.$id';
 import {redirect, Link} from 'react-router';
 import {getSeoMeta, Image} from '@shopify/hydrogen';
-import {Breadcrumb, Icon, Badge} from '~/components';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
+import {Truck, ExternalLink, ImageIcon, ArrowLeft} from 'lucide-react';
 
 // ============================================================================
 // Route Meta
@@ -201,6 +209,29 @@ function getFulfillmentBadge(status: string | null): {
 }
 
 // ============================================================================
+// StatusBadge Component
+// ============================================================================
+
+function StatusBadge({
+  variant,
+  children,
+}: {
+  variant: 'success' | 'warning' | 'info' | 'default';
+  children: React.ReactNode;
+}) {
+  const cls = {
+    success:
+      'inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800',
+    warning:
+      'inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800',
+    info: 'inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800',
+    default:
+      'inline-flex items-center rounded-full bg-surface px-2.5 py-0.5 text-xs font-medium text-text',
+  }[variant];
+  return <span className={cls}>{children}</span>;
+}
+
+// ============================================================================
 // Main Component
 // ============================================================================
 
@@ -211,16 +242,33 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
     order.fulfillmentStatus,
   );
 
-  const breadcrumbs = [
-    {label: 'Home', url: '/'},
-    {label: 'Account', url: '/account'},
-    {label: 'Orders', url: '/account/orders'},
-    {label: order.name},
-  ];
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <Breadcrumb items={breadcrumbs} className="mb-6" />
+      <Breadcrumb className="mb-6">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/account">Account</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/account/orders">Orders</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{order.name}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       {/* Page Header */}
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
@@ -230,9 +278,7 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
             Placed {formatDate(order.processedAt)}
           </p>
         </div>
-        <Badge variant={statusVariant} size="lg">
-          {statusLabel}
-        </Badge>
+        <StatusBadge variant={statusVariant}>{statusLabel}</StatusBadge>
       </div>
 
       {order.cancelledAt && (
@@ -262,11 +308,7 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
                         className="flex items-center justify-between rounded-md bg-surface p-3"
                       >
                         <div className="flex items-center gap-3">
-                          <Icon
-                            name="truck"
-                            size={20}
-                            className="text-primary"
-                          />
+                          <Truck size={20} className="text-primary" />
                           <div>
                             <p className="text-sm font-medium text-dark">
                               {tracking.company || 'Carrier'}
@@ -284,7 +326,7 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
                             className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
                           >
                             Track
-                            <Icon name="external-link" size={14} />
+                            <ExternalLink size={14} />
                           </a>
                         )}
                       </div>
@@ -313,11 +355,7 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
                     />
                   ) : (
                     <div className="flex h-20 w-20 items-center justify-center rounded-md bg-surface">
-                      <Icon
-                        name="image"
-                        size={32}
-                        className="text-text-muted"
-                      />
+                      <ImageIcon size={32} className="text-text-muted" />
                     </div>
                   )}
                   <div className="flex-1">
@@ -445,7 +483,7 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
           to="/account/orders"
           className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
         >
-          <Icon name="arrow-left" size={14} />
+          <ArrowLeft size={14} />
           Back to Orders
         </Link>
       </div>

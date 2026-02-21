@@ -3,7 +3,8 @@
 import {useState, useCallback, useEffect} from 'react';
 import {useFetcher} from 'react-router';
 import {CartForm} from '@shopify/hydrogen';
-import {Icon} from '../display/Icon';
+import {Loader2, Check, X} from 'lucide-react';
+import {Button} from '~/components/ui/button';
 
 // ============================================================================
 // Types
@@ -114,8 +115,7 @@ export function AddToCart({
       case 'loading':
         return (
           <>
-            <Icon
-              name="loader"
+            <Loader2
               size={size === 'sm' ? 14 : size === 'lg' ? 20 : 16}
               className="animate-spin"
             />
@@ -125,20 +125,14 @@ export function AddToCart({
       case 'success':
         return (
           <>
-            <Icon
-              name="check"
-              size={size === 'sm' ? 14 : size === 'lg' ? 20 : 16}
-            />
+            <Check size={size === 'sm' ? 14 : size === 'lg' ? 20 : 16} />
             <span>Added!</span>
           </>
         );
       case 'error':
         return (
           <>
-            <Icon
-              name="x"
-              size={size === 'sm' ? 14 : size === 'lg' ? 20 : 16}
-            />
+            <X size={size === 'sm' ? 14 : size === 'lg' ? 20 : 16} />
             <span>Error</span>
           </>
         );
@@ -166,14 +160,14 @@ export function AddToCart({
             name="analytics"
             value={JSON.stringify(analytics)}
           />
-          <button
+          <Button
             type="submit"
             disabled={isDisabled}
-            className={`inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed ${sizeClasses[size]} ${variantClasses[variant]} ${fullWidth ? 'w-full' : ''} ${className}`}
+            className={`rounded-md ${sizeClasses[size]} ${variantClasses[variant]} ${fullWidth ? 'w-full' : ''} ${className}`}
             aria-label={available ? 'Add to cart' : 'Sold out'}
           >
             {buttonContent()}
-          </button>
+          </Button>
         </>
       )}
     </CartForm>

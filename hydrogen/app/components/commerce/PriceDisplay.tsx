@@ -29,14 +29,58 @@ export interface PriceDisplayProps {
 // Helpers
 // ============================================================================
 
+export interface PriceParts {
+  /** Currency symbol or code (e.g. "$", "€", "kr") */
+  symbol: string;
+  /** Locale-formatted number without the symbol (e.g. "12.00", "1,200") */
+  number: string;
+  /** Whether the symbol appears before or after the digits */
+  symbolPosition: 'before' | 'after';
+}
+
 /**
- * Format money value for display
+ * Split a money value into its currency symbol and numeric parts using the
+ * runtime locale (browser on client, server default on SSR). This allows
+ * correct positioning of currency symbols — some currencies (e.g. SEK, NOK)
+ * place their symbol after the number.
+ */
+export function formatPriceParts(
+  money: MoneyLike,
+  locale?: string,
+): PriceParts {
+  const amount = parseFloat(money.amount);
+  const formatter = new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: money.currencyCode as string,
+  });
+  const parts = formatter.formatToParts(amount);
+
+  const currencyPart = parts.find((p) => p.type === 'currency');
+  const symbol = currencyPart?.value ?? (money.currencyCode as string);
+
+  const currencyIndex = parts.findIndex((p) => p.type === 'currency');
+  const firstIntegerIndex = parts.findIndex((p) => p.type === 'integer');
+  const symbolPosition: 'before' | 'after' =
+    currencyIndex < firstIntegerIndex ? 'before' : 'after';
+
+  // Number = all parts except the currency token and surrounding whitespace literals
+  const number = parts
+    .filter((p) => p.type !== 'currency')
+    .map((p) => p.value)
+    .join('')
+    .trim();
+
+  return {symbol, number, symbolPosition};
+}
+
+/**
+ * Format money value for display (full string including symbol)
  */
 function formatMoney(money: MoneyLike): string {
   const amount = parseFloat(money.amount);
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat(undefined, {
     style: 'currency',
-    currency: money.currencyCode,
+    currency: money.currencyCode as string,
   }).format(amount);
 }
 

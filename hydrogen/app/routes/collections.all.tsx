@@ -8,7 +8,8 @@ import {
 } from '@shopify/hydrogen';
 import type {ProductCardProps} from '~/components/commerce/ProductCard';
 import {Link} from 'react-router';
-import {Icon} from '~/components/display';
+import {ChevronUp, Loader2, Search} from 'lucide-react';
+import {Button} from '~/components/ui/button';
 import {CollectionHero} from '~/components/commerce/CollectionHero';
 import {CollectionToolbar} from '~/components/commerce/CollectionToolbar';
 import {ProductGrid} from '~/components/commerce/ProductGrid';
@@ -141,7 +142,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
   const {products} = await storefront.query(ALL_PRODUCTS_QUERY, {
     variables: {
-      sortKey,
+      sortKey: sortKey as any,
       reverse,
       ...paginationVariables,
       country: storefront.i18n.country,
@@ -225,31 +226,34 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
                   <>
                     {hasPreviousPage && (
                       <div className="mb-6 flex justify-center">
-                        <PreviousLink className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-dark transition-colors hover:border-text-muted hover:bg-surface">
-                          <Icon name="arrow-up" size={16} />
-                          Load Previous
-                        </PreviousLink>
+                        <Button variant="outline" asChild>
+                          <PreviousLink className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-dark transition-colors hover:border-text-muted hover:bg-surface">
+                            <ChevronUp size={16} />
+                            Load Previous
+                          </PreviousLink>
+                        </Button>
                       </div>
                     )}
 
-                    <ProductGrid products={nodes as AllProduct[]} />
+                    <ProductGrid
+                      products={nodes as AllProduct[]}
+                      size="small"
+                    />
 
                     {hasNextPage && (
                       <div className="mt-10 flex justify-center">
-                        <NextLink className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary/90">
-                          {isLoading ? (
-                            <>
-                              <Icon
-                                name="loader"
-                                size={16}
-                                className="animate-spin"
-                              />
-                              Loading...
-                            </>
-                          ) : (
-                            'Load More Products'
-                          )}
-                        </NextLink>
+                        <Button asChild className="rounded-full px-8 py-3">
+                          <NextLink className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary/90">
+                            {isLoading ? (
+                              <>
+                                <Loader2 size={16} className="animate-spin" />
+                                Loading...
+                              </>
+                            ) : (
+                              'Load More Products'
+                            )}
+                          </NextLink>
+                        </Button>
                       </div>
                     )}
                   </>
@@ -258,7 +262,7 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
             ) : (
               /* Empty state */
               <div className="flex flex-col items-center justify-center py-16 text-center">
-                <Icon name="search" size={48} className="mb-4 text-text-muted" />
+                <Search size={48} className="mb-4 text-text-muted" />
                 <h2 className="mb-2 text-lg font-medium text-dark">
                   No products found
                 </h2>

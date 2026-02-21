@@ -141,9 +141,7 @@ export default function CollectionsIndexPage({
 
         {collections.length === 0 && (
           <div className="py-16 text-center">
-            <p className="text-sm text-text-muted">
-              No collections available.
-            </p>
+            <p className="text-sm text-text-muted">No collections available.</p>
           </div>
         )}
       </div>

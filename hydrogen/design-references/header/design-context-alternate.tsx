@@ -67,7 +67,11 @@ function Header({className}: {className?: string}) {
             >
               {/* 3-line menu icon 24x16 */}
               <div className="h-[16px] relative shrink-0 w-[24px]">
-                <img alt="" className="block max-w-none size-full" src={imgFrame21} />
+                <img
+                  alt=""
+                  className="block max-w-none size-full"
+                  src={imgFrame21}
+                />
               </div>
             </div>
             {/* Search input (flex-1, h-40, border-1 secondary, rounded-25) */}

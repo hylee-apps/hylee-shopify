@@ -1,7 +1,25 @@
 import type {Route} from './+types/account._index';
 import {redirect, Link, Form} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
-import {Breadcrumb, Icon, Card} from '~/components';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
+import {
+  LogOut,
+  Package,
+  Settings,
+  MapPin,
+  Mail,
+  Heart,
+  ChevronRight,
+  type LucideProps,
+} from 'lucide-react';
+import type {ComponentType} from 'react';
 
 // ============================================================================
 // Route Meta
@@ -65,6 +83,15 @@ interface NavCard {
   badge?: string;
 }
 
+const NAV_ICONS: Record<NavCard['icon'], ComponentType<LucideProps>> = {
+  package: Package,
+  user: Package,
+  'map-pin': MapPin,
+  mail: Mail,
+  heart: Heart,
+  settings: Settings,
+};
+
 const navCards: NavCard[] = [
   {
     title: 'Your Orders',
@@ -115,11 +142,21 @@ export default function AccountDashboard({loaderData}: Route.ComponentProps) {
       })
     : '';
 
-  const breadcrumbs = [{label: 'Home', url: '/'}, {label: 'Your Account'}];
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <Breadcrumb items={breadcrumbs} className="mb-6" />
+      <Breadcrumb className="mb-6">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Your Account</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       {/* Header */}
       <div className="mb-8">
@@ -144,7 +181,7 @@ export default function AccountDashboard({loaderData}: Route.ComponentProps) {
             type="submit"
             className="inline-flex items-center gap-2 text-sm font-medium text-text-muted transition-colors hover:text-primary"
           >
-            <Icon name="log-out" size={16} />
+            <LogOut size={16} />
             Sign Out
           </button>
         </Form>
@@ -178,11 +215,15 @@ function AccountNavCard({
           !disabled ? 'group-hover:bg-primary/10' : ''
         }`}
       >
-        <Icon
-          name={icon}
-          size={20}
-          className={`text-text ${!disabled ? 'group-hover:text-primary' : ''}`}
-        />
+        {(() => {
+          const NavIcon = NAV_ICONS[icon];
+          return (
+            <NavIcon
+              size={20}
+              className={`text-text ${!disabled ? 'group-hover:text-primary' : ''}`}
+            />
+          );
+        })()}
       </div>
       <div className="flex-1">
         <div className="flex items-center gap-2">
@@ -200,8 +241,7 @@ function AccountNavCard({
         <p className="mt-0.5 text-sm text-text-muted">{description}</p>
       </div>
       {!disabled && (
-        <Icon
-          name="chevron-right"
+        <ChevronRight
           size={20}
           className="mt-0.5 shrink-0 text-text-muted group-hover:text-primary"
         />

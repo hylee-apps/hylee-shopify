@@ -1,7 +1,17 @@
 import type {Route} from './+types/account.settings';
-import {redirect, Form, useActionData, useNavigation} from 'react-router';
+import {redirect, Form, useActionData, useNavigation, Link} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
-import {Breadcrumb, Icon, Button, Card} from '~/components';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
+import {Button} from '~/components/ui/button';
+import {LogOut, User, Clock, Settings, type LucideProps} from 'lucide-react';
+import type {ForwardRefExoticComponent, RefAttributes} from 'react';
 
 // ============================================================================
 // Route Meta
@@ -122,15 +132,27 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
 
-  const breadcrumbs = [
-    {label: 'Home', url: '/'},
-    {label: 'Account', url: '/account'},
-    {label: 'Login & Security'},
-  ];
-
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-      <Breadcrumb items={breadcrumbs} className="mb-6" />
+      <Breadcrumb className="mb-6">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/account">Account</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Login &amp; Security</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       <h1 className="mb-8 text-3xl font-bold text-dark">Login & Security</h1>
 
@@ -223,9 +245,7 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
               <p className="text-xs text-text-muted">Member Since</p>
             </div>
             <div className="rounded-md bg-surface p-4">
-              <p className="text-2xl font-bold text-dark">
-                —
-              </p>
+              <p className="text-2xl font-bold text-dark">—</p>
               <p className="text-xs text-text-muted">Total Orders</p>
             </div>
             <div className="rounded-md bg-surface p-4">
@@ -245,7 +265,7 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
         >
           <Form method="post" action="/account/logout">
             <Button type="submit" variant="outline" size="sm">
-              <Icon name="log-out" size={14} className="mr-1" />
+              <LogOut size={14} className="mr-1" />
               Sign Out
             </Button>
           </Form>
@@ -259,6 +279,20 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
 // SettingCard Component
 // ============================================================================
 
+type SettingIcon = 'user' | 'clock' | 'log-out' | 'settings';
+
+const SETTING_ICONS: Record<
+  SettingIcon,
+  ForwardRefExoticComponent<
+    Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>
+  >
+> = {
+  user: User,
+  clock: Clock,
+  'log-out': LogOut,
+  settings: Settings,
+};
+
 function SettingCard({
   title,
   icon,
@@ -266,15 +300,16 @@ function SettingCard({
   children,
 }: {
   title: string;
-  icon: 'user' | 'clock' | 'log-out' | 'settings';
+  icon: SettingIcon;
   description: string;
   children: React.ReactNode;
 }) {
+  const IconComp = SETTING_ICONS[icon];
   return (
     <div className="rounded-lg border border-border p-6">
       <div className="mb-4 flex items-center gap-3">
         <div className="flex h-9 w-9 items-center justify-center rounded-md bg-surface">
-          <Icon name={icon} size={18} className="text-text" />
+          <IconComp size={18} className="text-text" />
         </div>
         <div>
           <h2 className="text-base font-semibold text-dark">{title}</h2>

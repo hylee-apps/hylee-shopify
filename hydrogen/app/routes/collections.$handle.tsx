@@ -8,7 +8,16 @@ import {
 } from '@shopify/hydrogen';
 import type {ProductCardProps} from '~/components/commerce/ProductCard';
 import {Link} from 'react-router';
-import {Icon} from '~/components/display';
+import {ChevronUp, Loader2, Search} from 'lucide-react';
+import {Button} from '~/components/ui/button';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
 import {CollectionHero} from '~/components/commerce/CollectionHero';
 import {CollectionToolbar} from '~/components/commerce/CollectionToolbar';
 import {ProductGrid} from '~/components/commerce/ProductGrid';
@@ -224,12 +233,44 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
   }
 
   const {products} = collection;
-  const hasProducts = products.nodes.length > 0;
   const availableFilters = products.filters ?? [];
 
   return (
     <div className="pb-12">
-      {/* Gradient Promotional Banner */}
+      {/* ================================================================ */}
+      {/* BREADCRUMBS — Figma: ghost-button links h-10 px-4 rounded-[8px]  */}
+      {/* ================================================================ */}
+      <Breadcrumb className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-16 xl:px-[122px] py-[10px]">
+        <BreadcrumbList className="text-[14px] font-medium text-text-muted">
+          <BreadcrumbItem>
+            <BreadcrumbLink
+              asChild
+              className="h-10 px-4 rounded-[8px] hover:bg-accent inline-flex items-center"
+            >
+              <Link to="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>/</BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbLink
+              asChild
+              className="h-10 px-4 rounded-[8px] hover:bg-accent inline-flex items-center"
+            >
+              <Link to="/collections">Collections</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>/</BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage className="text-black">
+              {collection.title}
+            </BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      {/* ================================================================ */}
+      {/* COLLECTION HERO — Figma: image left 328px + title right 57px    */}
+      {/* ================================================================ */}
       <CollectionHero
         title={collection.title}
         description={collection.description}
@@ -237,91 +278,109 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
         image={collection.image}
       />
 
-      {/* Main content */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Toolbar */}
-        <CollectionToolbar
-          productCount={products.nodes.length}
-          searchParams={searchParams}
-          onOpenFilters={() => setFiltersOpen(true)}
-        />
+      {/* ================================================================ */}
+      {/* PRODUCTS SECTION — Figma: px-[122px] py-[20px]                  */}
+      {/* ================================================================ */}
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-16 xl:px-[122px] py-[20px]">
+        <Pagination connection={products}>
+          {({
+            nodes,
+            NextLink,
+            PreviousLink,
+            hasNextPage,
+            hasPreviousPage,
+            isLoading,
+          }) => (
+            <>
+              {/* Results heading — uses Pagination's accumulated nodes for accurate count */}
+              {/* Figma: "{N} Product Results", 30px SemiBold, centered, pb-[10px]        */}
+              {nodes.length > 0 && (
+                <div className="flex items-center justify-center pb-[10px]">
+                  <p className="font-semibold text-[30px] text-black">
+                    {nodes.length}
+                    {hasNextPage ? '+' : ''} Product Results
+                  </p>
+                </div>
+              )}
 
-        {/* 2-column layout: filters + grid */}
-        <div className="flex gap-10">
-          {/* Filter Sidebar */}
-          <FilterSidebar
-            filters={availableFilters}
-            searchParams={searchParams}
-            isOpen={filtersOpen}
-            onClose={() => setFiltersOpen(false)}
-          />
+              {/* Toolbar */}
+              <CollectionToolbar
+                productCount={nodes.length}
+                searchParams={searchParams}
+                onOpenFilters={() => setFiltersOpen(true)}
+              />
 
-          {/* Product grid + pagination */}
-          <div className="flex-1 min-w-0">
-            {hasProducts ? (
-              <Pagination connection={products}>
-                {({
-                  nodes,
-                  NextLink,
-                  PreviousLink,
-                  hasNextPage,
-                  hasPreviousPage,
-                  isLoading,
-                }) => (
-                  <>
-                    {hasPreviousPage && (
-                      <div className="mb-6 flex justify-center">
-                        <PreviousLink className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-dark transition-colors hover:border-text-muted hover:bg-surface">
-                          <Icon name="arrow-up" size={16} />
-                          Load Previous
-                        </PreviousLink>
-                      </div>
-                    )}
+              {/* 2-column layout: filters + grid */}
+              <div className="flex gap-10">
+                {/* Filter Sidebar */}
+                <FilterSidebar
+                  filters={availableFilters}
+                  searchParams={searchParams}
+                  isOpen={filtersOpen}
+                  onClose={() => setFiltersOpen(false)}
+                />
 
-                    <ProductGrid products={nodes as CollectionProduct[]} />
+                {/* Product grid */}
+                <div className="flex-1 min-w-0">
+                  {nodes.length > 0 ? (
+                    <>
+                      {hasPreviousPage && (
+                        <div className="mb-6 flex justify-center">
+                          <Button variant="outline" asChild>
+                            <PreviousLink>
+                              <ChevronUp size={16} />
+                              Load Previous
+                            </PreviousLink>
+                          </Button>
+                        </div>
+                      )}
 
-                    {hasNextPage && (
-                      <div className="mt-10 flex justify-center">
-                        <NextLink className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary/90">
-                          {isLoading ? (
-                            <>
-                              <Icon
-                                name="loader"
-                                size={16}
-                                className="animate-spin"
-                              />
-                              Loading...
-                            </>
-                          ) : (
-                            'Load More Products'
-                          )}
-                        </NextLink>
-                      </div>
-                    )}
-                  </>
-                )}
-              </Pagination>
-            ) : (
-              /* Empty state */
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <Icon name="search" size={48} className="mb-4 text-text-muted" />
-                <h2 className="mb-2 text-lg font-medium text-dark">
-                  No products found
-                </h2>
-                <p className="mb-6 text-sm text-text-muted">
-                  Try adjusting your filters or browse all products in this
-                  collection.
-                </p>
-                <Link
-                  to={clearAllFiltersUrl(pathname, searchParams)}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
-                >
-                  Clear All Filters
-                </Link>
+                      {/* Figma: 5-column grid, gap-[10px], Card=ProductSmall */}
+                      <ProductGrid
+                        products={nodes as CollectionProduct[]}
+                        size="small"
+                      />
+
+                      {hasNextPage && (
+                        <div className="mt-10 flex justify-center">
+                          <Button asChild className="rounded-full px-8 py-3">
+                            <NextLink>
+                              {isLoading ? (
+                                <>
+                                  <Loader2 size={16} className="animate-spin" />
+                                  Loading...
+                                </>
+                              ) : (
+                                'Load More Products'
+                              )}
+                            </NextLink>
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    /* Empty state */
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <Search size={48} className="mb-4 text-text-muted" />
+                      <h2 className="mb-2 text-lg font-medium text-dark">
+                        No products found
+                      </h2>
+                      <p className="mb-6 text-sm text-text-muted">
+                        Try adjusting your filters or browse all products in
+                        this collection.
+                      </p>
+                      <Button asChild className="rounded-full px-6">
+                        <Link to={clearAllFiltersUrl(pathname, searchParams)}>
+                          Clear All Filters
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
-          </div>
-        </div>
+            </>
+          )}
+        </Pagination>
       </div>
     </div>
   );

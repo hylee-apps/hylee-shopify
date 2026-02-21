@@ -1,5 +1,13 @@
 import type {Route} from './+types/pages.$handle';
-import {Breadcrumb} from '~/components/navigation';
+import {Link} from 'react-router';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
 
 // ============================================================================
 // GraphQL
@@ -77,12 +85,19 @@ export default function PageRoute({loaderData}: Route.ComponentProps) {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:py-12">
-      <Breadcrumb
-        items={[
-          {label: 'Home', url: '/'},
-          {label: page.title, url: `/pages/${page.handle}`},
-        ]}
-      />
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{page.title}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       <article className="mt-6">
         <h1 className="mb-6 text-3xl font-bold text-dark sm:text-4xl">

@@ -219,6 +219,11 @@ Repeat Steps 3-4 until the implementation matches the design. For each iteration
 | Component | Figma Node | Variant | Status |
 |-----------|-----------|---------|--------|
 | Header | `2766:311` | Alternate | Captured — needs font fix, border fixes, cart redesign |
+| Homepage | `201:155` | — | Captured 2026-02-19. Hero + 2 product sections + Promotions built. Products are static placeholders — TODO wire to Shopify collections. |
+| Hero | `203:267` | — | bg-hero (#14b8a6), white logo, search → PredictiveSearch |
+| Footer | `220:426` | — | Updated 2026-02-19 — social icons updated to X/Instagram/YouTube/LinkedIn |
+| PLP | `387:249` | — | Captured 2026-02-19. Breadcrumbs, CollectionHero (image left 328px + title right 57px), 5-col ProductSmall grid, N Products heading. Roboto→Inter font gap documented. |
+| PDP | `1460:1444` | — | Captured 2026-02-21. 3-col layout (gallery / info accordion / purchase controls). shadcn Accordion/Separator/Avatar integrated. Gallery vertical thumbs. Below: Details/Specs/Warranty/Reviews accordion. File key: `Cz8f2ycIjQZOoremTy2eBM`. |
 
 ## Design Token Mapping
 

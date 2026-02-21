@@ -2,13 +2,15 @@
 
 import {useState} from 'react';
 import {Link} from 'react-router';
-import {Image} from '@shopify/hydrogen';
+import {Image, CartForm} from '@shopify/hydrogen';
 import type {
   Product,
   ProductVariant,
 } from '@shopify/hydrogen/storefront-api-types';
-import {Icon} from '../display/Icon';
+import {ImageIcon, Heart, Plus} from 'lucide-react';
 import {AddToCart} from './AddToCart';
+import {Button} from '~/components/ui/button';
+import {FaceIcon, toFaceRating} from './FaceRating';
 
 // ============================================================================
 // Types
@@ -63,6 +65,13 @@ type ProductCardProduct = Pick<
 export interface ProductCardProps {
   /** Product data */
   product: ProductCardProduct;
+  /**
+   * Card size variant.
+   * - 'default': standard grid card (homepage-style)
+   * - 'small': PLP compact card — Figma Card=ProductSmall (173×191px image,
+   *   bg-secondary Add button, superscript price, 14px title)
+   */
+  size?: 'default' | 'small';
   /** Show vendor name */
   showVendor?: boolean;
   /** Show quick add button */
@@ -107,26 +116,6 @@ function formatPrice(amount: string, currencyCode: string): string {
   }).format(parseFloat(amount));
 }
 
-function StarRating({rating, count}: {rating: number; count?: number}) {
-  return (
-    <div className="flex items-center gap-1">
-      <div className="flex">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Icon
-            key={star}
-            name={star <= rating ? 'star-filled' : 'star'}
-            size={14}
-            className={star <= rating ? 'text-warning' : 'text-border'}
-          />
-        ))}
-      </div>
-      {count !== undefined && (
-        <span className="text-xs text-text-muted">({count})</span>
-      )}
-    </div>
-  );
-}
-
 // ============================================================================
 // Placeholder Component
 // ============================================================================
@@ -155,7 +144,7 @@ export function ProductCardPlaceholder({
           className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-text-muted hover:text-primary transition-colors"
           aria-label="Add to wishlist"
         >
-          <Icon name="heart" size={18} />
+          <Heart size={18} />
         </button>
       </div>
 
@@ -180,6 +169,7 @@ export function ProductCardPlaceholder({
 
 export function ProductCard({
   product,
+  size = 'default',
   showQuickAdd = true,
   showRating = true,
   showSecondaryImage = true,
@@ -209,6 +199,90 @@ export function ProductCard({
 
   // Variant count for subtitle
   const variantCount = product.variants.nodes.length;
+
+  // ============================================================================
+  // Small variant — Figma Card=ProductSmall (PLP)
+  // flex-col gap-[10px] p-[10px], image 173×191px, bg-secondary Add btn,
+  // superscript price ($12px + amount 24px), 14px Medium title
+  // ============================================================================
+
+  if (size === 'small') {
+    return (
+      <article
+        className={`flex flex-col gap-[10px] p-[10px] shrink-0 ${className}`}
+      >
+        {/* Image — Figma: 173×191px, bg-surface */}
+        <div className="relative h-[191px] w-[173px] bg-surface overflow-hidden shrink-0">
+          <Link to={`/products/${product.handle}`}>
+            {primaryImage ? (
+              <Image
+                data={primaryImage}
+                sizes="173px"
+                className="h-full w-full object-cover"
+                loading={lazyLoad ? 'lazy' : 'eager'}
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-text-muted">
+                <ImageIcon size={32} />
+              </div>
+            )}
+          </Link>
+        </div>
+
+        {/* Add button — Figma: bg-secondary rounded-[25px] h-[40px] px-[20px] */}
+        <CartForm
+          route="/cart"
+          action={CartForm.ACTIONS.LinesAdd}
+          inputs={{
+            lines: [{merchandiseId: firstVariant?.id ?? '', quantity: 1}],
+          }}
+        >
+          {() => (
+            <Button
+              type="submit"
+              disabled={isSoldOut || !firstVariant}
+              className="bg-secondary hover:bg-secondary/90 rounded-[25px] h-10 px-5 has-[>svg]:px-5 text-white gap-2.5 [&_svg:not([class*='size-'])]:size-6.25"
+            >
+              {isSoldOut ? (
+                'Sold Out'
+              ) : (
+                <>
+                  <Plus className="text-white" />
+                  <span className="text-[14px] font-medium">Add</span>
+                </>
+              )}
+            </Button>
+          )}
+        </CartForm>
+
+        {/* Price — Figma: $ at 12px (top-left), amount at 24px, SemiBold, tracking-[0.5px] */}
+        {price && (
+          <div className="relative h-[28px] w-[64px] font-semibold text-black tracking-[0.5px] whitespace-nowrap shrink-0">
+            <span className="absolute left-0 top-[4px] text-[12px] leading-[24px]">
+              $
+            </span>
+            <span className="absolute left-[8px] top-0 text-[24px] leading-[24px]">
+              {parseFloat(price.amount).toFixed(2)}
+            </span>
+          </div>
+        )}
+
+        {/* Title — Figma: 14px Inter Medium, text-black */}
+        <p className="text-[14px] font-medium text-black line-clamp-2">
+          <Link
+            to={`/products/${product.handle}`}
+            className="hover:text-primary"
+          >
+            {product.title}
+          </Link>
+        </p>
+      </article>
+    );
+  }
+
+  // ============================================================================
+  // Default variant
+  // ============================================================================
 
   return (
     <article
@@ -242,7 +316,7 @@ export function ProductCard({
             </>
           ) : (
             <div className="flex h-full w-full items-center justify-center text-text-muted">
-              <Icon name="image" size={48} />
+              <ImageIcon size={48} />
             </div>
           )}
         </Link>
@@ -254,7 +328,11 @@ export function ProductCard({
           className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-text-muted hover:text-primary transition-colors"
           aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
         >
-          <Icon name={wishlisted ? 'heart-filled' : 'heart'} size={18} className={wishlisted ? 'text-primary' : ''} />
+          <Heart
+            size={18}
+            fill={wishlisted ? 'currentColor' : 'none'}
+            className={wishlisted ? 'text-primary' : ''}
+          />
         </button>
       </div>
 
@@ -286,7 +364,12 @@ export function ProductCard({
 
         {/* Rating */}
         {showRating && rating !== null && (
-          <StarRating rating={rating} count={reviewCount} />
+          <div className="flex items-center gap-1">
+            <FaceIcon value={toFaceRating(rating)} size={14} showLabel />
+            {reviewCount !== undefined && (
+              <span className="text-xs text-text-muted">({reviewCount})</span>
+            )}
+          </div>
         )}
       </div>
 

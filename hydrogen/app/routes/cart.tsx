@@ -8,7 +8,16 @@ import {
 } from '@shopify/hydrogen';
 import type {CartLineInput} from '@shopify/hydrogen/storefront-api-types';
 import {Link, useFetcher, useLoaderData} from 'react-router';
-import {Icon, Button} from '~/components';
+import {
+  ShoppingCart,
+  ImageIcon,
+  Minus,
+  Plus,
+  XCircle,
+  Truck,
+  X,
+} from 'lucide-react';
+import {Button} from '~/components/ui/button';
 
 // ============================================================================
 // Constants
@@ -118,13 +127,13 @@ function formatMoney(money: {amount: string; currencyCode: string}): string {
 function CartEmpty() {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-      <Icon name="cart" size={80} className="mb-6 text-text-muted" />
+      <ShoppingCart size={80} className="mb-6 text-text-muted" />
       <h2 className="mb-2 text-2xl font-semibold text-dark">
         Your cart is empty
       </h2>
       <p className="mb-8 text-text-muted">Add items to get started</p>
-      <Button as="link" to="/collections" size="lg">
-        Start Shopping
+      <Button size="lg" asChild>
+        <Link to="/collections">Start Shopping</Link>
       </Button>
     </div>
   );
@@ -178,7 +187,7 @@ function CartLineRow({line, isLast}: CartLineRowProps) {
               />
             ) : (
               <div className="flex size-14 items-center justify-center rounded-md bg-surface">
-                <Icon name="image" size={24} className="text-text-muted" />
+                <ImageIcon size={24} className="text-text-muted" />
               </div>
             )}
           </Link>
@@ -219,7 +228,7 @@ function CartLineRow({line, isLast}: CartLineRowProps) {
                 className="flex size-6 items-center justify-center rounded-full bg-surface text-text transition-colors hover:bg-border disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Decrease quantity"
               >
-                <Icon name="minus" size={14} />
+                <Minus size={14} />
               </button>
             </CartForm>
 
@@ -240,7 +249,7 @@ function CartLineRow({line, isLast}: CartLineRowProps) {
                 className="flex size-6 items-center justify-center rounded-full bg-surface text-text transition-colors hover:bg-border"
                 aria-label="Increase quantity"
               >
-                <Icon name="plus" size={14} />
+                <Plus size={14} />
               </button>
             </CartForm>
           </div>
@@ -262,7 +271,7 @@ function CartLineRow({line, isLast}: CartLineRowProps) {
             className="flex size-8 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-surface hover:text-primary"
             aria-label="Remove item"
           >
-            <Icon name="x-circle" size={20} />
+            <XCircle size={20} />
           </button>
         </CartForm>
       </div>
@@ -349,7 +358,7 @@ function CartSummary({cart}: CartSummaryProps) {
 
       {/* Free Shipping Progress */}
       <div className="flex items-center gap-4 px-4">
-        <Icon name="truck" size={40} className="shrink-0 text-dark" />
+        <Truck size={40} className="shrink-0 text-dark" />
 
         <div className="flex-1 space-y-2">
           {/* Progress Bar */}
@@ -426,7 +435,7 @@ function DiscountCodeToggle({
                 className="ml-1 text-xs text-text-muted hover:text-primary"
                 aria-label={`Remove discount ${discount.code}`}
               >
-                <Icon name="x" size={12} />
+                <X size={12} />
               </button>
             </CartForm>
           </span>

@@ -3,7 +3,7 @@
 import {Link, useSearchParams} from 'react-router';
 import {Image} from '@shopify/hydrogen';
 import {PriceDisplay} from './PriceDisplay';
-import {Icon} from '../display/Icon';
+import {X, ImageIcon} from 'lucide-react';
 
 // ============================================================================
 // Types
@@ -103,7 +103,7 @@ export function CompareTable({products, className}: CompareTableProps) {
                         className="self-end rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
                         aria-label={`Remove ${product.title} from comparison`}
                       >
-                        <Icon name="x" size={16} />
+                        <X size={16} />
                       </button>
                       <Link
                         to={`/products/${product.handle}`}
@@ -117,7 +117,7 @@ export function CompareTable({products, className}: CompareTableProps) {
                           />
                         ) : (
                           <div className="mx-auto flex h-30 w-30 items-center justify-center rounded-lg bg-slate-100 text-slate-300">
-                            <Icon name="image" size={32} />
+                            <ImageIcon size={32} />
                           </div>
                         )}
                         <span className="mt-2 block text-sm font-medium text-slate-900 group-hover:text-primary">
@@ -167,7 +167,7 @@ export function CompareTable({products, className}: CompareTableProps) {
                   />
                 ) : (
                   <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-slate-100 text-slate-300">
-                    <Icon name="image" size={24} />
+                    <ImageIcon size={24} />
                   </div>
                 )}
               </Link>
@@ -194,7 +194,7 @@ export function CompareTable({products, className}: CompareTableProps) {
                 className="shrink-0 rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
                 aria-label={`Remove ${product.title}`}
               >
-                <Icon name="x" size={16} />
+                <X size={16} />
               </button>
             </div>
             <dl className="divide-y divide-slate-100 border-t border-slate-100">

@@ -1,17 +1,25 @@
 import type {Route} from './+types/account.addresses';
-import {redirect, Form, useActionData, useNavigation} from 'react-router';
+import {redirect, Form, useActionData, useNavigation, Link} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {useState} from 'react';
 import {
   Breadcrumb,
-  Icon,
-  Button,
-  Input,
-  Label,
-  Select,
-  Checkbox,
-  Modal,
-} from '~/components';
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
+import {Button} from '~/components/ui/button';
+import {Input} from '~/components/ui/input';
+import {Label} from '~/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/ui/dialog';
+import {Plus, MapPin} from 'lucide-react';
 
 // ============================================================================
 // Route Meta
@@ -244,15 +252,27 @@ export default function AddressesPage({loaderData}: Route.ComponentProps) {
 
   const isSubmitting = navigation.state === 'submitting';
 
-  const breadcrumbs = [
-    {label: 'Home', url: '/'},
-    {label: 'Account', url: '/account'},
-    {label: 'Addresses'},
-  ];
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <Breadcrumb items={breadcrumbs} className="mb-6" />
+      <Breadcrumb className="mb-6">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/account">Account</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Addresses</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       <div className="mb-8 flex items-center justify-between">
         <div>
@@ -263,7 +283,7 @@ export default function AddressesPage({loaderData}: Route.ComponentProps) {
           </p>
         </div>
         <Button onClick={() => setShowAddModal(true)}>
-          <Icon name="plus" size={16} className="mr-1" />
+          <Plus size={16} className="mr-1" />
           Add Address
         </Button>
       </div>
@@ -295,7 +315,7 @@ export default function AddressesPage({loaderData}: Route.ComponentProps) {
         </div>
       ) : (
         <div className="flex flex-col items-center py-16 text-center">
-          <Icon name="map-pin" size={64} className="mb-4 text-text-muted" />
+          <MapPin size={64} className="mb-4 text-text-muted" />
           <h2 className="mb-2 text-xl font-semibold text-dark">
             No addresses yet
           </h2>
@@ -306,77 +326,90 @@ export default function AddressesPage({loaderData}: Route.ComponentProps) {
         </div>
       )}
 
-      {/* Add Address Modal */}
-      <Modal
+      {/* Add Address Dialog */}
+      <Dialog
         open={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        title="Add New Address"
-        size="large"
+        onOpenChange={(open) => !open && setShowAddModal(false)}
       >
-        <AddressForm
-          intent="create"
-          isSubmitting={isSubmitting}
-          onCancel={() => setShowAddModal(false)}
-          errors={
-            actionData?.intent === 'create' ? actionData?.errors : undefined
-          }
-        />
-      </Modal>
-
-      {/* Edit Address Modal */}
-      <Modal
-        open={!!editAddress}
-        onClose={() => setEditAddress(null)}
-        title="Edit Address"
-        size="large"
-      >
-        {editAddress && (
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Add New Address</DialogTitle>
+          </DialogHeader>
           <AddressForm
-            intent="update"
-            address={editAddress}
+            intent="create"
             isSubmitting={isSubmitting}
-            onCancel={() => setEditAddress(null)}
+            onCancel={() => setShowAddModal(false)}
             errors={
-              actionData?.intent === 'update' ? actionData?.errors : undefined
+              (actionData?.intent === 'create'
+                ? actionData?.errors
+                : undefined) as any
             }
           />
-        )}
-      </Modal>
+        </DialogContent>
+      </Dialog>
 
-      {/* Delete Confirmation Modal */}
-      <Modal
-        open={!!deleteAddressId}
-        onClose={() => setDeleteAddressId(null)}
-        title="Delete Address"
-        size="small"
+      {/* Edit Address Dialog */}
+      <Dialog
+        open={!!editAddress}
+        onOpenChange={(open) => !open && setEditAddress(null)}
       >
-        <div className="space-y-4">
-          <p className="text-sm text-text">
-            Are you sure you want to delete this address? This action cannot be
-            undone.
-          </p>
-          <div className="flex justify-end gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setDeleteAddressId(null)}
-            >
-              Cancel
-            </Button>
-            <Form method="post">
-              <input type="hidden" name="intent" value="delete" />
-              <input
-                type="hidden"
-                name="addressId"
-                value={deleteAddressId ?? ''}
-              />
-              <Button type="submit" variant="destructive" size="sm">
-                Delete
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Address</DialogTitle>
+          </DialogHeader>
+          {editAddress && (
+            <AddressForm
+              intent="update"
+              address={editAddress}
+              isSubmitting={isSubmitting}
+              onCancel={() => setEditAddress(null)}
+              errors={
+                (actionData?.intent === 'update'
+                  ? actionData?.errors
+                  : undefined) as any
+              }
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={!!deleteAddressId}
+        onOpenChange={(open) => !open && setDeleteAddressId(null)}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete Address</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-text">
+              Are you sure you want to delete this address? This action cannot
+              be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setDeleteAddressId(null)}
+              >
+                Cancel
               </Button>
-            </Form>
+              <Form method="post">
+                <input type="hidden" name="intent" value="delete" />
+                <input
+                  type="hidden"
+                  name="addressId"
+                  value={deleteAddressId ?? ''}
+                />
+                <Button type="submit" variant="destructive" size="sm">
+                  Delete
+                </Button>
+              </Form>
+            </div>
           </div>
-        </div>
-      </Modal>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -539,17 +572,17 @@ function AddressForm({
         </div>
         <div>
           <Label htmlFor="territoryCode">Country</Label>
-          <Select
+          <select
             id="territoryCode"
             name="territoryCode"
             defaultValue={address?.territoryCode ?? 'US'}
-            options={[
-              {label: 'United States', value: 'US'},
-              {label: 'Canada', value: 'CA'},
-              {label: 'United Kingdom', value: 'GB'},
-              {label: 'Australia', value: 'AU'},
-            ]}
-          />
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          >
+            <option value="US">United States</option>
+            <option value="CA">Canada</option>
+            <option value="GB">United Kingdom</option>
+            <option value="AU">Australia</option>
+          </select>
         </div>
       </div>
 
@@ -583,11 +616,15 @@ function AddressForm({
         />
       </div>
 
-      <Checkbox
-        id="isDefault"
-        name="isDefault"
-        label="Set as default address"
-      />
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          id="isDefault"
+          name="isDefault"
+          className="h-4 w-4 rounded border-input accent-primary"
+        />
+        <Label htmlFor="isDefault">Set as default address</Label>
+      </div>
 
       <div className="flex justify-end gap-3 pt-2">
         <Button variant="outline" type="button" onClick={onCancel}>

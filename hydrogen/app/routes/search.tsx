@@ -1,7 +1,17 @@
 import type {Route} from './+types/search';
 import {getSeoMeta, getPaginationVariables} from '@shopify/hydrogen';
-import {useLoaderData, useSearchParams, Form} from 'react-router';
-import {Breadcrumb, Icon, Button} from '~/components';
+import {useLoaderData, useSearchParams, Form, Link} from 'react-router';
+import {Search} from 'lucide-react';
+import {Button} from '~/components/ui/button';
+import {Input} from '~/components/ui/input';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
 import {ProductCard} from '~/components/commerce';
 
 // ============================================================================
@@ -147,11 +157,21 @@ export default function SearchPage() {
   const {searchTerm, products, totalCount} = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
 
-  const breadcrumbs = [{label: 'Home', url: '/'}, {label: 'Search'}];
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <Breadcrumb items={breadcrumbs} className="mb-6" />
+      <Breadcrumb className="mb-6">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Search</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       {/* Search Form */}
       <div className="mb-8">
@@ -176,11 +196,7 @@ export default function SearchPage() {
         </>
       ) : (
         <div className="py-12 text-center">
-          <Icon
-            name="search"
-            size={64}
-            className="mx-auto mb-4 text-text-muted"
-          />
+          <Search size={64} className="mx-auto mb-4 text-text-muted" />
           <p className="text-lg text-text-muted">
             Enter a search term to find products
           </p>
@@ -198,23 +214,20 @@ function SearchForm({defaultValue = ''}: {defaultValue?: string}) {
   return (
     <Form method="get" action="/search" className="flex max-w-2xl gap-2">
       <div className="relative flex-1">
-        <Icon
-          name="search"
+        <Search
           size={20}
           className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
         />
-        <input
+        <Input
           type="search"
           name="q"
           defaultValue={defaultValue}
           placeholder="Search products..."
           autoComplete="off"
-          className="w-full rounded-md border border-border bg-white py-2.5 pl-10 pr-4 text-base text-dark placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          className="pl-10"
         />
       </div>
-      <Button type="submit" size="default">
-        Search
-      </Button>
+      <Button type="submit">Search</Button>
     </Form>
   );
 }
@@ -256,14 +269,14 @@ function SearchResults({products}: {products: any[]}) {
 function EmptySearchResults({searchTerm}: {searchTerm: string}) {
   return (
     <div className="flex flex-col items-center py-16 text-center">
-      <Icon name="search" size={64} className="mb-4 text-text-muted" />
+      <Search size={64} className="mb-4 text-text-muted" />
       <h2 className="mb-2 text-xl font-semibold text-dark">No results found</h2>
       <p className="mb-6 max-w-md text-text-muted">
         We couldn&apos;t find anything for &ldquo;{searchTerm}&rdquo;. Try
         checking your spelling or using different search terms.
       </p>
-      <Button as="link" to="/collections" variant="secondary">
-        Browse Collections
+      <Button variant="secondary" asChild>
+        <Link to="/collections">Browse Collections</Link>
       </Button>
     </div>
   );
