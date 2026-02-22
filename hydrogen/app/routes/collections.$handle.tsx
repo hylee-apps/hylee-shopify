@@ -339,6 +339,7 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
                       <ProductGrid
                         products={nodes as CollectionProduct[]}
                         size="small"
+                        collectionHandle={collection.handle}
                       />
 
                       {hasNextPage && (

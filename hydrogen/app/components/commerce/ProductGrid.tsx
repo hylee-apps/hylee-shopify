@@ -13,6 +13,8 @@ export interface ProductGridProps {
   size?: 'default' | 'small';
   viewMode?: 'grid' | 'list';
   className?: string;
+  /** Collection handle appended as ?collection= on product links for PDP breadcrumbs */
+  collectionHandle?: string;
 }
 
 /**
@@ -26,6 +28,7 @@ export function ProductGrid({
   size = 'default',
   viewMode = 'grid',
   className,
+  collectionHandle,
 }: ProductGridProps) {
   if (products.length === 0) {
     return null;
@@ -54,6 +57,7 @@ export function ProductGrid({
           showQuickAdd={size === 'default'}
           showDiscountPercentage={size === 'default'}
           lazyLoad={index >= 6}
+          collectionHandle={collectionHandle}
         />
       ))}
     </div>

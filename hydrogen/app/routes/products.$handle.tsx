@@ -1,7 +1,8 @@
 import {type LoaderFunctionArgs, redirect} from 'react-router';
 import type {Route} from './+types/products.$handle';
 import {Suspense, useState, useRef} from 'react';
-import {Await, Link} from 'react-router';
+import {Await, Link, useRouteLoaderData} from 'react-router';
+import type {RootLoader} from '~/root';
 import {Image, getSeoMeta} from '@shopify/hydrogen';
 import {ProductGallery, VariantSelector} from '~/components';
 import {AddToCart, PriceDisplay, QuantitySelector} from '~/components/commerce';
@@ -34,6 +35,58 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '~/components/ui/breadcrumb';
+
+// ============================================================================
+// Breadcrumb helpers
+// ============================================================================
+
+type MenuNode = {
+  title: string;
+  url?: string | null;
+  items?: MenuNode[] | null;
+};
+
+/** Extract a collection handle from a Shopify menu URL, e.g. ".../collections/phones" → "phones" */
+function collectionHandleFromUrl(url?: string | null): string | null {
+  if (!url) return null;
+  const match = url.match(/\/collections\/([^/?#]+)/);
+  return match?.[1] ?? null;
+}
+
+/**
+ * Walk the nav menu and return the ancestor path (as title+url pairs) for the
+ * given collection handle. Returns null when the collection isn't in the menu.
+ *
+ * The menu is 2 levels deep: top-level items → child items.
+ * e.g. Electronics → Phones → [product]
+ */
+function findMenuPath(
+  menu: {items?: MenuNode[] | null} | null | undefined,
+  handle: string,
+): Array<{title: string; url: string}> | null {
+  if (!menu?.items) return null;
+  for (const parent of menu.items) {
+    const parentHandle = collectionHandleFromUrl(parent.url);
+    if (parentHandle === handle) {
+      return [{title: parent.title, url: `/collections/${handle}`}];
+    }
+    for (const child of parent.items ?? []) {
+      const childHandle = collectionHandleFromUrl(child.url);
+      if (childHandle === handle) {
+        return [
+          {
+            title: parent.title,
+            url: parentHandle
+              ? `/collections/${parentHandle}`
+              : (parent.url ?? '#'),
+          },
+          {title: child.title, url: `/collections/${handle}`},
+        ];
+      }
+    }
+  }
+  return null;
+}
 
 // ============================================================================
 // GraphQL Fragments & Query
@@ -107,6 +160,13 @@ const PRODUCT_FRAGMENT = `#graphql
             height
           }
         }
+      }
+    }
+    collections(first: 5) {
+      nodes {
+        id
+        handle
+        title
       }
     }
     seo {
@@ -232,7 +292,10 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
     },
   });
 
-  return {product, selectedVariant, recommendedProducts};
+  // ?collection=<handle> is appended by PLP links so we can build breadcrumbs
+  const collectionHandle = searchParams.get('collection') ?? null;
+
+  return {product, selectedVariant, recommendedProducts, collectionHandle};
 }
 
 // ============================================================================
@@ -256,9 +319,44 @@ export function meta({data}: Route.MetaArgs) {
 // ============================================================================
 
 export default function ProductPage({loaderData}: Route.ComponentProps) {
-  const {product, selectedVariant, recommendedProducts} = loaderData;
+  const {product, selectedVariant, recommendedProducts, collectionHandle} =
+    loaderData;
+  const root = useRouteLoaderData<RootLoader>('root');
 
   if (!product) return null;
+
+  // Resolve which collection to anchor the breadcrumb to:
+  // 1. Prefer the ?collection= param (set by PLP links — most accurate)
+  // 2. Fall back to the product's first collection
+  const anchorHandle =
+    collectionHandle ??
+    (product.collections?.nodes?.[0]?.handle as string | undefined) ??
+    null;
+
+  // Walk the nav menu to build ancestor path, e.g. [Electronics, Phones]
+  const menuPath = anchorHandle
+    ? findMenuPath(root?.header?.menu, anchorHandle)
+    : null;
+
+  // If the handle wasn't in the menu, fall back to the collection directly
+  const breadcrumbNodes: Array<{title: string; url: string}> =
+    menuPath ??
+    (anchorHandle
+      ? [
+          {
+            title:
+              (
+                product.collections?.nodes?.find(
+                  (c: {handle: string}) => c.handle === anchorHandle,
+                ) as {title: string} | undefined
+              )?.title ??
+              anchorHandle
+                .replace(/-/g, ' ')
+                .replace(/\b\w/g, (l: string) => l.toUpperCase()),
+            url: `/collections/${anchorHandle}`,
+          },
+        ]
+      : []);
 
   const isOnSale =
     selectedVariant?.compareAtPrice &&
@@ -307,17 +405,26 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
       <div className="mb-5">
         <Breadcrumb>
           <BreadcrumbList className="text-sm">
+            {/* Home */}
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
                 <Link to="/">Home</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator>/</BreadcrumbSeparator>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link to="/collections/all">Products</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
+
+            {/* Menu-derived ancestor nodes (e.g. Electronics > Phones) */}
+            {breadcrumbNodes.map((node) => (
+              <>
+                <BreadcrumbSeparator>/</BreadcrumbSeparator>
+                <BreadcrumbItem key={node.url}>
+                  <BreadcrumbLink asChild>
+                    <Link to={node.url}>{node.title}</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+              </>
+            ))}
+
+            {/* Product title — always last */}
             <BreadcrumbSeparator>/</BreadcrumbSeparator>
             <BreadcrumbItem>
               <BreadcrumbPage>{product.title}</BreadcrumbPage>

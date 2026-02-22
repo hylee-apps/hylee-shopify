@@ -90,6 +90,8 @@ export interface ProductCardProps {
   customBadgeColor?: string;
   /** Additional CSS classes */
   className?: string;
+  /** Collection handle appended as ?collection= on the product link for PDP breadcrumbs */
+  collectionHandle?: string;
 }
 
 export interface ProductCardPlaceholderProps {
@@ -175,9 +177,14 @@ export function ProductCard({
   showSecondaryImage = true,
   lazyLoad = true,
   className = '',
+  collectionHandle,
 }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
+
+  const productUrl = collectionHandle
+    ? `/products/${product.handle}?collection=${collectionHandle}`
+    : `/products/${product.handle}`;
 
   // Get first available variant
   const firstVariant = product.variants.nodes[0];
@@ -213,7 +220,7 @@ export function ProductCard({
       >
         {/* Image — Figma: 173×191px, bg-surface */}
         <div className="relative h-[191px] w-[173px] bg-surface overflow-hidden shrink-0">
-          <Link to={`/products/${product.handle}`}>
+          <Link to={productUrl}>
             {primaryImage ? (
               <Image
                 data={primaryImage}
@@ -269,10 +276,7 @@ export function ProductCard({
 
         {/* Title — Figma: 14px Inter Medium, text-black */}
         <p className="text-[14px] font-medium text-black line-clamp-2">
-          <Link
-            to={`/products/${product.handle}`}
-            className="hover:text-primary"
-          >
+          <Link to={productUrl} className="hover:text-primary">
             {product.title}
           </Link>
         </p>
@@ -292,7 +296,7 @@ export function ProductCard({
     >
       {/* Image Container */}
       <div className="relative aspect-square overflow-hidden rounded-lg bg-surface">
-        <Link to={`/products/${product.handle}`}>
+        <Link to={productUrl}>
           {primaryImage ? (
             <>
               <Image
@@ -341,10 +345,7 @@ export function ProductCard({
         {/* Title + Price row */}
         <div className="flex items-start justify-between gap-2">
           <h3 className="text-sm font-semibold text-dark line-clamp-1">
-            <Link
-              to={`/products/${product.handle}`}
-              className="hover:text-primary"
-            >
+            <Link to={productUrl} className="hover:text-primary">
               {product.title}
             </Link>
           </h3>
