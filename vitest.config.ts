@@ -19,6 +19,9 @@ export default defineConfig({
       exclude: ['node_modules/**', 'tests/**', 'theme/**', '*.config.*'],
     },
 
+    // Don't fail when no test files exist yet
+    passWithNoTests: true,
+
     // Global test timeout
     testTimeout: 10000,
 

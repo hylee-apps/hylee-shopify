@@ -9,6 +9,7 @@ export default defineConfig({
     globals: true,
     include: ['app/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['node_modules', 'dist', 'build'],
+    passWithNoTests: true,
     setupFiles: ['./app/test/setup.ts'],
     css: false,
     coverage: {
