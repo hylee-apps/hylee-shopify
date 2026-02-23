@@ -143,7 +143,7 @@ export default function AccountDashboard({loaderData}: Route.ComponentProps) {
     : '';
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-300 px-4 py-8 sm:px-6">
       <Breadcrumb className="mb-6">
         <BreadcrumbList>
           <BreadcrumbItem>

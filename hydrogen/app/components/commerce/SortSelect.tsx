@@ -6,6 +6,13 @@ import {
   getCurrentSort,
   buildSortUrl,
 } from '~/lib/collection/filters';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select';
 
 export interface SortSelectProps {
   searchParams: URLSearchParams;
@@ -23,20 +30,26 @@ export function SortSelect({searchParams, className}: SortSelectProps) {
   const currentSort = getCurrentSort(searchParams);
 
   return (
-    <select
+    <Select
       value={currentSort}
-      onChange={(e) => {
-        const url = buildSortUrl(pathname, searchParams, e.target.value);
+      onValueChange={(value) => {
+        const url = buildSortUrl(pathname, searchParams, value);
         navigate(url);
       }}
-      className={`cursor-pointer rounded-full border border-border bg-white px-4 py-2.5 text-sm font-medium text-dark transition-colors hover:border-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary ${className ?? ''}`}
-      aria-label="Sort products"
     >
-      {SORT_OPTIONS.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
+      <SelectTrigger
+        className={`cursor-pointer rounded-full border border-border bg-white px-4 py-2.5 text-sm font-medium text-dark transition-colors hover:border-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary h-auto w-auto ${className ?? ''}`}
+        aria-label="Sort products"
+      >
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {SORT_OPTIONS.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }

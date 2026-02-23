@@ -215,16 +215,14 @@ export function ProductCard({
 
   if (size === 'small') {
     return (
-      <article
-        className={`flex flex-col gap-[10px] p-[10px] shrink-0 ${className}`}
-      >
-        {/* Image — Figma: 173×191px, bg-surface */}
-        <div className="relative h-[191px] w-[173px] bg-surface overflow-hidden shrink-0">
+      <article className={`flex flex-col gap-[10px] p-[10px] ${className}`}>
+        {/* Image — aspect ratio from Figma 173×191, fluid width */}
+        <div className="relative aspect-173/191 w-full bg-surface overflow-hidden">
           <Link to={productUrl}>
             {primaryImage ? (
               <Image
                 data={primaryImage}
-                sizes="173px"
+                sizes="(min-width: 768px) 220px, (min-width: 640px) 30vw, 45vw"
                 className="h-full w-full object-cover"
                 loading={lazyLoad ? 'lazy' : 'eager'}
               />

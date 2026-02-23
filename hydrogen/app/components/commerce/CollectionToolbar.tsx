@@ -11,13 +11,14 @@ export interface CollectionToolbarProps {
   viewMode?: 'grid' | 'list';
   onViewModeChange?: (mode: 'grid' | 'list') => void;
   searchParams: URLSearchParams;
-  onOpenFilters?: () => void;
+  /** Opens the mobile filter drawer — button is hidden on lg+ */
+  onOpenMobileFilters?: () => void;
   className?: string;
 }
 
 /**
  * CollectionToolbar — toolbar above the product grid with count, sort,
- * and optional view toggle / mobile filter button.
+ * mobile filter button, and optional view toggle.
  */
 export function CollectionToolbar({
   productCount,
@@ -25,7 +26,7 @@ export function CollectionToolbar({
   viewMode,
   onViewModeChange,
   searchParams,
-  onOpenFilters,
+  onOpenMobileFilters,
   className,
 }: CollectionToolbarProps) {
   return (
@@ -45,13 +46,13 @@ export function CollectionToolbar({
       </p>
 
       <div className="flex items-center gap-3">
-        {/* Mobile filter toggle */}
-        {onOpenFilters && (
+        {/* Mobile filter button — hidden on desktop (lg+) */}
+        {onOpenMobileFilters && (
           <Button
             type="button"
             variant="outline"
-            onClick={onOpenFilters}
-            className="rounded-full border-border px-4 py-2.5 text-dark hover:border-text-muted hover:bg-transparent shadow-none lg:hidden"
+            onClick={onOpenMobileFilters}
+            className="lg:hidden rounded-full px-4 py-2.5 shadow-none border-border text-dark hover:border-text-muted hover:bg-transparent"
             aria-label="Open filters"
           >
             <SlidersHorizontal size={16} />

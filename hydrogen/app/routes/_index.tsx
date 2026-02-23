@@ -92,6 +92,7 @@ function ProductSection({
           <ProductCard />
           <ProductCard />
           <ProductCard />
+          <ProductCard />
         </div>
       </div>
     </div>
@@ -173,7 +174,7 @@ export default function Homepage() {
         {/* ============================================================== */}
         <Separator className="w-full" />
         <div className="flex flex-col pb-8 w-full">
-          <div className="mx-auto w-full max-w-[920px] px-4">
+          <div className="mx-auto w-full max-w-300 px-4">
             {/* Section header */}
             <div className="flex items-center py-3">
               <h2 className="text-[20px] font-bold text-black leading-tight">
@@ -226,9 +227,9 @@ export default function Homepage() {
               </div>
 
               {/* Badge: Flash Sale */}
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col justify-between">
+              <div className="bg-brand-accent/10 border border-brand-accent/30 rounded-xl p-4 flex flex-col justify-between">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-amber-600 opacity-70">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-brand-accent opacity-70">
                     Flash Sale
                   </p>
                   <p className="text-[20px] font-bold text-black leading-tight mt-1">
@@ -240,7 +241,7 @@ export default function Homepage() {
                 </div>
                 <Link
                   to="/collections/sale"
-                  className="text-[12px] font-semibold text-amber-700 hover:underline"
+                  className="text-[12px] font-semibold text-brand-accent hover:underline"
                 >
                   Claim offer →
                 </Link>
@@ -268,9 +269,9 @@ export default function Homepage() {
               </div>
 
               {/* Badge: Members Only */}
-              <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 flex flex-col justify-between">
+              <div className="bg-dark/10 border border-dark/20 rounded-xl p-4 flex flex-col justify-between">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-rose-500 opacity-70">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-dark opacity-70">
                     Members Only
                   </p>
                   <p className="text-[20px] font-bold text-black leading-tight mt-1">
@@ -282,7 +283,7 @@ export default function Homepage() {
                 </div>
                 <Link
                   to="/account"
-                  className="text-[12px] font-semibold text-rose-600 hover:underline"
+                  className="text-[12px] font-semibold text-dark hover:underline"
                 >
                   Sign in →
                 </Link>

@@ -3,6 +3,7 @@ packages:
 
 onlyBuiltDependencies:
   - esbuild
+  - msw
   - unrs-resolver
   - workerd
   - workflow-agent-cli

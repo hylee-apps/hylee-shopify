@@ -223,7 +223,7 @@ export function meta({data}: Route.MetaArgs) {
 export default function CollectionPage({loaderData}: Route.ComponentProps) {
   const {collection, searchParamsString} = loaderData;
   const {pathname} = useLocation();
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   // Reconstruct searchParams from serialized string
   const searchParams = new URLSearchParams(searchParamsString);
@@ -240,7 +240,7 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
       {/* ================================================================ */}
       {/* BREADCRUMBS — Figma: ghost-button links h-10 px-4 rounded-[8px]  */}
       {/* ================================================================ */}
-      <Breadcrumb className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-16 xl:px-[122px] py-[10px]">
+      <Breadcrumb className="max-w-300 mx-auto px-4 sm:px-6 py-2.5">
         <BreadcrumbList className="text-[14px] font-medium text-text-muted">
           <BreadcrumbItem>
             <BreadcrumbLink
@@ -281,7 +281,7 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
       {/* ================================================================ */}
       {/* PRODUCTS SECTION — Figma: px-[122px] py-[20px]                  */}
       {/* ================================================================ */}
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-16 xl:px-[122px] py-[20px]">
+      <div className="max-w-300 mx-auto px-4 sm:px-6 py-5">
         <Pagination connection={products}>
           {({
             nodes,
@@ -307,17 +307,17 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
               <CollectionToolbar
                 productCount={nodes.length}
                 searchParams={searchParams}
-                onOpenFilters={() => setFiltersOpen(true)}
+                onOpenMobileFilters={() => setMobileFiltersOpen(true)}
               />
 
               {/* 2-column layout: filters + grid */}
               <div className="flex gap-10">
-                {/* Filter Sidebar */}
+                {/* Filter Sidebar — always visible on desktop, Sheet on mobile */}
                 <FilterSidebar
                   filters={availableFilters}
                   searchParams={searchParams}
-                  isOpen={filtersOpen}
-                  onClose={() => setFiltersOpen(false)}
+                  isOpen={mobileFiltersOpen}
+                  onClose={() => setMobileFiltersOpen(false)}
                 />
 
                 {/* Product grid */}

@@ -160,3 +160,13 @@ pnpm workflow       # Run workflow agent
 pnpm verify         # Verify changes
 pnpm verify:fix     # Auto-fix issues
 ```
+
+## Context Checkpoint
+
+**At session start:** Read `docs/ACTIVE_CONTEXT.md` to restore context from the previous session.
+
+**At session end (or when asked to "save context" or "checkpoint"):**
+1. Update `docs/ACTIVE_CONTEXT.md` using the schema in `docs/context-preservation/CONTEXT_SCHEMA.md`
+2. Run `pnpm context:export` to sync the updated checkpoint to CoPilot
+
+See `guidelines/CONTEXT_PRESERVATION.md` for the full workflow.

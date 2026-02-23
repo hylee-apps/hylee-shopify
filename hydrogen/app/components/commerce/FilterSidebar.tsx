@@ -18,6 +18,7 @@ import {Checkbox} from '~/components/ui/checkbox';
 import {Input} from '~/components/ui/input';
 import {Button} from '~/components/ui/button';
 import {Sheet, SheetContent, SheetTitle} from '~/components/ui/sheet';
+import {cn} from '~/lib/utils';
 
 // ============================================================================
 // Types
@@ -28,9 +29,9 @@ export interface FilterSidebarProps {
   filters: Filter[];
   /** Current URL search params */
   searchParams: URLSearchParams;
-  /** Whether the mobile drawer is open */
+  /** Whether the mobile Sheet drawer is open */
   isOpen?: boolean;
-  /** Callback to close the mobile drawer */
+  /** Called when the mobile Sheet drawer should close */
   onClose?: () => void;
   /** Additional class name */
   className?: string;
@@ -198,7 +199,7 @@ function ExpandableList({
 }
 
 // ============================================================================
-// Filter Sections (shared between desktop and mobile Sheet)
+// Filter Sections (shared between desktop sidebar and mobile Sheet)
 // ============================================================================
 
 interface FilterSectionsProps {
@@ -251,10 +252,10 @@ function FilterSections({
 // ============================================================================
 
 /**
- * FilterSidebar — collapsible filter panel for collection pages.
+ * FilterSidebar — filter panel for collection pages.
  *
- * On desktop it renders as a static left sidebar.
- * On mobile it renders as a slide-over Sheet drawer (controlled by isOpen/onClose).
+ * Desktop (lg+): always-visible static left sidebar.
+ * Mobile (<lg): hidden; controlled by isOpen/onClose as a Sheet drawer.
  */
 export function FilterSidebar({
   filters,
@@ -276,8 +277,10 @@ export function FilterSidebar({
 
   return (
     <>
-      {/* Desktop: static sidebar */}
-      <aside className="hidden w-60 shrink-0 lg:block">
+      {/* ------------------------------------------------------------------ */}
+      {/* Desktop — always visible static sidebar                            */}
+      {/* ------------------------------------------------------------------ */}
+      <aside className={cn('hidden lg:block w-60 shrink-0', className)}>
         <div className="flex items-center justify-between border-b border-border pb-4">
           <h2 className="text-lg font-bold text-dark">Filters</h2>
           {hasActiveFilters && clearAllLink}
@@ -286,26 +289,24 @@ export function FilterSidebar({
           filters={filters}
           searchParams={searchParams}
           pathname={pathname}
-          className={className}
         />
       </aside>
 
-      {/* Mobile: Sheet drawer */}
+      {/* ------------------------------------------------------------------ */}
+      {/* Mobile — Sheet drawer                                               */}
+      {/* ------------------------------------------------------------------ */}
       <Sheet open={isOpen} onOpenChange={(open) => !open && onClose?.()}>
-        <SheetContent side="left" className="flex w-80 max-w-full flex-col p-0">
-          <div className="flex shrink-0 items-center justify-between border-b border-border px-5 py-4">
-            <SheetTitle className="text-lg font-bold text-dark">
-              Filters
-            </SheetTitle>
+        <SheetContent side="left" className="w-80 overflow-y-auto pt-10">
+          <SheetTitle className="sr-only">Filters</SheetTitle>
+          <div className="flex items-center justify-between border-b border-border pb-4">
+            <h2 className="text-lg font-bold text-dark">Filters</h2>
             {hasActiveFilters && clearAllLink}
           </div>
-          <div className="flex-1 overflow-y-auto px-5">
-            <FilterSections
-              filters={filters}
-              searchParams={searchParams}
-              pathname={pathname}
-            />
-          </div>
+          <FilterSections
+            filters={filters}
+            searchParams={searchParams}
+            pathname={pathname}
+          />
         </SheetContent>
       </Sheet>
     </>

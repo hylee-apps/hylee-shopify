@@ -193,12 +193,12 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
       />
 
       {/* Main content */}
-      <div id="products" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div id="products" className="mx-auto max-w-300 px-4 sm:px-6">
         {/* Toolbar */}
         <CollectionToolbar
           productCount={products.nodes.length}
           searchParams={searchParams}
-          onOpenFilters={() => setFiltersOpen(true)}
+          onOpenMobileFilters={() => setFiltersOpen(true)}
         />
 
         {/* 2-column layout: filters + grid */}

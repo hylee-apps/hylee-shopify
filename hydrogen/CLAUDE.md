@@ -221,9 +221,14 @@ Repeat Steps 3-4 until the implementation matches the design. For each iteration
 | Header | `2766:311` | Alternate | Captured — needs font fix, border fixes, cart redesign |
 | Homepage | `201:155` | — | Captured 2026-02-19. Hero + 2 product sections + Promotions built. Products are static placeholders — TODO wire to Shopify collections. |
 | Hero | `203:267` | — | bg-hero (#14b8a6), white logo, search → PredictiveSearch |
-| Footer | `220:426` | — | Updated 2026-02-19 — social icons updated to X/Instagram/YouTube/LinkedIn |
+| Footer | `659:113` | Default/Primary/Secondary/Tertiary | Updated 2026-02-23 — 4 color variants implemented; source moved to Component Library (X566CMLIsD8YboYdRU18IS) |
 | PLP | `387:249` | — | Captured 2026-02-19. Breadcrumbs, CollectionHero (image left 328px + title right 57px), 5-col ProductSmall grid, N Products heading. Roboto→Inter font gap documented. |
 | PDP | `1460:1444` | — | Captured 2026-02-21. 3-col layout (gallery / info accordion / purchase controls). shadcn Accordion/Separator/Avatar integrated. Gallery vertical thumbs. Below: Details/Specs/Warranty/Reviews accordion. File key: `Cz8f2ycIjQZOoremTy2eBM`. |
+| Cart Review | `327:133` | 1920w light | Captured 2026-02-22. File key: `vzeR7m9jbWjAfD9EVlReyq`. Progress bar (CheckoutProgress component), guest banner, cart items card, promo code card, sticky order summary sidebar. CheckoutProgress at `app/components/checkout/CheckoutProgress.tsx`. |
+| Cart Payment | `327:1178` | 1920w light | Captured 2026-02-23. File key: `vzeR7m9jbWjAfD9EVlReyq`. Step 2 active. Payment method selector (Credit/Debit, Shop Pay, Apple Pay, Google Pay), card details form, billing address card, sticky order summary sidebar. Route: `app/routes/checkout.payment.tsx`. CheckoutProgress updated: completed steps now show checkmark (secondary teal) vs active step (primary green). |
+| Cart Shipping | `327:887` | 1920w light | Captured 2026-02-23. File key: `vzeR7m9jbWjAfD9EVlReyq`. Step 3 active. Shipping address form (8 fields), shipping method selector (3 options), delivery preferences textarea. Stores data via `cartBuyerIdentityUpdate` + `cartAttributesUpdate`. Route: `app/routes/checkout.shipping.tsx`. |
+| Cart Review | `327:1413` | 1920w light | Captured 2026-02-23. File key: `vzeR7m9jbWjAfD9EVlReyq`. Step 4 active. Review card (shipping address, shipping method, payment method, order items) with Edit links. "Place Order" → Shopify `checkoutUrl` with pre-filled buyer identity. Route: `app/routes/checkout.review.tsx`. |
+| Cart Confirmation | `327:1721` | 1920w light | Captured 2026-02-23. File key: `vzeR7m9jbWjAfD9EVlReyq`. No progress bar. Success hero (checkmark icon, order #, Track Order + Continue Shopping), Order Details card (address, delivery estimate, items, totals), Create Account CTA for guests. Route: `app/routes/checkout.confirmation.tsx`. |
 
 ## Design Token Mapping
 
@@ -244,3 +249,13 @@ These are recurring issues discovered during audits. The process steps above are
 4. **Approximate vs exact values**: `rounded-full` is NOT the same as `rounded-[27px]`. `h-20` (80px) is NOT the same as `h-[79px]`. When the spec says a specific pixel value, use the arbitrary Tailwind syntax.
 5. **Icon size mismatch**: Our Icon component defaults to 24px. Figma icons have explicit container sizes that may differ. Always check the spec.
 6. **Layout model translation**: Figma uses fixed widths. Responsive implementation requires documenting the translation in the spec so future work doesn't break it.
+
+## Context Checkpoint
+
+**At session start:** Read `docs/ACTIVE_CONTEXT.md` (in the project root) to restore context from the previous session.
+
+**At session end (or when asked to "save context" or "checkpoint"):**
+1. Update `docs/ACTIVE_CONTEXT.md` using the schema in `docs/context-preservation/CONTEXT_SCHEMA.md`
+2. Run `pnpm context:export` from the project root to sync the checkpoint to CoPilot
+
+See `guidelines/CONTEXT_PRESERVATION.md` for the full workflow.

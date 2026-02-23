@@ -5,7 +5,7 @@
   "description": "Hy-lee Shopify theme - Walmart-style e-commerce marketplace",
   "devDependencies": {
     "@playwright/test": "^1.40.0",
-    "@shopify/cli": "^3.88.1",
+    "@shopify/cli": "^3.91.0",
     "@shopify/theme": "^3.58.2",
     "@vitest/coverage-v8": "^4.0.17",
     "dotenv-cli": "^11.0.0",
@@ -39,7 +39,8 @@
     "dev": "cd hydrogen && pnpm dev",
     "build": "cd hydrogen && pnpm build",
     "preview": "cd hydrogen && pnpm preview",
-    "typecheck": "cd hydrogen && pnpm typecheck"
+    "typecheck": "cd hydrogen && pnpm typecheck",
+    "context:export": "bash scripts/export-context.sh"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"

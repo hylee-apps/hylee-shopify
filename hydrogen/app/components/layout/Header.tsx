@@ -388,9 +388,7 @@ export function Header({
         )}
 
         <div
-          className={`mx-auto px-4 sm:px-6 lg:px-16 xl:px-30.5 max-w-360 ${
-            isHomePage ? 'py-2.5' : 'py-3.5'
-          }`}
+          className={`mx-auto max-w-300 ${isHomePage ? 'py-2.5' : 'py-3.5'}`}
         >
           {isHomePage ? (
             /* ── HOMEPAGE HEADER (Main variant) ── */

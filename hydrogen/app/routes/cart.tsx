@@ -13,18 +13,17 @@ import {
   ImageIcon,
   Minus,
   Plus,
-  XCircle,
-  Truck,
   X,
+  Info,
+  ShieldCheck,
+  Lock,
+  ArrowRight,
 } from 'lucide-react';
 import {Button} from '~/components/ui/button';
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-/** Free shipping threshold in dollars */
-const FREE_SHIPPING_THRESHOLD = 50;
+import {Input} from '~/components/ui/input';
+import {Card} from '~/components/ui/card';
+import {cn} from '~/lib/utils';
+import {CheckoutProgress} from '~/components/checkout/CheckoutProgress';
 
 // ============================================================================
 // Route Meta
@@ -81,7 +80,6 @@ export async function action({request, context}: Route.ActionArgs) {
         formDiscountCode ? [formDiscountCode] : []
       ) as string[];
 
-      // Combine with existing discount codes
       if (inputs.discountCodes && Array.isArray(inputs.discountCodes)) {
         discountCodes.push(...(inputs.discountCodes as string[]));
       }
@@ -100,7 +98,6 @@ export async function action({request, context}: Route.ActionArgs) {
 
   const cartId = result?.cart?.id;
   const headers = cartId ? cart.setCartId(result.cart.id) : new Headers();
-
   const {cart: cartResult, errors, warnings} = result;
 
   return Response.json(
@@ -110,7 +107,7 @@ export async function action({request, context}: Route.ActionArgs) {
 }
 
 // ============================================================================
-// Money Formatter
+// Helpers
 // ============================================================================
 
 function formatMoney(money: {amount: string; currencyCode: string}): string {
@@ -121,14 +118,14 @@ function formatMoney(money: {amount: string; currencyCode: string}): string {
 }
 
 // ============================================================================
-// CartEmpty Component
+// CartEmpty
 // ============================================================================
 
 function CartEmpty() {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
       <ShoppingCart size={80} className="mb-6 text-text-muted" />
-      <h2 className="mb-2 text-2xl font-semibold text-dark">
+      <h2 className="mb-2 text-2xl font-semibold text-[#111827]">
         Your cart is empty
       </h2>
       <p className="mb-8 text-text-muted">Add items to get started</p>
@@ -140,7 +137,29 @@ function CartEmpty() {
 }
 
 // ============================================================================
-// CartLineRow Component
+// GuestBanner
+// ============================================================================
+
+function GuestBanner() {
+  return (
+    <div className="flex items-center gap-3 rounded-lg border border-accent bg-accent/10 p-[17px]">
+      <Info size={20} className="shrink-0 text-accent" />
+      <p className="text-sm text-[#374151]">
+        Checking out as guest.{' '}
+        <Link
+          to="/account/login"
+          className="font-medium text-secondary hover:underline"
+        >
+          Sign in
+        </Link>{' '}
+        for faster checkout and order tracking.
+      </p>
+    </div>
+  );
+}
+
+// ============================================================================
+// CartLineRow
 // ============================================================================
 
 interface CartLineRowProps {
@@ -153,114 +172,105 @@ function CartLineRow({line, isLast}: CartLineRowProps) {
 
   if (typeof merchandise === 'string') return null;
 
-  const {product, title: variantTitle, image, selectedOptions} = merchandise;
+  const {product, image, selectedOptions} = merchandise;
   const lineUrl = `/products/${product.handle}`;
   const isRemoving = 'isOptimistic' in line;
 
-  // Build variant description text
-  const variantDescription =
-    selectedOptions &&
-    selectedOptions.length > 0 &&
-    !(
-      selectedOptions.length === 1 &&
-      selectedOptions[0].name === 'Title' &&
-      selectedOptions[0].value === 'Default Title'
-    )
-      ? selectedOptions.map((o: any) => `${o.name}: ${o.value}`).join(', ')
-      : product.vendor || '';
+  const variantAttrs =
+    selectedOptions?.filter(
+      (o: any) => !(o.name === 'Title' && o.value === 'Default Title'),
+    ) ?? [];
 
   return (
     <div
-      className={`transition-opacity ${isRemoving ? 'pointer-events-none opacity-50' : ''}`}
+      className={cn(
+        'flex items-start gap-4 py-4',
+        !isLast && 'border-b border-[#f3f4f6]',
+        isRemoving && 'pointer-events-none opacity-50',
+      )}
     >
-      <div className="grid grid-cols-[1fr_auto_auto_auto_auto] items-center gap-4 px-4 py-4 sm:grid-cols-[1fr_120px_140px_120px_32px] sm:gap-6">
-        {/* Item: Thumbnail + Info */}
-        <div className="flex items-center gap-4">
-          <Link to={lineUrl} className="shrink-0">
-            {image ? (
-              <Image
-                data={image}
-                width={56}
-                height={56}
-                className="size-14 rounded-md object-cover"
-                alt={image.altText || product.title}
-              />
-            ) : (
-              <div className="flex size-14 items-center justify-center rounded-md bg-surface">
-                <ImageIcon size={24} className="text-text-muted" />
-              </div>
-            )}
-          </Link>
-          <div className="min-w-0">
-            <Link
-              to={lineUrl}
-              className="block truncate text-base font-medium text-dark hover:text-primary"
-            >
-              {product.title}
-            </Link>
-            {variantDescription && (
-              <p className="truncate text-sm text-text-muted">
-                {variantDescription}
-              </p>
-            )}
-          </div>
+      {/* Product Image */}
+      <Link to={lineUrl} className="shrink-0">
+        <div className="relative size-20 overflow-hidden rounded-lg bg-[#f3f4f6]">
+          {image ? (
+            <Image
+              data={image}
+              width={80}
+              height={80}
+              className="absolute inset-0 size-full object-cover"
+              alt={image.altText || product.title}
+            />
+          ) : (
+            <div className="flex size-full items-center justify-center">
+              <ImageIcon size={24} className="text-text-muted" />
+            </div>
+          )}
         </div>
+      </Link>
 
-        {/* Unit Price */}
-        <div className="hidden text-base text-text sm:block">
-          {formatMoney(cost.amountPerQuantity)}
-        </div>
+      {/* Product Details */}
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <Link
+          to={lineUrl}
+          className="text-[15px] font-medium leading-snug text-[#111827] hover:text-primary"
+        >
+          {product.title}
+        </Link>
 
-        {/* Quantity Controls */}
-        <div className="flex items-center justify-center">
-          <div className="flex items-center gap-4 rounded-full bg-white px-4 py-2 shadow-sm ring-1 ring-border">
-            {/* Decrement */}
+        {variantAttrs.map((opt: any) => (
+          <p
+            key={opt.name}
+            className="text-[13px] leading-snug text-text-muted"
+          >
+            {opt.name}: {opt.value}
+          </p>
+        ))}
+
+        {/* Qty Controls */}
+        <div className="mt-1 flex items-center gap-2 text-[13px] text-text-muted">
+          <span>Qty:</span>
+          <div className="flex items-center gap-1.5 rounded-full border border-border bg-white px-2 py-0.5 shadow-sm">
             <CartForm
               route="/cart"
               action={CartForm.ACTIONS.LinesUpdate}
-              inputs={{
-                lines: [{id, quantity: Math.max(1, quantity - 1)}],
-              }}
+              inputs={{lines: [{id, quantity: Math.max(1, quantity - 1)}]}}
             >
               <button
                 type="submit"
                 disabled={quantity <= 1}
-                className="flex size-6 items-center justify-center rounded-full bg-surface text-text transition-colors hover:bg-border disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex size-4 items-center justify-center text-text-muted transition-colors hover:text-secondary disabled:opacity-40"
                 aria-label="Decrease quantity"
               >
-                <Minus size={14} />
+                <Minus size={10} />
               </button>
             </CartForm>
 
-            <span className="min-w-6 text-center text-lg font-bold text-dark">
+            <span className="min-w-[1rem] text-center text-[13px] font-medium text-[#111827]">
               {quantity}
             </span>
 
-            {/* Increment */}
             <CartForm
               route="/cart"
               action={CartForm.ACTIONS.LinesUpdate}
-              inputs={{
-                lines: [{id, quantity: quantity + 1}],
-              }}
+              inputs={{lines: [{id, quantity: quantity + 1}]}}
             >
               <button
                 type="submit"
-                className="flex size-6 items-center justify-center rounded-full bg-surface text-text transition-colors hover:bg-border"
+                className="flex size-4 items-center justify-center text-text-muted transition-colors hover:text-secondary"
                 aria-label="Increase quantity"
               >
-                <Plus size={14} />
+                <Plus size={10} />
               </button>
             </CartForm>
           </div>
         </div>
+      </div>
 
-        {/* Line Total */}
-        <div className="text-right text-base font-bold text-dark">
+      {/* Price + Remove */}
+      <div className="flex shrink-0 flex-col items-end gap-2">
+        <span className="text-base font-semibold text-[#111827]">
           {formatMoney(cost.totalAmount)}
-        </div>
-
-        {/* Remove */}
+        </span>
         <CartForm
           route="/cart"
           action={CartForm.ACTIONS.LinesRemove}
@@ -268,263 +278,252 @@ function CartLineRow({line, isLast}: CartLineRowProps) {
         >
           <button
             type="submit"
-            className="flex size-8 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-surface hover:text-primary"
+            className="text-text-muted transition-colors hover:text-red-500"
             aria-label="Remove item"
           >
-            <XCircle size={20} />
+            <X size={14} />
           </button>
         </CartForm>
       </div>
-
-      {/* Divider */}
-      {!isLast && <div className="mx-4 border-b border-border" />}
     </div>
   );
 }
 
 // ============================================================================
-// CartSummary Component
+// PromoCodeCard
 // ============================================================================
 
-interface CartSummaryProps {
+function PromoCodeCard({discountCodes}: {discountCodes: any[] | undefined}) {
+  const fetcher = useFetcher({key: 'discount-code'});
+  const isSubmitting = fetcher.state !== 'idle';
+  const appliedCodes = discountCodes?.filter((d: any) => d.applicable) ?? [];
+
+  return (
+    <Card className="gap-0 overflow-hidden bg-white p-0 shadow-sm">
+      {/* Header */}
+      <div className="border-b border-border px-6 py-5">
+        <h2 className="text-lg font-bold text-[#111827]">Promo Code</h2>
+      </div>
+
+      {/* Content */}
+      <div className="px-6 py-6">
+        {/* Applied codes */}
+        {appliedCodes.length > 0 && (
+          <div className="mb-4 flex flex-wrap gap-2">
+            {appliedCodes.map((d: any, idx: number) => (
+              <div
+                key={idx}
+                className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary"
+              >
+                {d.code}
+                <CartForm
+                  route="/cart"
+                  action={CartForm.ACTIONS.DiscountCodesUpdate}
+                  inputs={{
+                    discountCodes: appliedCodes
+                      .filter((_: any, i: number) => i !== idx)
+                      .map((c: any) => c.code),
+                  }}
+                >
+                  <button
+                    type="submit"
+                    aria-label={`Remove ${d.code}`}
+                    className="transition-colors hover:text-primary/60"
+                  >
+                    <X size={12} />
+                  </button>
+                </CartForm>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <CartForm
+          route="/cart"
+          action={CartForm.ACTIONS.DiscountCodesUpdate}
+          fetcherKey="discount-code"
+        >
+          {/* Preserve existing applied codes */}
+          {appliedCodes.map((d: any) => (
+            <input
+              key={d.code}
+              type="hidden"
+              name="discountCodes"
+              value={d.code}
+            />
+          ))}
+
+          <div className="flex gap-2">
+            <Input
+              name="discountCode"
+              placeholder="Enter promo code"
+              className="flex-1 rounded-lg border-[#d1d5db] text-sm placeholder:text-[#757575]"
+            />
+            <Button
+              type="submit"
+              variant="outline"
+              disabled={isSubmitting}
+              className="rounded-lg border-[#d1d5db] px-5 text-sm font-medium text-[#374151]"
+            >
+              {isSubmitting ? '...' : 'Apply'}
+            </Button>
+          </div>
+        </CartForm>
+      </div>
+    </Card>
+  );
+}
+
+// ============================================================================
+// OrderSummary — Sticky sidebar
+// ============================================================================
+
+interface OrderSummaryProps {
   cart: OptimisticCart<any>;
 }
 
-function CartSummary({cart}: CartSummaryProps) {
-  const {cost, discountCodes, checkoutUrl} = cart;
+function OrderSummary({cart}: OrderSummaryProps) {
+  const {cost, totalQuantity} = cart;
   const subtotal = cost?.subtotalAmount;
   const total = cost?.totalAmount;
-  const totalDollars = total ? parseFloat(total.amount) : 0;
-
-  // Free shipping progress
-  const shippingProgress = Math.min(
-    (totalDollars / FREE_SHIPPING_THRESHOLD) * 100,
-    100,
-  );
-  const amountToFreeShipping = Math.max(
-    FREE_SHIPPING_THRESHOLD - totalDollars,
-    0,
-  );
-  const hasFreeShipping = totalDollars >= FREE_SHIPPING_THRESHOLD;
 
   return (
-    <div className="mt-6 space-y-6">
-      {/* Summary Lines */}
-      <div className="flex flex-col gap-3 px-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex-1 space-y-2">
-          {/* Subtotal */}
-          <div className="flex items-center justify-between sm:gap-12">
-            <span className="text-sm font-bold text-dark">Subtotal</span>
-            {subtotal && (
-              <span className="text-base font-bold text-dark">
-                {formatMoney(subtotal)}
-              </span>
-            )}
-          </div>
+    <Card className="sticky top-4 w-[400px] shrink-0 gap-0 overflow-hidden bg-white p-0 shadow-sm">
+      {/* Title */}
+      <div className="border-b border-border px-6 pb-[18px] pt-6">
+        <h3 className="text-lg font-bold text-[#1f2937]">Order Summary</h3>
+      </div>
 
-          {/* Sales Tax */}
-          <div className="flex items-center justify-between sm:gap-12">
-            <span className="text-sm font-bold text-dark">Sales Tax</span>
-            <span className="text-base font-bold text-dark">
-              Calculated at checkout
+      <div className="px-6 pt-6">
+        {/* Summary Rows */}
+        <div className="flex flex-col gap-[17px]">
+          <div className="flex items-center justify-between">
+            <span className="text-[15px] text-[#4b5563]">
+              Subtotal ({totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
+              )
+            </span>
+            <span className="text-[15px] text-[#4b5563]">
+              {subtotal ? formatMoney(subtotal) : '—'}
             </span>
           </div>
 
-          {/* Shipping */}
-          <div className="flex items-center justify-between sm:gap-12">
-            <span className="text-sm font-bold text-dark">Shipping</span>
-            <div className="flex items-center gap-3">
-              <span className="text-base text-text-muted">
-                {hasFreeShipping ? 'Free' : 'Calculated at checkout'}
-              </span>
-              <DiscountCodeToggle discountCodes={discountCodes} />
-            </div>
+          <div className="flex items-center justify-between">
+            <span className="text-[15px] text-[#4b5563]">Shipping</span>
+            <span className="text-[15px] text-text-light">
+              Calculated at next step
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span className="text-[15px] text-[#4b5563]">Tax</span>
+            <span className="text-[15px] text-text-light">
+              Calculated at next step
+            </span>
           </div>
         </div>
-      </div>
 
-      {/* Divider */}
-      <div className="border-b border-border" />
+        {/* 2px separator */}
+        <div className="my-[22px] border-t-2 border-border" />
 
-      {/* Total */}
-      <div className="flex items-baseline justify-between px-4">
-        <span className="text-3xl font-normal text-dark">Total</span>
-        {total && (
-          <span className="text-xl font-normal text-dark">
-            {formatMoney(total)}
+        {/* Estimated Total */}
+        <div className="flex items-center justify-between">
+          <span className="text-lg font-bold text-[#111827]">
+            Estimated Total
           </span>
-        )}
-      </div>
-
-      {/* Free Shipping Progress */}
-      <div className="flex items-center gap-4 px-4">
-        <Truck size={40} className="shrink-0 text-dark" />
-
-        <div className="flex-1 space-y-2">
-          {/* Progress Bar */}
-          <div className="h-3 overflow-hidden rounded-full bg-border">
-            <div
-              className="h-full rounded-full bg-primary transition-all"
-              style={{width: `${shippingProgress}%`}}
-            />
-          </div>
-
-          {/* Free Shipping Message */}
-          <p className="text-sm text-dark">
-            {hasFreeShipping ? (
-              <>
-                You qualify for <span className="font-bold">Free Shipping</span>
-                !
-              </>
-            ) : (
-              <>
-                You are{' '}
-                <span className="font-medium">
-                  ${amountToFreeShipping.toFixed(2)}
-                </span>{' '}
-                away from <span className="font-bold">Free Shipping</span>
-              </>
-            )}
-          </p>
+          <span className="text-lg font-bold text-[#111827]">
+            {total ? formatMoney(total) : '—'}
+          </span>
         </div>
-      </div>
 
-      {/* Checkout Button */}
-      {checkoutUrl && (
-        <div className="px-4 pb-4">
-          <a
-            href={checkoutUrl}
-            className="flex w-full items-center justify-center rounded-lg bg-dark px-6 py-4 text-2xl font-normal text-surface transition-colors hover:bg-dark/90"
+        {/* Checkout CTA */}
+        <div className="mt-[22px]">
+          <Link
+            to="/checkout/payment"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-secondary px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-secondary/90"
           >
-            Check Out
-          </a>
+            Proceed to Checkout
+            <ArrowRight size={16} />
+          </Link>
         </div>
-      )}
-    </div>
+
+        {/* Trust Badges */}
+        <div className="mb-6 mt-6 flex items-center justify-center gap-6 border-t border-border pt-6">
+          <div className="flex items-center gap-2">
+            <ShieldCheck size={13} className="text-primary" />
+            <span className="text-[13px] text-[#4b5563]">Secure Checkout</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Lock size={13} className="text-primary" />
+            <span className="text-[13px] text-[#4b5563]">SSL Encrypted</span>
+          </div>
+        </div>
+      </div>
+    </Card>
   );
 }
 
 // ============================================================================
-// DiscountCodeToggle Component
-// ============================================================================
-
-function DiscountCodeToggle({
-  discountCodes,
-}: {
-  discountCodes: any[] | undefined;
-}) {
-  const fetcher = useFetcher();
-  const isSubmitting = fetcher.state !== 'idle';
-
-  // Show applied codes or "Add Coupon" link
-  const appliedCodes = discountCodes?.filter((d: any) => d.applicable) ?? [];
-
-  if (appliedCodes.length > 0) {
-    return (
-      <div className="flex items-center gap-2">
-        {appliedCodes.map((discount: any, idx: number) => (
-          <span key={idx} className="text-sm font-medium text-primary">
-            {discount.code}
-            <CartForm
-              route="/cart"
-              action={CartForm.ACTIONS.DiscountCodesUpdate}
-              inputs={{discountCodes: []}}
-            >
-              <button
-                type="submit"
-                className="ml-1 text-xs text-text-muted hover:text-primary"
-                aria-label={`Remove discount ${discount.code}`}
-              >
-                <X size={12} />
-              </button>
-            </CartForm>
-          </span>
-        ))}
-      </div>
-    );
-  }
-
-  return (
-    <CartForm
-      route="/cart"
-      action={CartForm.ACTIONS.DiscountCodesUpdate}
-      fetcherKey="discount-code-inline"
-    >
-      <details className="group relative">
-        <summary className="cursor-pointer text-base underline decoration-solid text-text hover:text-primary">
-          Add Coupon
-        </summary>
-        <div className="absolute right-0 top-full z-10 mt-2 flex gap-2 rounded-lg border border-border bg-white p-3 shadow-md">
-          <input
-            type="text"
-            name="discountCode"
-            placeholder="Code"
-            className="w-36 rounded-md border border-border px-3 py-1.5 text-sm text-dark placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-          />
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
-          >
-            {isSubmitting ? '...' : 'Apply'}
-          </button>
-        </div>
-      </details>
-    </CartForm>
-  );
-}
-
-// ============================================================================
-// Main Cart Page Component
+// Main CartPage
 // ============================================================================
 
 export default function CartPage() {
   const {cart: originalCart} = useLoaderData<typeof loader>();
   const cart = useOptimisticCart(originalCart);
-
   const hasItems = cart && (cart.totalQuantity ?? 0) > 0;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-      {hasItems ? (
-        <div className="overflow-hidden rounded-lg border border-border bg-white shadow-sm">
-          {/* Gradient Banner */}
-          <div className="relative overflow-hidden bg-linear-to-r from-primary via-accent to-secondary px-6 py-5">
-            <h1 className="relative z-10 text-2xl font-normal text-dark sm:text-[28px] sm:leading-9">
-              Your Cart ({cart.totalQuantity}{' '}
-              {cart.totalQuantity === 1 ? 'Item' : 'Items'})
-            </h1>
+    <div className="min-h-screen bg-[#f9fafb]">
+      {/* Step indicator */}
+      <CheckoutProgress currentStep="cart" />
+
+      <div className="mx-auto max-w-300 px-6 py-8">
+        {hasItems ? (
+          <div className="flex items-start gap-8">
+            {/* ── Left: Main content ── */}
+            <div className="flex min-w-0 flex-1 flex-col gap-6">
+              {/* Guest banner */}
+              <GuestBanner />
+
+              {/* Shopping Cart card */}
+              <Card className="gap-0 overflow-hidden bg-white p-0 shadow-sm">
+                {/* Header */}
+                <div className="flex items-center justify-between border-b border-border px-6 py-5">
+                  <h2 className="text-lg font-bold text-[#111827]">
+                    Shopping Cart ({cart.totalQuantity}{' '}
+                    {cart.totalQuantity === 1 ? 'item' : 'items'})
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    asChild
+                    className="p-2 text-[15px] font-medium text-secondary hover:bg-transparent hover:text-secondary/80"
+                  >
+                    <Link to="/collections">Continue Shopping</Link>
+                  </Button>
+                </div>
+
+                {/* Items */}
+                <div className="px-6">
+                  {cart.lines.nodes.map((line: any, idx: number) => (
+                    <CartLineRow
+                      key={line.id}
+                      line={line}
+                      isLast={idx === cart.lines.nodes.length - 1}
+                    />
+                  ))}
+                </div>
+              </Card>
+
+              {/* Promo Code card */}
+              <PromoCodeCard discountCodes={cart.discountCodes} />
+            </div>
+
+            {/* ── Right: Order Summary ── */}
+            <OrderSummary cart={cart as OptimisticCart<any>} />
           </div>
-
-          {/* Column Headers (desktop) */}
-          <div className="hidden border-b border-border bg-surface px-4 py-3 text-xs font-semibold uppercase tracking-wider text-text-muted sm:grid sm:grid-cols-[1fr_120px_140px_120px_32px] sm:gap-6">
-            <span>Item</span>
-            <span>Price</span>
-            <span className="text-center">Quantity</span>
-            <span className="text-right">Total</span>
-            <span />
-          </div>
-
-          {/* Cart Line Items */}
-          <div>
-            {cart.lines.nodes.map((line: any, idx: number) => (
-              <CartLineRow
-                key={line.id}
-                line={line}
-                isLast={idx === cart.lines.nodes.length - 1}
-              />
-            ))}
-          </div>
-
-          {/* Divider before summary */}
-          <div className="border-t border-border" />
-
-          {/* Summary + Checkout */}
-          <CartSummary cart={cart as OptimisticCart<any>} />
-        </div>
-      ) : (
-        <CartEmpty />
-      )}
+        ) : (
+          <CartEmpty />
+        )}
+      </div>
     </div>
   );
 }

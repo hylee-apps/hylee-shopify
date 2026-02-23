@@ -2,6 +2,8 @@
  * FIGMA DESIGN REFERENCE — DO NOT MODIFY
  *
  * Raw output from Figma MCP `get_design_context` for Footer.
+ * Source: Component Library (X566CMLIsD8YboYdRU18IS), node 659:113
+ * Captured: 2026-02-23 — replaces previous capture from eWh354xJwjwpuedg2yjkFl/1796:105
  * This file is an immutable reference for comparing against the implementation.
  *
  * Source: https://www.figma.com/design/eWh354xJwjwpuedg2yjkFl/Home---Nav---Project-Launch?node-id=1796-105

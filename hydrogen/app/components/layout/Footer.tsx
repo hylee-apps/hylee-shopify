@@ -1,12 +1,15 @@
 import {useState} from 'react';
 import {Link} from 'react-router';
 import type {FooterQuery} from 'storefrontapi.generated';
+import {cn} from '~/lib/utils';
 import {Input} from '~/components/ui/input';
 import {Button} from '~/components/ui/button';
 
 // ============================================================================
 // Types
 // ============================================================================
+
+export type FooterVariant = 'default' | 'primary' | 'secondary' | 'tertiary';
 
 export interface FooterProps {
   /** Footer menu from Storefront API */
@@ -15,6 +18,14 @@ export interface FooterProps {
   shopName: string;
   /** Override footer links (otherwise uses defaults) */
   links?: Array<{title: string; url: string}>;
+  /**
+   * Color scheme variant.
+   * - default:   white bg, colored logo, green-bordered input, filled teal submit button
+   * - primary:   green bg (#2ac864), white logo, white-bordered input, white outline button
+   * - secondary: teal bg (#2699a6), white logo, white-bordered input, white outline button
+   * - tertiary:  mint bg (#2bd9a8), white logo, white-bordered input, white outline button
+   */
+  variant?: FooterVariant;
 }
 
 // ============================================================================
@@ -29,7 +40,8 @@ const DEFAULT_LINKS = [
   {title: 'Become a Supplier', url: '/pages/become-a-supplier'},
 ];
 
-// Figma: X, Instagram, YouTube, LinkedIn (24×24px each, bare icons — no container box)
+// Figma: X, Instagram, YouTube, LinkedIn — 24×24px bare SVG icons, gap-[10px]
+// Icons are text-black on ALL variants (including colored backgrounds) per Figma spec
 const SOCIAL_LINKS = [
   {
     label: 'X',
@@ -54,13 +66,34 @@ const SOCIAL_LINKS = [
 ];
 
 // ============================================================================
-// Newsletter Input
-// Figma: heading 20px Inter Regular, gap-[13px] between heading/input/links
-// Input: min-w-[275px], border-1 secondary, rounded-[25px], h-[40px]
-// Button: bg-secondary, rounded-[25px], h-[40px], px-[26px]
+// Variant helpers
 // ============================================================================
 
-function NewsletterSignup() {
+const BG_CLASSES: Record<FooterVariant, string> = {
+  default: 'bg-white',
+  primary: 'bg-primary',
+  secondary: 'bg-secondary',
+  tertiary: 'bg-brand-accent',
+};
+
+// ============================================================================
+// NewsletterSignup
+//
+// Figma Input variants (node 659:113):
+//   Default footer  → PrimarySubmit input:
+//     border-primary, placeholder text-text-muted (#666),
+//     FILLED teal button (bg-secondary text-white)
+//
+//   Primary/Secondary/Tertiary footers → Alternate input:
+//     border-white, placeholder text-white,
+//     OUTLINE white button (bg-transparent border-white text-white)
+// ============================================================================
+
+interface NewsletterSignupProps {
+  colored?: boolean;
+}
+
+function NewsletterSignup({colored = false}: NewsletterSignupProps) {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
@@ -75,6 +108,7 @@ function NewsletterSignup() {
 
   return (
     <div className="flex flex-col gap-[13px] items-center w-[560px] max-w-full">
+      {/* Figma: 20px Inter Regular (400), text-black, leading-[1.2], centered — all variants */}
       <h3 className="text-[20px] font-normal text-black leading-[1.2] text-center">
         Sign up for Hylee news &amp; updates!
       </h3>
@@ -85,15 +119,30 @@ function NewsletterSignup() {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email"
           required
-          className="min-w-[275px] h-[40px] rounded-[25px] border-secondary text-[14px] font-medium text-text-muted placeholder:text-text-muted"
+          className={cn(
+            'min-w-68.75 h-10 rounded-[25px] text-[14px] font-medium bg-transparent',
+            colored
+              ? 'border-white text-white placeholder:text-white'
+              : 'border-primary text-text-muted placeholder:text-text-muted',
+          )}
         />
-        <Button
-          type="submit"
-          variant="secondary"
-          className="h-[40px] rounded-[25px] px-6.5 text-[14px] whitespace-nowrap"
-        >
-          {submitted ? 'Sent!' : 'Submit'}
-        </Button>
+        {colored ? (
+          // Primary/Secondary/Tertiary: white outline button (Figma: bg-transparent, border-white, text-white)
+          <Button
+            type="submit"
+            className="h-10 rounded-[25px] px-6.5 text-[14px] font-medium whitespace-nowrap bg-transparent border border-white text-white hover:bg-white/10"
+          >
+            {submitted ? 'Sent!' : 'Submit'}
+          </Button>
+        ) : (
+          // Default: filled teal button (Figma: bg-secondary, text-white)
+          <Button
+            type="submit"
+            className="h-10 rounded-[25px] px-6.5 text-[14px] font-medium whitespace-nowrap bg-secondary text-white hover:bg-secondary/90"
+          >
+            {submitted ? 'Sent!' : 'Submit'}
+          </Button>
+        )}
       </form>
     </div>
   );
@@ -101,30 +150,40 @@ function NewsletterSignup() {
 
 // ============================================================================
 // Main Component
-// Figma: px-[122px] py-[59px], left-col 240px, gap-[78px] between columns
+// Figma: 1440px frame, px-[122px] py-[59px]
+// Row: left col 240px (logo + social) | gap-[78px] | center/right w-[560px]
 // ============================================================================
 
-export function Footer({menu, shopName, links}: FooterProps) {
+export function Footer({
+  menu,
+  shopName,
+  links,
+  variant = 'primary',
+}: FooterProps) {
   const displayLinks = links && links.length > 0 ? links : DEFAULT_LINKS;
+  const colored = variant !== 'default';
+
+  const logoSrc = colored ? '/logo-white.png' : '/logo-full.png';
 
   return (
-    <footer className="bg-white">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-16 xl:px-[122px] py-12 lg:py-[59px]">
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-[78px] items-start justify-center-safe">
-          {/* Left column — Logo + social (Figma: 240px, gap-[5px]) */}
+    <footer className={BG_CLASSES[variant]}>
+      <div className="max-w-300 mx-auto py-12 lg:py-14.75">
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-[78px] items-start">
+          {/* Left column — Logo + social (Figma: 240px wide, gap-[5px] between items) */}
           <div className="flex flex-col gap-[5px] items-start shrink-0 lg:w-[240px]">
             <Link to="/">
               <img
-                src="/logo-full.png"
+                src={logoSrc}
                 alt={shopName}
-                className="h-[101.865px] w-[183px] object-cover"
+                className="h-[101.821px] w-[183px] object-cover"
                 loading="lazy"
               />
             </Link>
+            {/* Figma: 14px Inter Medium, text-black — all variants */}
             <p className="text-[14px] font-medium text-black">
               Follow us on social media
             </p>
-            {/* Figma: 24×24px bare icons, gap-[10px] — no container box */}
+            {/* Figma: 24×24px bare icons, gap-[10px], text-black — ALL variants */}
             <div className="flex items-center gap-[10px]">
               {SOCIAL_LINKS.map((social) => (
                 <a
@@ -133,12 +192,12 @@ export function Footer({menu, shopName, links}: FooterProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  className="flex items-center justify-center size-[24px] text-black hover:text-secondary transition-colors"
+                  className="flex items-center justify-center size-6 text-black transition-opacity hover:opacity-70"
                 >
                   <svg
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    className="size-[24px]"
+                    className="size-6"
                     aria-hidden="true"
                   >
                     <path d={social.icon} />
@@ -148,12 +207,12 @@ export function Footer({menu, shopName, links}: FooterProps) {
             </div>
           </div>
 
-          {/* Center/right area — Newsletter heading + input + nav links */}
-          {/* Figma: w-[560px], flex-col, gap-[13px], items-center, justify-center */}
-          <div className="flex flex-col items-center lg:w-140 gap-3.25">
-            <NewsletterSignup />
+          {/* Center/right — Newsletter + nav links (Figma: w-[560px], flex-col, gap-[13px], items-center) */}
+          <div className="flex flex-col items-center flex-1 lg:w-140 gap-3.25">
+            <NewsletterSignup colored={colored} />
 
-            {/* Nav links — Figma: p-[10px] wrapper, links h-[40px] px-[16px] py-[10px] rounded-[8px] */}
+            {/* Nav links — Figma: p-[10px] wrapper, each link h-[40px] px-[16px] py-[10px] rounded-[8px] */}
+            {/* text-[#666] (text-text-muted) on ALL variants per Figma spec */}
             <nav className="p-[10px]">
               <ul className="flex flex-wrap items-center justify-center">
                 {displayLinks.map((link) => (
@@ -161,7 +220,7 @@ export function Footer({menu, shopName, links}: FooterProps) {
                     <Button
                       variant="ghost"
                       asChild
-                      className="h-10 px-4 text-[14px] font-medium text-text-muted hover:text-primary whitespace-nowrap rounded-lg"
+                      className="h-10 px-4 py-2.5 text-[14px] font-medium text-text-muted hover:text-black whitespace-nowrap rounded-xl"
                     >
                       <Link to={link.url}>{link.title}</Link>
                     </Button>

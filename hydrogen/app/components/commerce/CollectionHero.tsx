@@ -34,21 +34,9 @@ export function CollectionHero({title, image, className}: CollectionHeroProps) {
       {/* ------------------------------------------------------------------ */}
       {/* Desktop — Figma exact layout                                        */}
       {/* ------------------------------------------------------------------ */}
-      {/*
-       * 3-column grid: [image | title | spacer]
-       * Left and right columns are always equal (min(480px, 35%)), so the
-       * center column is mathematically centered on the page at every width.
-       * The image and title live in separate columns — overlap is impossible.
-       */}
-      <div
-        className="hidden lg:grid h-[260px] w-full"
-        style={{
-          gridTemplateColumns: 'min(480px, 35%) 1fr min(480px, 35%)',
-          gridTemplateRows: '260px',
-        }}
-      >
-        {/* Left: hero image */}
-        <div className="h-full">
+      <div className="hidden lg:flex h-65 w-full">
+        {/* Image */}
+        <div className="h-full w-82 shrink-0">
           <img
             src="/hero-plp.png"
             alt=""
@@ -57,15 +45,12 @@ export function CollectionHero({title, image, className}: CollectionHeroProps) {
           />
         </div>
 
-        {/* Center: title — justify-center here = centered on the full page */}
-        <div className="flex items-center justify-center min-w-0 px-4">
-          <h1 className="text-[57px] font-normal leading-[64px] tracking-[-0.25px] text-[#1d1b20] text-center">
+        {/* Title — centered within this div */}
+        <div className="flex flex-1 items-center justify-center">
+          <h1 className="text-[57px] font-normal leading-16 tracking-[-0.25px] text-[#1d1b20] text-center">
             {title}
           </h1>
         </div>
-
-        {/* Right: invisible spacer that mirrors image column width */}
-        <div aria-hidden="true" />
       </div>
 
       {/* ------------------------------------------------------------------ */}
