@@ -33,6 +33,8 @@ jobs:
         run: cp pnpm-lock.yaml hydrogen/pnpm-lock.yaml
 
       - name: Build and Deploy to Oxygen
-        run: pnpm --dir hydrogen run deploy
+        # --force skips the uncommitted-changes check; files like
+        # .github/copilot-instructions.md are modified during build/codegen.
+        run: pnpm --dir hydrogen run deploy -- --force
         env:
           SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN: ${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000096439 }}
