@@ -178,19 +178,35 @@ const MENU_FRAGMENT = `#graphql
     type
     url
   }
-  fragment ChildMenuItem on MenuItem {
+  # L4 — deepest level (e.g. Air Fryers)
+  fragment L4MenuItem on MenuItem {
     ...MenuItem
   }
-  fragment ParentMenuItem on MenuItem {
+  # L3 — e.g. Kitchen Appliance
+  fragment L3MenuItem on MenuItem {
     ...MenuItem
     items {
-      ...ChildMenuItem
+      ...L4MenuItem
+    }
+  }
+  # L2 — e.g. Kitchen & Dining
+  fragment L2MenuItem on MenuItem {
+    ...MenuItem
+    items {
+      ...L3MenuItem
+    }
+  }
+  # L1 — top-level category (e.g. Home & Garden)
+  fragment L1MenuItem on MenuItem {
+    ...MenuItem
+    items {
+      ...L2MenuItem
     }
   }
   fragment Menu on Menu {
     id
     items {
-      ...ParentMenuItem
+      ...L1MenuItem
     }
   }
 ` as const;

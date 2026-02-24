@@ -1,5 +1,5 @@
 import type {Route} from './+types/search';
-import {getSeoMeta, getPaginationVariables} from '@shopify/hydrogen';
+import {getSeoMeta} from '@shopify/hydrogen';
 import {useLoaderData, useSearchParams, Form, Link} from 'react-router';
 import {Search} from 'lucide-react';
 import {Button} from '~/components/ui/button';
@@ -13,6 +13,7 @@ import {
   BreadcrumbSeparator,
 } from '~/components/ui/breadcrumb';
 import {ProductCard} from '~/components/commerce';
+import {searchProducts, type SearchaniseProduct} from '~/lib/searchanise';
 
 // ============================================================================
 // Route Meta
@@ -29,124 +30,56 @@ export function meta({data}: Route.MetaArgs) {
 }
 
 // ============================================================================
-// GraphQL Query
-// ============================================================================
-
-const SEARCH_QUERY = `#graphql
-  fragment SearchProduct on Product {
-    id
-    title
-    handle
-    vendor
-    availableForSale
-    tags
-    productType
-    featuredImage {
-      id
-      url
-      altText
-      width
-      height
-    }
-    priceRange {
-      minVariantPrice {
-        amount
-        currencyCode
-      }
-      maxVariantPrice {
-        amount
-        currencyCode
-      }
-    }
-    compareAtPriceRange {
-      minVariantPrice {
-        amount
-        currencyCode
-      }
-    }
-    variants(first: 1) {
-      nodes {
-        id
-        availableForSale
-        price {
-          amount
-          currencyCode
-        }
-        compareAtPrice {
-          amount
-          currencyCode
-        }
-        selectedOptions {
-          name
-          value
-        }
-      }
-    }
-  }
-  query Search(
-    $query: String!
-    $first: Int
-    $last: Int
-    $startCursor: String
-    $endCursor: String
-    $country: CountryCode
-    $language: LanguageCode
-  ) @inContext(country: $country, language: $language) {
-    products: search(
-      query: $query
-      types: PRODUCT
-      first: $first
-      last: $last
-      before: $startCursor
-      after: $endCursor
-    ) {
-      totalCount
-      nodes {
-        ... on Product {
-          ...SearchProduct
-        }
-      }
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
-      }
-    }
-  }
-` as const;
-
-// ============================================================================
 // Loader
 // ============================================================================
 
 export async function loader({request, context}: Route.LoaderArgs) {
   const url = new URL(request.url);
   const searchTerm = url.searchParams.get('q') ?? '';
+  const page = Math.max(1, Number(url.searchParams.get('pg') ?? '1'));
 
   if (!searchTerm) {
-    return {searchTerm, products: null, totalCount: 0};
+    return {searchTerm, products: null, totalCount: 0, page: 1, pageSize: 12};
   }
 
-  const paginationVariables = getPaginationVariables(request, {
-    pageBy: 12,
-  });
+  const apiKey = (context.env as Env).SEARCHANISE_API_KEY;
+  if (!apiKey) {
+    // Graceful degradation: fall back to empty results if key is missing rather
+    // than crashing the entire page during local development.
+    console.warn(
+      '[search] SEARCHANISE_API_KEY is not set — returning empty results',
+    );
+    return {
+      searchTerm,
+      products: [] as SearchaniseProduct[],
+      totalCount: 0,
+      page,
+      pageSize: 12,
+    };
+  }
 
-  const {products} = await context.storefront.query(SEARCH_QUERY, {
-    variables: {
-      query: searchTerm,
-      ...paginationVariables,
-      country: context.storefront.i18n.country,
-      language: context.storefront.i18n.language,
-    },
-  });
-
-  return {
-    searchTerm,
-    products: products.nodes,
-    totalCount: products.totalCount,
-    pageInfo: products.pageInfo,
-  };
+  try {
+    const result = await searchProducts(apiKey, searchTerm, {
+      page,
+      pageSize: 12,
+    });
+    return {
+      searchTerm,
+      products: result.products,
+      totalCount: result.totalCount,
+      page: result.page,
+      pageSize: result.pageSize,
+    };
+  } catch (err) {
+    console.error('[search] Searchanise API call failed:', err);
+    return {
+      searchTerm,
+      products: [] as SearchaniseProduct[],
+      totalCount: 0,
+      page,
+      pageSize: 12,
+    };
+  }
 }
 
 // ============================================================================
@@ -154,8 +87,11 @@ export async function loader({request, context}: Route.LoaderArgs) {
 // ============================================================================
 
 export default function SearchPage() {
-  const {searchTerm, products, totalCount} = useLoaderData<typeof loader>();
+  const {searchTerm, products, totalCount, page, pageSize} =
+    useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
+
+  const totalPages = pageSize > 0 ? Math.ceil(totalCount / pageSize) : 1;
 
   return (
     <div className="mx-auto max-w-300 px-4 py-8 sm:px-6">
@@ -189,7 +125,16 @@ export default function SearchPage() {
           </p>
 
           {products && products.length > 0 ? (
-            <SearchResults products={products} />
+            <>
+              <SearchResults products={products} />
+              {totalPages > 1 && (
+                <SearchPagination
+                  page={page}
+                  totalPages={totalPages}
+                  searchTerm={searchTerm}
+                />
+              )}
+            </>
           ) : (
             <EmptySearchResults searchTerm={searchTerm} />
           )}
@@ -225,9 +170,12 @@ function SearchForm({defaultValue = ''}: {defaultValue?: string}) {
           placeholder="Search products..."
           autoComplete="off"
           className="pl-10"
+          data-testid="search-input"
         />
       </div>
-      <Button type="submit">Search</Button>
+      <Button type="submit" data-testid="search-submit">
+        Search
+      </Button>
     </Form>
   );
 }
@@ -236,29 +184,106 @@ function SearchForm({defaultValue = ''}: {defaultValue?: string}) {
 // SearchResults Component
 // ============================================================================
 
-function SearchResults({products}: {products: any[]}) {
+function SearchResults({products}: {products: SearchaniseProduct[]}) {
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-      {products.map((product: any) => (
+    <div
+      className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
+      data-testid="search-results"
+    >
+      {products.map((product) => (
         <ProductCard
-          key={product.id}
+          key={product.product_id}
           product={{
-            id: product.id,
+            id: `gid://shopify/Product/${product.product_id}`,
             title: product.title,
             handle: product.handle,
             vendor: product.vendor,
-            availableForSale: product.availableForSale,
+            availableForSale: product.available,
             tags: product.tags,
             images: {
-              nodes: product.featuredImage ? [product.featuredImage] : [],
+              nodes: product.image_link
+                ? [
+                    {
+                      id: product.product_id,
+                      url: product.image_link,
+                      altText: product.title,
+                      width: 800,
+                      height: 800,
+                    },
+                  ]
+                : [],
             },
-            priceRange: product.priceRange,
-            compareAtPriceRange: product.compareAtPriceRange,
-            variants: product.variants,
+            priceRange: {
+              minVariantPrice: {
+                amount: String(product.price),
+                currencyCode: 'USD',
+              },
+            },
+            compareAtPriceRange: product.compare_at_price
+              ? {
+                  minVariantPrice: {
+                    amount: String(product.compare_at_price),
+                    currencyCode: 'USD',
+                  },
+                }
+              : undefined,
+            variants: {
+              nodes: product.add_to_cart_id
+                ? [
+                    {
+                      id: `gid://shopify/ProductVariant/${product.add_to_cart_id}`,
+                      availableForSale: product.available,
+                      price: {
+                        amount: String(product.price),
+                        currencyCode: 'USD',
+                      },
+                      selectedOptions: [],
+                    },
+                  ]
+                : [],
+            },
           }}
         />
       ))}
     </div>
+  );
+}
+
+// ============================================================================
+// SearchPagination Component
+// ============================================================================
+
+function SearchPagination({
+  page,
+  totalPages,
+  searchTerm,
+}: {
+  page: number;
+  totalPages: number;
+  searchTerm: string;
+}) {
+  const buildUrl = (pg: number) =>
+    `/search?q=${encodeURIComponent(searchTerm)}&pg=${pg}`;
+
+  return (
+    <nav
+      className="mt-8 flex items-center justify-center gap-2"
+      aria-label="Search result pages"
+    >
+      {page > 1 && (
+        <Button variant="outline" asChild size="sm">
+          <Link to={buildUrl(page - 1)}>Previous</Link>
+        </Button>
+      )}
+      <span className="text-sm text-text-muted">
+        Page {page} of {totalPages}
+      </span>
+      {page < totalPages && (
+        <Button variant="outline" asChild size="sm">
+          <Link to={buildUrl(page + 1)}>Next</Link>
+        </Button>
+      )}
+    </nav>
   );
 }
 
@@ -268,7 +293,10 @@ function SearchResults({products}: {products: any[]}) {
 
 function EmptySearchResults({searchTerm}: {searchTerm: string}) {
   return (
-    <div className="flex flex-col items-center py-16 text-center">
+    <div
+      className="flex flex-col items-center py-16 text-center"
+      data-testid="search-empty"
+    >
       <Search size={64} className="mb-4 text-text-muted" />
       <h2 className="mb-2 text-xl font-semibold text-dark">No results found</h2>
       <p className="mb-6 max-w-md text-text-muted">

@@ -52,3 +52,6 @@ test-results/
 # Hydrogen
 .react-router/
 *.generated.d.ts
+
+# Searchanise — generated synonym artifact (run pnpm synonyms:generate to recreate)
+data/synonyms.json
