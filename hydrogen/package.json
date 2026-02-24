@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "shopify hydrogen build --codegen",
-    "deploy": "shopify hydrogen deploy",
+    "deploy": "shopify hydrogen deploy --force",
     "dev": "shopify hydrogen dev --codegen --disable-version-check",
     "preview": "shopify hydrogen preview --build",
     "lint": "eslint --no-error-on-unmatched-pattern .",
