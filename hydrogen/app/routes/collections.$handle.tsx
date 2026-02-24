@@ -1,10 +1,18 @@
-import {useState} from 'react';
-import {useLocation} from 'react-router';
+import {useState, useMemo} from 'react';
+import {useLocation, useNavigation, useRouteLoaderData} from 'react-router';
 import type {Route} from './+types/collections.$handle';
+import type {RootLoader} from '~/root';
+import {
+  findNavPath,
+  buildPathFromParentMetafields,
+  type CollectionRef,
+  PARENT_CHAIN_FRAGMENT,
+} from '~/lib/breadcrumbs';
 import {
   getPaginationVariables,
   Pagination,
   getSeoMeta,
+  Image,
 } from '@shopify/hydrogen';
 import type {ProductCardProps} from '~/components/commerce/ProductCard';
 import {Link} from 'react-router';
@@ -29,6 +37,66 @@ import {
 } from '~/lib/collection/filters';
 
 type CollectionProduct = ProductCardProps['product'];
+
+type SubcollectionNode = {
+  handle: string;
+  title: string;
+  image?: {
+    url: string;
+    altText?: string | null;
+    width?: number | null;
+    height?: number | null;
+  } | null;
+};
+
+// ============================================================================
+// Subcollection Grid
+// ============================================================================
+
+function SubcollectionGrid({
+  collection,
+}: {
+  collection: {
+    childCollections?: {
+      references?: {nodes?: SubcollectionNode[] | null} | null;
+    } | null;
+  };
+}) {
+  const subcollections = collection.childCollections?.references?.nodes ?? [];
+  if (!subcollections.length) return null;
+
+  return (
+    <div className="max-w-300 mx-auto px-4 sm:px-6 py-4">
+      <div className="mx-auto flex w-fit flex-wrap justify-center gap-4">
+        {subcollections.map((sub) => (
+          <Link
+            key={sub.handle}
+            to={`/collections/${sub.handle}`}
+            className="group flex w-28 flex-col items-center gap-2 sm:w-32 md:w-36"
+          >
+            <div className="aspect-square w-full overflow-hidden rounded-lg bg-surface">
+              {sub.image ? (
+                <Image
+                  data={sub.image}
+                  aspectRatio="1/1"
+                  sizes="(min-width: 1024px) 16vw, (min-width: 640px) 20vw, 33vw"
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-surface text-text-muted text-xs">
+                  {sub.title.slice(0, 2)}
+                </div>
+              )}
+            </div>
+            <span className="text-center text-xs font-medium text-text leading-tight group-hover:text-primary transition-colors">
+              {sub.title}
+            </span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 // ============================================================================
 // GraphQL Fragments & Query
@@ -110,6 +178,7 @@ const COLLECTION_QUERY = `#graphql
       handle
       description
       descriptionHtml
+      ...BcCollectionWithParents
       image {
         id
         url
@@ -120,6 +189,22 @@ const COLLECTION_QUERY = `#graphql
       seo {
         title
         description
+      }
+      childCollections: metafield(namespace: "custom", key: "child_nodes") {
+        references(first: 20) {
+          nodes {
+            ... on Collection {
+              handle
+              title
+              image {
+                url
+                altText
+                width
+                height
+              }
+            }
+          }
+        }
       }
       products(
         first: $first
@@ -155,6 +240,7 @@ const COLLECTION_QUERY = `#graphql
     }
   }
   ${COLLECTION_PRODUCT_FRAGMENT}
+  ${PARENT_CHAIN_FRAGMENT}
 ` as const;
 
 // ============================================================================
@@ -223,7 +309,27 @@ export function meta({data}: Route.MetaArgs) {
 export default function CollectionPage({loaderData}: Route.ComponentProps) {
   const {collection, searchParamsString} = loaderData;
   const {pathname} = useLocation();
+  const navigation = useNavigation();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const root = useRouteLoaderData<RootLoader>('root');
+
+  // Key for Pagination: changes when filters/sort change but NOT on cursor
+  // navigation, so "Load More" still works while filters trigger a fresh mount.
+  const paginationKey = useMemo(() => {
+    const p = new URLSearchParams(searchParamsString);
+    p.delete('cursor');
+    p.delete('direction');
+    return p.toString();
+  }, [searchParamsString]);
+
+  const isNavigating = navigation.state !== 'idle';
+
+  // Build breadcrumb path — prefer metafield chain, fall back to nav menu
+  const metafieldPath = buildPathFromParentMetafields(
+    collection as unknown as CollectionRef,
+  );
+  const navPath =
+    metafieldPath ?? findNavPath(root?.header?.menu, collection.handle);
 
   // Reconstruct searchParams from serialized string
   const searchParams = new URLSearchParams(searchParamsString);
@@ -238,33 +344,47 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
   return (
     <div className="pb-12">
       {/* ================================================================ */}
-      {/* BREADCRUMBS — Figma: ghost-button links h-10 px-4 rounded-[8px]  */}
+      {/* BREADCRUMBS — Figma: ghost-button links h-10 px-4 rounded-xl  */}
+      {/* Nav-aware: Home > Parent Collection > ... > This Collection       */}
       {/* ================================================================ */}
       <Breadcrumb className="max-w-300 mx-auto px-4 sm:px-6 py-2.5">
         <BreadcrumbList className="text-[14px] font-medium text-text-muted">
-          <BreadcrumbItem>
-            <BreadcrumbLink
-              asChild
-              className="h-10 px-4 rounded-[8px] hover:bg-accent inline-flex items-center"
-            >
-              <Link to="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator>/</BreadcrumbSeparator>
-          <BreadcrumbItem>
-            <BreadcrumbLink
-              asChild
-              className="h-10 px-4 rounded-[8px] hover:bg-accent inline-flex items-center"
-            >
-              <Link to="/collections">Collections</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator>/</BreadcrumbSeparator>
-          <BreadcrumbItem>
-            <BreadcrumbPage className="text-black">
-              {collection.title}
-            </BreadcrumbPage>
-          </BreadcrumbItem>
+          {navPath ? (
+            // Nav-hierarchy: L1 / L2 / ... / This Collection
+            navPath.map((node, i) => {
+              const isLast = i === navPath.length - 1;
+              return (
+                <>
+                  {i > 0 && (
+                    <BreadcrumbSeparator key={`sep-${node.url}`}>
+                      /
+                    </BreadcrumbSeparator>
+                  )}
+                  <BreadcrumbItem key={node.url}>
+                    {isLast ? (
+                      <BreadcrumbPage className="text-black h-10 px-4 inline-flex items-center">
+                        {node.title}
+                      </BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink
+                        asChild
+                        className="h-10 px-4 rounded-xl hover:bg-accent inline-flex items-center"
+                      >
+                        <Link to={node.url}>{node.title}</Link>
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                </>
+              );
+            })
+          ) : (
+            // Fallback: just the current collection title, no parent link
+            <BreadcrumbItem>
+              <BreadcrumbPage className="text-black h-10 px-4 inline-flex items-center">
+                {collection.title}
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+          )}
         </BreadcrumbList>
       </Breadcrumb>
 
@@ -279,10 +399,15 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
       />
 
       {/* ================================================================ */}
+      {/* SUBCOLLECTIONS — square cards with image + title               */}
+      {/* ================================================================ */}
+      <SubcollectionGrid collection={collection} />
+
+      {/* ================================================================ */}
       {/* PRODUCTS SECTION — Figma: px-[122px] py-[20px]                  */}
       {/* ================================================================ */}
       <div className="max-w-300 mx-auto px-4 sm:px-6 py-5">
-        <Pagination connection={products}>
+        <Pagination key={paginationKey} connection={products}>
           {({
             nodes,
             NextLink,
@@ -321,7 +446,9 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
                 />
 
                 {/* Product grid */}
-                <div className="flex-1 min-w-0">
+                <div
+                  className={`flex-1 min-w-0 transition-opacity duration-200 ${isNavigating ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}
+                >
                   {nodes.length > 0 ? (
                     <>
                       {hasPreviousPage && (

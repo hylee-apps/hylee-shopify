@@ -6,7 +6,10 @@ export default defineConfig({
     environment: 'node',
 
     // Test file patterns
-    include: ['tests/components/**/*.{test,spec}.{js,ts}'],
+    include: [
+      'tests/components/**/*.{test,spec}.{js,ts}',
+      'scripts/__tests__/**/*.{test,spec}.{ts,js}',
+    ],
 
     // Exclude patterns
     exclude: ['node_modules', 'theme', 'tests/e2e'],

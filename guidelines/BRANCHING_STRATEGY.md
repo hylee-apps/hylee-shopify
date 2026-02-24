@@ -140,6 +140,7 @@ These are the only valid scopes for branch names and PR titles:
 | `test`          | Test additions, test fixes, test infrastructure             |
 | `perf`          | Performance improvements                                    |
 | `infra`         | Build configuration, CI/CD, deployment config               |
+| `search`        | Search functionality, Searchanise integration, synonyms     |
 
 ### Adding New Scopes
 

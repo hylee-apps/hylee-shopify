@@ -34,7 +34,7 @@ export default defineConfig({
   },
   ssr: {
     optimizeDeps: {
-      include: ['react-router'],
+      include: ['style-to-js', 'react-router'],
     },
     noExternal: [/^@radix-ui\//, 'radix-ui', 'set-cookie-parser', 'cookie'],
   },

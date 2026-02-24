@@ -1,6 +1,6 @@
 'use client';
 
-import {useState, useCallback} from 'react';
+import {useState, useRef, useEffect} from 'react';
 import {Link, useLocation, useNavigate} from 'react-router';
 import type {Filter} from '@shopify/hydrogen/storefront-api-types';
 import {
@@ -54,14 +54,16 @@ function CheckboxFilterItem({
   isActive,
   href,
 }: CheckboxFilterItemProps) {
-  const navigate = useNavigate();
-
   return (
-    <label className="flex cursor-pointer items-center gap-2.5 py-1.5 group">
+    <Link
+      to={href}
+      preventScrollReset
+      className="flex cursor-pointer items-center gap-2.5 py-1.5 group"
+    >
       <Checkbox
         checked={isActive}
-        onCheckedChange={() => navigate(href, {preventScrollReset: true})}
-        className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+        tabIndex={-1}
+        className="pointer-events-none data-[state=checked]:bg-primary data-[state=checked]:border-primary"
       />
       <span className="text-sm text-text-muted transition-colors group-hover:text-dark">
         {label}
@@ -69,7 +71,7 @@ function CheckboxFilterItem({
       {count !== undefined && (
         <span className="ml-auto text-xs text-text-muted">({count})</span>
       )}
-    </label>
+    </Link>
   );
 }
 
@@ -78,33 +80,49 @@ function CheckboxFilterItem({
 // ============================================================================
 
 function PriceRangeFilter({searchParams}: {searchParams: URLSearchParams}) {
-  const {pathname} = useLocation();
+  const {pathname, search} = useLocation();
   const navigate = useNavigate();
 
-  // Parse current price filter from search params
-  let currentMin = 0;
-  let currentMax = 200;
+  // Parse current price filter from the URL params passed in (URL-derived, optimistic)
+  let initialMin = '';
+  let initialMax = '';
   for (const val of searchParams.getAll('filter')) {
     try {
       const parsed = JSON.parse(val) as Record<string, Record<string, number>>;
       if (parsed.price) {
-        if (parsed.price.min != null) currentMin = parsed.price.min;
-        if (parsed.price.max != null) currentMax = parsed.price.max;
+        if (parsed.price.min != null) initialMin = String(parsed.price.min);
+        if (parsed.price.max != null) initialMax = String(parsed.price.max);
       }
     } catch {
       // skip
     }
   }
 
-  const [minVal, setMinVal] = useState(String(currentMin));
-  const [maxVal, setMaxVal] = useState(String(currentMax));
+  const [minVal, setMinVal] = useState(initialMin);
+  const [maxVal, setMaxVal] = useState(initialMax);
+  // Skip navigation on the first render — only fire when user actually types
+  const isFirstRender = useRef(true);
 
-  const applyPrice = useCallback(() => {
-    const min = parseInt(minVal, 10) || 0;
-    const max = parseInt(maxVal, 10) || undefined;
-    const url = buildPriceFilterUrl(pathname, searchParams, min, max);
-    navigate(url, {preventScrollReset: true});
-  }, [minVal, maxVal, pathname, searchParams, navigate]);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      const min = minVal !== '' ? parseInt(minVal, 10) : undefined;
+      const max = maxVal !== '' ? parseInt(maxVal, 10) : undefined;
+      const url = buildPriceFilterUrl(
+        pathname,
+        new URLSearchParams(search),
+        isNaN(min as number) ? undefined : min,
+        isNaN(max as number) ? undefined : max,
+      );
+      navigate(url, {preventScrollReset: true});
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, [minVal, maxVal]);
 
   return (
     <div className="flex items-center gap-3">
@@ -112,9 +130,7 @@ function PriceRangeFilter({searchParams}: {searchParams: URLSearchParams}) {
         type="number"
         value={minVal}
         onChange={(e) => setMinVal(e.target.value)}
-        onBlur={applyPrice}
-        onKeyDown={(e) => e.key === 'Enter' && applyPrice()}
-        placeholder="0"
+        placeholder="Min"
         min={0}
         className="w-16 text-center text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
@@ -123,9 +139,7 @@ function PriceRangeFilter({searchParams}: {searchParams: URLSearchParams}) {
         type="number"
         value={maxVal}
         onChange={(e) => setMaxVal(e.target.value)}
-        onBlur={applyPrice}
-        onKeyDown={(e) => e.key === 'Enter' && applyPrice()}
-        placeholder="200"
+        placeholder="Max"
         min={0}
         className="w-16 text-center text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
@@ -217,6 +231,12 @@ function FilterSections({
 }: FilterSectionsProps) {
   const defaultOpen = filters.map((f) => f.id);
 
+  // Derive a key for PriceRangeFilter so it resets when the price filter is
+  // cleared externally (e.g. "Clear All"), while staying mounted during debounce.
+  const priceKey =
+    searchParams.getAll('filter').find((f) => f.includes('"price"')) ??
+    'no-price';
+
   return (
     <Accordion type="multiple" defaultValue={defaultOpen} className={className}>
       {filters.map((filter) => {
@@ -231,7 +251,7 @@ function FilterSections({
             </AccordionTrigger>
             <AccordionContent>
               {isPriceFilter ? (
-                <PriceRangeFilter searchParams={searchParams} />
+                <PriceRangeFilter key={priceKey} searchParams={searchParams} />
               ) : (
                 <ExpandableList
                   items={filter.values}
@@ -259,12 +279,16 @@ function FilterSections({
  */
 export function FilterSidebar({
   filters,
-  searchParams,
+  searchParams: loaderSearchParams,
   isOpen = false,
   onClose,
   className = '',
 }: FilterSidebarProps) {
-  const {pathname} = useLocation();
+  const {pathname, search} = useLocation();
+  // Derive searchParams from the current URL so filter state is optimistic:
+  // the checkboxes reflect the URL immediately after navigate(), before the
+  // loader finishes, rather than waiting for fresh loaderData.
+  const searchParams = new URLSearchParams(search);
   const hasActiveFilters = searchParams.getAll('filter').length > 0;
 
   const clearAllLink = (

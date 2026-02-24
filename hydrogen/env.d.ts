@@ -5,3 +5,9 @@
 
 // Enhance TypeScript's built-in typings.
 import '@total-typescript/ts-reset';
+
+declare global {
+  interface Env {
+    SEARCHANISE_API_KEY: string;
+  }
+}

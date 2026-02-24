@@ -1,7 +1,8 @@
 'use client';
 
 import {useState, useCallback, useEffect} from 'react';
-import {Link, Form, useLocation} from 'react-router';
+import {Link, useLocation} from 'react-router';
+import {SearchAutocomplete} from '~/components/search/SearchAutocomplete';
 import {Menu, ChevronDown, User, Search, ShoppingCart} from 'lucide-react';
 import {
   Sheet,
@@ -494,27 +495,8 @@ export function Header({
                   <Menu size={24} className="text-secondary" />
                 </button>
 
-                {/* Search bar (Figma: flex-1, border secondary, rounded-25, h-40) */}
-                <Form
-                  action="/search"
-                  method="get"
-                  className="flex flex-1 items-center border border-secondary rounded-[25px] h-[40px] px-[13px] bg-white overflow-hidden"
-                >
-                  <input
-                    type="search"
-                    name="q"
-                    placeholder="Search products..."
-                    autoComplete="off"
-                    className="flex-1 text-[14px] font-medium text-dark placeholder:text-black/50 bg-transparent outline-none focus:outline-none focus:ring-0 border-none min-w-0"
-                  />
-                  <button
-                    type="submit"
-                    aria-label="Search"
-                    className="shrink-0 flex items-center pl-2 focus:outline-none"
-                  >
-                    <Search size={28} className="text-text-muted" />
-                  </button>
-                </Form>
+                {/* Search bar with Searchanise autocomplete */}
+                <SearchAutocomplete className="flex-1" />
               </div>
 
               {/* Mobile: logo */}

@@ -40,7 +40,9 @@
     "build": "cd hydrogen && pnpm build",
     "preview": "cd hydrogen && pnpm preview",
     "typecheck": "cd hydrogen && pnpm typecheck",
-    "context:export": "bash scripts/export-context.sh"
+    "context:export": "bash scripts/export-context.sh",
+    "synonyms:generate": "tsx scripts/generate-synonyms.ts",
+    "synonyms:upload": "tsx scripts/generate-synonyms.ts --upload"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"

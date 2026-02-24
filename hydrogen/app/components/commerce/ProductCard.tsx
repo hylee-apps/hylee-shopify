@@ -384,7 +384,7 @@ export function ProductCard({
             </button>
           ) : (
             <AddToCart
-              variantId={firstVariant.id}
+              variantId={firstVariant?.id ?? ''}
               available={product.availableForSale}
               size="sm"
               className="!rounded-md !px-4 !py-2 !text-xs"
