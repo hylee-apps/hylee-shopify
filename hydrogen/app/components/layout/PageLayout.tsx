@@ -46,7 +46,7 @@ export function PageLayout({children}: PageLayoutProps) {
     return <>{children ?? <Outlet />}</>;
   }
 
-  const {header, footer, isLoggedIn, cart} = data;
+  const {header, footer, isLoggedIn, cart, categories} = data;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -56,6 +56,7 @@ export function PageLayout({children}: PageLayoutProps) {
         isLoggedIn={isLoggedIn}
         cart={cart}
         variant={headerVariant}
+        categories={categories}
       />
 
       <main className="flex-1">{children ?? <Outlet />}</main>

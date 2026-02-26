@@ -5,6 +5,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "prebuild": "rm -rf dist",
     "build": "shopify hydrogen build --codegen",
     "deploy": "shopify hydrogen deploy --force",
     "dev": "shopify hydrogen dev --codegen --disable-version-check",
