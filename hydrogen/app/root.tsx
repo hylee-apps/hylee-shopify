@@ -74,16 +74,28 @@ export async function loader(args: Route.LoaderArgs) {
 async function loadCriticalData({context}: Route.LoaderArgs) {
   const {storefront} = context;
 
-  const [header] = await Promise.all([
+  const [header, collectionsResult] = await Promise.all([
     storefront.query(HEADER_QUERY, {
       cache: storefront.CacheLong(),
       variables: {
         headerMenuHandle: 'main-menu',
       },
     }),
+    storefront.query(HEADER_COLLECTIONS_QUERY, {
+      cache: storefront.CacheLong(),
+    }),
   ]);
 
-  return {header};
+  const categories =
+    collectionsResult?.collections?.nodes?.map(
+      (c: {id: string; title: string; handle: string}) => ({
+        id: c.id,
+        title: c.title,
+        handle: c.handle,
+      }),
+    ) ?? [];
+
+  return {header, categories};
 }
 
 function loadDeferredData({context}: Route.LoaderArgs) {
@@ -240,6 +252,21 @@ const HEADER_QUERY = `#graphql
     }
   }
   ${MENU_FRAGMENT}
+` as const;
+
+const HEADER_COLLECTIONS_QUERY = `#graphql
+  query HeaderCollections(
+    $country: CountryCode
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
+    collections(first: 20, sortKey: TITLE) {
+      nodes {
+        id
+        title
+        handle
+      }
+    }
+  }
 ` as const;
 
 const FOOTER_QUERY = `#graphql
