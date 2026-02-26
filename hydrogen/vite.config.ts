@@ -31,6 +31,9 @@ export default defineConfig({
     // Allow a strict Content-Security-Policy
     // without inlining assets as base64:
     assetsInlineLimit: 0,
+    // Clean dist/ before each build to prevent stale asset hash mismatches
+    // between SSR bundle and client chunks (causes 404s → hydration failure).
+    emptyOutDir: true,
   },
   ssr: {
     optimizeDeps: {
