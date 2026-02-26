@@ -23,14 +23,9 @@ export default async function handleRequest(
     scriptSrc: [
       "'self'",
       "'strict-dynamic'",
-      'https://www.googletagmanager.com',
-      'https://www.google-analytics.com',
-    ],
-    scriptSrcElem: [
-      "'self'",
-      'https://www.googletagmanager.com',
-      'https://www.google-analytics.com',
       'https://cdn.shopify.com',
+      'https://www.googletagmanager.com',
+      'https://www.google-analytics.com',
     ],
     styleSrc: [
       "'self'",
@@ -38,6 +33,7 @@ export default async function handleRequest(
       'https://cdn.shopify.com',
       'https://fonts.googleapis.com',
     ],
+    fontSrc: ["'self'", 'https://fonts.gstatic.com', 'https://cdn.shopify.com'],
     connectSrc: [
       "'self'",
       'https://www.google-analytics.com',
