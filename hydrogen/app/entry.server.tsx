@@ -16,18 +16,34 @@ export default async function handleRequest(
 ) {
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
     shop: {
-      checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
+      checkoutDomain:
+        context.env.PUBLIC_CHECKOUT_DOMAIN || context.env.PUBLIC_STORE_DOMAIN,
       storeDomain: context.env.PUBLIC_STORE_DOMAIN,
     },
     scriptSrc: [
       "'self'",
+      "'strict-dynamic'",
       'https://www.googletagmanager.com',
       'https://www.google-analytics.com',
+    ],
+    scriptSrcElem: [
+      "'self'",
+      'https://www.googletagmanager.com',
+      'https://www.google-analytics.com',
+      'https://cdn.shopify.com',
+    ],
+    styleSrc: [
+      "'self'",
+      "'unsafe-inline'",
+      'https://cdn.shopify.com',
+      'https://fonts.googleapis.com',
     ],
     connectSrc: [
       "'self'",
       'https://www.google-analytics.com',
       'https://region1.google-analytics.com',
+      'https://fonts.googleapis.com',
+      'https://fonts.gstatic.com',
     ],
   });
 
