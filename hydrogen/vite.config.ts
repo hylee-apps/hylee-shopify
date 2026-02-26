@@ -36,7 +36,7 @@ export default defineConfig({
     optimizeDeps: {
       include: ['style-to-js', 'react-router'],
     },
-    noExternal: [/^@radix-ui\//, 'radix-ui', 'set-cookie-parser', 'cookie'],
+    noExternal: [/^@radix-ui\//, 'set-cookie-parser', 'cookie'],
   },
   server: {
     allowedHosts: ['.tryhydrogen.dev'],
