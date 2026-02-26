@@ -1,5 +1,3 @@
-'use client';
-
 import {useState, useCallback, useEffect} from 'react';
 import {Link, useLocation} from 'react-router';
 import {SearchAutocomplete} from '~/components/search/SearchAutocomplete';
@@ -26,12 +24,15 @@ import type {HeaderQuery} from 'storefrontapi.generated';
 // Types
 // ============================================================================
 
+export type HeaderVariant = 'home' | 'default';
+
 export interface HeaderProps {
   shop: HeaderQuery['shop'];
   menu: HeaderQuery['menu'];
   isLoggedIn?: boolean | Promise<boolean>;
   cart?: CartLike | null | Promise<unknown>;
   announcement?: string;
+  variant?: HeaderVariant;
   categories?: Array<{
     id: string;
     title: string;
@@ -78,7 +79,7 @@ function formatCartTotal(amount?: string, currencyCode?: string): string {
 
 // Shared trigger class for nav link/button items
 const NAV_TRIGGER_CLASS =
-  'flex items-center gap-[2px] h-[40px] px-4 py-2.5 text-[14px] font-medium text-text-muted hover:text-primary transition-colors focus:outline-none';
+  'flex items-center gap-1 h-[40px] px-4 py-2.5 text-[14px] font-medium text-text-muted hover:text-primary transition-colors focus:outline-none';
 
 // ============================================================================
 // NavDropdown — shadcn DropdownMenu
@@ -96,7 +97,7 @@ function NavDropdown({
       <DropdownMenuTrigger asChild>
         <button className={NAV_TRIGGER_CLASS}>
           {label}
-          <ChevronDown size={10} />
+          <ChevronDown size={16} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="min-w-48">
@@ -126,7 +127,7 @@ function CategoryDropdown({
       <DropdownMenuTrigger asChild>
         <button className={NAV_TRIGGER_CLASS}>
           Categories
-          <ChevronDown size={10} />
+          <ChevronDown size={16} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -323,13 +324,14 @@ export function Header({
   isLoggedIn = false,
   cart,
   announcement,
+  variant = 'default',
   categories = [],
 }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [resolvedIsLoggedIn, setResolvedIsLoggedIn] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const location = useLocation();
-  const isHomePage = location.pathname === '/';
+  const isHome = variant === 'home';
 
   useEffect(() => {
     if (typeof isLoggedIn === 'boolean') {
@@ -359,15 +361,11 @@ export function Header({
   const categoryFallbackItems = [
     {title: 'All Products', url: '/collections/all'},
   ];
-  const languageItems = [
-    {title: 'English', url: '?lang=en'},
-    {title: 'Spanish', url: '?lang=es'},
-    {title: 'French', url: '?lang=fr'},
-  ];
   const accountItems = resolvedIsLoggedIn
     ? [
         {title: 'My Account', url: '/account'},
         {title: 'My Orders', url: '/account/orders'},
+        {title: 'Track Order', url: '/account/orders'},
         {title: 'Sign Out', url: '/account/logout'},
       ]
     : [
@@ -379,7 +377,7 @@ export function Header({
     <>
       <header
         className={`sticky top-0 z-[1020] ${
-          isHomePage ? 'bg-white' : 'bg-white border-b border-primary'
+          isHome ? 'bg-white' : 'bg-white border-b border-primary'
         }`}
       >
         {announcement && (
@@ -388,10 +386,8 @@ export function Header({
           </div>
         )}
 
-        <div
-          className={`mx-auto max-w-300 ${isHomePage ? 'py-2.5' : 'py-3.5'}`}
-        >
-          {isHomePage ? (
+        <div className={`mx-auto max-w-300 ${isHome ? 'py-2.5' : 'py-3.5'}`}>
+          {isHome ? (
             /* ── HOMEPAGE HEADER (Main variant) ── */
             <div className="flex items-center">
               <button
@@ -411,7 +407,7 @@ export function Header({
                 />
               </Link>
 
-              <nav className="hidden lg:flex items-center justify-center flex-1 gap-[10px]">
+              <nav className="hidden lg:flex items-center justify-center flex-1 gap-2.5">
                 {categories.length > 0 ? (
                   <CategoryDropdown categories={categories} />
                 ) : (
@@ -431,34 +427,50 @@ export function Header({
                 <Link to="/blogs/news" className={NAV_TRIGGER_CLASS}>
                   Blog &amp; Media
                 </Link>
-
-                <NavDropdown label="EN" items={languageItems} />
               </nav>
 
-              <div className="hidden lg:flex items-center justify-between shrink-0 w-[166px]">
+              <div className="hidden lg:flex items-center gap-1 shrink-0">
+                <NavDropdown label="Account" items={accountItems} />
                 <Link
-                  to={resolvedIsLoggedIn ? '/account' : '/account/login'}
-                  className={NAV_TRIGGER_CLASS}
+                  to="/cart"
+                  className="relative p-2 text-secondary hover:text-primary transition-colors shrink-0"
+                  aria-label={`Cart (${cartCount} items)`}
                 >
-                  {resolvedIsLoggedIn ? 'Account' : 'Sign In'}
+                  <ShoppingCart size={24} />
+                  {cartCount > 0 && (
+                    <span className="absolute top-0 right-0 flex items-center justify-center min-w-4.5 h-4.5 px-1 text-[10px] font-medium text-white bg-primary rounded-full">
+                      {cartCount > 99 ? '99+' : cartCount}
+                    </span>
+                  )}
                 </Link>
-                {!resolvedIsLoggedIn && (
-                  <Link
-                    to="/account/register"
-                    className="flex items-center h-[40px] px-4 py-2.5 text-[14px] font-medium text-secondary border border-secondary rounded-sm hover:bg-secondary hover:text-white transition-colors"
-                  >
-                    Register
-                  </Link>
-                )}
               </div>
 
               <div className="lg:hidden flex items-center gap-1 ml-auto">
                 <Link
+                  to="/search"
+                  className="p-2 text-text-muted hover:text-primary transition-colors"
+                  aria-label="Search"
+                >
+                  <Search size={20} />
+                </Link>
+                <Link
                   to={resolvedIsLoggedIn ? '/account' : '/account/login'}
-                  className="p-2 text-text hover:text-primary transition-colors"
+                  className="p-2 text-text-muted hover:text-primary transition-colors"
                   aria-label="Account"
                 >
                   <User size={20} />
+                </Link>
+                <Link
+                  to="/cart"
+                  className="relative p-2 text-text-muted hover:text-primary transition-colors"
+                  aria-label={`Cart (${cartCount} items)`}
+                >
+                  <ShoppingCart size={24} />
+                  {cartCount > 0 && (
+                    <span className="absolute top-0 right-0 flex items-center justify-center min-w-4.5 h-4.5 px-1 text-[10px] font-medium text-white bg-primary rounded-full">
+                      {cartCount > 99 ? '99+' : cartCount}
+                    </span>
+                  )}
                 </Link>
               </div>
             </div>
@@ -486,13 +498,13 @@ export function Header({
                   />
                 </Link>
 
-                {/* Categories hamburger → opens Sheet (Figma: 40×40, border-1 secondary, rounded-6) */}
+                {/* Categories hamburger → opens Sheet */}
                 <button
-                  className="flex items-center justify-center size-[40px] border border-secondary rounded-xs shrink-0 hover:bg-secondary/5 transition-colors"
+                  className="p-2 text-secondary hover:text-primary transition-colors shrink-0"
                   onClick={() => setMobileMenuOpen(true)}
                   aria-label="Open categories menu"
                 >
-                  <Menu size={24} className="text-secondary" />
+                  <Menu size={24} />
                 </button>
 
                 {/* Search bar with Searchanise autocomplete */}
@@ -511,24 +523,16 @@ export function Header({
 
               {/* Desktop right: DropdownMenu nav links + cart */}
               <div className="hidden lg:flex items-center shrink-0">
-                <NavDropdown
-                  label="My Orders"
-                  items={[
-                    {title: 'All Orders', url: '/account/orders'},
-                    {title: 'Track Order', url: '/account/orders'},
-                  ]}
-                />
-
                 <NavDropdown label="Account" items={accountItems} />
 
                 <Link
                   to="/cart"
-                  className="relative flex items-center justify-center w-[54px] h-[40px] shrink-0"
+                  className="relative p-2 text-secondary hover:text-primary transition-colors shrink-0"
                   aria-label={`Cart (${cartCount} items)`}
                 >
-                  <ShoppingCart size={40} className="text-secondary" />
+                  <ShoppingCart size={24} />
                   {cartCount > 0 && (
-                    <span className="absolute -top-1 right-0 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[11px] font-medium text-white bg-primary rounded-full">
+                    <span className="absolute top-0 right-0 flex items-center justify-center min-w-4.5 h-4.5 px-1 text-[10px] font-medium text-white bg-primary rounded-full">
                       {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}
@@ -551,7 +555,7 @@ export function Header({
                 >
                   <ShoppingCart size={24} />
                   {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-[9px] font-medium text-black bg-primary rounded-full">
+                    <span className="absolute top-0 right-0 flex items-center justify-center min-w-4.5 h-4.5 px-1 text-[10px] font-medium text-white bg-primary rounded-full">
                       {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}

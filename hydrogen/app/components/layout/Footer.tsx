@@ -122,20 +122,20 @@ function NewsletterSignup({colored = false}: NewsletterSignupProps) {
           className={cn(
             'min-w-68.75 h-10 rounded-[25px] text-[14px] font-medium bg-transparent',
             colored
-              ? 'border-white text-white placeholder:text-white'
+              ? 'border-black/30 text-black placeholder:text-black/60 focus-visible:ring-black/30 focus-visible:border-black/50'
               : 'border-primary text-text-muted placeholder:text-text-muted',
           )}
         />
         {colored ? (
-          // Primary/Secondary/Tertiary: white outline button (Figma: bg-transparent, border-white, text-white)
+          // Colored variants: black-bordered outline button (black text passes contrast on all colored bgs)
           <Button
             type="submit"
-            className="h-10 rounded-[25px] px-6.5 text-[14px] font-medium whitespace-nowrap bg-transparent border border-white text-white hover:bg-white/10"
+            className="h-10 rounded-[25px] px-6.5 text-[14px] font-medium whitespace-nowrap bg-transparent border border-black/30 text-black hover:bg-black/10"
           >
             {submitted ? 'Sent!' : 'Submit'}
           </Button>
         ) : (
-          // Default: filled teal button (Figma: bg-secondary, text-white)
+          // Default: filled teal button
           <Button
             type="submit"
             className="h-10 rounded-[25px] px-6.5 text-[14px] font-medium whitespace-nowrap bg-secondary text-white hover:bg-secondary/90"
@@ -167,15 +167,15 @@ export function Footer({
 
   return (
     <footer className={BG_CLASSES[variant]}>
-      <div className="max-w-300 mx-auto py-12 lg:py-14.75">
+      <div className="max-w-300 mx-auto px-4 sm:px-6 py-12 lg:py-14.75">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-[78px] items-start">
-          {/* Left column — Logo + social (Figma: 240px wide, gap-[5px] between items) */}
-          <div className="flex flex-col gap-[5px] items-start shrink-0 lg:w-[240px]">
+          {/* Left column — Logo + social */}
+          <div className="flex flex-col gap-3 items-start shrink-0 lg:w-60">
             <Link to="/">
               <img
                 src={logoSrc}
                 alt={shopName}
-                className="h-[101.821px] w-[183px] object-cover"
+                className="h-[101.821px] w-[183px] object-contain"
                 loading="lazy"
               />
             </Link>
@@ -207,12 +207,11 @@ export function Footer({
             </div>
           </div>
 
-          {/* Center/right — Newsletter + nav links (Figma: w-[560px], flex-col, gap-[13px], items-center) */}
+          {/* Center/right — Newsletter + nav links */}
           <div className="flex flex-col items-center flex-1 lg:w-140 gap-3.25">
             <NewsletterSignup colored={colored} />
 
-            {/* Nav links — Figma: p-[10px] wrapper, each link h-[40px] px-[16px] py-[10px] rounded-[8px] */}
-            {/* text-[#666] (text-text-muted) on ALL variants per Figma spec */}
+            {/* Nav links */}
             <nav className="p-[10px]">
               <ul className="flex flex-wrap items-center justify-center">
                 {displayLinks.map((link) => (
@@ -220,7 +219,12 @@ export function Footer({
                     <Button
                       variant="ghost"
                       asChild
-                      className="h-10 px-4 py-2.5 text-[14px] font-medium text-text-muted hover:text-black whitespace-nowrap rounded-xl"
+                      className={cn(
+                        'h-10 px-4 py-2.5 text-[14px] font-medium whitespace-nowrap rounded-xl hover:bg-transparent',
+                        colored
+                          ? 'text-black hover:text-black/70'
+                          : 'text-text-muted hover:text-black',
+                      )}
                     >
                       <Link to={link.url}>{link.title}</Link>
                     </Button>
@@ -230,6 +234,18 @@ export function Footer({
             </nav>
           </div>
         </div>
+
+        {/* Copyright */}
+        <p
+          className={cn(
+            'mt-8 pt-6 border-t text-[12px] text-center',
+            colored
+              ? 'border-black/20 text-black/70'
+              : 'border-border text-text-muted',
+          )}
+        >
+          &copy; {new Date().getFullYear()} {shopName}. All rights reserved.
+        </p>
       </div>
     </footer>
   );

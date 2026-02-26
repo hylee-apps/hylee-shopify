@@ -1,5 +1,3 @@
-'use client';
-
 import {SlidersHorizontal, LayoutGrid, List} from 'lucide-react';
 import {SortSelect} from './SortSelect';
 import {Button} from '~/components/ui/button';

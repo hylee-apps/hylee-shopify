@@ -1,5 +1,3 @@
-'use client';
-
 import {useState, useRef, useEffect} from 'react';
 import {Link, useLocation, useNavigate} from 'react-router';
 import type {Filter} from '@shopify/hydrogen/storefront-api-types';
