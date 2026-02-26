@@ -1,5 +1,5 @@
 import {Suspense} from 'react';
-import {Outlet, useRouteLoaderData, Await} from 'react-router';
+import {Outlet, useRouteLoaderData, useLocation, Await} from 'react-router';
 import {Header} from './Header';
 import {Footer} from './Footer';
 import type {RootLoader} from '~/root';
@@ -38,6 +38,8 @@ export interface PageLayoutProps {
  */
 export function PageLayout({children}: PageLayoutProps) {
   const data = useRouteLoaderData<RootLoader>('root');
+  const {pathname} = useLocation();
+  const headerVariant = pathname === '/' ? 'home' : 'default';
 
   // Guard against missing root data
   if (!data) {
@@ -53,6 +55,7 @@ export function PageLayout({children}: PageLayoutProps) {
         menu={header?.menu}
         isLoggedIn={isLoggedIn}
         cart={cart}
+        variant={headerVariant}
       />
 
       <main className="flex-1">{children ?? <Outlet />}</main>

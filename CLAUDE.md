@@ -140,16 +140,37 @@ Comprehensive guidelines are in `/guidelines/`:
    - Completed task: Update `docs/IMPLEMENTATION_PLAN.md`
    - Architecture decision: Update `docs/ARCHITECTURE.md`
 
-## Pre-Commit Checklist
+## Pre-Commit Checklist (MANDATORY)
 
-Before committing, run:
+**ALL checks below MUST pass before committing. Do NOT commit if any check fails. Fix errors first, re-run, and only commit once everything is green.**
+
+### Hydrogen (when hydrogen/ files are changed)
 
 ```bash
-pnpm format         # Format code
-pnpm theme-check    # Lint Shopify theme
-pnpm test           # Run tests
-pnpm validate       # Full validation
+pnpm format              # 1. Format code (auto-fix)
+pnpm format:check        # 2. Verify formatting passes
+pnpm typecheck           # 3. TypeScript type checking — MUST PASS
+pnpm build               # 4. Production build — MUST PASS (catches SSR errors)
+pnpm test                # 5. Run unit tests — MUST PASS
 ```
+
+### Theme (when theme/ files are changed)
+
+```bash
+pnpm format              # 1. Format code (auto-fix)
+pnpm format:check        # 2. Verify formatting passes
+pnpm theme-check         # 3. Shopify theme linter — MUST PASS
+pnpm test                # 4. Run unit tests — MUST PASS
+pnpm validate            # 5. Full validation — MUST PASS
+```
+
+### Rules
+
+- **Never skip checks** — even if "it looks fine", run them all
+- **Fix errors before committing** — do not commit known failures
+- **Re-run after fixes** — always verify the fix actually works
+- **Build catches what typecheck misses** — always run both for Hydrogen changes
+- **Do not push known-broken code** — if CI will fail, fix it locally first
 
 ## Workflow Agent
 

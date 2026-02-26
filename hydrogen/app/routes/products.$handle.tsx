@@ -2,7 +2,6 @@ import {type LoaderFunctionArgs, redirect} from 'react-router';
 import type {Route} from './+types/products.$handle';
 import {Suspense, useState, useRef} from 'react';
 import {Await, Link, useRouteLoaderData} from 'react-router';
-import {marked} from 'marked';
 import type {RootLoader} from '~/root';
 import {Image, getSeoMeta} from '@shopify/hydrogen';
 import {ProductGallery, VariantSelector} from '~/components';
@@ -44,6 +43,7 @@ import {
   type CollectionRef,
   PARENT_CHAIN_FRAGMENT,
 } from '~/lib/breadcrumbs';
+import {richTextToHtml} from '~/lib/rich-text';
 
 // ============================================================================
 // GraphQL Fragments & Query
@@ -128,6 +128,9 @@ const PRODUCT_FRAGMENT = `#graphql
     seo {
       title
       description
+    }
+    shortDescription: metafield(namespace: "custom", key: "short_description") {
+      value
     }
     warranty: metafield(namespace: "custom", key: "warranty") {
       value
@@ -448,19 +451,15 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
                 Key Item Features
               </AccordionTrigger>
               <AccordionContent>
-                <div className="relative">
-                  <div
-                    className="prose prose-sm text-text-muted leading-relaxed max-h-[15em] overflow-hidden"
-                    dangerouslySetInnerHTML={{
-                      __html: marked.parse(product.description) as string,
-                    }}
-                  />
-                  {/* Gradient fade over last ~2 lines */}
-                  <div className="pointer-events-none absolute bottom-0 inset-x-0 h-10 bg-linear-to-t from-white to-transparent" />
-                </div>
+                <div
+                  className="prose prose-sm text-text-muted leading-relaxed"
+                  dangerouslySetInnerHTML={{
+                    __html: richTextToHtml(product.shortDescription?.value),
+                  }}
+                />
                 <button
                   onClick={openDetailsAndScroll}
-                  className="mt-2 text-sm font-medium text-secondary hover:underline"
+                  className="mt-3 text-sm font-medium text-secondary hover:underline"
                 >
                   View full details
                 </button>
@@ -578,7 +577,7 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
               <div
                 className="prose prose-sm text-text-muted leading-relaxed"
                 dangerouslySetInnerHTML={{
-                  __html: marked.parse(product.description) as string,
+                  __html: product.descriptionHtml,
                 }}
               />
             </AccordionContent>

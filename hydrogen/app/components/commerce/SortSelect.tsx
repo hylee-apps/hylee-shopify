@@ -1,5 +1,3 @@
-'use client';
-
 import {useNavigate, useLocation} from 'react-router';
 import {
   SORT_OPTIONS,
