@@ -376,7 +376,7 @@ export function Header({
   return (
     <>
       <header
-        className={`sticky top-0 z-[1020] ${
+        className={`sticky top-0 z-1020 ${
           isHome ? 'bg-white' : 'bg-white border-b border-primary'
         }`}
       >
