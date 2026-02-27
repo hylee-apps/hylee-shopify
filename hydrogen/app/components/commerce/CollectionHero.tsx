@@ -30,23 +30,23 @@ export interface CollectionHeroProps {
  */
 export function CollectionHero({title, image, className}: CollectionHeroProps) {
   return (
-    <section className={`w-full overflow-hidden ${className ?? ''}`}>
+    <section
+      className={`w-full overflow-hidden bg-surface-alt ${className ?? ''}`}
+    >
       {/* ------------------------------------------------------------------ */}
       {/* Desktop — Figma exact layout                                        */}
       {/* ------------------------------------------------------------------ */}
-      <div className="hidden lg:flex h-65 w-full">
-        {/* Image */}
-        <div className="h-full w-82 shrink-0">
-          <img
-            src="/hero-plp.png"
-            alt=""
-            className="h-full w-full object-cover"
-            loading="eager"
-          />
-        </div>
+      <div className="hidden lg:flex relative w-full items-center">
+        {/* Image — 400px wide, natural aspect ratio */}
+        <img
+          src="/hero-plp.png"
+          alt=""
+          className="w-100 shrink-0 object-contain"
+          loading="eager"
+        />
 
-        {/* Title — centered within this div */}
-        <div className="flex flex-1 items-center justify-center">
+        {/* Title — centered horizontally and vertically over the image */}
+        <div className="absolute inset-0 flex items-center justify-center">
           <h1 className="text-[57px] font-normal leading-16 tracking-[-0.25px] text-[#1d1b20] text-center">
             {title}
           </h1>
@@ -65,8 +65,10 @@ export function CollectionHero({title, image, className}: CollectionHeroProps) {
             loading="eager"
           />
         </div>
-        <div className="px-4 py-6">
-          <h1 className="text-3xl font-normal text-[#1d1b20]">{title}</h1>
+        <div className="px-4 py-6 flex items-center justify-center">
+          <h1 className="text-3xl font-normal text-[#1d1b20] text-center">
+            {title}
+          </h1>
         </div>
       </div>
     </section>
