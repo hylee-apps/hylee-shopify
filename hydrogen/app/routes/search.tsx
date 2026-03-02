@@ -109,12 +109,6 @@ export default function SearchPage() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      {/* Search Form */}
-      <div className="mb-8">
-        <h1 className="mb-4 text-3xl font-bold text-dark">Search</h1>
-        <SearchForm defaultValue={searchTerm} />
-      </div>
-
       {/* Results */}
       {searchTerm ? (
         <>
