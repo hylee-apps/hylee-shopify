@@ -2,7 +2,7 @@ import {useState} from 'react';
 import {Link} from 'react-router';
 import type {FooterQuery} from 'storefrontapi.generated';
 import {cn} from '~/lib/utils';
-import {Input} from '~/components/ui/input';
+import {PillInput} from '~/components/ui/pill-input';
 import {Button} from '~/components/ui/button';
 
 // ============================================================================
@@ -117,37 +117,22 @@ function NewsletterSignup({colored = false}: NewsletterSignupProps) {
       >
         Sign up for Hylee news &amp; updates!
       </h3>
-      <form onSubmit={handleSubmit} className="flex items-center gap-[5px]">
-        <Input
+      <form onSubmit={handleSubmit} className="flex items-center gap-2">
+        <PillInput
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email"
           required
-          className={cn(
-            'min-w-68.75 h-10 rounded-[25px] text-[14px] font-medium bg-transparent',
-            colored
-              ? 'border-white/30 text-white placeholder:text-white/60 focus-visible:ring-white/30 focus-visible:border-white/50'
-              : 'border-primary text-text-muted placeholder:text-text-muted',
-          )}
+          hideIcon
+          className="min-w-68.75"
         />
-        {colored ? (
-          // Colored variants: black-bordered outline button (black text passes contrast on all colored bgs)
-          <Button
-            type="submit"
-            className="h-10 rounded-[25px] px-6.5 text-[14px] font-medium whitespace-nowrap bg-transparent border border-white/30 text-white hover:bg-white/10"
-          >
-            {submitted ? 'Sent!' : 'Submit'}
-          </Button>
-        ) : (
-          // Default: filled teal button
-          <Button
-            type="submit"
-            className="h-10 rounded-[25px] px-6.5 text-[14px] font-medium whitespace-nowrap bg-secondary text-white hover:bg-secondary/90"
-          >
-            {submitted ? 'Sent!' : 'Submit'}
-          </Button>
-        )}
+        <Button
+          type="submit"
+          className="h-10 rounded-[25px] px-6.5 text-[14px] font-medium whitespace-nowrap bg-white text-dark hover:bg-white/90"
+        >
+          {submitted ? 'Sent!' : 'Submit'}
+        </Button>
       </form>
     </div>
   );
@@ -253,7 +238,7 @@ export function Footer({
           className={cn(
             'mt-8 pt-6 border-t text-[12px] text-center',
             colored
-              ? 'border-white/20 text-white/70'
+              ? 'border-white/20 text-white'
               : 'border-border text-text-muted',
           )}
         >

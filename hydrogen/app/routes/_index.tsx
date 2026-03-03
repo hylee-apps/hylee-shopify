@@ -1,5 +1,6 @@
 import {Link, Form} from 'react-router';
-import {Plus, Search} from 'lucide-react';
+import {Plus} from 'lucide-react';
+import {PillInput} from '~/components/ui/pill-input';
 import {Button} from '~/components/ui/button';
 import {Card} from '~/components/ui/card';
 import {Skeleton} from '~/components/ui/skeleton';
@@ -127,25 +128,13 @@ export default function Homepage() {
             loading="eager"
           />
           {/* Search form — Figma: white bg, border-secondary, rounded-[25px], h-10, max-w-[683px] */}
-          <Form
-            action="/search"
-            method="get"
-            className="flex items-center bg-white border border-secondary rounded-[25px] h-10 px-3.5 w-full max-w-[683px] overflow-hidden"
-          >
-            <input
+          <Form action="/search" method="get" className="w-full max-w-[683px]">
+            <PillInput
               type="search"
               name="q"
               placeholder="Search Our Products"
               autoComplete="off"
-              className="flex-1 text-[14px] font-medium text-dark placeholder:text-black/50 bg-transparent outline-none focus:outline-none focus:ring-0 border-none min-w-0"
             />
-            <button
-              type="submit"
-              aria-label="Search"
-              className="shrink-0 flex items-center pl-2 focus:outline-none"
-            >
-              <Search size={28} className="text-text-muted" />
-            </button>
           </Form>
         </div>
       </section>

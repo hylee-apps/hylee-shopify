@@ -386,7 +386,7 @@ export function Header({
           </div>
         )}
 
-        <div className={`mx-auto max-w-300 ${isHome ? 'py-2.5' : 'py-3.5'}`}>
+        <div className="mx-auto max-w-300 py-2.5">
           {isHome ? (
             /* ── HOMEPAGE HEADER (Main variant) ── */
             <div className="flex items-center">
@@ -522,7 +522,7 @@ export function Header({
               </Link>
 
               {/* Desktop right: DropdownMenu nav links + cart */}
-              <div className="hidden lg:flex items-center shrink-0">
+              <div className="hidden lg:flex items-center gap-1 shrink-0">
                 <NavDropdown label="Account" items={accountItems} />
 
                 <Link

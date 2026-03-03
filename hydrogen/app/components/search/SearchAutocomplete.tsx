@@ -9,6 +9,7 @@ import {
 } from 'react';
 import {Form, Link, useNavigate} from 'react-router';
 import {Search} from 'lucide-react';
+import {PillInput} from '~/components/ui/pill-input';
 import type {
   SearchaniseSuggestion,
   SearchaniseProduct,
@@ -155,13 +156,8 @@ export function SearchAutocomplete({
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
-      <Form
-        action="/search"
-        method="get"
-        className="flex flex-1 items-center border border-secondary rounded-[25px] h-10 px-3.25 bg-white overflow-hidden"
-        onSubmit={() => setOpen(false)}
-      >
-        <input
+      <Form action="/search" method="get" onSubmit={() => setOpen(false)}>
+        <PillInput
           ref={inputRef}
           type="search"
           name="q"
@@ -178,21 +174,10 @@ export function SearchAutocomplete({
           aria-autocomplete="list"
           aria-expanded={open}
           aria-controls="search-autocomplete-list"
-          className="flex-1 text-[14px] font-medium text-dark placeholder:text-black/50 bg-transparent outline-none focus:outline-none focus:ring-0 border-none min-w-0"
           data-testid="header-search-input"
+          loading={loading}
+          className="flex-1"
         />
-        <button
-          type="submit"
-          aria-label="Search"
-          className="shrink-0 flex items-center pl-2 focus:outline-none"
-        >
-          <Search
-            size={28}
-            className={
-              loading ? 'text-secondary animate-pulse' : 'text-text-muted'
-            }
-          />
-        </button>
       </Form>
 
       {/* Dropdown */}
