@@ -2,7 +2,7 @@ import {useState} from 'react';
 import {Link} from 'react-router';
 import type {FooterQuery} from 'storefrontapi.generated';
 import {cn} from '~/lib/utils';
-import {Input} from '~/components/ui/input';
+import {PillInput} from '~/components/ui/pill-input';
 import {Button} from '~/components/ui/button';
 
 // ============================================================================
@@ -109,40 +109,30 @@ function NewsletterSignup({colored = false}: NewsletterSignupProps) {
   return (
     <div className="flex flex-col gap-[13px] items-center w-[560px] max-w-full">
       {/* Figma: 20px Inter Regular (400), text-black, leading-[1.2], centered — all variants */}
-      <h3 className="text-[20px] font-normal text-black leading-[1.2] text-center">
+      <h3
+        className={cn(
+          'text-[20px] font-normal leading-[1.2] text-center',
+          colored ? 'text-white' : 'text-black',
+        )}
+      >
         Sign up for Hylee news &amp; updates!
       </h3>
-      <form onSubmit={handleSubmit} className="flex items-center gap-[5px]">
-        <Input
+      <form onSubmit={handleSubmit} className="flex items-center gap-2">
+        <PillInput
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email"
           required
-          className={cn(
-            'min-w-68.75 h-10 rounded-[25px] text-[14px] font-medium bg-transparent',
-            colored
-              ? 'border-black/30 text-black placeholder:text-black/60 focus-visible:ring-black/30 focus-visible:border-black/50'
-              : 'border-primary text-text-muted placeholder:text-text-muted',
-          )}
+          hideIcon
+          className="min-w-68.75"
         />
-        {colored ? (
-          // Colored variants: black-bordered outline button (black text passes contrast on all colored bgs)
-          <Button
-            type="submit"
-            className="h-10 rounded-[25px] px-6.5 text-[14px] font-medium whitespace-nowrap bg-transparent border border-black/30 text-black hover:bg-black/10"
-          >
-            {submitted ? 'Sent!' : 'Submit'}
-          </Button>
-        ) : (
-          // Default: filled teal button
-          <Button
-            type="submit"
-            className="h-10 rounded-[25px] px-6.5 text-[14px] font-medium whitespace-nowrap bg-secondary text-white hover:bg-secondary/90"
-          >
-            {submitted ? 'Sent!' : 'Submit'}
-          </Button>
-        )}
+        <Button
+          type="submit"
+          className="h-10 rounded-[25px] px-6.5 text-[14px] font-medium whitespace-nowrap bg-white text-dark hover:bg-white/90"
+        >
+          {submitted ? 'Sent!' : 'Submit'}
+        </Button>
       </form>
     </div>
   );
@@ -180,7 +170,12 @@ export function Footer({
               />
             </Link>
             {/* Figma: 14px Inter Medium, text-black — all variants */}
-            <p className="text-[14px] font-medium text-black">
+            <p
+              className={cn(
+                'text-[14px] font-medium',
+                colored ? 'text-white' : 'text-black',
+              )}
+            >
               Follow us on social media
             </p>
             {/* Figma: 24×24px bare icons, gap-[10px], text-black — ALL variants */}
@@ -192,7 +187,10 @@ export function Footer({
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  className="flex items-center justify-center size-6 text-black transition-opacity hover:opacity-70"
+                  className={cn(
+                    'flex items-center justify-center size-6 transition-opacity hover:opacity-70',
+                    colored ? 'text-white' : 'text-black',
+                  )}
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -222,7 +220,7 @@ export function Footer({
                       className={cn(
                         'h-10 px-4 py-2.5 text-[14px] font-medium whitespace-nowrap rounded-xl hover:bg-transparent',
                         colored
-                          ? 'text-black hover:text-black/70'
+                          ? 'text-white hover:text-white/70'
                           : 'text-text-muted hover:text-black',
                       )}
                     >
@@ -240,7 +238,7 @@ export function Footer({
           className={cn(
             'mt-8 pt-6 border-t text-[12px] text-center',
             colored
-              ? 'border-black/20 text-black/70'
+              ? 'border-white/20 text-white'
               : 'border-border text-text-muted',
           )}
         >
