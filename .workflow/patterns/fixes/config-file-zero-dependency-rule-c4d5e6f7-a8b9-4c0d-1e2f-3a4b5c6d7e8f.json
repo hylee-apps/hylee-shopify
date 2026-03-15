@@ -1,0 +1,63 @@
+{
+  "id": "c4d5e6f7-a8b9-4c0d-1e2f-3a4b5c6d7e8f",
+  "name": "Config File Zero-Dependency Rule",
+  "description": "Never add imports to config files (playwright.config.ts, next.config.ts, vitest.config.ts) without verifying the dependency is installed. Config files load before the application and a missing dependency will break all downstream tooling. Prefer built-in Node.js alternatives.",
+  "category": "config",
+  "tags": [
+    {
+      "name": "playwright",
+      "category": "tool"
+    },
+    {
+      "name": "config",
+      "category": "pattern"
+    },
+    {
+      "name": "dependency",
+      "category": "pattern"
+    },
+    {
+      "name": "typescript",
+      "category": "language"
+    }
+  ],
+  "trigger": {
+    "errorPattern": "Cannot find module|MODULE_NOT_FOUND|Error: Cannot find module",
+    "errorMessage": "Config file imports a module that is not installed (e.g., 'dotenv' in playwright.config.ts)",
+    "filePattern": "*.config.{ts,js,mjs}"
+  },
+  "solution": {
+    "type": "file-change",
+    "steps": [
+      {
+        "order": 1,
+        "action": "modify",
+        "target": "<config-file>",
+        "description": "Replace the third-party import with a built-in Node.js equivalent. For dotenv: use fs.readFileSync to parse .env files manually. For path resolution: use path.resolve with __dirname."
+      },
+      {
+        "order": 2,
+        "action": "modify",
+        "target": "<config-file>",
+        "description": "Wrap any optional functionality in existsSync checks so the config doesn't crash if files are missing."
+      }
+    ]
+  },
+  "compatibility": {
+    "framework": "generic",
+    "frameworkVersion": "*",
+    "runtime": "node",
+    "runtimeVersion": ">=16.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 100,
+    "applications": 1,
+    "successes": 1,
+    "failures": 0
+  },
+  "source": "verify-fix",
+  "isPrivate": false,
+  "createdAt": "2026-03-13T00:00:00.000Z",
+  "updatedAt": "2026-03-13T00:00:00.000Z"
+}

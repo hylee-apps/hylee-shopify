@@ -250,6 +250,30 @@ These are recurring issues discovered during audits. The process steps above are
 5. **Icon size mismatch**: Our Icon component defaults to 24px. Figma icons have explicit container sizes that may differ. Always check the spec.
 6. **Layout model translation**: Figma uses fixed widths. Responsive implementation requires documenting the translation in the spec so future work doesn't break it.
 
+## Pattern Capture (workflow-agent)
+
+After fixing bugs, resolving build/type errors, or completing features in Hydrogen, capture the fix:
+
+```bash
+# Automatic: verify + fix + capture
+workflow verify --fix --learn
+
+# Manual recording
+workflow learn:record --type fix --name "..." --description "..." --category <category>
+
+# Categories: lint | type-error | dependency | config | runtime | build | test
+
+# View and sync
+workflow learn:list
+workflow sync --pull
+workflow sync --push
+```
+
+Follow the full 6-phase workflow in `guidelines/PATTERN_ANALYSIS_WORKFLOW.md`:
+DISCOVER → CATEGORIZE → EXTRACT → VALIDATE → STORE → REPORT
+
+When you encounter workflow improvements or pain points, document them in `.workflow/improvements/YYYY-MM-DD-<id>.md` per `guidelines/SELF_IMPROVEMENT_MANDATE.md`.
+
 ## Context Checkpoint
 
 **At session start:** Read `docs/ACTIVE_CONTEXT.md` (in the project root) to restore context from the previous session.

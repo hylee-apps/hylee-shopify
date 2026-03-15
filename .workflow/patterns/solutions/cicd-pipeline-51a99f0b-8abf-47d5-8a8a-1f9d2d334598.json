@@ -240,5 +240,7 @@
   "source": "manual",
   "isPrivate": false,
   "createdAt": "2026-01-22T23:16:05.270Z",
-  "updatedAt": "2026-01-22T23:16:05.270Z"
+  "updatedAt": "2026-01-22T23:16:05.270Z",
+  "conflictVersion": 3,
+  "originalId": "ae301c88-ebde-4fac-a2f6-b0e63628fce6"
 }

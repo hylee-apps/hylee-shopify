@@ -1,0 +1,59 @@
+{
+  "id": "b3c4d5e6-f7a8-4b9c-0d1e-2f3a4b5c6d7e",
+  "name": "ES2017 Regex dotAll Compatibility",
+  "description": "When tsconfig.json targets ES2017 or earlier, the regex /s (dotAll) flag is not available. Use new RegExp() constructor with [\\s\\S]* instead of .* to match across newlines. Also applies to /d (indices) and /v (unicodeSets) flags.",
+  "category": "type-error",
+  "tags": [
+    {
+      "name": "regex",
+      "category": "pattern"
+    },
+    {
+      "name": "es2017",
+      "category": "runtime"
+    },
+    {
+      "name": "typescript",
+      "category": "language"
+    }
+  ],
+  "trigger": {
+    "errorPattern": "The 's' flag is not supported|dotAll.*not supported|RegExp.*flag.*not available",
+    "errorMessage": "TypeScript error: The 's' (dotAll) regex flag is not supported when targeting ES2017",
+    "filePattern": "**/*.ts"
+  },
+  "solution": {
+    "type": "file-change",
+    "steps": [
+      {
+        "order": 1,
+        "action": "modify",
+        "target": "<file-with-regex>",
+        "description": "Replace /pattern.*text/s with new RegExp('pattern[\\\\s\\\\S]*text', 'i'). Note: .* does not match newlines in new RegExp() either — must use [\\\\s\\\\S]* explicitly."
+      },
+      {
+        "order": 2,
+        "action": "modify",
+        "target": "<file-with-regex>",
+        "description": "Check tsconfig.json target. ES2017 supports: g, i, m, u, y. ES2018 adds: s (dotAll). ES2022 adds: d (indices). ES2024 adds: v (unicodeSets)."
+      }
+    ]
+  },
+  "compatibility": {
+    "framework": "generic",
+    "frameworkVersion": "*",
+    "runtime": "node",
+    "runtimeVersion": ">=16.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 100,
+    "applications": 1,
+    "successes": 1,
+    "failures": 0
+  },
+  "source": "verify-fix",
+  "isPrivate": false,
+  "createdAt": "2026-03-13T00:00:00.000Z",
+  "updatedAt": "2026-03-13T00:00:00.000Z"
+}

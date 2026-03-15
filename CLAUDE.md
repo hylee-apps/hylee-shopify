@@ -4,7 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **Shopify theme project** using Liquid templating for Hy-lee (a Walmart-style e-commerce marketplace). This is NOT a React/TypeScript project.
+This is a **dual-stack Shopify project** for Hy-lee (a Walmart-style e-commerce marketplace):
+
+- `theme/` — Shopify Liquid theme (CSS + Liquid templating)
+- `hydrogen/` — Hydrogen/Remix storefront (React + TypeScript + Tailwind v4)
 
 ## Commands
 
@@ -128,6 +131,8 @@ Comprehensive guidelines are in `/guidelines/`:
 - `SELF_IMPROVEMENT_MANDATE.md` - Continuous improvement tracking
 - `SCOPE_CREATION_WORKFLOW.md` - Creating custom workflow scopes
 - `PROJECT_TEMPLATE_README.md` - Using guidelines as templates
+- `BLUEPRINT_CREATION_GUIDE.md` - Creating reusable project blueprints
+- `ACCESSIBILITY_STANDARDS.md` - WCAG 2.1 Level AA compliance rules
 
 ## Key Rules
 
@@ -172,15 +177,58 @@ pnpm validate            # 5. Full validation — MUST PASS
 - **Build catches what typecheck misses** — always run both for Hydrogen changes
 - **Do not push known-broken code** — if CI will fail, fix it locally first
 
-## Workflow Agent
+## Workflow Agent & Agentic Coding
 
-This project uses `workflow-agent-cli` for standardized workflows. Configuration is in `workflow.config.json`.
+This project uses `workflow-agent-cli` for standardized agentic workflows. Configuration is in `workflow.config.json`.
+
+### Core Commands
 
 ```bash
 pnpm workflow       # Run workflow agent
 pnpm verify         # Verify changes
 pnpm verify:fix     # Auto-fix issues
 ```
+
+### Pattern Capture (MANDATORY after meaningful fixes)
+
+After fixing bugs, resolving build issues, or completing features, capture the fix as a reusable pattern:
+
+```bash
+# Automatic: verify + fix + capture in one step
+workflow verify --fix --learn
+
+# Manual: record a specific pattern
+workflow learn:record --type fix --name "..." --description "..." --category <lint|type-error|dependency|config|runtime|build|test>
+
+# Record a project blueprint (for project scaffolding patterns)
+workflow learn:record --type blueprint --name "..." --description "..." --framework <framework>
+
+# View captured patterns
+workflow learn:list
+
+# Sync with community registry
+workflow sync --pull     # Pull latest patterns
+workflow sync --push     # Share your patterns
+```
+
+### Pattern Analysis Workflow
+
+Follow the 6-phase cycle from `guidelines/PATTERN_ANALYSIS_WORKFLOW.md`:
+
+1. **DISCOVER** — Review recent changes, identify fixes worth capturing
+2. **CATEGORIZE** — Classify as fix/blueprint, assign category and tags
+3. **EXTRACT** — Build structured pattern with trigger + solution
+4. **VALIDATE** — Check quality, uniqueness, anonymization
+5. **STORE** — Use CLI or API to persist pattern
+6. **REPORT** — Summarize what was captured
+
+### Self-Improvement Tracking
+
+When you discover workflow issues, pain points, or improvements:
+
+1. Create `.workflow/improvements/YYYY-MM-DD-<id>.md` using the template in `guidelines/SELF_IMPROVEMENT_MANDATE.md`
+2. Categorize: `validation` | `scopes` | `documentation` | `performance` | `security` | `ux`
+3. Submit to community: `workflow suggest "<description>"`
 
 ## Context Checkpoint
 

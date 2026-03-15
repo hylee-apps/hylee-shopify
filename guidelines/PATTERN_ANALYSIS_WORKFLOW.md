@@ -287,38 +287,41 @@ workflow learn:record \
 When automating pattern capture:
 
 ```typescript
-import { PatternStore, type FixPattern } from '@hawkinside_out/workflow-improvement-tracker';
+import {
+  PatternStore,
+  type FixPattern,
+} from "@hawkinside_out/workflow-improvement-tracker";
 
 const store = new PatternStore(process.cwd());
 await store.initialize();
 
 const pattern: FixPattern = {
   id: crypto.randomUUID(),
-  name: 'ESLint prefer-const fix',
-  description: 'Replace let with const for never-reassigned variables',
-  category: 'lint',
+  name: "ESLint prefer-const fix",
+  description: "Replace let with const for never-reassigned variables",
+  category: "lint",
   tags: [
-    { name: 'eslint', category: 'tool' },
-    { name: 'prefer-const', category: 'error-type' },
+    { name: "eslint", category: "tool" },
+    { name: "prefer-const", category: "error-type" },
   ],
   trigger: {
-    errorPattern: 'Prefer const over let',
-    filePattern: '*.ts,*.tsx',
+    errorPattern: "Prefer const over let",
+    filePattern: "*.ts,*.tsx",
   },
   solution: {
-    type: 'file-change',
+    type: "file-change",
     steps: [
       {
         order: 1,
-        action: 'modify',
-        target: '<file>',
+        action: "modify",
+        target: "<file>",
         description: "Change 'let' to 'const' for the flagged variable",
       },
     ],
   },
   compatibility: {
-    framework: 'node',
-    frameworkVersion: '*',
+    framework: "node",
+    frameworkVersion: "*",
   },
   metrics: {
     successRate: 100,
@@ -326,7 +329,7 @@ const pattern: FixPattern = {
     successes: 0,
     failures: 0,
   },
-  source: 'manual',
+  source: "manual",
   isPrivate: true,
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
@@ -347,7 +350,7 @@ When a pattern needs improvement:
 const existing = await store.getFixPattern(patternId);
 
 // Update with better trigger
-existing.trigger.errorPattern = 'more specific regex';
+existing.trigger.errorPattern = "more specific regex";
 existing.updatedAt = new Date().toISOString();
 
 // Save (handles version conflict automatically)
