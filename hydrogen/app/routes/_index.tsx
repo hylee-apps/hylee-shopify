@@ -63,7 +63,7 @@ const HOMEPAGE_COLLECTION_FRAGMENT = `#graphql
 const HOMEPAGE_QUERY = `#graphql
   query Homepage($country: CountryCode, $language: LanguageCode)
     @inContext(country: $country, language: $language) {
-    whatsNew: collection(handle: "whats-new") {
+    featured: collection(handle: "electronics") {
       id
       title
       handle
@@ -73,7 +73,7 @@ const HOMEPAGE_QUERY = `#graphql
         }
       }
     }
-    seasonal: collection(handle: "summer-collection") {
+    secondary: collection(handle: "kitchen-dining") {
       id
       title
       handle
@@ -102,8 +102,8 @@ export async function loader({context}: Route.LoaderArgs) {
   });
 
   return {
-    whatsNew: data.whatsNew,
-    seasonal: data.seasonal,
+    featured: data.featured,
+    secondary: data.secondary,
   };
 }
 
@@ -195,7 +195,7 @@ function ProductSection({
 // ============================================================================
 
 export default function Homepage() {
-  const {whatsNew, seasonal} = useLoaderData<typeof loader>();
+  const {featured, secondary} = useLoaderData<typeof loader>();
 
   return (
     <>
@@ -236,19 +236,23 @@ export default function Homepage() {
       {/* PRODUCTS CONTAINER — Figma node 218:476 (1440×1778px)           */}
       {/* ================================================================ */}
       <div className="flex flex-col items-start w-full gap-10">
-        {/* What's New — Figma node 218:337 */}
-        <ProductSection
-          collection={whatsNew}
-          label="What's New"
-          seeAllUrl="/collections/whats-new"
-        />
+        {/* Featured collection */}
+        {featured && (
+          <ProductSection
+            collection={featured}
+            label={featured.title}
+            seeAllUrl={`/collections/${featured.handle}`}
+          />
+        )}
 
-        {/* Summer/Winter/Fall Collection — Figma node 218:384 */}
-        <ProductSection
-          collection={seasonal}
-          label="Summer/Winter/Fall Collection"
-          seeAllUrl="/collections/summer-collection"
-        />
+        {/* Secondary collection */}
+        {secondary && (
+          <ProductSection
+            collection={secondary}
+            label={secondary.title}
+            seeAllUrl={`/collections/${secondary.handle}`}
+          />
+        )}
 
         {/* ============================================================== */}
         {/* PROMOTIONS & DISCOUNTS — Figma node 218:430                    */}
