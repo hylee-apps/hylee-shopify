@@ -1,0 +1,53 @@
+{
+  "id": "e6f7a8b9-c0d1-4e2f-3a4b-5c6d7e8f9a0b",
+  "name": "TypeScript filter(Boolean) Does Not Narrow Types",
+  "description": "Array.filter(Boolean) removes falsy values at runtime but TypeScript does not narrow the type from T|null|undefined to T. Use a type predicate function instead: .filter((x): x is T => !!x)",
+  "category": "type-error",
+  "tags": [
+    {
+      "name": "typescript",
+      "category": "language"
+    },
+    {
+      "name": "type-narrowing",
+      "category": "pattern"
+    },
+    {
+      "name": "array",
+      "category": "feature"
+    }
+  ],
+  "trigger": {
+    "errorPattern": "Type.*null.*not assignable|filter.*Boolean.*null|cannot.*null.*undefined",
+    "errorMessage": "TypeScript error after .filter(Boolean) — the resulting array type still includes null/undefined",
+    "filePattern": "**/*.{ts,tsx}"
+  },
+  "solution": {
+    "type": "file-change",
+    "steps": [
+      {
+        "order": 1,
+        "action": "modify",
+        "target": "<file>",
+        "description": "Replace .filter(Boolean) with .filter((x): x is NonNullType => !!x) where NonNullType is the expected non-null type."
+      }
+    ]
+  },
+  "compatibility": {
+    "framework": "generic",
+    "frameworkVersion": "*",
+    "runtime": "node",
+    "runtimeVersion": ">=16.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 100,
+    "applications": 1,
+    "successes": 1,
+    "failures": 0
+  },
+  "source": "verify-fix",
+  "isPrivate": false,
+  "createdAt": "2026-03-13T00:00:00.000Z",
+  "updatedAt": "2026-03-13T00:00:00.000Z"
+}

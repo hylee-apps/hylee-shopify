@@ -1,0 +1,63 @@
+{
+  "id": "d5e6f7a8-b9c0-4d1e-2f3a-4b5c6d7e8f9a",
+  "name": "Dry-Run and Real Path Filter Parity",
+  "description": "When a pipeline supports filtering (e.g., --group, --tag, --file), every code path must apply the filter — including dry-run mode. A common bug is building the dry-run path first without filtering, then adding filtering only to the real execution path.",
+  "category": "runtime",
+  "tags": [
+    {
+      "name": "cli",
+      "category": "pattern"
+    },
+    {
+      "name": "dry-run",
+      "category": "feature"
+    },
+    {
+      "name": "filtering",
+      "category": "feature"
+    },
+    {
+      "name": "typescript",
+      "category": "language"
+    }
+  ],
+  "trigger": {
+    "errorPattern": "dry.?run.*filter|filter.*not applied|all.*groups.*shown",
+    "errorMessage": "Dry-run mode ignores filter options (e.g., --group TG1 still shows all groups in dry-run output)",
+    "filePattern": "**/*.ts"
+  },
+  "solution": {
+    "type": "file-change",
+    "steps": [
+      {
+        "order": 1,
+        "action": "modify",
+        "target": "<runner-file>",
+        "description": "Pass filter parameters through to the dry-run code path. If the real path applies filters in parseResults(), the dry-run path must apply the same filter in buildDryRunResult()."
+      },
+      {
+        "order": 2,
+        "action": "modify",
+        "target": "<test-file>",
+        "description": "Add test case that runs dry-run WITH a filter and verifies the output only contains filtered items."
+      }
+    ]
+  },
+  "compatibility": {
+    "framework": "generic",
+    "frameworkVersion": "*",
+    "runtime": "node",
+    "runtimeVersion": ">=16.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 100,
+    "applications": 1,
+    "successes": 1,
+    "failures": 0
+  },
+  "source": "auto-heal",
+  "isPrivate": false,
+  "createdAt": "2026-03-13T00:00:00.000Z",
+  "updatedAt": "2026-03-13T00:00:00.000Z"
+}

@@ -1,0 +1,205 @@
+{
+  "id": "f7a8b9c0-d1e2-4f3a-4b5c-6d7e8f9a0b1c",
+  "name": "Markdown Test Plan Automation Pipeline",
+  "description": "End-to-end pipeline that parses structured markdown test plans into typed ASTs, generates executable Playwright E2E tests, runs them against a live app, triages failures into 5 categories (selector/timing/content/dependency/app_bug), auto-fixes common failures, and re-runs. Includes centralized testid registry, semantic target mapping, and CLI with dry-run support.",
+  "tags": [
+    {
+      "name": "playwright",
+      "category": "tool"
+    },
+    {
+      "name": "test-automation",
+      "category": "pattern"
+    },
+    {
+      "name": "code-generation",
+      "category": "feature"
+    },
+    {
+      "name": "triage",
+      "category": "feature"
+    },
+    {
+      "name": "auto-fix",
+      "category": "feature"
+    },
+    {
+      "name": "ast",
+      "category": "pattern"
+    },
+    {
+      "name": "cli",
+      "category": "tool"
+    },
+    {
+      "name": "next",
+      "category": "framework"
+    },
+    {
+      "name": "typescript",
+      "category": "language"
+    }
+  ],
+  "stack": {
+    "framework": "next",
+    "language": "typescript",
+    "runtime": "node",
+    "packageManager": "pnpm",
+    "dependencies": [],
+    "devDependencies": [
+      {
+        "name": "@playwright/test",
+        "version": "^1.57.0",
+        "compatibleRange": ">=1.40.0"
+      },
+      {
+        "name": "tsx",
+        "version": "^4.0.0",
+        "compatibleRange": ">=4.0.0"
+      }
+    ]
+  },
+  "structure": {
+    "directories": [
+      {
+        "path": "lib/test-automation",
+        "purpose": "Core pipeline modules"
+      },
+      {
+        "path": "e2e/generated",
+        "purpose": "Generated test output (gitignored)"
+      },
+      {
+        "path": "test-results",
+        "purpose": "JSON and Markdown reports (gitignored)"
+      },
+      {
+        "path": "scripts",
+        "purpose": "CLI entry points"
+      },
+      {
+        "path": "plans",
+        "purpose": "Structured markdown test plans (input)"
+      }
+    ],
+    "keyFiles": [
+      {
+        "path": "lib/test-automation/types.ts",
+        "purpose": "Shared types: ParsedTestPlan, TestGroup, TestCase, ParsedStep, ParsedExpectation, StepAction, ExpectationType, RunOptions, RunResult, GroupResult, TestResult, TriageResult, FixResult, FailureCategory"
+      },
+      {
+        "path": "lib/test-automation/parser.ts",
+        "purpose": "Markdown → AST. Extracts title, ticketId, testGroups, testCases (id/steps/expectedResult/role/continuesFrom), prerequisites, signOffCriteria. Handles compound steps and role annotations."
+      },
+      {
+        "path": "lib/test-automation/testid-registry.ts",
+        "purpose": "Centralized TESTID constant with scoped sections (NAV, TASK_DIALOG, etc.) and dynamic helper functions. Single source of truth for both components and generated tests."
+      },
+      {
+        "path": "lib/test-automation/action-mappings.ts",
+        "purpose": "TARGET_TESTID_MAP (44+ entries) mapping semantic names to testid constants. resolveTestId() and generateStepCode() for producing Playwright action code."
+      },
+      {
+        "path": "lib/test-automation/expectation-mappings.ts",
+        "purpose": "generateExpectationCode() handling 10 expectation types: toast, visible, not_visible, disabled, enabled, text_content, redirect, color, count, attribute."
+      },
+      {
+        "path": "lib/test-automation/generator.ts",
+        "purpose": "Assembles full .spec.ts files with AUTO-GENERATED header, test.describe blocks, role-specific grouping, test.describe.serial for sequential dependencies."
+      },
+      {
+        "path": "lib/test-automation/runner.ts",
+        "purpose": "Pipeline orchestrator: parse → generate → writeGeneratedTest → (dry-run OR execSync playwright) → parsePlaywrightResults. Supports --group filtering in both paths."
+      },
+      {
+        "path": "lib/test-automation/triage.ts",
+        "purpose": "5-category failure classifier with priority: dependency(0.95) → selector(0.7-0.9) → timing(0.7) → content(0.8-0.85) → app_bug(0.3 fallback). Uses ES2017-safe regex."
+      },
+      {
+        "path": "lib/test-automation/auto-fix.ts",
+        "purpose": "Category-specific fixes: selector→locator().first() fallback, content→text replacement, timing→waitForLoadState injection. Skips dependency and app_bug."
+      },
+      {
+        "path": "lib/test-automation/reporter.ts",
+        "purpose": "printSummary() with checkmark/X icons, writeJsonReport(), writeMarkdownReport() with per-group tables."
+      },
+      {
+        "path": "lib/test-automation/index.ts",
+        "purpose": "Barrel export for all public APIs"
+      },
+      {
+        "path": "scripts/run-test-plan.ts",
+        "purpose": "CLI with --dry-run, --group TG#, --browser, --headed, --no-report flags"
+      }
+    ]
+  },
+  "setup": {
+    "prerequisites": [
+      "Structured markdown test plans in plans/ directory",
+      "data-testid attributes on interactive UI elements",
+      "Testid registry with semantic mappings"
+    ],
+    "steps": [
+      {
+        "order": 1,
+        "command": "mkdir -p lib/test-automation e2e/generated test-results scripts",
+        "description": "Create pipeline directories",
+        "optional": false
+      },
+      {
+        "order": 2,
+        "command": "echo 'e2e/generated/' >> .gitignore && echo 'test-results/' >> .gitignore",
+        "description": "Gitignore generated output",
+        "optional": false
+      },
+      {
+        "order": 3,
+        "command": "Create types.ts with ParsedTestPlan, TestGroup, TestCase, etc.",
+        "description": "Define shared pipeline types",
+        "optional": false
+      },
+      {
+        "order": 4,
+        "command": "Create testid-registry.ts with TESTID constant",
+        "description": "Centralize all data-testid values",
+        "optional": false
+      },
+      {
+        "order": 5,
+        "command": "Implement parser.ts, generator.ts, runner.ts, triage.ts, auto-fix.ts, reporter.ts",
+        "description": "Build pipeline modules",
+        "optional": false
+      },
+      {
+        "order": 6,
+        "command": "Create scripts/run-test-plan.ts CLI entry point",
+        "description": "Wire up CLI",
+        "optional": false
+      },
+      {
+        "order": 7,
+        "command": "Add test:plan script to package.json",
+        "description": "Enable pnpm test:plan",
+        "optional": false
+      }
+    ],
+    "configs": []
+  },
+  "compatibility": {
+    "framework": "next",
+    "frameworkVersion": "^16.0.0",
+    "runtime": "node",
+    "runtimeVersion": ">=18.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 100,
+    "applications": 1,
+    "successes": 1,
+    "failures": 0
+  },
+  "relatedPatterns": [],
+  "isPrivate": false,
+  "createdAt": "2026-03-13T00:00:00.000Z",
+  "updatedAt": "2026-03-13T00:00:00.000Z"
+}

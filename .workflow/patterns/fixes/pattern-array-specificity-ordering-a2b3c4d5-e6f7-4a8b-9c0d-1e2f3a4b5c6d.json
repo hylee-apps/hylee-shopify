@@ -1,0 +1,59 @@
+{
+  "id": "a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d",
+  "name": "Pattern Array Specificity Ordering",
+  "description": "When using an ordered array of regex patterns for classification (e.g., action detection, error categorization), place more-specific patterns before general ones. Like CSS specificity: context_click must come before click, or the general pattern will match first.",
+  "category": "runtime",
+  "tags": [
+    {
+      "name": "regex",
+      "category": "pattern"
+    },
+    {
+      "name": "classification",
+      "category": "feature"
+    },
+    {
+      "name": "typescript",
+      "category": "language"
+    }
+  ],
+  "trigger": {
+    "errorPattern": "wrong.*pattern.*match|specific.*before.*general|pattern.*order",
+    "errorMessage": "A general pattern in an ordered array matches before a more specific pattern (e.g., 'click' matches 'right-click' before 'context_click' pattern runs)",
+    "filePattern": "**/*.ts"
+  },
+  "solution": {
+    "type": "file-change",
+    "steps": [
+      {
+        "order": 1,
+        "action": "modify",
+        "target": "<file-with-patterns>",
+        "description": "Reorder the pattern array so more-specific patterns come first. Sort by specificity: compound terms before simple terms, multi-word before single-word, prefixed before bare."
+      },
+      {
+        "order": 2,
+        "action": "modify",
+        "target": "<test-file>",
+        "description": "Add test cases for both the specific and general inputs to verify correct ordering."
+      }
+    ]
+  },
+  "compatibility": {
+    "framework": "generic",
+    "frameworkVersion": "*",
+    "runtime": "node",
+    "runtimeVersion": ">=16.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 100,
+    "applications": 1,
+    "successes": 1,
+    "failures": 0
+  },
+  "source": "auto-heal",
+  "isPrivate": false,
+  "createdAt": "2026-03-13T00:00:00.000Z",
+  "updatedAt": "2026-03-13T00:00:00.000Z"
+}

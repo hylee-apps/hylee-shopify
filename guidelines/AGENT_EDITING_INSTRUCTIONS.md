@@ -520,15 +520,15 @@ Every component story file MUST include:
 **Story Template:**
 
 ```tsx
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { ComponentName } from './ui/component-name';
-import { mockFeatureFlags } from '@/lib/feature-flags';
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { ComponentName } from "./ui/component-name";
+import { mockFeatureFlags } from "@/lib/feature-flags";
 
 const meta: Meta<typeof ComponentName> = {
-  title: 'Category/ComponentName',
+  title: "Category/ComponentName",
   component: ComponentName,
-  tags: ['autodocs'],
-  parameters: { layout: 'centered' },
+  tags: ["autodocs"],
+  parameters: { layout: "centered" },
   decorators: [
     (Story) => {
       mockFeatureFlags({ FEATURE_FLAG: true });
@@ -671,28 +671,28 @@ Imports MUST follow this exact order, with blank lines between groups:
 
 ```typescript
 // 1. Directive (MUST be first line if present)
-'use server';
+"use server";
 // OR
-'use client';
+"use client";
 
 // 2. React imports
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 
 // 3. External library imports (alphabetical)
-import { useDrag } from 'react-dnd';
-import { QueryClient } from '@tanstack/react-query';
-import { z } from 'zod';
+import { useDrag } from "react-dnd";
+import { QueryClient } from "@tanstack/react-query";
+import { z } from "zod";
 
 // 4. Internal absolute imports with @/ prefix (alphabetical by path)
-import { createServerClient } from '@/lib/supabase/server';
-import { verifyBoardAccess } from '@/utils/authorization.server';
-import type { Task, Sprint } from '@/types';
-import { useAuth } from '@/app/providers';
+import { createServerClient } from "@/lib/supabase/server";
+import { verifyBoardAccess } from "@/utils/authorization.server";
+import type { Task, Sprint } from "@/types";
+import { useAuth } from "@/app/providers";
 
 // 5. Relative imports (parent directories first, then siblings)
-import { Button } from '../ui/button';
-import { TaskCard } from './TaskCard';
-import type { LocalType } from './types';
+import { Button } from "../ui/button";
+import { TaskCard } from "./TaskCard";
+import type { LocalType } from "./types";
 ```
 
 ### Naming Conventions
@@ -718,27 +718,31 @@ import type { LocalType } from './types';
 
 ```typescript
 export async function getEntity(
-  id: string
+  id: string,
 ): Promise<{ data: Entity | null; error: string | null }> {
   try {
     // 1. Verify access FIRST
     const access = await verifyEntityAccess(id);
     if (!access.hasAccess) {
-      return { data: null, error: access.error || 'Access denied' };
+      return { data: null, error: access.error || "Access denied" };
     }
 
     const supabase = await createServerClient();
-    const { data, error } = await supabase.from('entities').select('*').eq('id', id).single();
+    const { data, error } = await supabase
+      .from("entities")
+      .select("*")
+      .eq("id", id)
+      .single();
 
     if (error) {
-      console.error('Error fetching entity:', error);
+      console.error("Error fetching entity:", error);
       return { data: null, error: error.message };
     }
 
     return { data: transformEntity(data), error: null };
   } catch (err) {
-    console.error('Unexpected error:', err);
-    return { data: null, error: 'An unexpected error occurred' };
+    console.error("Unexpected error:", err);
+    return { data: null, error: "An unexpected error occurred" };
   }
 }
 ```
@@ -753,10 +757,10 @@ const handleSubmit = async () => {
       toast.error(error);
       return;
     }
-    toast.success('Created successfully');
+    toast.success("Created successfully");
     onSuccess?.(data);
   } catch (err) {
-    toast.error('An unexpected error occurred');
+    toast.error("An unexpected error occurred");
   }
 };
 ```
@@ -782,12 +786,12 @@ const handleSubmit = async () => {
 5. **Never expose sensitive data** - filter fields before returning
 
 ```typescript
-'use server';
+"use server";
 
-import { createServerClient } from '@/lib/supabase/server';
-import { verifyBoardAccess } from '@/utils/authorization.server';
-import { revalidatePath } from 'next/cache';
-import type { Task } from '@/types';
+import { createServerClient } from "@/lib/supabase/server";
+import { verifyBoardAccess } from "@/utils/authorization.server";
+import { revalidatePath } from "next/cache";
+import type { Task } from "@/types";
 
 interface TaskRow {
   id: string;
@@ -806,17 +810,20 @@ function transformTask(row: TaskRow): Task {
 }
 
 export async function getTasks(
-  boardId: string
+  boardId: string,
 ): Promise<{ data: Task[] | null; error: string | null }> {
   // 1. Authorization FIRST
   const access = await verifyBoardAccess(boardId);
   if (!access.hasAccess) {
-    return { data: null, error: access.error || 'Access denied' };
+    return { data: null, error: access.error || "Access denied" };
   }
 
   // 2. Fetch data
   const supabase = await createServerClient();
-  const { data, error } = await supabase.from('tasks').select('*').eq('board_id', boardId);
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("board_id", boardId);
 
   if (error) {
     return { data: null, error: error.message };
@@ -887,12 +894,15 @@ export function TaskCard({ task, onEdit, readOnly = false }: TaskCardProps) {
 
 ```typescript
 // Server action
-import { verifyBoardAccess, requireContributorAccess } from '@/utils/authorization.server';
+import {
+  verifyBoardAccess,
+  requireContributorAccess,
+} from "@/utils/authorization.server";
 
 export async function createTask(boardId: string, data: CreateTaskData) {
   const boardAccess = await verifyBoardAccess(boardId);
   if (!boardAccess.hasAccess) {
-    return { data: null, error: 'Access denied' };
+    return { data: null, error: "Access denied" };
   }
 
   // For write operations, also check role

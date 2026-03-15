@@ -1,96 +1,177 @@
-# Cursor AI Rules for Hy-lee Shopify Theme
+# Cursor AI Rules for Hy-lee Shopify
 
-## Project Type
+## Project Structure
 
-This is a Shopify theme project using Liquid templating. NOT React/TypeScript.
+This is a **dual-stack** project:
+
+- `theme/` — Shopify Liquid theme (CSS + Liquid templating)
+- `hydrogen/` — Hydrogen/Remix storefront (React + TypeScript + Tailwind v4)
+
+Determine which stack you're working in by the file path. Rules differ per stack.
 
 ## Context Files
 
-Before making changes, read:
+Before making changes, read the relevant context:
 
-- docs/DEVELOPMENT_GUIDELINES.md
-- docs/COMPONENT_INVENTORY.md
-- docs/IMPLEMENTATION_PLAN.md
+- **Always**: `guidelines/AGENT_EDITING_INSTRUCTIONS.md`
+- **Theme work**: `docs/COMPONENT_INVENTORY.md`, `docs/IMPLEMENTATION_PLAN.md`
+- **Hydrogen work**: `hydrogen/CLAUDE.md`, `hydrogen/design-references/<component>/figma-spec.md`
 
-## Component-First Development
+---
 
-### Rule: Check Before Create
+## Theme Rules (`theme/`)
 
-ALWAYS check `theme/snippets/` before creating any UI element.
-If a component exists, USE IT. If not, CREATE IT FIRST as a reusable snippet.
+### Component-First Development
 
-### Rule: Component Location
+- ALWAYS check `theme/snippets/` before creating any UI element
+- If a component exists, USE IT. If not, CREATE IT FIRST as a reusable snippet
+- All UI components MUST be in `theme/snippets/` as `.liquid` files
+- Component styles MUST be in `theme/assets/component-{name}.css`
 
-All UI components MUST be in `theme/snippets/` as `.liquid` files.
-
-### Rule: Styling Location
-
-Component styles MUST be in `theme/assets/component-{name}.css`.
-NEVER use inline styles. NEVER hardcode colors or spacing.
-
-## Design Tokens
+### Design Tokens
 
 ALWAYS use CSS custom properties from `theme-variables.css`:
 
 ```css
-/* ✅ Correct */
+/* Correct */
 color: var(--color-primary);
 padding: var(--spacing-md);
-font-size: var(--font-size-base);
 
-/* ❌ Wrong */
+/* Wrong */
 color: #4a90a4;
 padding: 16px;
 ```
 
-## File Naming Conventions
+### File Naming
 
 - Components: `{name}.liquid`
 - Component CSS: `component-{name}.css`
 - Section CSS: `section-{name}.css`
 - Template CSS: `template-{name}.css`
 
-## CSS Naming (BEM)
+### CSS Naming (BEM)
 
 ```css
-.component-name {
-}
-.component-name__element {
-}
-.component-name--modifier {
-}
+.component-name {}
+.component-name__element {}
+.component-name--modifier {}
 ```
 
-## Documentation Updates
+---
 
-When completing work:
+## Hydrogen Rules (`hydrogen/`)
 
-- New component → Update `docs/COMPONENT_INVENTORY.md`
-- Completed task → Update `docs/IMPLEMENTATION_PLAN.md`
-- Architecture decision → Update `docs/ARCHITECTURE.md`
+### Stack
 
-## Branching
+- **Framework**: Shopify Hydrogen + React Router 7
+- **Styling**: Tailwind CSS v4 with `@theme` tokens in `app/styles/app.css`
+- **Components**: CVA variants + `cn()` merger (`app/lib/utils.ts`)
+- **Icons**: Lucide React icons
+- **Testing**: Vitest (unit) + Playwright (e2e + visual)
 
-Format: `{type}({scope}): {description}`
-Types: feat, fix, chore, docs, style, test, refactor
-Scopes: account, orders, tracking, returns, product, collection, cart, nav, ui, homepage
+### Design Tokens
 
-## Commands
+Use Tailwind classes mapped from `app/styles/app.css` `@theme` block:
+
+```
+--color-primary (#2ac864) → *-primary
+--color-secondary (#2699a6) → *-secondary
+--color-text-muted (#666) → *-text-muted
+```
+
+Never hardcode hex colors. Use token-mapped Tailwind classes.
+
+### Figma Design Reference
+
+When building/refining UI, follow the mandatory process in `hydrogen/CLAUDE.md`:
+
+1. Capture reference via Figma MCP tools
+2. Save to `hydrogen/design-references/<component>/`
+3. Build against the spec with pixel-accurate measurements
+4. Visual comparison via Playwright screenshots
+
+---
+
+## Shared Rules (Both Stacks)
+
+### Branching
+
+Format: `<type>/<scope>/<short-description>`
+Types: `feature`, `bugfix`, `hotfix`, `chore`, `refactor`, `docs`, `test`
+
+### Commits
+
+Format: `<type>(<scope>): <description>`
+Example: `feat(sections): add hero banner section`
+
+### Pre-Commit (MANDATORY)
+
+Run ALL checks before every commit. Zero exceptions.
+
+**Theme changes:**
+```bash
+pnpm format && pnpm format:check && pnpm theme-check && pnpm test && pnpm validate
+```
+
+**Hydrogen changes:**
+```bash
+pnpm format && pnpm format:check && pnpm typecheck && pnpm build && pnpm test
+```
+
+### Pattern Capture (workflow-agent)
+
+After fixing bugs or completing features, capture reusable patterns:
 
 ```bash
-pnpm theme:dev          # Start dev server
-pnpm theme-check        # Run Shopify linter
-pnpm format             # Format code
-pnpm theme:push         # Deploy to Shopify
-pnpm test               # Run unit tests
-pnpm test:e2e           # Run E2E tests
-pnpm validate:structure # Check directory structure
+workflow verify --fix --learn    # Auto-capture fix patterns
+workflow learn:record            # Manual pattern recording
+workflow learn:list              # View captured patterns
+workflow sync --push             # Share with registry
 ```
 
-## DO NOT
+### Self-Improvement
 
-- Create React/TypeScript components
-- Hardcode colors, spacing, or design values
-- Create inline styles
-- Duplicate components from `theme/snippets/`
-- Skip documentation updates
+When you discover workflow issues or improvements:
+
+1. Document in `.workflow/improvements/YYYY-MM-DD-<id>.md`
+2. Categorize: validation | scopes | documentation | performance | security | ux
+3. Submit: `workflow suggest "<description>"`
+
+### Implementation Plans
+
+For changes touching 3+ files, create a plan in `plans/<FEATURE_NAME>_PLAN.md` BEFORE coding. Update checkboxes as work progresses.
+
+### DO NOT
+
+- Hardcode colors, spacing, or design values in either stack
+- Use inline styles
+- Skip pre-commit checks
+- Commit without running validation
+- Add new dependencies without checking `guidelines/LIBRARY_INVENTORY.md`
+- Create components without checking for existing ones first
+- Skip pattern capture after meaningful fixes
+
+### Commands
+
+```bash
+# Theme
+pnpm theme:dev          # Start theme dev server
+pnpm theme-check        # Shopify theme linter
+pnpm theme:push         # Deploy to Shopify
+
+# Hydrogen
+pnpm hydrogen:dev       # Start Hydrogen dev server
+pnpm hydrogen:build     # Production build
+pnpm hydrogen:typecheck # Type-check
+
+# Shared
+pnpm format             # Format all code
+pnpm test               # Run unit tests
+pnpm test:e2e           # Run E2E tests
+pnpm validate           # Full validation
+
+# Workflow
+pnpm workflow            # Run workflow agent
+pnpm verify              # Verify changes
+pnpm verify:fix          # Auto-fix issues
+```

@@ -137,11 +137,11 @@ describe('{{presetName}} Scope Preset', () => {
 ## tsup.config.ts Template
 
 ```typescript
-import { defineConfig } from 'tsup';
+import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ['src/index.ts'],
-  format: ['esm'],
+  entry: ["src/index.ts"],
+  format: ["esm"],
   dts: true,
   clean: true,
   sourcemap: true,

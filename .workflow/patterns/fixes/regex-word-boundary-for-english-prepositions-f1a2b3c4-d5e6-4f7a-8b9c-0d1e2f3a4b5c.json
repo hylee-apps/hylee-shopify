@@ -1,0 +1,59 @@
+{
+  "id": "f1a2b3c4-d5e6-4f7a-8b9c-0d1e2f3a4b5c",
+  "name": "Regex Word Boundary for English Prepositions",
+  "description": "When matching English prepositions (in, from, to, at, by) in regex patterns that parse natural language, use \\b word boundaries to prevent matching within longer words (e.g., 'Sprint' contains 'in')",
+  "category": "runtime",
+  "tags": [
+    {
+      "name": "regex",
+      "category": "pattern"
+    },
+    {
+      "name": "parsing",
+      "category": "feature"
+    },
+    {
+      "name": "typescript",
+      "category": "language"
+    }
+  ],
+  "trigger": {
+    "errorPattern": "regex.*match.*inside|preposition.*match|false positive.*pattern",
+    "errorMessage": "Regex pattern for preposition (in/from/to) matches within longer words like 'Sprint', 'Information', 'Platform'",
+    "filePattern": "**/*.ts"
+  },
+  "solution": {
+    "type": "file-change",
+    "steps": [
+      {
+        "order": 1,
+        "action": "modify",
+        "target": "<file-with-regex>",
+        "description": "Replace bare preposition matches like (?:from|in) with word-boundary versions \\b(?:from|in)\\b"
+      },
+      {
+        "order": 2,
+        "action": "modify",
+        "target": "<test-file>",
+        "description": "Add test case with words containing the preposition as a substring (e.g., 'Sprint' for 'in', 'Platform' for 'at')"
+      }
+    ]
+  },
+  "compatibility": {
+    "framework": "generic",
+    "frameworkVersion": "*",
+    "runtime": "node",
+    "runtimeVersion": ">=16.0.0",
+    "dependencies": []
+  },
+  "metrics": {
+    "successRate": 100,
+    "applications": 1,
+    "successes": 1,
+    "failures": 0
+  },
+  "source": "auto-heal",
+  "isPrivate": false,
+  "createdAt": "2026-03-13T00:00:00.000Z",
+  "updatedAt": "2026-03-13T00:00:00.000Z"
+}
