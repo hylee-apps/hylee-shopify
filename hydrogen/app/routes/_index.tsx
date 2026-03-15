@@ -1,11 +1,111 @@
-import {Link, Form} from 'react-router';
-import {Plus} from 'lucide-react';
+import {Link, Form, useLoaderData} from 'react-router';
 import {PillInput} from '~/components/ui/pill-input';
 import {Button} from '~/components/ui/button';
-import {Card} from '~/components/ui/card';
-import {Skeleton} from '~/components/ui/skeleton';
 import {Separator} from '~/components/ui/separator';
+import {Skeleton} from '~/components/ui/skeleton';
+import {ProductCard} from '~/components/commerce/ProductCard';
 import type {Route} from './+types/_index';
+
+// ============================================================================
+// GraphQL
+// ============================================================================
+
+const HOMEPAGE_COLLECTION_FRAGMENT = `#graphql
+  fragment HomepageProduct on Product {
+    id
+    title
+    handle
+    vendor
+    availableForSale
+    tags
+    images(first: 2) {
+      nodes {
+        id
+        url
+        altText
+        width
+        height
+      }
+    }
+    priceRange {
+      minVariantPrice {
+        amount
+        currencyCode
+      }
+    }
+    compareAtPriceRange {
+      minVariantPrice {
+        amount
+        currencyCode
+      }
+    }
+    variants(first: 1) {
+      nodes {
+        id
+        availableForSale
+        price {
+          amount
+          currencyCode
+        }
+        compareAtPrice {
+          amount
+          currencyCode
+        }
+        selectedOptions {
+          name
+          value
+        }
+      }
+    }
+  }
+`;
+
+const HOMEPAGE_QUERY = `#graphql
+  query Homepage($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    whatsNew: collection(handle: "whats-new") {
+      id
+      title
+      handle
+      products(first: 4) {
+        nodes {
+          ...HomepageProduct
+        }
+      }
+    }
+    seasonal: collection(handle: "summer-collection") {
+      id
+      title
+      handle
+      products(first: 4) {
+        nodes {
+          ...HomepageProduct
+        }
+      }
+    }
+  }
+  ${HOMEPAGE_COLLECTION_FRAGMENT}
+` as const;
+
+// ============================================================================
+// Loader
+// ============================================================================
+
+export async function loader({context}: Route.LoaderArgs) {
+  const {storefront} = context;
+
+  const data = await storefront.query(HOMEPAGE_QUERY, {
+    variables: {
+      country: storefront.i18n.country,
+      language: storefront.i18n.language,
+    },
+  });
+
+  return {
+    whatsNew: data.whatsNew,
+    seasonal: data.seasonal,
+  };
+}
 
 // ============================================================================
 // Meta
@@ -23,52 +123,27 @@ export function meta({}: Route.MetaArgs) {
 }
 
 // ============================================================================
-// Product Card
-// Figma: Card=ProductMedium — flex-col gap-2.5 p-2.5, 313×451px total
-// Image: 293×316px placeholder  |  Add btn: bg-secondary rounded-[25px] h-10
-// Price: $superscript-12px + amount-24px  |  Title: 14px Inter Medium
-// ============================================================================
-
-function ProductCard() {
-  return (
-    // Card overrides: strip default gap-6 / rounded-xl / border / py-6 / shadow-sm
-    <Card className="gap-2.5 p-2.5 shrink-0 rounded-sm border-0 shadow-none bg-transparent">
-      {/* Image placeholder — 293×316px; animate-none = static (not loading state) */}
-      <Skeleton className="h-[316px] w-[293px] rounded-sm bg-surface animate-none" />
-
-      {/* Add button — Figma: bg-secondary, rounded-[25px], h-10, px-5 */}
-      <Button className="bg-secondary hover:bg-secondary/90 text-white rounded-[25px] h-10 px-5 has-[>svg]:px-10 gap-2.5 self-start">
-        {/* Figma: plus icon 25×25px */}
-        <Plus size={25} />
-        <span className="text-[14px] font-medium">Add</span>
-      </Button>
-
-      {/* Price — $ at 12px (top-left), amount at 24px, SemiBold, tracking-[0.5px] */}
-      <div className="relative h-7 w-16 font-semibold text-black tracking-[0.5px] whitespace-nowrap shrink-0">
-        <span className="absolute left-2 top-0 text-[24px] leading-6">
-          <sup>$</sup>0.00
-        </span>
-      </div>
-
-      {/* Product title — 14px Inter Medium */}
-      <p className="text-[14px] font-medium text-black">Product Title</p>
-    </Card>
-  );
-}
-
-// ============================================================================
 // Product Section
 // Compact header row (title left + "See all" right) above card row.
 // Matches Walmart-style: ~20px bold, no underline, no double-heading.
 // ============================================================================
 
 function ProductSection({
-  categoryLabel,
+  collection,
+  label,
   seeAllUrl,
 }: {
-  categoryLabel: string;
+  collection?: {
+    handle: string;
+    products: {
+      nodes: Array<React.ComponentProps<typeof ProductCard>['product']>;
+    };
+  } | null;
+  label: string;
   seeAllUrl: string;
 }) {
+  const products = collection?.products.nodes ?? [];
+
   return (
     <div className="flex flex-col pb-4 w-full overflow-x-auto">
       {/* Shared container — width = cards content, centered on page */}
@@ -76,7 +151,7 @@ function ProductSection({
         {/* Header — spans exactly the cards width */}
         <div className="flex items-center justify-between py-3">
           <h2 className="text-[20px] font-bold text-black leading-tight">
-            {categoryLabel}
+            {label}
           </h2>
           <Link
             to={seeAllUrl}
@@ -88,10 +163,26 @@ function ProductSection({
 
         {/* Cards row */}
         <div className="flex gap-2.5">
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
+          {products.length > 0
+            ? products.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  size="small"
+                  showQuickAdd
+                  showRating={false}
+                  showSecondaryImage={false}
+                  collectionHandle={collection?.handle}
+                />
+              ))
+            : Array.from({length: 4}).map((_, i) => (
+                <div key={i} className="flex flex-col gap-2.5 p-2.5 shrink-0">
+                  <Skeleton className="h-[316px] w-[293px] rounded-sm bg-surface animate-none" />
+                  <Skeleton className="h-10 w-24 rounded-[25px] bg-surface animate-none" />
+                  <Skeleton className="h-7 w-16 rounded bg-surface animate-none" />
+                  <Skeleton className="h-4 w-32 rounded bg-surface animate-none" />
+                </div>
+              ))}
         </div>
       </div>
     </div>
@@ -104,6 +195,8 @@ function ProductSection({
 // ============================================================================
 
 export default function Homepage() {
+  const {whatsNew, seasonal} = useLoaderData<typeof loader>();
+
   return (
     <>
       {/* ================================================================ */}
@@ -145,13 +238,15 @@ export default function Homepage() {
       <div className="flex flex-col items-start w-full gap-10">
         {/* What's New — Figma node 218:337 */}
         <ProductSection
-          categoryLabel="What's New"
-          seeAllUrl="/collections/what-s-new"
+          collection={whatsNew}
+          label="What's New"
+          seeAllUrl="/collections/whats-new"
         />
 
         {/* Summer/Winter/Fall Collection — Figma node 218:384 */}
         <ProductSection
-          categoryLabel="Summer/Winter/Fall Collection"
+          collection={seasonal}
+          label="Summer/Winter/Fall Collection"
           seeAllUrl="/collections/summer-collection"
         />
 
