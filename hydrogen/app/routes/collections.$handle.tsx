@@ -72,9 +72,9 @@ function SubcollectionGrid({
           <Link
             key={sub.handle}
             to={`/collections/${sub.handle}`}
-            className="group flex w-28 flex-col items-center gap-2 sm:w-32 md:w-36"
+            className="group flex w-40 flex-col items-center gap-2 sm:w-44 md:w-48"
           >
-            <div className="aspect-square w-full overflow-hidden rounded-lg bg-surface">
+            <div className="aspect-square w-full overflow-hidden rounded-full bg-surface">
               {sub.image ? (
                 <Image
                   data={sub.image}
