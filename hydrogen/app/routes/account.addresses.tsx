@@ -1,5 +1,5 @@
 import type {Route} from './+types/account.addresses';
-import {redirect, Form, useActionData, useNavigation, Link} from 'react-router';
+import {redirect, useActionData, useNavigation, Link} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {useState} from 'react';
 import {
@@ -11,15 +11,33 @@ import {
   BreadcrumbSeparator,
 } from '~/components/ui/breadcrumb';
 import {Button} from '~/components/ui/button';
-import {Input} from '~/components/ui/input';
-import {Label} from '~/components/ui/label';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog';
-import {Plus, MapPin} from 'lucide-react';
+import {Plus} from 'lucide-react';
+
+import {CategoryTabs} from '~/components/account/CategoryTabs';
+import {FamilySubTabs} from '~/components/account/FamilySubTabs';
+import {ContactList} from '~/components/account/ContactList';
+import {ContactFormDialog} from '~/components/account/ContactFormDialog';
+
+import {readAddressBook, writeAddressBook} from '~/lib/address-book-graphql';
+import {
+  getContactsByCategory,
+  getContactsBySubcategory,
+  setPrimaryAddress,
+  FAMILY_SUBCATEGORIES,
+} from '~/lib/address-book';
+import type {
+  AddressBookContact,
+  AddressCategory,
+  ContactAddress,
+  FamilySubcategory,
+  OtherSubcategory,
+} from '~/lib/address-book';
 
 // ============================================================================
 // Route Meta
@@ -27,13 +45,13 @@ import {Plus, MapPin} from 'lucide-react';
 
 export function meta() {
   return getSeoMeta({
-    title: 'Your Addresses',
-    description: 'Manage your shipping addresses.',
+    title: 'Address Book',
+    description: 'Manage your contacts and shipping addresses.',
   });
 }
 
 // ============================================================================
-// GraphQL Queries
+// GraphQL Queries (Shopify native addresses — kept for Home sync)
 // ============================================================================
 
 const ADDRESSES_QUERY = `#graphql
@@ -127,13 +145,58 @@ export async function loader({context}: Route.LoaderArgs) {
     return redirect('/account/login');
   }
 
-  const {data} = await context.customerAccount.query(ADDRESSES_QUERY);
-  const defaultAddressId = data.customer?.defaultAddress?.id ?? null;
+  // Fetch both Shopify native addresses and the address book metafield
+  const [{data: addressData}, {book, customerId}] = await Promise.all([
+    context.customerAccount.query(ADDRESSES_QUERY),
+    readAddressBook(context),
+  ]);
 
-  return {
-    addresses: data.customer?.addresses.nodes ?? [],
-    defaultAddressId,
-  };
+  const shopifyAddresses = addressData.customer?.addresses.nodes ?? [];
+  const defaultAddressId = addressData.customer?.defaultAddress?.id ?? null;
+
+  // Sync: auto-create home contacts for Shopify addresses not yet in the book
+  const homeContacts = getContactsByCategory(book, 'home');
+  const trackedShopifyIds = new Set(
+    homeContacts.flatMap((c) =>
+      c.addresses.map((a) => a.shopifyAddressId).filter(Boolean),
+    ),
+  );
+
+  let bookChanged = false;
+  for (const addr of shopifyAddresses as any[]) {
+    if (!trackedShopifyIds.has(addr.id)) {
+      book.contacts.push({
+        id: crypto.randomUUID(),
+        category: 'home',
+        firstName: addr.firstName ?? '',
+        lastName: addr.lastName ?? '',
+        addresses: [
+          {
+            id: crypto.randomUUID(),
+            primary: addr.id === defaultAddressId,
+            shopifyAddressId: addr.id,
+            address1: addr.address1 ?? '',
+            address2: addr.address2 ?? '',
+            city: addr.city ?? '',
+            state: addr.zoneCode ?? '',
+            zip: addr.zip ?? '',
+            country: addr.territoryCode ?? 'US',
+          },
+        ],
+        phones: addr.phoneNumber
+          ? [{id: crypto.randomUUID(), primary: true, number: addr.phoneNumber}]
+          : [],
+        emails: [],
+      });
+      bookChanged = true;
+    }
+  }
+
+  if (bookChanged) {
+    await writeAddressBook(context, customerId, book);
+  }
+
+  return {book, customerId};
 }
 
 // ============================================================================
@@ -150,8 +213,154 @@ export async function action({request, context}: Route.ActionArgs) {
   const intent = formData.get('intent') as string;
 
   switch (intent) {
+    // ── New contact-based intents ─────────────────────────────────────────
+
+    case 'createContact': {
+      const {book, customerId} = await readAddressBook(context);
+      const contact = extractContactFromForm(formData);
+
+      // If home category, dual-write to Shopify native addresses
+      if (contact.category === 'home' && contact.addresses.length > 0) {
+        const primaryAddr =
+          contact.addresses.find((a) => a.primary) ?? contact.addresses[0];
+        const {data} = await context.customerAccount.mutate(
+          CREATE_ADDRESS_MUTATION,
+          {
+            variables: {
+              address: toShopifyAddress(primaryAddr, contact),
+            },
+          },
+        );
+        const shopifyId = data?.customerAddressCreate?.customerAddress?.id;
+        if (shopifyId) {
+          primaryAddr.shopifyAddressId = shopifyId;
+        }
+        const errors = data?.customerAddressCreate?.userErrors;
+        if (errors?.length) {
+          return {errors, intent};
+        }
+      }
+
+      book.contacts.push(contact);
+      await writeAddressBook(context, customerId, book);
+      return {success: true, intent};
+    }
+
+    case 'updateContact': {
+      const {book, customerId} = await readAddressBook(context);
+      const contactId = formData.get('contactId') as string;
+      const updated = extractContactFromForm(formData);
+      updated.id = contactId;
+
+      const idx = book.contacts.findIndex((c) => c.id === contactId);
+      if (idx === -1) {
+        return {
+          errors: [{field: 'contactId', message: 'Contact not found'}],
+          intent,
+        };
+      }
+
+      // If home category, dual-write primary address to Shopify
+      if (updated.category === 'home') {
+        const primaryAddr =
+          updated.addresses.find((a) => a.primary) ?? updated.addresses[0];
+        if (primaryAddr?.shopifyAddressId) {
+          const {data} = await context.customerAccount.mutate(
+            UPDATE_ADDRESS_MUTATION,
+            {
+              variables: {
+                addressId: primaryAddr.shopifyAddressId,
+                address: toShopifyAddress(primaryAddr, updated),
+              },
+            },
+          );
+          const errors = data?.customerAddressUpdate?.userErrors;
+          if (errors?.length) {
+            return {errors, intent};
+          }
+        } else if (primaryAddr) {
+          const {data} = await context.customerAccount.mutate(
+            CREATE_ADDRESS_MUTATION,
+            {
+              variables: {
+                address: toShopifyAddress(primaryAddr, updated),
+              },
+            },
+          );
+          const shopifyId = data?.customerAddressCreate?.customerAddress?.id;
+          if (shopifyId) {
+            primaryAddr.shopifyAddressId = shopifyId;
+          }
+        }
+      }
+
+      book.contacts[idx] = updated;
+      await writeAddressBook(context, customerId, book);
+      return {success: true, intent};
+    }
+
+    case 'deleteContact': {
+      const {book, customerId} = await readAddressBook(context);
+      const contactId = formData.get('contactId') as string;
+      const contact = book.contacts.find((c) => c.id === contactId);
+
+      if (!contact) {
+        return {
+          errors: [{field: 'contactId', message: 'Contact not found'}],
+          intent,
+        };
+      }
+
+      // If home, also delete Shopify native addresses
+      if (contact.category === 'home') {
+        for (const addr of contact.addresses) {
+          if (addr.shopifyAddressId) {
+            await context.customerAccount.mutate(DELETE_ADDRESS_MUTATION, {
+              variables: {addressId: addr.shopifyAddressId},
+            });
+          }
+        }
+      }
+
+      book.contacts = book.contacts.filter((c) => c.id !== contactId);
+      await writeAddressBook(context, customerId, book);
+      return {success: true, intent};
+    }
+
+    case 'setPrimary': {
+      const {book, customerId} = await readAddressBook(context);
+      const contactId = formData.get('contactId') as string;
+      const addressId = formData.get('addressId') as string;
+
+      const idx = book.contacts.findIndex((c) => c.id === contactId);
+      if (idx === -1) {
+        return {
+          errors: [{field: 'contactId', message: 'Contact not found'}],
+          intent,
+        };
+      }
+
+      book.contacts[idx] = setPrimaryAddress(book.contacts[idx], addressId);
+
+      // If home, also set default in Shopify
+      const newPrimary = book.contacts[idx].addresses.find((a) => a.primary);
+      if (
+        book.contacts[idx].category === 'home' &&
+        newPrimary?.shopifyAddressId
+      ) {
+        await context.customerAccount.mutate(SET_DEFAULT_MUTATION, {
+          variables: {addressId: newPrimary.shopifyAddressId},
+        });
+      }
+
+      await writeAddressBook(context, customerId, book);
+      return {success: true, intent};
+    }
+
+    // ── Legacy intents (backward compat) ──────────────────────────────────
+
     case 'create': {
-      const address = extractAddressFromForm(formData);
+      const address = extractShopifyAddressFromForm(formData);
       const {data} = await context.customerAccount.mutate(
         CREATE_ADDRESS_MUTATION,
         {variables: {address}},
@@ -160,8 +369,6 @@ export async function action({request, context}: Route.ActionArgs) {
       if (errors?.length) {
         return {errors, intent};
       }
-
-      // Set as default if requested
       if (formData.get('isDefault') === 'on') {
         const id = data?.customerAddressCreate?.customerAddress?.id;
         if (id) {
@@ -175,7 +382,7 @@ export async function action({request, context}: Route.ActionArgs) {
 
     case 'update': {
       const addressId = formData.get('addressId') as string;
-      const address = extractAddressFromForm(formData);
+      const address = extractShopifyAddressFromForm(formData);
       const {data} = await context.customerAccount.mutate(
         UPDATE_ADDRESS_MUTATION,
         {variables: {addressId, address}},
@@ -223,7 +430,83 @@ export async function action({request, context}: Route.ActionArgs) {
   }
 }
 
-function extractAddressFromForm(formData: FormData) {
+// ============================================================================
+// Form Extraction Helpers
+// ============================================================================
+
+function extractContactFromForm(formData: FormData): AddressBookContact {
+  const category = (formData.get('category') as string) || 'home';
+  const subcategory = formData.get('subcategory') as string | null;
+  const relationship = formData.get('relationship') as string | null;
+
+  // Parse dynamic address rows
+  const addresses: ContactAddress[] = [];
+  let addrIdx = 0;
+  while (formData.has(`addresses[${addrIdx}].id`)) {
+    addresses.push({
+      id: formData.get(`addresses[${addrIdx}].id`) as string,
+      primary: formData.get(`addresses[${addrIdx}].primary`) === 'true',
+      shopifyAddressId:
+        (formData.get(`addresses[${addrIdx}].shopifyAddressId`) as string) ||
+        undefined,
+      address1: formData.get(`addresses[${addrIdx}].address1`) as string,
+      address2:
+        (formData.get(`addresses[${addrIdx}].address2`) as string) || undefined,
+      city: formData.get(`addresses[${addrIdx}].city`) as string,
+      state: formData.get(`addresses[${addrIdx}].state`) as string,
+      zip: formData.get(`addresses[${addrIdx}].zip`) as string,
+      country:
+        (formData.get(`addresses[${addrIdx}].country`) as string) || 'US',
+    });
+    addrIdx++;
+  }
+
+  // Parse phone rows
+  const phones: {id: string; primary: boolean; number: string}[] = [];
+  let phoneIdx = 0;
+  while (formData.has(`phones[${phoneIdx}].id`)) {
+    const number = formData.get(`phones[${phoneIdx}].number`) as string;
+    if (number) {
+      phones.push({
+        id: formData.get(`phones[${phoneIdx}].id`) as string,
+        primary: formData.get(`phones[${phoneIdx}].primary`) === 'true',
+        number,
+      });
+    }
+    phoneIdx++;
+  }
+
+  // Parse email rows
+  const emails: {id: string; primary: boolean; email: string}[] = [];
+  let emailIdx = 0;
+  while (formData.has(`emails[${emailIdx}].id`)) {
+    const email = formData.get(`emails[${emailIdx}].email`) as string;
+    if (email) {
+      emails.push({
+        id: formData.get(`emails[${emailIdx}].id`) as string,
+        primary: formData.get(`emails[${emailIdx}].primary`) === 'true',
+        email,
+      });
+    }
+    emailIdx++;
+  }
+
+  return {
+    id: crypto.randomUUID(),
+    category: category as AddressCategory,
+    subcategory: subcategory
+      ? (subcategory as FamilySubcategory | OtherSubcategory)
+      : undefined,
+    relationship: relationship ? (relationship as any) : undefined,
+    firstName: formData.get('firstName') as string,
+    lastName: formData.get('lastName') as string,
+    addresses,
+    phones,
+    emails,
+  };
+}
+
+function extractShopifyAddressFromForm(formData: FormData) {
   return {
     firstName: formData.get('firstName') as string,
     lastName: formData.get('lastName') as string,
@@ -238,19 +521,57 @@ function extractAddressFromForm(formData: FormData) {
   };
 }
 
+function toShopifyAddress(addr: ContactAddress, contact: AddressBookContact) {
+  return {
+    firstName: contact.firstName,
+    lastName: contact.lastName,
+    address1: addr.address1,
+    address2: addr.address2 || undefined,
+    city: addr.city,
+    zoneCode: addr.state || undefined,
+    zip: addr.zip,
+    territoryCode: addr.country || 'US',
+  };
+}
+
 // ============================================================================
 // Main Component
 // ============================================================================
 
-export default function AddressesPage({loaderData}: Route.ComponentProps) {
-  const {addresses, defaultAddressId} = loaderData;
+export default function AddressBookPage({loaderData}: Route.ComponentProps) {
+  const {book} = loaderData;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [editAddress, setEditAddress] = useState<any | null>(null);
-  const [deleteAddressId, setDeleteAddressId] = useState<string | null>(null);
-
   const isSubmitting = navigation.state === 'submitting';
+
+  const [formOpen, setFormOpen] = useState(false);
+  const [editContact, setEditContact] = useState<AddressBookContact | null>(
+    null,
+  );
+  const [deleteContactId, setDeleteContactId] = useState<string | null>(null);
+  const [addCategory, setAddCategory] = useState<AddressCategory>('home');
+  const [addSubcategory, setAddSubcategory] = useState<
+    FamilySubcategory | OtherSubcategory | undefined
+  >(undefined);
+
+  function handleAdd(
+    category: AddressCategory,
+    subcategory?: FamilySubcategory | OtherSubcategory,
+  ) {
+    setEditContact(null);
+    setAddCategory(category);
+    setAddSubcategory(subcategory);
+    setFormOpen(true);
+  }
+
+  function handleEdit(contact: AddressBookContact) {
+    setEditContact(contact);
+    setAddCategory(contact.category);
+    setAddSubcategory(
+      contact.subcategory as FamilySubcategory | OtherSubcategory | undefined,
+    );
+    setFormOpen(true);
+  }
 
   return (
     <div className="mx-auto max-w-300 px-4 py-8 sm:px-6">
@@ -269,375 +590,144 @@ export default function AddressesPage({loaderData}: Route.ComponentProps) {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Addresses</BreadcrumbPage>
+            <BreadcrumbPage>Address Book</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-dark">Your Addresses</h1>
+          <h1 className="text-3xl font-bold text-dark">Address Book</h1>
           <p className="mt-1 text-text-muted">
-            {addresses.length} address
-            {addresses.length !== 1 ? 'es' : ''} saved
+            {book.contacts.length} contact
+            {book.contacts.length !== 1 ? 's' : ''} saved
           </p>
         </div>
-        <Button onClick={() => setShowAddModal(true)}>
+        <Button onClick={() => handleAdd('home')}>
           <Plus size={16} className="mr-1" />
-          Add Address
+          Add Contact
         </Button>
       </div>
 
       {/* Success Message */}
       {actionData?.success && (
         <div className="mb-6 rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-          Address{' '}
-          {actionData.intent === 'create'
+          Contact{' '}
+          {actionData.intent === 'createContact'
             ? 'added'
-            : actionData.intent === 'delete'
+            : actionData.intent === 'deleteContact'
               ? 'removed'
               : 'updated'}{' '}
           successfully.
         </div>
       )}
 
-      {addresses.length > 0 ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {addresses.map((address: any) => (
-            <AddressCard
-              key={address.id}
-              address={address}
-              isDefault={address.id === defaultAddressId}
-              onEdit={() => setEditAddress(address)}
-              onDelete={() => setDeleteAddressId(address.id)}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center py-16 text-center">
-          <MapPin size={64} className="mb-4 text-text-muted" />
-          <h2 className="mb-2 text-xl font-semibold text-dark">
-            No addresses yet
-          </h2>
-          <p className="mb-6 text-text-muted">
-            Add a shipping address to speed up checkout.
-          </p>
-          <Button onClick={() => setShowAddModal(true)}>Add Address</Button>
-        </div>
-      )}
+      {/* Tabbed Category View */}
+      <CategoryTabs book={book}>
+        {(category) => {
+          if (category === 'family') {
+            return (
+              <FamilySubTabs book={book}>
+                {(subcategory) => (
+                  <ContactList
+                    contacts={getContactsBySubcategory(
+                      book,
+                      'family',
+                      subcategory,
+                    )}
+                    categoryLabel={
+                      FAMILY_SUBCATEGORIES.find((s) => s.value === subcategory)
+                        ?.label ?? subcategory
+                    }
+                    onAdd={() => handleAdd('family', subcategory)}
+                    onEdit={handleEdit}
+                    onDelete={setDeleteContactId}
+                  />
+                )}
+              </FamilySubTabs>
+            );
+          }
 
-      {/* Add Address Dialog */}
-      <Dialog
-        open={showAddModal}
-        onOpenChange={(open) => !open && setShowAddModal(false)}
-      >
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Add New Address</DialogTitle>
-          </DialogHeader>
-          <AddressForm
-            intent="create"
-            isSubmitting={isSubmitting}
-            onCancel={() => setShowAddModal(false)}
-            errors={
-              (actionData?.intent === 'create'
-                ? actionData?.errors
-                : undefined) as any
-            }
-          />
-        </DialogContent>
-      </Dialog>
+          if (category === 'other') {
+            const otherContacts = getContactsByCategory(book, 'other');
+            return (
+              <ContactList
+                contacts={otherContacts}
+                categoryLabel="Other"
+                onAdd={() => handleAdd('other')}
+                onEdit={handleEdit}
+                onDelete={setDeleteContactId}
+              />
+            );
+          }
 
-      {/* Edit Address Dialog */}
-      <Dialog
-        open={!!editAddress}
-        onOpenChange={(open) => !open && setEditAddress(null)}
-      >
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Edit Address</DialogTitle>
-          </DialogHeader>
-          {editAddress && (
-            <AddressForm
-              intent="update"
-              address={editAddress}
-              isSubmitting={isSubmitting}
-              onCancel={() => setEditAddress(null)}
-              errors={
-                (actionData?.intent === 'update'
-                  ? actionData?.errors
-                  : undefined) as any
+          return (
+            <ContactList
+              contacts={getContactsByCategory(book, category)}
+              categoryLabel={
+                category.charAt(0).toUpperCase() + category.slice(1)
               }
+              onAdd={() => handleAdd(category)}
+              onEdit={handleEdit}
+              onDelete={setDeleteContactId}
             />
-          )}
-        </DialogContent>
-      </Dialog>
+          );
+        }}
+      </CategoryTabs>
+
+      {/* Add / Edit Contact Dialog */}
+      <ContactFormDialog
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        contact={editContact}
+        defaultCategory={addCategory}
+        defaultSubcategory={addSubcategory}
+        isSubmitting={isSubmitting}
+        errors={
+          actionData?.intent === 'createContact' ||
+          actionData?.intent === 'updateContact'
+            ? (actionData?.errors as any)
+            : undefined
+        }
+      />
 
       {/* Delete Confirmation Dialog */}
       <Dialog
-        open={!!deleteAddressId}
-        onOpenChange={(open) => !open && setDeleteAddressId(null)}
+        open={!!deleteContactId}
+        onOpenChange={(open) => !open && setDeleteContactId(null)}
       >
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Delete Address</DialogTitle>
+            <DialogTitle>Delete Contact</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-text">
-              Are you sure you want to delete this address? This action cannot
-              be undone.
+              Are you sure you want to delete this contact and all their
+              addresses? This action cannot be undone.
             </p>
             <div className="flex justify-end gap-3">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setDeleteAddressId(null)}
+                onClick={() => setDeleteContactId(null)}
               >
                 Cancel
               </Button>
-              <Form method="post">
-                <input type="hidden" name="intent" value="delete" />
+              <form method="post">
+                <input type="hidden" name="intent" value="deleteContact" />
                 <input
                   type="hidden"
-                  name="addressId"
-                  value={deleteAddressId ?? ''}
+                  name="contactId"
+                  value={deleteContactId ?? ''}
                 />
                 <Button type="submit" variant="destructive" size="sm">
                   Delete
                 </Button>
-              </Form>
+              </form>
             </div>
           </div>
         </DialogContent>
       </Dialog>
     </div>
-  );
-}
-
-// ============================================================================
-// AddressCard Component
-// ============================================================================
-
-function AddressCard({
-  address,
-  isDefault,
-  onEdit,
-  onDelete,
-}: {
-  address: any;
-  isDefault: boolean;
-  onEdit: () => void;
-  onDelete: () => void;
-}) {
-  return (
-    <div className="rounded-lg border border-border p-5">
-      <div className="mb-3 flex items-start justify-between">
-        <p className="font-medium text-dark">{address.name}</p>
-        {isDefault && (
-          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-            Default
-          </span>
-        )}
-      </div>
-      <div className="mb-4 space-y-0.5 text-sm text-text">
-        {address.formatted?.map((line: string, idx: number) => (
-          <p key={idx}>{line}</p>
-        ))}
-        {address.phoneNumber && <p className="mt-1">{address.phoneNumber}</p>}
-      </div>
-      <div className="flex items-center gap-3 border-t border-border pt-3">
-        <button
-          type="button"
-          onClick={onEdit}
-          className="text-sm font-medium text-primary hover:underline"
-        >
-          Edit
-        </button>
-        {!isDefault && (
-          <>
-            <Form method="post" className="inline">
-              <input type="hidden" name="intent" value="setDefault" />
-              <input type="hidden" name="addressId" value={address.id} />
-              <button
-                type="submit"
-                className="text-sm text-text-muted hover:text-primary"
-              >
-                Set as Default
-              </button>
-            </Form>
-            <button
-              type="button"
-              onClick={onDelete}
-              className="text-sm text-text-muted hover:text-red-600"
-            >
-              Delete
-            </button>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// AddressForm Component
-// ============================================================================
-
-function AddressForm({
-  intent,
-  address,
-  isSubmitting,
-  onCancel,
-  errors,
-}: {
-  intent: 'create' | 'update';
-  address?: any;
-  isSubmitting: boolean;
-  onCancel: () => void;
-  errors?: Array<{field: string; message: string}>;
-}) {
-  return (
-    <Form method="post" className="space-y-4">
-      <input type="hidden" name="intent" value={intent} />
-      {address?.id && (
-        <input type="hidden" name="addressId" value={address.id} />
-      )}
-
-      {errors && errors.length > 0 && (
-        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
-          {errors.map((e, i) => (
-            <p key={i}>{e.message}</p>
-          ))}
-        </div>
-      )}
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="firstName">First Name</Label>
-          <Input
-            id="firstName"
-            name="firstName"
-            defaultValue={address?.firstName ?? ''}
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="lastName">Last Name</Label>
-          <Input
-            id="lastName"
-            name="lastName"
-            defaultValue={address?.lastName ?? ''}
-            required
-          />
-        </div>
-      </div>
-
-      <div>
-        <Label htmlFor="company">Company (Optional)</Label>
-        <Input
-          id="company"
-          name="company"
-          defaultValue={address?.company ?? ''}
-        />
-      </div>
-
-      <div>
-        <Label htmlFor="address1">Address</Label>
-        <Input
-          id="address1"
-          name="address1"
-          defaultValue={address?.address1 ?? ''}
-          required
-        />
-      </div>
-
-      <div>
-        <Label htmlFor="address2">Apartment, suite, etc. (Optional)</Label>
-        <Input
-          id="address2"
-          name="address2"
-          defaultValue={address?.address2 ?? ''}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="city">City</Label>
-          <Input
-            id="city"
-            name="city"
-            defaultValue={address?.city ?? ''}
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="territoryCode">Country</Label>
-          <select
-            id="territoryCode"
-            name="territoryCode"
-            defaultValue={address?.territoryCode ?? 'US'}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-          >
-            <option value="US">United States</option>
-            <option value="CA">Canada</option>
-            <option value="GB">United Kingdom</option>
-            <option value="AU">Australia</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="zoneCode">State / Province</Label>
-          <Input
-            id="zoneCode"
-            name="zoneCode"
-            defaultValue={address?.zoneCode ?? ''}
-          />
-        </div>
-        <div>
-          <Label htmlFor="zip">ZIP / Postal Code</Label>
-          <Input
-            id="zip"
-            name="zip"
-            defaultValue={address?.zip ?? ''}
-            required
-          />
-        </div>
-      </div>
-
-      <div>
-        <Label htmlFor="phoneNumber">Phone (Optional)</Label>
-        <Input
-          id="phoneNumber"
-          name="phoneNumber"
-          type="tel"
-          defaultValue={address?.phoneNumber ?? ''}
-        />
-      </div>
-
-      <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          id="isDefault"
-          name="isDefault"
-          className="h-4 w-4 rounded border-input accent-primary"
-        />
-        <Label htmlFor="isDefault">Set as default address</Label>
-      </div>
-
-      <div className="flex justify-end gap-3 pt-2">
-        <Button variant="outline" type="button" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting
-            ? 'Saving...'
-            : intent === 'create'
-              ? 'Add Address'
-              : 'Save Changes'}
-        </Button>
-      </div>
-    </Form>
   );
 }

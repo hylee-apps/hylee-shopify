@@ -12,6 +12,8 @@ import {
 import {Badge} from '~/components/ui/badge';
 import {Button} from '~/components/ui/button';
 import {ChevronDown, ChevronRight, ImageIcon, Package} from 'lucide-react';
+import {RecipientBadge} from '~/components/account/RecipientBadge';
+import {CHECKOUT_ATTR} from '~/lib/checkout';
 
 // ============================================================================
 // Route Meta
@@ -41,6 +43,10 @@ const CUSTOMER_ORDERS_QUERY = `#graphql
           totalPrice {
             amount
             currencyCode
+          }
+          customAttributes {
+            key
+            value
           }
           lineItems(first: 5) {
             nodes {
@@ -225,6 +231,13 @@ function OrderCard({order}: {order: any}) {
   );
   const orderId = order.id.split('/').pop();
 
+  // Extract recipient from custom attributes
+  const attrs = order.customAttributes ?? [];
+  const getAttr = (key: string): string | null =>
+    attrs.find((a: any) => a.key === key)?.value ?? null;
+  const recipientLabel = getAttr(CHECKOUT_ATTR.SHIPPING_RECIPIENT_LABEL);
+  const recipientCategory = getAttr(CHECKOUT_ATTR.SHIPPING_CATEGORY);
+
   return (
     <div className="overflow-hidden rounded-lg border border-border">
       {/* Order Header */}
@@ -244,6 +257,12 @@ function OrderCard({order}: {order: any}) {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          {recipientLabel && recipientCategory && (
+            <RecipientBadge
+              category={recipientCategory}
+              label={recipientLabel}
+            />
+          )}
           <StatusBadge variant={statusVariant}>{statusLabel}</StatusBadge>
           <span className="text-sm text-text-muted">{order.name}</span>
         </div>

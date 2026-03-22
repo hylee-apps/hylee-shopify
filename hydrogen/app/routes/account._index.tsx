@@ -1,6 +1,7 @@
 import type {Route} from './+types/account._index';
 import {redirect, Link, Form} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
+import {readAddressBook} from '~/lib/address-book-graphql';
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -67,6 +68,17 @@ export async function loader({context}: Route.LoaderArgs) {
 
   const {data} = await context.customerAccount.query(CUSTOMER_QUERY);
 
+  // Redirect new customers to the welcome survey
+  const {surveyCompleted} = await readAddressBook(context);
+  const creationDate = data.customer?.creationDate;
+  if (!surveyCompleted && creationDate) {
+    const accountAge = Date.now() - new Date(creationDate as string).getTime();
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+    if (accountAge < sevenDays) {
+      return redirect('/account/welcome');
+    }
+  }
+
   return {customer: data.customer};
 }
 
@@ -106,8 +118,8 @@ const navCards: NavCard[] = [
     to: '/account/settings',
   },
   {
-    title: 'Your Addresses',
-    description: 'Manage shipping addresses',
+    title: 'Address Book',
+    description: 'Manage contacts and shipping addresses',
     icon: 'map-pin',
     to: '/account/addresses',
   },
