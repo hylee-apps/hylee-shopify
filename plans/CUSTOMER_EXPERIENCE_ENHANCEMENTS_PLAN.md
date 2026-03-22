@@ -74,19 +74,19 @@ Phases 2 & 3 can run in parallel.
 
 ### `hydrogen/app/routes/account.welcome.tsx` (NEW)
 
-- [ ] Loader: auth guard → read `custom.survey_completed` metafield → if already done, redirect to `/account`
-- [ ] Action: save survey response into `custom.address_book` metafield (initializes AddressBook if first time) + set `custom.survey_completed` to `true` → redirect to `/account`
-- [ ] Component: full-page card with:
-  - [ ] Heading: "Welcome to Hy-lee! Quick question — how did you hear about us?"
-  - [ ] shadcn `RadioGroup` for source: Social Media, Google/Bing Search, Referred by a Friend, Other
-  - [ ] Conditional shadcn `Select` for social platform (Instagram, TikTok, Facebook, X, YouTube, LinkedIn, Other) — shown when "Social Media" selected
-  - [ ] Conditional shadcn `Input` for referrer's phone number — shown when "Referred by a Friend" selected, with copy: "Your friend gets 20% off!"
-  - [ ] "Continue to Your Account" `Button` + "Skip" link (non-blocking)
+- [x] Loader: auth guard → read `custom.survey_completed` metafield → if already done, redirect to `/account`
+- [x] Action: save survey response into `custom.address_book` metafield (initializes AddressBook if first time) + set `custom.survey_completed` to `true` → redirect to `/account`
+- [x] Component: full-page card with:
+  - [x] Heading: "Welcome to Hy-lee! Quick question — how did you hear about us?"
+  - [x] shadcn `RadioGroup` for source: Social Media, Google/Bing Search, Referred by a Friend, Other
+  - [x] Conditional shadcn `Select` for social platform (Instagram, TikTok, Facebook, X, YouTube, LinkedIn, Other) — shown when "Social Media" selected
+  - [x] Conditional shadcn `Input` for referrer's phone number — shown when "Referred by a Friend" selected, with copy: "Your friend gets 20% off!"
+  - [x] "Continue to Your Account" `Button` + "Skip" link (non-blocking)
 
 ### `hydrogen/app/routes/account._index.tsx` (MODIFY)
 
-- [ ] In loader: check `custom.survey_completed`. If `false` and account `creationDate` < 7 days ago, redirect to `/account/welcome`
-- [ ] Update "Your Addresses" nav card label to "Address Book" (same route `/account/addresses`)
+- [x] In loader: check `custom.survey_completed`. If `false` and account `creationDate` < 7 days ago, redirect to `/account/welcome`
+- [x] Update "Your Addresses" nav card label to "Address Book" (same route `/account/addresses`)
 
 ### Phase 2 Testing
 
