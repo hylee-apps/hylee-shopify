@@ -10,6 +10,8 @@ import {
   BreadcrumbSeparator,
 } from '~/components/ui/breadcrumb';
 import {Truck, ExternalLink, ImageIcon, ArrowLeft} from 'lucide-react';
+import {RecipientBadge} from '~/components/account/RecipientBadge';
+import {CHECKOUT_ATTR} from '~/lib/checkout';
 
 // ============================================================================
 // Route Meta
@@ -62,6 +64,10 @@ const ORDER_QUERY = `#graphql
         zoneCode
         zip
         country
+      }
+      customAttributes {
+        key
+        value
       }
       billingAddress {
         name
@@ -169,7 +175,16 @@ export async function loader({context, params}: Route.LoaderArgs) {
     throw new Response('Order not found', {status: 404});
   }
 
-  return {order: data.order};
+  // Extract recipient data from custom attributes
+  const attrs = (data.order as any).customAttributes ?? [];
+  const getAttr = (key: string): string | null =>
+    attrs.find((a: any) => a.key === key)?.value ?? null;
+
+  return {
+    order: data.order,
+    shippingCategory: getAttr(CHECKOUT_ATTR.SHIPPING_CATEGORY),
+    shippingRecipientLabel: getAttr(CHECKOUT_ATTR.SHIPPING_RECIPIENT_LABEL),
+  };
 }
 
 // ============================================================================
@@ -236,7 +251,7 @@ function StatusBadge({
 // ============================================================================
 
 export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
-  const {order} = loaderData;
+  const {order, shippingCategory, shippingRecipientLabel} = loaderData;
 
   const {label: statusLabel, variant: statusVariant} = getFulfillmentBadge(
     order.fulfillmentStatus,
@@ -440,8 +455,14 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
           {/* Shipping Address */}
           {order.shippingAddress && (
             <div className="rounded-lg border border-border p-5">
-              <h2 className="mb-3 text-lg font-semibold text-dark">
+              <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-dark">
                 Shipping Address
+                {shippingRecipientLabel && shippingCategory && (
+                  <RecipientBadge
+                    category={shippingCategory}
+                    label={shippingRecipientLabel}
+                  />
+                )}
               </h2>
               <div className="text-sm text-text">
                 <p className="font-medium text-dark">

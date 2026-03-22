@@ -52,6 +52,8 @@ export async function loader({context}: Route.LoaderArgs) {
     shippingCost: checkoutData.shippingCost,
     paymentMethod: checkoutData.paymentMethod,
     deliveryInstructions: checkoutData.deliveryInstructions,
+    shippingRecipientLabel: checkoutData.shippingRecipientLabel,
+    shippingCategory: checkoutData.shippingCategory,
   };
 }
 
@@ -86,13 +88,24 @@ export async function action({context}: Route.ActionArgs) {
 // Review Section Components
 // ============================================================================
 
-function ShippingAddressSection({address}: {address: ShippingAddress}) {
+function ShippingAddressSection({
+  address,
+  recipientLabel,
+}: {
+  address: ShippingAddress;
+  recipientLabel?: string | null;
+}) {
   return (
     <div className="rounded-lg border border-border p-5">
       <div className="flex items-start justify-between">
         <div className="flex flex-col gap-1">
-          <h4 className="text-base font-semibold text-[#111827]">
+          <h4 className="flex items-center gap-2 text-base font-semibold text-[#111827]">
             Shipping Address
+            {recipientLabel && (
+              <span className="rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-medium text-secondary">
+                For {recipientLabel}
+              </span>
+            )}
           </h4>
           <div className="mt-2 flex flex-col gap-0.5 text-[15px] leading-relaxed text-[#4b5563]">
             <span>
@@ -245,6 +258,7 @@ export default function CheckoutReviewPage() {
     shippingMethod,
     shippingCost,
     paymentMethod,
+    shippingRecipientLabel,
   } = useLoaderData<typeof loader>();
 
   const shippingDisplay = shippingCost
@@ -288,7 +302,10 @@ export default function CheckoutReviewPage() {
                 </p>
 
                 {/* Shipping sections */}
-                <ShippingAddressSection address={shippingAddress} />
+                <ShippingAddressSection
+                  address={shippingAddress}
+                  recipientLabel={shippingRecipientLabel}
+                />
                 {/* <ShippingMethodSection method={shippingMethod} /> */}
 
                 {/* Payment section */}

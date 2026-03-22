@@ -1,10 +1,11 @@
-import {useState} from 'react';
+import {useState, useCallback} from 'react';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {Link, redirect, useLoaderData, useActionData, Form} from 'react-router';
 import {Card} from '~/components/ui/card';
 import {cn} from '~/lib/utils';
 import {CheckoutProgress} from '~/components/checkout/CheckoutProgress';
 import {OrderSummary} from '~/components/checkout/OrderSummary';
+import {ShippingCategorySelector} from '~/components/checkout/ShippingCategorySelector';
 import {
   SHIPPING_METHODS,
   CHECKOUT_ATTR,
@@ -18,6 +19,8 @@ import {
   type ShippingAddress,
   type ValidationErrors,
 } from '~/lib/checkout';
+import {readAddressBook} from '~/lib/address-book-graphql';
+import type {AddressBook} from '~/lib/address-book';
 import type {Route} from './+types/checkout.shipping';
 
 // ============================================================================
@@ -45,11 +48,26 @@ export async function loader({context}: Route.LoaderArgs) {
   // Read any previously stored shipping data from cart attributes
   const checkoutData = getCheckoutAttributes(cart);
 
+  // Optionally fetch address book for logged-in users
+  let addressBook: AddressBook | null = null;
+  try {
+    const isLoggedIn = await context.customerAccount.isLoggedIn();
+    if (isLoggedIn) {
+      const {book} = await readAddressBook(context);
+      addressBook = book;
+    }
+  } catch {
+    // Guest checkout — no address book available
+  }
+
   return {
     cart,
     savedAddress: checkoutData.shippingAddress,
     savedMethodId: checkoutData.shippingMethod?.id ?? 'standard',
     savedDeliveryInstructions: checkoutData.deliveryInstructions,
+    savedShippingCategory: checkoutData.shippingCategory,
+    savedContactId: checkoutData.shippingContactId,
+    addressBook,
   };
 }
 
@@ -80,6 +98,10 @@ export async function action({request, context}: Route.ActionArgs) {
     (formData.get('shippingMethod') as string) ?? 'standard';
   const deliveryInstructions =
     (formData.get('deliveryInstructions') as string) ?? '';
+  const shippingCategory = (formData.get('shippingCategory') as string) || '';
+  const shippingRecipientLabel =
+    (formData.get('shippingRecipientLabel') as string) || '';
+  const shippingContactId = (formData.get('shippingContactId') as string) || '';
 
   // Validate
   const errors = validateShippingAddress(address);
@@ -117,6 +139,10 @@ export async function action({request, context}: Route.ActionArgs) {
           ? String(selectedMethod.price)
           : '5.99',
         [CHECKOUT_ATTR.DELIVERY_INSTRUCTIONS]: deliveryInstructions,
+        [CHECKOUT_ATTR.SHIPPING_CATEGORY]: shippingCategory || undefined,
+        [CHECKOUT_ATTR.SHIPPING_RECIPIENT_LABEL]:
+          shippingRecipientLabel || undefined,
+        [CHECKOUT_ATTR.SHIPPING_CONTACT_ID]: shippingContactId || undefined,
       }),
     },
   });
@@ -364,8 +390,15 @@ function FormField({
 // ============================================================================
 
 export default function CheckoutShippingPage() {
-  const {cart, savedAddress, savedMethodId, savedDeliveryInstructions} =
-    useLoaderData<typeof loader>();
+  const {
+    cart,
+    savedAddress,
+    savedMethodId,
+    savedDeliveryInstructions,
+    savedShippingCategory,
+    savedContactId,
+    addressBook,
+  } = useLoaderData<typeof loader>();
   const actionData = useActionData<{
     errors?: ValidationErrors;
     address?: Partial<ShippingAddress>;
@@ -379,8 +412,19 @@ export default function CheckoutShippingPage() {
       'standard',
   );
 
-  // Use action data for form repopulation on error, or saved data from cart
-  const formDefaults = actionData?.address ?? savedAddress;
+  // Track form key to force re-render when address is auto-filled
+  const [formKey, setFormKey] = useState(0);
+  const [filledAddress, setFilledAddress] = useState<ShippingAddress | null>(
+    null,
+  );
+
+  const handleAddressFill = useCallback((address: ShippingAddress) => {
+    setFilledAddress(address);
+    setFormKey((k) => k + 1);
+  }, []);
+
+  // Use action data for form repopulation on error, or filled address, or saved data from cart
+  const formDefaults = actionData?.address ?? filledAddress ?? savedAddress;
   const shippingCost = SHIPPING_METHODS.find((m) => m.id === selectedMethod);
 
   return (
@@ -394,7 +438,14 @@ export default function CheckoutShippingPage() {
         <div className="flex items-start gap-8">
           {/* Left: Main content */}
           <div className="flex min-w-0 flex-1 flex-col gap-6">
+            <ShippingCategorySelector
+              book={addressBook}
+              defaultCategory={savedShippingCategory}
+              defaultContactId={savedContactId}
+              onAddressFill={handleAddressFill}
+            />
             <ShippingAddressCard
+              key={formKey}
               defaultValues={formDefaults}
               errors={actionData?.errors}
             />

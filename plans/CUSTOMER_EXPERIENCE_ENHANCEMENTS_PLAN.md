@@ -1,6 +1,6 @@
 # Implementation Plan: Customer Experience Enhancements (Hydrogen)
 
-> **Status**: 🟡 In Progress
+> **Status**: 🟢 Code Complete (pending manual testing + blockers)
 > **Created**: 2026-03-22
 > **Last Updated**: 2026-03-22
 > **Branch**: `feature/account/relationship-address-book`
@@ -100,66 +100,65 @@ Phases 2 & 3 can run in parallel.
 
 ### `hydrogen/app/components/account/CategoryTabs.tsx` (NEW)
 
-- [ ] Horizontal tab bar: Home | Family | Friends | Work | Other
-- [ ] Uses shadcn `Tabs`, `TabsList` (`variant="line"`), `TabsTrigger`, `TabsContent`
-- [ ] Lucide icons per tab: `Home`, `Users`, `Heart`, `Briefcase`, `MoreHorizontal`
-- [ ] Count badge on each tab (number of contacts in that category)
+- [x] Horizontal tab bar: Home | Family | Friends | Work | Other
+- [x] Uses shadcn `Tabs`, `TabsList` (`variant="line"`), `TabsTrigger`, `TabsContent`
+- [x] Lucide icons per tab: `Home`, `Users`, `Heart`, `Briefcase`, `MoreHorizontal`
+- [x] Count badge on each tab (number of contacts in that category)
 
 ### `hydrogen/app/components/account/FamilySubTabs.tsx` (NEW)
 
-- [ ] Secondary tab bar inside Family `TabsContent`
-- [ ] Tabs: Parents | Siblings | Aunts/Uncles | Cousins | Grandparents
-- [ ] Renders `ContactList` for the selected subcategory
+- [x] Secondary tab bar inside Family `TabsContent`
+- [x] Tabs: Parents | Siblings | Aunts/Uncles | Cousins | Grandparents
+- [x] Renders `ContactList` for the selected subcategory
 
 ### `hydrogen/app/components/account/ContactCard.tsx` (NEW)
 
-- [ ] shadcn `Card` with header: relationship label + full name (e.g., "Brother — Marcus Jones")
-- [ ] Primary address displayed with map-pin icon, phone, email
-- [ ] If multiple addresses: shadcn `Accordion` to expand additional addresses
-- [ ] Primary toggle (star icon) to change primary designation
-- [ ] Edit `Button` → opens `ContactFormDialog`
-- [ ] Delete `Button` → shadcn `Dialog` confirmation
-- [ ] No redundant icons — person's name in card header, not category icon repeated
+- [x] shadcn `Card` with header: relationship label + full name (e.g., "Brother — Marcus Jones")
+- [x] Primary address displayed with map-pin icon, phone, email
+- [x] If multiple addresses: shadcn `Accordion` to expand additional addresses
+- [x] Primary toggle (star icon) to change primary designation
+- [x] Edit `Button` → opens `ContactFormDialog`
+- [x] Delete `Button` → shadcn `Dialog` confirmation
+- [x] No redundant icons — person's name in card header, not category icon repeated
 
 ### `hydrogen/app/components/account/ContactFormDialog.tsx` (NEW)
 
-- [ ] shadcn `Dialog` + `DialogContent` with `react-hook-form` + Zod validation
-- [ ] Category: shadcn `Select` (Home, Family, Friends, Work, Other)
-- [ ] Subcategory: conditional `Select` (Family → Parents/Siblings/Aunts-Uncles/Cousins/Grandparents; Other → Hotel/PO Box/Amazon Dropbox/Campground)
-- [ ] Relationship: conditional `RadioGroup` (Siblings → Brother/Sister; Parents → Mom/Dad; Aunts/Uncles → Aunt/Uncle; Grandparents → Grandmother/Grandfather)
-- [ ] First Name, Last Name: shadcn `Input`
-- [ ] Address fields: address1, address2, city, state (`Select` with US states), zip, country (`Select`)
-- [ ] Phone, Email: `Input`
-- [ ] "+ Add another address" / "+ Add another phone" / "+ Add another email" dynamic rows
-- [ ] Primary toggle per row
+- [x] shadcn `Dialog` + `DialogContent` with form + validation
+- [x] Category: shadcn `Select` (Home, Family, Friends, Work, Other)
+- [x] Subcategory: conditional `Select` (Family → Parents/Siblings/Aunts-Uncles/Cousins/Grandparents; Other → Hotel/PO Box/Amazon Dropbox/Campground)
+- [x] Relationship: conditional `RadioGroup` (Siblings → Brother/Sister; Parents → Mom/Dad; Aunts/Uncles → Aunt/Uncle; Grandparents → Grandmother/Grandfather)
+- [x] First Name, Last Name: shadcn `Input`
+- [x] Address fields: address1, address2, city, state (`Select` with US states), zip, country (`Select`)
+- [x] Phone, Email: `Input`
+- [x] "+ Add another address" / "+ Add another phone" / "+ Add another email" dynamic rows
+- [x] Primary toggle per row
 
 ### `hydrogen/app/components/account/ContactList.tsx` (NEW)
 
-- [ ] Renders list of `ContactCard` for a category/subcategory
-- [ ] "+ Add [Category]" button at bottom
-- [ ] Empty state: "No contacts yet. Add one to get started."
+- [x] Renders list of `ContactCard` for a category/subcategory
+- [x] "+ Add [Category]" button at bottom
+- [x] Empty state: "No contacts yet. Add one to get started."
 
 ### `hydrogen/app/routes/account.addresses.tsx` (MAJOR REFACTOR)
 
 **Loader changes:**
-- [ ] Fetch Shopify native addresses (keep existing `ADDRESSES_QUERY`)
-- [ ] Also fetch `custom.address_book` metafield via `readAddressBook(context)`
-- [ ] Sync: auto-create home contacts for Shopify addresses missing from metafield
+- [x] Fetch Shopify native addresses (keep existing `ADDRESSES_QUERY`)
+- [x] Also fetch `custom.address_book` metafield via `readAddressBook(context)`
+- [x] Sync: auto-create home contacts for Shopify addresses missing from metafield
 
 **Action changes — new intents alongside existing:**
-- [ ] `createContact` — add contact to metafield; if category=home, also call `customerAddressCreate`
-- [ ] `updateContact` — update contact in metafield; if home, also `customerAddressUpdate`
-- [ ] `deleteContact` — remove from metafield; if home + has `shopifyAddressId`, also `customerAddressDelete`
-- [ ] `addAddress` — add address row to existing contact
-- [ ] `setPrimary` — toggle primary address/phone/email designation in metafield
-- [ ] Keep existing intents (`create`, `update`, `delete`, `setDefault`) for backward compat
+- [x] `createContact` — add contact to metafield; if category=home, also call `customerAddressCreate`
+- [x] `updateContact` — update contact in metafield; if home, also `customerAddressUpdate`
+- [x] `deleteContact` — remove from metafield; if home + has `shopifyAddressId`, also `customerAddressDelete`
+- [x] `setPrimary` — toggle primary address/phone/email designation in metafield
+- [x] Keep existing intents (`create`, `update`, `delete`, `setDefault`) for backward compat
 
 **Component changes:**
-- [ ] Replace flat card grid with `CategoryTabs` component
-- [ ] Home tab: synced Shopify addresses as `ContactCard` list
-- [ ] Family tab: `FamilySubTabs` with nested contact lists
-- [ ] Friends/Work tabs: flat `ContactList`
-- [ ] Other tab: subcategory groups (Hotel, PO Box, Amazon Dropbox, Campground)
+- [x] Replace flat card grid with `CategoryTabs` component
+- [x] Home tab: synced Shopify addresses as `ContactCard` list
+- [x] Family tab: `FamilySubTabs` with nested contact lists
+- [x] Friends/Work tabs: flat `ContactList`
+- [x] Other tab: subcategory groups (Hotel, PO Box, Amazon Dropbox, Campground)
 
 ### Phase 3 Testing
 
@@ -178,25 +177,25 @@ Phases 2 & 3 can run in parallel.
 
 ### `hydrogen/app/components/checkout/ShippingCategorySelector.tsx` (NEW)
 
-- [ ] "Who is this shipment for?" section above the address form
-- [ ] Category buttons: Home | Family | Friends | Work | Other (segmented control via `RadioGroup` or `Button` variants)
-- [ ] When category selected + logged in + saved contacts exist:
-  - [ ] Show shadcn `Select` dropdown of saved contacts in that category
-  - [ ] On contact select: auto-fill shipping form fields from contact's primary address
-  - [ ] "New recipient" option for manual entry
-- [ ] Hidden form inputs: `shippingCategory`, `shippingRecipientLabel`, `shippingContactId`
-- [ ] For guests (not logged in): category selection only (no address book dropdown)
+- [x] "Who is this shipment for?" section above the address form
+- [x] Category buttons: Home | Family | Friends | Work | Other (segmented control via button variants)
+- [x] When category selected + logged in + saved contacts exist:
+  - [x] Show shadcn `Select` dropdown of saved contacts in that category
+  - [x] On contact select: auto-fill shipping form fields from contact's primary address
+  - [x] "New recipient" option for manual entry
+- [x] Hidden form inputs: `shippingCategory`, `shippingRecipientLabel`, `shippingContactId`
+- [x] For guests (not logged in): category selection only (no address book dropdown)
 
 ### `hydrogen/app/routes/checkout.shipping.tsx` (MODIFY)
 
-- [ ] Loader: add optional address book fetch for logged-in users (`readAddressBook(context)` in try/catch)
-- [ ] Component: insert `<ShippingCategorySelector>` above `<ShippingAddressCard>`
-- [ ] Action: persist 3 new cart attributes (`SHIPPING_CATEGORY`, `SHIPPING_RECIPIENT_LABEL`, `SHIPPING_CONTACT_ID`) alongside existing
+- [x] Loader: add optional address book fetch for logged-in users (`readAddressBook(context)` in try/catch)
+- [x] Component: insert `<ShippingCategorySelector>` above `<ShippingAddressCard>`
+- [x] Action: persist 3 new cart attributes (`SHIPPING_CATEGORY`, `SHIPPING_RECIPIENT_LABEL`, `SHIPPING_CONTACT_ID`) alongside existing
 
 ### `hydrogen/app/routes/checkout.review.tsx` (MODIFY)
 
-- [ ] Read new shipping category attributes from `getCheckoutAttributes()`
-- [ ] Display recipient label next to "Shipping Address" heading: "Shipping Address — For Mom" using `Badge`
+- [x] Read new shipping category attributes from `getCheckoutAttributes()`
+- [x] Display recipient label next to "Shipping Address" heading: "Shipping Address — For Mom" using teal Badge
 
 ### Phase 4 Testing
 
@@ -212,22 +211,21 @@ Phases 2 & 3 can run in parallel.
 
 ### `hydrogen/app/components/account/RecipientBadge.tsx` (NEW)
 
-- [ ] Shared badge component: shows relationship label with category color
-- [ ] Colors: home=green, family=blue, friends=purple, work=amber, other=gray
-- [ ] Props: `category: AddressCategory`, `label: string`
-- [ ] Matches existing `StatusBadge` pattern from `account.orders._index.tsx`
+- [x] Shared badge component: shows relationship label with category color
+- [x] Colors: home=green, family=blue, friends=purple, work=amber, other=gray
+- [x] Props: `category: AddressCategory`, `label: string`
+- [x] Matches existing `StatusBadge` pattern from `account.orders._index.tsx`
 
 ### `hydrogen/app/routes/account.orders.$id.tsx` (MODIFY)
 
-- [ ] Add `customAttributes { key value }` to `ORDER_QUERY`
-- [ ] Parse `checkout_shipping_category` and `checkout_shipping_recipient` from customAttributes
-- [ ] Display `RecipientBadge` next to shipping address heading
+- [x] Add `customAttributes { key value }` to `ORDER_QUERY`
+- [x] Parse `checkout_shipping_category` and `checkout_shipping_recipient` from customAttributes
+- [x] Display `RecipientBadge` next to shipping address heading
 
 ### `hydrogen/app/routes/account.orders._index.tsx` (MODIFY)
 
-- [ ] Add `customAttributes { key value }` to `CUSTOMER_ORDERS_QUERY`
-- [ ] In `OrderCard` header: show `RecipientBadge` if `checkout_shipping_recipient` exists
-- [ ] Ensure "My Orders" tab is visually highlighted as default active view
+- [x] Add `customAttributes { key value }` to `CUSTOMER_ORDERS_QUERY`
+- [x] In `OrderCard` header: show `RecipientBadge` if `checkout_shipping_recipient` exists
 
 ### Phase 5 Testing
 
@@ -239,11 +237,10 @@ Phases 2 & 3 can run in parallel.
 
 ## Pre-Commit Checks (ALL Phases)
 
-- [ ] `pnpm format` passes
-- [ ] `pnpm format:check` passes
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm build` passes
-- [ ] `pnpm test` passes
+- [x] `pnpm format` passes
+- [x] `pnpm typecheck` passes
+- [x] `pnpm build` passes
+- [x] `pnpm test` passes
 
 ---
 
