@@ -32,7 +32,6 @@ import {
   BreadcrumbList,
   BreadcrumbItem,
   BreadcrumbLink,
-  BreadcrumbPage,
   BreadcrumbSeparator,
 } from '~/components/ui/breadcrumb';
 
@@ -141,6 +140,26 @@ const PRODUCT_FRAGMENT = `#graphql
     metafields(identifiers: [
       {namespace: "reviews", key: "rating"},
       {namespace: "reviews", key: "rating_count"}
+    ]) {
+      key
+      value
+    }
+    productMetafields: metafields(identifiers: [
+      {namespace: "custom", key: "dimensions"},
+      {namespace: "custom", key: "height"},
+      {namespace: "custom", key: "width"},
+      {namespace: "custom", key: "depth"},
+      {namespace: "custom", key: "weight"},
+      {namespace: "custom", key: "material"},
+      {namespace: "custom", key: "color"},
+      {namespace: "custom", key: "model_number"},
+      {namespace: "custom", key: "manufacturer"},
+      {namespace: "custom", key: "country_of_origin"},
+      {namespace: "custom", key: "power_source"},
+      {namespace: "custom", key: "voltage"},
+      {namespace: "custom", key: "wattage"},
+      {namespace: "custom", key: "capacity"},
+      {namespace: "custom", key: "battery_life"}
     ]) {
       key
       value
@@ -343,11 +362,10 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
   const [openDetailsItems, setOpenDetailsItems] = useState<string[]>([]);
   const detailsAccordionRef = useRef<HTMLDivElement>(null);
 
-  function openDetailsAndScroll() {
+  function openAccordionAndScroll(section: string) {
     setOpenDetailsItems((prev) =>
-      prev.includes('details') ? prev : [...prev, 'details'],
+      prev.includes(section) ? prev : [...prev, section],
     );
-    // Wait a tick for state to apply before scrolling
     setTimeout(() => {
       detailsAccordionRef.current?.scrollIntoView({
         behavior: 'smooth',
@@ -396,13 +414,7 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
               </>
             ))}
 
-            {/* Product title — end node, always last */}
-            {breadcrumbNodes.length > 0 && (
-              <BreadcrumbSeparator>/</BreadcrumbSeparator>
-            )}
-            <BreadcrumbItem>
-              <BreadcrumbPage>{product.title}</BreadcrumbPage>
-            </BreadcrumbItem>
+            {/* Product title removed — breadcrumb ends at the last collection */}
           </BreadcrumbList>
         </Breadcrumb>
       </div>
@@ -458,7 +470,7 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
                   }}
                 />
                 <button
-                  onClick={openDetailsAndScroll}
+                  onClick={() => openAccordionAndScroll('details')}
                   className="mt-3 text-sm font-medium text-secondary hover:underline"
                 >
                   View full details
@@ -474,7 +486,13 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
                 Specs
               </AccordionTrigger>
               <AccordionContent>
-                <SpecsContent specifications={product.specifications?.value} />
+                <SpecsContent productMetafields={product.productMetafields} />
+                <button
+                  onClick={() => openAccordionAndScroll('specifications')}
+                  className="mt-3 text-sm font-medium text-secondary hover:underline"
+                >
+                  View full specifications
+                </button>
               </AccordionContent>
             </AccordionItem>
 
@@ -591,7 +609,7 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
               </span>
             </AccordionTrigger>
             <AccordionContent className="px-4">
-              <SpecsContent specifications={product.specifications?.value} />
+              <SpecsContent productMetafields={product.productMetafields} />
             </AccordionContent>
           </AccordionItem>
 
@@ -684,32 +702,52 @@ function PdpPrice({
 // Specs Content
 // ============================================================================
 
-function SpecsContent({specifications}: {specifications?: string | null}) {
-  let specs: Record<string, string> = {};
-  if (specifications) {
-    try {
-      specs = JSON.parse(specifications) as Record<string, string>;
-    } catch {
-      // ignore
-    }
-  }
-  const entries = Object.entries(specs);
+/** Maps metafield keys to human-readable labels */
+const METAFIELD_LABELS: Record<string, string> = {
+  dimensions: 'Dimensions',
+  height: 'Height',
+  width: 'Width',
+  depth: 'Depth',
+  weight: 'Weight',
+  material: 'Material',
+  color: 'Color',
+  model_number: 'Model Number',
+  manufacturer: 'Manufacturer',
+  country_of_origin: 'Country of Origin',
+  power_source: 'Power Source',
+  voltage: 'Voltage',
+  wattage: 'Wattage',
+  capacity: 'Capacity',
+  battery_life: 'Battery Life',
+};
+
+function SpecsContent({
+  productMetafields,
+}: {
+  productMetafields?: Array<{key: string; value: string} | null> | null;
+}) {
+  const entries = (productMetafields ?? []).filter(
+    (mf): mf is {key: string; value: string} => mf != null && !!mf.value,
+  );
+
   if (!entries.length) {
     return (
       <p className="text-sm text-text-muted">No specifications available.</p>
     );
   }
+
   return (
     <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-      {entries.map(([key, value]) => (
-        <>
-          <dt key={`k-${key}`} className="font-medium text-text">
-            {key}
+      {entries.map((mf) => (
+        <div key={mf.key} className="contents">
+          <dt className="font-medium text-text">
+            {METAFIELD_LABELS[mf.key] ??
+              mf.key
+                .replace(/_/g, ' ')
+                .replace(/\b\w/g, (l) => l.toUpperCase())}
           </dt>
-          <dd key={`v-${key}`} className="text-text-muted">
-            {value}
-          </dd>
-        </>
+          <dd className="text-text-muted">{mf.value}</dd>
+        </div>
       ))}
     </dl>
   );

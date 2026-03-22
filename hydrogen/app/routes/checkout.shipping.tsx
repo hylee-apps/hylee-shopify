@@ -398,10 +398,10 @@ export default function CheckoutShippingPage() {
               defaultValues={formDefaults}
               errors={actionData?.errors}
             />
-            <ShippingMethodCard
+            {/* <ShippingMethodCard
               selected={selectedMethod}
               onSelect={setSelectedMethod}
-            />
+            /> */}
             <DeliveryPreferencesCard
               defaultValue={
                 actionData?.deliveryInstructions ?? savedDeliveryInstructions

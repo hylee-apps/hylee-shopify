@@ -13,6 +13,8 @@ import {
 import type {Route} from './+types/root';
 import {PageLayout} from '~/components/layout';
 import appStyles from '~/styles/app.css?url';
+import {categoryNavConfig} from '~/config/navigation';
+import {prioritizeCategories} from '~/lib/navigation';
 
 export type RootLoader = typeof loader;
 
@@ -86,14 +88,22 @@ async function loadCriticalData({context}: Route.LoaderArgs) {
     }),
   ]);
 
-  const categories =
+  const rawCategories =
     collectionsResult?.collections?.nodes?.map(
-      (c: {id: string; title: string; handle: string}) => ({
+      (c: {
+        id: string;
+        title: string;
+        handle: string;
+        menuPriority?: {value: string} | null;
+      }) => ({
         id: c.id,
         title: c.title,
         handle: c.handle,
+        priority: c.menuPriority ? parseInt(c.menuPriority.value, 10) : null,
       }),
     ) ?? [];
+
+  const categories = prioritizeCategories(rawCategories, categoryNavConfig);
 
   return {header, categories};
 }
@@ -259,11 +269,14 @@ const HEADER_COLLECTIONS_QUERY = `#graphql
     $country: CountryCode
     $language: LanguageCode
   ) @inContext(country: $country, language: $language) {
-    collections(first: 20, sortKey: TITLE) {
+    collections(first: 250, sortKey: TITLE) {
       nodes {
         id
         title
         handle
+        menuPriority: metafield(namespace: "custom", key: "menu_priority_order") {
+          value
+        }
       }
     }
   }

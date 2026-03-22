@@ -289,7 +289,7 @@ export default function CheckoutReviewPage() {
 
                 {/* Shipping sections */}
                 <ShippingAddressSection address={shippingAddress} />
-                <ShippingMethodSection method={shippingMethod} />
+                {/* <ShippingMethodSection method={shippingMethod} /> */}
 
                 {/* Payment section */}
                 <PaymentMethodSection paymentMethod={paymentMethod} />
