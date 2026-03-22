@@ -13,9 +13,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
 import type {HeaderQuery} from 'storefrontapi.generated';
@@ -114,58 +111,29 @@ function NavDropdown({
 }
 
 // ============================================================================
-// CategoryDropdown — shadcn DropdownMenu with sub-menus for subcategories
+// CategoryBar — full-width horizontal category navigation
 // ============================================================================
 
-function CategoryDropdown({
+function CategoryBar({
   categories,
 }: {
   categories: NonNullable<HeaderProps['categories']>;
 }) {
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button className={NAV_TRIGGER_CLASS}>
-          Categories
-          <ChevronDown size={16} />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="start"
-        className="min-w-64 max-h-96 overflow-y-auto"
-      >
-        {categories.map((category) =>
-          category.subcategories && category.subcategories.length > 0 ? (
-            <DropdownMenuSub key={category.id}>
-              <DropdownMenuSubTrigger className="text-[14px]">
-                {category.title}
-              </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent className="min-w-48">
-                {category.subcategories.map((sub) => (
-                  <DropdownMenuItem key={sub.id} asChild>
-                    <Link
-                      to={`/collections/${sub.handle}`}
-                      className="cursor-pointer text-[14px]"
-                    >
-                      {sub.title}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-          ) : (
-            <DropdownMenuItem key={category.id} asChild>
-              <Link
-                to={`/collections/${category.handle}`}
-                className="cursor-pointer text-[14px]"
-              >
-                {category.title}
-              </Link>
-            </DropdownMenuItem>
-          ),
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <nav className="hidden lg:block absolute left-0 right-0 border-t border-border bg-white shadow-md z-50">
+      <ul className="flex items-center justify-center">
+        {categories.map((category) => (
+          <li key={category.id} className="flex-1 text-center">
+            <Link
+              to={`/collections/${category.handle}`}
+              className="block py-2.5 text-[14px] font-medium text-text-muted hover:text-primary transition-colors whitespace-nowrap"
+            >
+              {category.title}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }
 
@@ -230,51 +198,21 @@ function MobileMenu({
             </div>
           )}
 
-          {menu?.items?.map((item) => {
-            const hasChildren = item.items && item.items.length > 0;
-            if (hasChildren) {
-              return (
-                <div key={item.id} className="border-b border-border">
-                  <button
-                    className="flex items-center justify-between w-full px-4 py-3 text-text font-medium"
-                    onClick={() => toggleSection(item.id)}
-                  >
-                    <span>{item.title}</span>
-                    <ChevronDown
-                      size={16}
-                      className={`transition-transform ${
-                        expandedSection === item.id ? 'rotate-180' : ''
-                      }`}
-                    />
-                  </button>
-                  {expandedSection === item.id && (
-                    <div className="bg-surface pb-2">
-                      {item.items?.map((child) => (
-                        <Link
-                          key={child.id}
-                          to={child.url ?? '#'}
-                          className="block px-6 py-2 text-sm text-text hover:text-primary"
-                          onClick={onClose}
-                        >
-                          {child.title}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            }
-            return (
-              <Link
-                key={item.id}
-                to={item.url ?? '#'}
-                className="block px-4 py-3 text-text font-medium border-b border-border hover:text-primary"
-                onClick={onClose}
-              >
-                {item.title}
-              </Link>
-            );
-          })}
+          {/* Static navigation links */}
+          <Link
+            to="/collections/new-arrivals"
+            className="block px-4 py-3 text-text font-medium border-b border-border hover:text-primary"
+            onClick={onClose}
+          >
+            What&apos;s New
+          </Link>
+          <Link
+            to="/blogs/news"
+            className="block px-4 py-3 text-text font-medium border-b border-border hover:text-primary"
+            onClick={onClose}
+          >
+            Blog &amp; Media
+          </Link>
 
           <div className="mt-4 px-4 py-3 border-t border-border">
             {isLoggedIn ? (
@@ -328,6 +266,7 @@ export function Header({
   categories = [],
 }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [categoryBarOpen, setCategoryBarOpen] = useState(false);
   const [resolvedIsLoggedIn, setResolvedIsLoggedIn] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const location = useLocation();
@@ -356,11 +295,9 @@ export function Header({
 
   useEffect(() => {
     setMobileMenuOpen(false);
+    setCategoryBarOpen(false);
   }, [location.pathname]);
 
-  const categoryFallbackItems = [
-    {title: 'All Products', url: '/collections/all'},
-  ];
   const accountItems = resolvedIsLoggedIn
     ? [
         {title: 'My Account', url: '/account'},
@@ -408,13 +345,17 @@ export function Header({
               </Link>
 
               <nav className="hidden lg:flex items-center justify-center flex-1 gap-2.5">
-                {categories.length > 0 ? (
-                  <CategoryDropdown categories={categories} />
-                ) : (
-                  <NavDropdown
-                    label="Categories"
-                    items={categoryFallbackItems}
-                  />
+                {categories.length > 0 && (
+                  <button
+                    className={NAV_TRIGGER_CLASS}
+                    onClick={() => setCategoryBarOpen((prev) => !prev)}
+                  >
+                    Categories
+                    <ChevronDown
+                      size={16}
+                      className={`transition-transform ${categoryBarOpen ? 'rotate-180' : ''}`}
+                    />
+                  </button>
                 )}
 
                 <Link
@@ -564,6 +505,10 @@ export function Header({
             </div>
           )}
         </div>
+
+        {categoryBarOpen && categories.length > 0 && (
+          <CategoryBar categories={categories} />
+        )}
       </header>
 
       <MobileMenu
