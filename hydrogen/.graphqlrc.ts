@@ -15,6 +15,7 @@ const graphqlConfig: IGraphQLConfig = {
         './app/**/*.{ts,tsx,js,jsx}',
         '!./app/graphql/customer-account/*.{ts,tsx,js,jsx}',
         '!./app/routes/account*.{ts,tsx,js,jsx}',
+        '!./app/lib/address-book-graphql.{ts,tsx}',
       ],
     },
     'customer-account': {
@@ -22,6 +23,7 @@ const graphqlConfig: IGraphQLConfig = {
       documents: [
         './app/graphql/customer-account/*.{ts,tsx,js,jsx}',
         './app/routes/account*.{ts,tsx,js,jsx}',
+        './app/lib/address-book-graphql.{ts,tsx}',
       ],
     },
   },

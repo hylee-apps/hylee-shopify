@@ -56,6 +56,9 @@ export const CHECKOUT_ATTR = {
   SHIPPING_COST: 'checkout_shipping_cost',
   DELIVERY_INSTRUCTIONS: 'checkout_delivery_instructions',
   PAYMENT_METHOD: 'checkout_payment_method',
+  SHIPPING_CATEGORY: 'checkout_shipping_category',
+  SHIPPING_RECIPIENT_LABEL: 'checkout_shipping_recipient',
+  SHIPPING_CONTACT_ID: 'checkout_shipping_contact_id',
 } as const;
 
 // ── GraphQL Mutations ──────────────────────────────────────────────────────
@@ -134,12 +137,20 @@ export function getCheckoutAttributes(cart: {
     | PaymentMethodType
     | undefined;
 
+  const shippingCategory = get(CHECKOUT_ATTR.SHIPPING_CATEGORY) ?? null;
+  const shippingRecipientLabel =
+    get(CHECKOUT_ATTR.SHIPPING_RECIPIENT_LABEL) ?? null;
+  const shippingContactId = get(CHECKOUT_ATTR.SHIPPING_CONTACT_ID) ?? null;
+
   return {
     shippingAddress,
     shippingMethod: shippingMethod ?? null,
     shippingCost: shippingCost ? parseFloat(shippingCost) : null,
     deliveryInstructions: deliveryInstructions ?? '',
     paymentMethod: paymentMethod ?? null,
+    shippingCategory,
+    shippingRecipientLabel,
+    shippingContactId,
   };
 }
 
