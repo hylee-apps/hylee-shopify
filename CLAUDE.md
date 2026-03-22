@@ -35,6 +35,22 @@ pnpm validate:structure # Check directory structure
 pnpm verify             # Run workflow-agent verification
 ```
 
+## Slash Commands (Agentic Workflow)
+
+Custom Claude Code commands in `.claude/commands/` that trigger the implementation workflow from `guidelines/AGENT_EDITING_INSTRUCTIONS.md`:
+
+| Command | Purpose | When to Use |
+|---|---|---|
+| `/implement <task>` | Full lifecycle: branch → plan → implement → checks → commit → PR | Starting new work from scratch |
+| `/plan <task>` | Branch + implementation plan only (no code changes) | Scoping work before committing to implementation |
+| `/precommit` | Run mandatory pre-commit checks for the changed stack | Before any commit — verifies theme or hydrogen checks pass |
+| `/finish` | Checks + commit + push + PR creation | When implementation is done and ready to ship |
+| `/resume [plan]` | Restore context and continue an existing plan | Picking up work from a previous session |
+
+**Workflow progression:** `/plan` → (implement manually or via `/implement`) → `/precommit` → `/finish`
+
+**Or all-in-one:** `/implement <task>` handles the entire flow end-to-end.
+
 ## Architecture
 
 ### Directory Structure
