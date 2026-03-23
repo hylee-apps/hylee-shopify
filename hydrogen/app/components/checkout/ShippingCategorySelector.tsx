@@ -1,6 +1,6 @@
 'use client';
 
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useMemo} from 'react';
 import {Home, Users, Heart, Briefcase, MoreHorizontal} from 'lucide-react';
 import {Card} from '~/components/ui/card';
 import {
@@ -17,14 +17,28 @@ import {
   generateContactLabel,
   getPrimaryAddress,
 } from '~/lib/address-book';
-import type {
-  AddressBook,
-  AddressCategory,
-  AddressBookContact,
-} from '~/lib/address-book';
+import type {AddressBook, AddressCategory} from '~/lib/address-book';
 import type {ShippingAddress} from '~/lib/checkout';
 import type {ComponentType} from 'react';
 import type {LucideProps} from 'lucide-react';
+
+// ── Types ────────────────────────────────────────────────────────────────────
+
+/** Native Shopify address from the Customer Account API */
+export interface SavedShippingAddress {
+  id: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  address1?: string | null;
+  address2?: string | null;
+  city?: string | null;
+  zoneCode?: string | null;
+  zip?: string | null;
+  territoryCode?: string | null;
+  phoneNumber?: string | null;
+}
+
+// ── Constants ────────────────────────────────────────────────────────────────
 
 const CATEGORY_ICONS: Record<AddressCategory, ComponentType<LucideProps>> = {
   home: Home,
@@ -34,8 +48,12 @@ const CATEGORY_ICONS: Record<AddressCategory, ComponentType<LucideProps>> = {
   other: MoreHorizontal,
 };
 
+// ── Component ────────────────────────────────────────────────────────────────
+
 interface ShippingCategorySelectorProps {
   book: AddressBook | null;
+  /** Native Shopify addresses for logged-in users (shown under Home category) */
+  savedAddresses?: SavedShippingAddress[];
   defaultCategory?: string | null;
   defaultContactId?: string | null;
   onAddressFill?: (address: ShippingAddress) => void;
@@ -43,6 +61,7 @@ interface ShippingCategorySelectorProps {
 
 export function ShippingCategorySelector({
   book,
+  savedAddresses = [],
   defaultCategory,
   defaultContactId,
   onAddressFill,
@@ -50,18 +69,79 @@ export function ShippingCategorySelector({
   const [category, setCategory] = useState<AddressCategory | null>(
     (defaultCategory as AddressCategory) ?? null,
   );
-  const [selectedContactId, setSelectedContactId] = useState<string>(
-    defaultContactId ?? '',
-  );
+  const [selectedId, setSelectedId] = useState<string>(defaultContactId ?? '');
 
-  const contacts =
+  // Merge address book contacts with native Shopify addresses for the dropdown
+  const bookContacts =
     category && book ? getContactsByCategory(book, category) : [];
 
-  // When a contact is selected, auto-fill the shipping form
-  useEffect(() => {
-    if (!selectedContactId || !book || !onAddressFill) return;
+  // Build a unified list of dropdown items for the selected category
+  const dropdownItems = useMemo(() => {
+    const items: Array<{
+      id: string;
+      label: string;
+      source: 'book' | 'shopify';
+    }> = [];
 
-    const contact = book.contacts.find((c) => c.id === selectedContactId);
+    // Address book contacts for this category
+    for (const contact of bookContacts) {
+      items.push({
+        id: contact.id,
+        label: `${contact.firstName} ${contact.lastName}`,
+        source: 'book',
+      });
+    }
+
+    // Native Shopify addresses shown under "Home" category (since they have no category)
+    if (category === 'home') {
+      for (const addr of savedAddresses) {
+        // Skip if this Shopify address is already represented in the address book
+        const alreadyInBook = bookContacts.some(
+          (c) => c.firstName === addr.firstName && c.lastName === addr.lastName,
+        );
+        if (alreadyInBook) continue;
+
+        const name = [addr.firstName, addr.lastName].filter(Boolean).join(' ');
+        if (!name) continue;
+
+        items.push({
+          id: `shopify:${addr.id}`,
+          label: name,
+          source: 'shopify',
+        });
+      }
+    }
+
+    return items;
+  }, [bookContacts, savedAddresses, category]);
+
+  // When a selection is made, auto-fill the shipping form
+  useEffect(() => {
+    if (!selectedId || selectedId === '__new__' || !onAddressFill) return;
+
+    // Check if it's a native Shopify address
+    if (selectedId.startsWith('shopify:')) {
+      const shopifyId = selectedId.replace('shopify:', '');
+      const addr = savedAddresses.find((a) => a.id === shopifyId);
+      if (!addr) return;
+
+      onAddressFill({
+        firstName: addr.firstName ?? '',
+        lastName: addr.lastName ?? '',
+        address1: addr.address1 ?? '',
+        address2: addr.address2 ?? '',
+        city: addr.city ?? '',
+        zip: addr.zip ?? '',
+        state: addr.zoneCode ?? '',
+        phone: addr.phoneNumber ?? '',
+        email: '',
+      });
+      return;
+    }
+
+    // Address book contact
+    if (!book) return;
+    const contact = book.contacts.find((c) => c.id === selectedId);
     if (!contact) return;
 
     const addr = getPrimaryAddress(contact);
@@ -83,7 +163,24 @@ export function ShippingCategorySelector({
       phone: primaryPhone?.number ?? '',
       email: primaryEmail?.email ?? '',
     });
-  }, [selectedContactId, book, onAddressFill]);
+  }, [selectedId, book, savedAddresses, onAddressFill]);
+
+  // Derive recipient label for hidden input
+  const recipientLabel = useMemo(() => {
+    if (!selectedId || selectedId === '__new__') return '';
+    if (selectedId.startsWith('shopify:')) {
+      const shopifyId = selectedId.replace('shopify:', '');
+      const addr = savedAddresses.find((a) => a.id === shopifyId);
+      return addr
+        ? [addr.firstName, addr.lastName].filter(Boolean).join(' ')
+        : '';
+    }
+    if (book) {
+      const contact = book.contacts.find((c) => c.id === selectedId);
+      return contact ? (generateContactLabel(contact) ?? '') : '';
+    }
+    return '';
+  }, [selectedId, book, savedAddresses]);
 
   return (
     <Card className="gap-0 overflow-hidden bg-white p-0 shadow-sm">
@@ -106,7 +203,7 @@ export function ShippingCategorySelector({
                 type="button"
                 onClick={() => {
                   setCategory(value);
-                  setSelectedContactId('');
+                  setSelectedId('');
                 }}
                 className={cn(
                   'flex items-center gap-2 rounded-lg border-2 px-4 py-2.5 text-sm font-medium transition-colors',
@@ -127,39 +224,29 @@ export function ShippingCategorySelector({
         <input
           type="hidden"
           name="shippingRecipientLabel"
-          value={
-            selectedContactId && book
-              ? (generateContactLabel(
-                  book.contacts.find((c) => c.id === selectedContactId)!,
-                ) ?? '')
-              : ''
-          }
+          value={recipientLabel}
         />
         <input
           type="hidden"
           name="shippingContactId"
-          value={selectedContactId}
+          value={selectedId === '__new__' ? '' : selectedId}
         />
 
-        {/* Contact selector (logged-in users with saved contacts) */}
-        {category && contacts.length > 0 && (
+        {/* Contact/address selector (logged-in users with saved data) */}
+        {category && dropdownItems.length > 0 && (
           <div>
             <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-              Select a saved contact
+              Select a saved address
             </label>
-            <Select
-              value={selectedContactId}
-              onValueChange={setSelectedContactId}
-            >
+            <Select value={selectedId} onValueChange={setSelectedId}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Choose a recipient or enter manually" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">New recipient</SelectItem>
-                {contacts.map((contact) => (
-                  <SelectItem key={contact.id} value={contact.id}>
-                    {generateContactLabel(contact)} — {contact.firstName}{' '}
-                    {contact.lastName}
+                <SelectItem value="__new__">New recipient</SelectItem>
+                {dropdownItems.map((item) => (
+                  <SelectItem key={item.id} value={item.id}>
+                    {item.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -167,12 +254,14 @@ export function ShippingCategorySelector({
           </div>
         )}
 
-        {category && contacts.length === 0 && book && (
-          <p className="text-sm text-[#6b7280]">
-            No saved contacts in this category. Enter the address manually
-            below.
-          </p>
-        )}
+        {category &&
+          dropdownItems.length === 0 &&
+          (book || savedAddresses.length > 0) && (
+            <p className="text-sm text-[#6b7280]">
+              No saved addresses in this category. Enter the address manually
+              below.
+            </p>
+          )}
       </div>
     </Card>
   );

@@ -72,6 +72,58 @@ interface MetafieldsSetData {
   };
 }
 
+// ── Native Shopify Addresses ──────────────────────────────────────────────
+
+export const CUSTOMER_ADDRESSES_QUERY = `#graphql
+  query ShippingCustomerAddresses {
+    customer {
+      addresses(first: 20) {
+        nodes {
+          id
+          firstName
+          lastName
+          address1
+          address2
+          city
+          zoneCode
+          zip
+          territoryCode
+          phoneNumber
+        }
+      }
+    }
+  }
+` as const;
+
+interface CustomerAddressNode {
+  id: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  address1?: string | null;
+  address2?: string | null;
+  city?: string | null;
+  zoneCode?: string | null;
+  zip?: string | null;
+  territoryCode?: string | null;
+  phoneNumber?: string | null;
+}
+
+interface CustomerAddressesData {
+  customer: {
+    addresses: {
+      nodes: CustomerAddressNode[];
+    };
+  };
+}
+
+export async function readCustomerAddresses(
+  context: CustomerAccountContext,
+): Promise<CustomerAddressNode[]> {
+  const {data} = await context.customerAccount.query(CUSTOMER_ADDRESSES_QUERY);
+  const typed = data as unknown as CustomerAddressesData;
+  return typed.customer?.addresses?.nodes ?? [];
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 export async function readAddressBook(
