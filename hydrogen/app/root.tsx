@@ -13,6 +13,7 @@ import {
 import type {Route} from './+types/root';
 import {PageLayout} from '~/components/layout';
 import appStyles from '~/styles/app.css?url';
+import {isCustomerLoggedIn} from '~/lib/customer-auth';
 import {categoryNavConfig} from '~/config/navigation';
 import {prioritizeCategories} from '~/lib/navigation';
 
@@ -109,7 +110,7 @@ async function loadCriticalData({context}: Route.LoaderArgs) {
 }
 
 function loadDeferredData({context}: Route.LoaderArgs) {
-  const {storefront, customerAccount, cart} = context;
+  const {storefront, cart} = context;
 
   const footer = storefront
     .query(FOOTER_QUERY, {
@@ -125,7 +126,7 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 
   return {
     cart: cart.get(),
-    isLoggedIn: customerAccount.isLoggedIn(),
+    isLoggedIn: isCustomerLoggedIn(context.session),
     footer,
   };
 }

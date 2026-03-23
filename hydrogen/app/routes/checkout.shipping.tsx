@@ -54,16 +54,19 @@ export async function loader({context}: Route.LoaderArgs) {
   let addressBook: AddressBook | null = null;
   let savedAddresses: SavedShippingAddress[] = [];
   try {
-    const isLoggedIn = await context.customerAccount.isLoggedIn();
+    const {isCustomerLoggedIn: checkLoggedIn} =
+      await import('~/lib/customer-auth');
+    const isLoggedIn = checkLoggedIn(context.session);
     if (isLoggedIn) {
       const [bookResult, addressesResult] = await Promise.all([
         readAddressBook(context).catch(() => null),
-        readCustomerAddresses(context).catch(
-          () => [] as SavedShippingAddress[],
-        ),
+        readCustomerAddresses(context).catch(() => ({
+          addresses: [] as SavedShippingAddress[],
+          defaultAddressId: null,
+        })),
       ]);
       addressBook = bookResult?.book ?? null;
-      savedAddresses = addressesResult;
+      savedAddresses = addressesResult.addresses as SavedShippingAddress[];
     }
   } catch {
     // Guest checkout — no address book or saved addresses

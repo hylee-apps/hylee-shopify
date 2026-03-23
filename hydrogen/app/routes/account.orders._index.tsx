@@ -1,6 +1,7 @@
 import type {Route} from './+types/account.orders._index';
 import {redirect, Link, useSearchParams} from 'react-router';
 import {getSeoMeta, Image} from '@shopify/hydrogen';
+import {isCustomerLoggedIn} from '~/lib/customer-auth';
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -80,14 +81,14 @@ const CUSTOMER_ORDERS_QUERY = `#graphql
 // ============================================================================
 
 export async function loader({context, request}: Route.LoaderArgs) {
-  const isLoggedIn = await context.customerAccount.isLoggedIn();
-  if (!isLoggedIn) {
+  if (!isCustomerLoggedIn(context.session)) {
     return redirect('/account/login');
   }
 
   const url = new URL(request.url);
   const after = url.searchParams.get('after') ?? undefined;
 
+  // TODO: Migrate to Storefront API — currently uses Customer Account API
   const {data} = await context.customerAccount.query(CUSTOMER_ORDERS_QUERY, {
     variables: {first: 10, after},
   });

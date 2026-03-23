@@ -36,10 +36,24 @@ export interface PageLayoutProps {
  * }
  * ```
  */
+// Auth routes render their own full-screen layout (no header/footer)
+const BARE_LAYOUT_PATHS = [
+  '/account/login',
+  '/account/register',
+  '/account/recover',
+  '/account/reset',
+  '/account/activate',
+];
+
 export function PageLayout({children}: PageLayoutProps) {
   const data = useRouteLoaderData<RootLoader>('root');
   const {pathname} = useLocation();
   const headerVariant = pathname === '/' ? 'home' : 'default';
+
+  // Auth pages use their own AuthLayout — skip header/footer
+  if (BARE_LAYOUT_PATHS.some((p) => pathname.startsWith(p))) {
+    return <>{children ?? <Outlet />}</>;
+  }
 
   // Guard against missing root data
   if (!data) {
