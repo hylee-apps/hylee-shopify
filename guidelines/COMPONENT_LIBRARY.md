@@ -1,6 +1,6 @@
-# Component Library
+# Component Library — Hy-lee Hydrogen Storefront
 
-> **Purpose**: This document is the **single source of truth** for all UI components in ProjectHub. Before creating or modifying any UI element, consult this guide.
+> **Purpose**: Single source of truth for all UI components in the Hydrogen storefront (`hydrogen/app/components/`). Before creating or modifying any UI element, consult this guide.
 
 ---
 
@@ -9,12 +9,16 @@
 1. [Quick Reference](#quick-reference)
 2. [Decision Tree](#decision-tree)
 3. [Design Tokens](#design-tokens)
-4. [UI Primitives](#ui-primitives)
-5. [Feature Components](#feature-components)
-6. [Component Audit Checklist](#component-audit-checklist)
-7. [Testing Requirements](#testing-requirements)
-8. [Feature Flags](#feature-flags)
-9. [Storybook](#storybook)
+4. [UI Primitives (shadcn/ui)](#ui-primitives-shadcnui)
+5. [Commerce Components](#commerce-components)
+6. [Layout Components](#layout-components)
+7. [Checkout Components](#checkout-components)
+8. [Product Components](#product-components)
+9. [Search Components](#search-components)
+10. [Page-Specific Components (Extraction Candidates)](#page-specific-components-extraction-candidates)
+11. [Figma Component Library](#figma-component-library)
+12. [Component Audit Checklist](#component-audit-checklist)
+13. [Icon Usage](#icon-usage)
 
 ---
 
@@ -22,17 +26,42 @@
 
 ### When to Use What
 
-| Need                | Component            | Storybook Path                           |
-| ------------------- | -------------------- | ---------------------------------------- |
-| Status indicator    | `StatusBadge`        | `/story/statusbadge--default`            |
-| Priority indicator  | `PriorityBadge`      | `/story/prioritybadge--default`          |
-| Loading spinner     | `Spinner`            | `/story/ui-spinner--default`             |
-| Empty data state    | `EmptyState`         | `/story/emptystate--default`             |
-| Confirmation prompt | `ConfirmationDialog` | `/story/ui-confirmation-dialog--default` |
-| Form in modal       | `FormDialog`         | `/story/formdialog--default`             |
-| Data list           | `DataTable`          | `/story/datatable--default`              |
-| Page title          | `PageHeader`         | `/story/pageheader--default`             |
-| User avatar + name  | `MemberCard`         | `/story/membercard--default`             |
+| Need | Component | Location |
+|------|-----------|----------|
+| Pill-shaped search/email input | `PillInput` | `ui/pill-input.tsx` |
+| Any button | `Button` | `ui/button.tsx` |
+| Content container | `Card` | `ui/card.tsx` |
+| Text input field | `Input` | `ui/input.tsx` |
+| Loading placeholder | `Skeleton` | `ui/skeleton.tsx` |
+| Section divider | `Separator` | `ui/separator.tsx` |
+| Expandable sections | `Accordion` | `ui/accordion.tsx` |
+| User avatar | `Avatar` | `ui/avatar.tsx` |
+| Page breadcrumbs | `Breadcrumb` | `ui/breadcrumb.tsx` |
+| Scrollable container | `ScrollArea` | `ui/scroll-area.tsx` |
+| Navigation dropdown | `DropdownMenu` | `ui/dropdown-menu.tsx` |
+| Side panel / mobile menu | `Sheet` | `ui/sheet.tsx` |
+| Toast notifications | `Sonner` | `ui/sonner.tsx` |
+| Product image gallery | `ProductGallery` | `product/ProductGallery.tsx` |
+| Color/size variant picker | `VariantSelector` | `product/VariantSelector.tsx` |
+| Add to cart button | `AddToCart` | `commerce/AddToCart.tsx` |
+| Quantity +/- control | `QuantitySelector` | `commerce/QuantitySelector.tsx` |
+| Price with compare-at | `PriceDisplay` | `commerce/PriceDisplay.tsx` |
+| Sentiment rating faces | `FaceRatingSummary` | `commerce/FaceRating.tsx` |
+| Product card (grid) | `ProductCard` | `commerce/ProductCard.tsx` |
+| Product grid layout | `ProductGrid` | `commerce/ProductGrid.tsx` |
+| Collection hero banner | `CollectionHero` | `commerce/CollectionHero.tsx` |
+| Filter sidebar (PLP) | `FilterSidebar` | `commerce/FilterSidebar.tsx` |
+| Sort dropdown | `SortSelect` | `commerce/SortSelect.tsx` |
+| Collection toolbar | `CollectionToolbar` | `commerce/CollectionToolbar.tsx` |
+| Compare products bar | `CompareBar` | `commerce/CompareBar.tsx` |
+| Compare toggle button | `CompareButton` | `commerce/CompareButton.tsx` |
+| Compare table view | `CompareTable` | `commerce/CompareTable.tsx` |
+| Checkout step indicator | `CheckoutProgress` | `checkout/CheckoutProgress.tsx` |
+| Checkout order summary | `OrderSummary` | `checkout/OrderSummary.tsx` |
+| Site header | `Header` | `layout/Header.tsx` |
+| Site footer | `Footer` | `layout/Footer.tsx` |
+| Page wrapper | `PageLayout` | `layout/PageLayout.tsx` |
+| Searchanise autocomplete | `SearchAutocomplete` | `search/SearchAutocomplete.tsx` |
 
 ---
 
@@ -40,578 +69,316 @@
 
 ```
 Need to render UI?
-│
-├─► Does a component exist in components/ui/?
-│   ├─► YES: Use it with existing variants
-│   │   └─► Need different behavior?
-│   │       ├─► Can be achieved with props? → Use props
-│   │       └─► Cannot? → Add variant, update Storybook + tests
-│   │
-│   └─► NO: Check Feature Components below
-│       ├─► Exists? → Use it
-│       └─► Doesn't exist?
-│           │
-│           ├─► Is it a one-off? → Ask: "Will this be used again?"
-│           │   ├─► YES → Create new component with:
-│           │   │         • Feature flag
-│           │   │         • Storybook story
-│           │   │         • Unit tests + snapshots
-│           │   │
-│           │   └─► NO → Implement inline (rare, justify in PR)
-│           │
-│           └─► Create new component (follow Component Creation Workflow)
+|
++--> Does a component exist in components/ui/?
+|    +--> YES: Use it with existing variants
+|    |    +--> Need different behavior?
+|    |        +--> Can be achieved with props? --> Use props
+|    |        +--> Cannot? --> Add variant, update tests
+|    |
+|    +--> NO: Check Commerce/Layout/Checkout/Product components above
+|        +--> Exists? --> Use it
+|        +--> Doesn't exist?
+|            |
+|            +--> Used on 2+ pages? --> Extract as shared component
+|            +--> Used on 1 page only? --> Keep inline, mark as extraction candidate
 ```
 
 ---
 
 ## Design Tokens
 
-All design tokens are centralized in `lib/design-tokens.ts`. **Never hardcode colors or sizes.**
+All tokens are in `hydrogen/app/styles/app.css` via Tailwind v4 `@theme` block. **Never hardcode hex colors.**
 
-### Usage
+### Color Tokens
 
-```typescript
-import {
-  statusColors,
-  priorityColors,
-  getAvatarGradient,
-  badgeSizes,
-  spinnerSizes
-} from "@/lib/design-tokens";
+| Figma Variable | CSS Variable | Tailwind Class | Hex |
+|---------------|-------------|----------------|-----|
+| `--primary` | `--color-primary` | `*-primary` | `#2ac864` (green) |
+| `--secondary` | `--color-secondary` | `*-secondary` | `#2699a6` (teal) |
+| `--default` | `--color-text-muted` | `*-text-muted` | `#666666` |
+| `--alternate` | `--color-background` | `bg-white` | `#ffffff` |
+| — | `--color-hero` | `bg-hero` | `#14b8a6` (homepage hero) |
+| — | `--color-dark` | `*-dark` | `#1a1a1a` |
+| — | `--color-text` | `*-text` | `#333333` |
+| — | `--color-text-light` | `*-text-light` | `#999999` |
+| — | `--color-border` | `border-border` | `#e5e5e5` |
+| — | `--color-surface` | `bg-surface` | `#f5f5f5` |
 
-// Status colors
-<Badge className={statusColors["in-progress"]}>In Progress</Badge>
+### Utility
 
-// Priority colors
-<Badge className={priorityColors.high}>High</Badge>
-
-// Avatar gradient (deterministic by name)
-<Avatar className={getAvatarGradient(user.name)}>
-  {initials}
-</Avatar>
-
-// Sizes
-<div className={badgeSizes.md}>...</div>
-<div className={spinnerSizes.lg}>...</div>
-```
-
-### Available Tokens
-
-| Token                    | Values                          | Purpose                   |
-| ------------------------ | ------------------------------- | ------------------------- |
-| `statusColors`           | todo, in-progress, review, done | Task status badge colors  |
-| `statusLabels`           | Human-readable status names     | Display labels            |
-| `statusIcons`            | Lucide icon names               | Icons for each status     |
-| `priorityColors`         | low, medium, high, critical     | Priority badge colors     |
-| `priorityLabels`         | Human-readable priority names   | Display labels            |
-| `priorityIcons`          | Lucide icon names               | Icons for each priority   |
-| `avatarGradients`        | 5 vibrant gradients             | User avatar backgrounds   |
-| `avatarGradientsNeutral` | 5 neutral gradients             | Subtle avatar backgrounds |
-| `badgeSizes`             | sm, md, lg                      | Badge padding/text sizes  |
-| `iconSizes`              | sm, md, lg                      | Icon dimensions           |
-| `spinnerSizes`           | xs, sm, md, lg, xl              | Spinner dimensions        |
-| `focusRing`              | default, inset, none            | Focus state styles        |
+| Token | Tailwind | Usage |
+|-------|----------|-------|
+| `cn()` | `lib/utils.ts` | `clsx` + `tailwind-merge` — use everywhere for conditional classes |
+| CVA | `class-variance-authority` | Define component variants (used in Button) |
 
 ---
 
-## UI Primitives
+## UI Primitives (shadcn/ui)
 
-Located in `components/ui/`. These are the building blocks.
+Located in `hydrogen/app/components/ui/`. Built on Radix UI + CVA + Tailwind.
 
-### Layout & Structure
+### Installed & In Use
 
-| Component         | Purpose                | Variants                                    | Test File |
-| ----------------- | ---------------------- | ------------------------------------------- | --------- |
-| `card.tsx`        | Content container      | Header, Title, Description, Content, Footer | -         |
-| `dialog.tsx`      | Modal dialogs          | Default, with close button                  | -         |
-| `sheet.tsx`       | Side panels            | Positions: top, right, bottom, left         | -         |
-| `drawer.tsx`      | Bottom drawer (mobile) | Default                                     | -         |
-| `tabs.tsx`        | Tab navigation         | Default                                     | -         |
-| `separator.tsx`   | Visual dividers        | Horizontal, vertical                        | -         |
-| `scroll-area.tsx` | Scrollable containers  | Default                                     | -         |
-| `resizable.tsx`   | Resizable panels       | Default                                     | -         |
-| `collapsible.tsx` | Expandable sections    | Default                                     | -         |
-| `accordion.tsx`   | Multiple collapsibles  | Default                                     | -         |
-| `sidebar.tsx`     | Layout sidebar         | Collapsible states                          | -         |
+| Component | File | Radix Dependency | Used On |
+|-----------|------|-----------------|---------|
+| **Accordion** | `accordion.tsx` | `@radix-ui/react-accordion` | PDP |
+| **Avatar** | `avatar.tsx` | `@radix-ui/react-avatar` | PDP (reviews) |
+| **Breadcrumb** | `breadcrumb.tsx` | — (custom) | PDP |
+| **Button** | `button.tsx` | `@radix-ui/react-slot` | All pages |
+| **Card** | `card.tsx` | — | All pages |
+| **DropdownMenu** | `dropdown-menu.tsx` | `@radix-ui/react-dropdown-menu` | Header |
+| **Input** | `input.tsx` | — | Checkout (cart, payment, shipping) |
+| **PillInput** | `pill-input.tsx` | — (custom) | Homepage hero, Header search, Footer newsletter |
+| **ScrollArea** | `scroll-area.tsx` | `@radix-ui/react-scroll-area` | PDP (gallery thumbnails) |
+| **Separator** | `separator.tsx` | `@radix-ui/react-separator` | Homepage, PDP |
+| **Sheet** | `sheet.tsx` | `@radix-ui/react-dialog` | Header (mobile menu) |
+| **Skeleton** | `skeleton.tsx` | — | Homepage, PDP |
+| **Sonner** | `sonner.tsx` | `sonner` | Toast notifications |
 
-### Form Elements
+### Installed but Not Yet Used on Key Pages
 
-| Component          | Purpose               | Variants                                                                            | Test File |
-| ------------------ | --------------------- | ----------------------------------------------------------------------------------- | --------- |
-| `button.tsx`       | Actions               | default, destructive, outline, secondary, ghost, link; Sizes: default, sm, lg, icon | -         |
-| `input.tsx`        | Text input            | Default                                                                             | -         |
-| `textarea.tsx`     | Multi-line input      | Default                                                                             | -         |
-| `select.tsx`       | Dropdown select       | Size: sm, default                                                                   | -         |
-| `multi-select.tsx` | Multi-select dropdown | Default                                                                             | -         |
-| `checkbox.tsx`     | Checkbox input        | Default                                                                             | -         |
-| `switch.tsx`       | Toggle switch         | Default                                                                             | -         |
-| `radio-group.tsx`  | Radio options         | Default                                                                             | -         |
-| `slider.tsx`       | Range slider          | Default                                                                             | -         |
-| `calendar.tsx`     | Date picker           | Default                                                                             | -         |
-| `input-otp.tsx`    | OTP input             | Default                                                                             | -         |
-| `form.tsx`         | Form primitives       | FormField, FormItem, FormLabel, FormControl, FormMessage                            | -         |
-| `label.tsx`        | Form labels           | Default                                                                             | -         |
-
-### Feedback & Display
-
-| Component                 | Purpose              | Variants                                 | Feature Flag          | Test File                      |
-| ------------------------- | -------------------- | ---------------------------------------- | --------------------- | ------------------------------ |
-| `badge.tsx`               | Status labels        | default, secondary, destructive, outline | -                     | -                              |
-| `alert.tsx`               | Alert messages       | default, destructive                     | -                     | -                              |
-| `alert-dialog.tsx`        | Confirmation modals  | Default                                  | -                     | -                              |
-| `skeleton.tsx`            | Loading placeholders | Default                                  | -                     | -                              |
-| `progress.tsx`            | Progress bar         | Default                                  | -                     | -                              |
-| `spinner.tsx`             | Loading spinner      | xs, sm, md, lg, xl                       | `SPINNER`             | `spinner.test.tsx`             |
-| `confirmation-dialog.tsx` | Standardized confirm | default, destructive                     | `CONFIRMATION_DIALOG` | `confirmation-dialog.test.tsx` |
-| `sonner.tsx`              | Toast notifications  | Default                                  | -                     | -                              |
-| `tooltip.tsx`             | Tooltips             | Default                                  | -                     | -                              |
-| `hover-card.tsx`          | Hover tooltips       | Default                                  | -                     | -                              |
-| `popover.tsx`             | Popovers             | Default                                  | -                     | -                              |
-
-### Navigation
-
-| Component             | Purpose           | Variants | Test File |
-| --------------------- | ----------------- | -------- | --------- |
-| `dropdown-menu.tsx`   | Dropdown menus    | Default  | -         |
-| `context-menu.tsx`    | Right-click menus | Default  | -         |
-| `menubar.tsx`         | Menu bar          | Default  | -         |
-| `navigation-menu.tsx` | Navigation        | Default  | -         |
-| `breadcrumb.tsx`      | Breadcrumbs       | Default  | -         |
-| `command.tsx`         | Command palette   | Default  | -         |
-| `pagination.tsx`      | Page navigation   | Default  | -         |
-
-### Data Display
-
-| Component          | Purpose                | Variants                        | Test File |
-| ------------------ | ---------------------- | ------------------------------- | --------- |
-| `table.tsx`        | Data tables            | Header, Body, Row, Cell, Footer | -         |
-| `avatar.tsx`       | User avatars           | Image + fallback                | -         |
-| `chart.tsx`        | Data visualization     | Recharts wrapper                | -         |
-| `carousel.tsx`     | Content carousel       | Default                         | -         |
-| `aspect-ratio.tsx` | Aspect ratio container | Default                         | -         |
-
-### Toggles & Groups
-
-| Component          | Purpose             | Variants | Test File |
-| ------------------ | ------------------- | -------- | --------- |
-| `toggle.tsx`       | Toggle button       | Default  | -         |
-| `toggle-group.tsx` | Toggle button group | Default  | -         |
+| Component | File | Potential Use |
+|-----------|------|---------------|
+| Alert | `alert.tsx` | Error/success messages |
+| Badge | `badge.tsx` | Product tags, status labels |
+| Checkbox | `checkbox.tsx` | Filter sidebar, forms |
+| Command | `command.tsx` | Command palette / search |
+| Dialog | `dialog.tsx` | Modals, confirmations |
+| Form | `form.tsx` | Form validation wrapper |
+| Label | `label.tsx` | Form field labels |
+| NavigationMenu | `navigation-menu.tsx` | — |
+| Pagination | `pagination.tsx` | PLP pagination |
+| RadioGroup | `radio-group.tsx` | Payment method selection |
+| Select | `select.tsx` | Dropdowns |
+| Tabs | `tabs.tsx` | Tabbed content |
+| Textarea | `textarea.tsx` | Delivery preferences |
+| Tooltip | `tooltip.tsx` | Icon tooltips |
 
 ---
 
-## Feature Components
+## Commerce Components
 
-Located in `components/`. These are composed from UI primitives.
+Located in `hydrogen/app/components/commerce/`.
 
-### Badges & Indicators
-
-| Component           | Purpose            | Feature Flag   | Storybook                       | Test File              |
-| ------------------- | ------------------ | -------------- | ------------------------------- | ---------------------- |
-| `PriorityBadge.tsx` | Priority indicator | -              | `/story/prioritybadge--default` | -                      |
-| `StatusBadge.tsx`   | Status indicator   | `STATUS_BADGE` | `/story/statusbadge--default`   | `StatusBadge.test.tsx` |
-
-### Layout Components
-
-| Component        | Purpose              | Feature Flag  | Storybook                    | Test File             |
-| ---------------- | -------------------- | ------------- | ---------------------------- | --------------------- |
-| `EmptyState.tsx` | Empty data display   | `EMPTY_STATE` | `/story/emptystate--default` | `EmptyState.test.tsx` |
-| `PageHeader.tsx` | Page title + actions | `PAGE_HEADER` | `/story/pageheader--default` | `PageHeader.test.tsx` |
-| `MemberCard.tsx` | User avatar + info   | `MEMBER_CARD` | `/story/membercard--default` | `MemberCard.test.tsx` |
-
-### Data Components
-
-| Component       | Purpose                           | Feature Flag | Storybook                   | Test File            |
-| --------------- | --------------------------------- | ------------ | --------------------------- | -------------------- |
-| `DataTable.tsx` | Table with sort/filter/pagination | `DATA_TABLE` | `/story/datatable--default` | `DataTable.test.tsx` |
-
-### Form Components
-
-| Component                | Purpose                     | Feature Flag          | Storybook                            | Test File                     |
-| ------------------------ | --------------------------- | --------------------- | ------------------------------------ | ----------------------------- |
-| `FormDialog.tsx`         | Dialog with form            | `FORM_DIALOG`         | `/story/formdialog--default`         | `FormDialog.test.tsx`         |
-| `ConfirmationDialog.tsx` | Confirm destructive actions | `CONFIRMATION_DIALOG` | `/story/confirmationdialog--default` | `ConfirmationDialog.test.tsx` |
-| `Spinner.tsx`            | Loading indicator           | `SPINNER`             | `/story/spinner--default`            | `Spinner.test.tsx`            |
-
-### Existing Feature Components (No Flag)
-
-| Component               | Purpose                 | Location      |
-| ----------------------- | ----------------------- | ------------- |
-| `TaskCard.tsx`          | Kanban task card        | `components/` |
-| `TaskDialog.tsx`        | Task create/edit dialog | `components/` |
-| `SprintDialog.tsx`      | Sprint create/edit      | `components/` |
-| `BoardDialog.tsx`       | Board create/edit       | `components/` |
-| `ColumnDialog.tsx`      | Column create/edit      | `components/` |
-| `WorkspaceDialog.tsx`   | Workspace create/edit   | `components/` |
-| `Header.tsx`            | App header              | `components/` |
-| `Sidebar.tsx`           | App sidebar             | `components/` |
-| `NotificationPanel.tsx` | Notifications list      | `components/` |
+| Component | File | Purpose | Props | Used On |
+|-----------|------|---------|-------|---------|
+| **AddToCart** | `AddToCart.tsx` | Cart form with loading/success/error states | `variantId`, `quantity`, `disabled` | PDP |
+| **CollectionHero** | `CollectionHero.tsx` | Collection banner with image + title | `collection` | PLP |
+| **CollectionToolbar** | `CollectionToolbar.tsx` | Sort/filter bar for collections | `sort`, `onSort`, `onOpenFilters` | PLP |
+| **CompareBar** | `CompareBar.tsx` | Floating compare products bar | `products`, `onRemove`, `onCompare` | PLP |
+| **CompareButton** | `CompareButton.tsx` | Toggle compare checkbox on product card | `productId`, `checked`, `onChange` | PLP |
+| **CompareTable** | `CompareTable.tsx` | Side-by-side product comparison | `products` | Compare page |
+| **FaceRatingSummary** | `FaceRating.tsx` | 3-tier sentiment rating (happy/neutral/unhappy) | `ratings` | PDP |
+| **FilterSidebar** | `FilterSidebar.tsx` | Collapsible product filters | `filters`, `activeFilters`, `onChange` | PLP |
+| **PriceDisplay** | `PriceDisplay.tsx` | Price with optional compare-at and discount badge | `price`, `compareAtPrice` | PDP, ProductCard |
+| **ProductCard** | `ProductCard.tsx` | Product card for grids | `product`, `loading` | PLP, Homepage, PDP (recommended) |
+| **ProductGrid** | `ProductGrid.tsx` | Responsive product grid layout | `products`, `columns` | PLP |
+| **QuantitySelector** | `QuantitySelector.tsx` | Increment/decrement quantity | `value`, `onChange`, `min`, `max` | PDP |
+| **SortSelect** | `SortSelect.tsx` | Sort-by dropdown | `value`, `onChange`, `options` | PLP |
 
 ---
 
-## Dialog Patterns
+## Layout Components
 
-All form dialogs should follow consistent patterns for user experience.
+Located in `hydrogen/app/components/layout/`.
 
-### When to Use Each Dialog Component
+| Component | File | Purpose | Variants | Figma Source |
+|-----------|------|---------|----------|-------------|
+| **Header** | `Header.tsx` | Site header with nav, search, cart | `home` / `default` | `d52sF4D2B0bIzt3A4z3UjE` node `2766:311` |
+| **Footer** | `Footer.tsx` | Site footer with newsletter, links, social | `default` / `primary` / `secondary` / `tertiary` | `X566CMLIsD8YboYdRU18IS` node `659:113` |
+| **PageLayout** | `PageLayout.tsx` | Page wrapper with header + footer | — | — |
 
-| Use Case                          | Component                       | Example                     |
-| --------------------------------- | ------------------------------- | --------------------------- |
-| Form with multiple fields         | `FormDialog`                    | Create Sprint, Create Board |
-| Destructive confirmation          | `ConfirmationDialog`            | Delete Task, Remove Member  |
-| Simple confirmation               | `ConfirmationDialog`            | Confirm Action              |
-| Complex form (many tabs/sections) | Custom with `Dialog` primitives | TaskDialog                  |
+---
 
-### FormDialog Usage
+## Checkout Components
 
-```tsx
-import {
-  FormDialog,
-  FormDialogSection,
-  FormDialogField,
-  useFormDialog,
-} from "@/components/FormDialog";
+Located in `hydrogen/app/components/checkout/`.
 
-function CreateSprintDialog() {
-  const { isOpen, isSubmitting, setIsSubmitting, open, close } =
-    useFormDialog();
-  const [name, setName] = useState("");
+| Component | File | Purpose | Props | Used On |
+|-----------|------|---------|-------|---------|
+| **CheckoutProgress** | `CheckoutProgress.tsx` | Multi-step progress bar with badges + dividers | `currentStep` | Cart, Payment, Shipping, Review |
+| **OrderSummary** | `OrderSummary.tsx` | Sticky sidebar with subtotal, items, CTA | `cart`, `title`, `ctaText`, `ctaHref`, `showItems` | Payment, Shipping, Review |
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      await createSprint({ name });
-      close();
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+---
 
-  return (
-    <>
-      <Button onClick={open}>Create Sprint</Button>
-      <FormDialog
-        open={isOpen}
-        onOpenChange={(open) => !open && close()}
-        title="Create Sprint"
-        description="Add a new sprint to your project"
-        onSubmit={handleSubmit}
-        isSubmitting={isSubmitting}
-        submitText="Create"
-        gradientTitle // Use gradient for creation dialogs
-        size="md"
-      >
-        <FormDialogField label="Name" required htmlFor="sprint-name">
-          <Input
-            id="sprint-name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Sprint 1"
-          />
-        </FormDialogField>
-      </FormDialog>
-    </>
-  );
-}
-```
+## Product Components
 
-### Dialog Size Guidelines
+Located in `hydrogen/app/components/product/`.
 
-| Size   | Max Width | Use For                           |
-| ------ | --------- | --------------------------------- |
-| `sm`   | 400px     | Simple confirmation, single field |
-| `md`   | 500px     | Standard forms (2-5 fields)       |
-| `lg`   | 600px     | Larger forms with sections        |
-| `xl`   | 800px     | Complex forms, data tables        |
-| `full` | 90vw      | Very large content, multi-step    |
+| Component | File | Purpose | Key Props | Used On |
+|-----------|------|---------|-----------|---------|
+| **ProductGallery** | `ProductGallery.tsx` | Image gallery with thumbnail navigation | `images`, `layout` (`vertical`/`horizontal`) | PDP |
+| **VariantSelector** | `VariantSelector.tsx` | Color swatches + size buttons with availability | `options`, `selectedVariant`, `variants` | PDP |
 
-### Title Styling
+---
 
-| Style    | Use For                                     | Prop                              |
-| -------- | ------------------------------------------- | --------------------------------- |
-| Gradient | Creation dialogs (Create Sprint, New Board) | `gradientTitle={true}`            |
-| Plain    | Edit dialogs, Settings                      | `gradientTitle={false}` (default) |
+## Search Components
 
-### FormDialogSection
+Located in `hydrogen/app/components/search/`.
 
-Use sections to group related fields:
+| Component | File | Purpose | Used On |
+|-----------|------|---------|---------|
+| **SearchAutocomplete** | `SearchAutocomplete.tsx` | Searchanise-powered autocomplete dropdown | Header (alternate) |
 
-```tsx
-<FormDialog {...props}>
-  <FormDialogSection title="Basic Info">
-    <FormDialogField label="Name" required>
-      <Input {...nameProps} />
-    </FormDialogField>
-    <FormDialogField label="Description">
-      <Textarea {...descProps} />
-    </FormDialogField>
-  </FormDialogSection>
+---
 
-  <FormDialogSection title="Options">
-    <FormDialogField label="Active">
-      <Switch {...activeProps} />
-    </FormDialogField>
-  </FormDialogSection>
-</FormDialog>
-```
+## Page-Specific Components (Extraction Candidates)
 
-### Error Handling
+These are currently defined inline within route files. Components marked **HIGH** should be extracted into the shared library.
 
-Use `FormDialogField` error prop for validation:
+### HIGH Priority — Used (or should be used) on multiple pages
 
-```tsx
-<FormDialogField
-  label="Email"
-  required
-  error={errors.email?.message}
-  htmlFor="email"
->
-  <Input id="email" {...register("email")} />
-</FormDialogField>
-```
+| Component | Current Location | Recommended Extraction | Reason |
+|-----------|-----------------|----------------------|--------|
+| **FormField** | `checkout.shipping.tsx` | `ui/form-field.tsx` | Reusable label+input+error pattern needed across all checkout forms |
+| **PromoCodeCard** | `cart.tsx` | `commerce/PromoCodeCard.tsx` | Could be reused on checkout review |
+| **CartLineRow** | `cart.tsx` | `commerce/CartLineRow.tsx` | Product line item display shared between cart + review |
+| **GuestBanner** | `cart.tsx` | `commerce/GuestBanner.tsx` | Guest CTA used on cart, could be on checkout |
+
+### MEDIUM Priority — Self-contained, worth extracting for maintainability
+
+| Component | Current Location | Recommended Extraction | Reason |
+|-----------|-----------------|----------------------|--------|
+| **PaymentMethodCard** | `checkout.payment.tsx` | `checkout/PaymentMethodCard.tsx` | Complex card with radio selection + nested forms |
+| **CardDetailsForm** | `checkout.payment.tsx` | `checkout/CardDetailsForm.tsx` | Credit card input group |
+| **ShippingAddressCard** | `checkout.shipping.tsx` | `checkout/ShippingAddressCard.tsx` | 8-field address form |
+| **ShippingMethodCard** | `checkout.shipping.tsx` | `checkout/ShippingMethodCard.tsx` | Radio-style method selector |
+| **OrderItems** | `checkout.review.tsx` | `checkout/OrderItems.tsx` | Product item list with images + prices |
+| **ReviewsSection** | `products.$handle.tsx` | `product/ReviewsSection.tsx` | Filterable review list with avatars + face ratings |
+| **RecommendedProducts** | `products.$handle.tsx` | `product/RecommendedProducts.tsx` | 4-column product grid with Suspense loading |
+| **ProductSection** | `_index.tsx` | `commerce/ProductSection.tsx` | Homepage product row (title + scrollable cards) |
+
+### LOW Priority — Small, truly page-specific
+
+| Component | Current Location | Keep Inline | Reason |
+|-----------|-----------------|-------------|--------|
+| **CartEmpty** | `cart.tsx` | Yes | Single-use empty state |
+| **SuccessHero** | `checkout.confirmation.tsx` | Yes | Confirmation-only hero |
+| **OrderDetailsCard** | `checkout.confirmation.tsx` | Yes | Confirmation-only details |
+| **CreateAccountCTA** | `checkout.confirmation.tsx` | Yes | Confirmation-only CTA |
+| **CreditCardBrandBadge** | `checkout.payment.tsx` | Yes | Tiny visual helper |
+| **PaymentMethodOption** | `checkout.payment.tsx` | Yes | Simple radio option |
+| **BillingAddressCard** | `checkout.payment.tsx` | Yes | Simple toggle card |
+| **DeliveryPreferencesCard** | `checkout.shipping.tsx` | Yes | Single textarea card |
+| **ShippingAddressSection** | `checkout.review.tsx` | Yes | Read-only display |
+| **ShippingMethodSection** | `checkout.review.tsx` | Yes | Read-only display |
+| **PaymentMethodSection** | `checkout.review.tsx` | Yes | Read-only display |
+| **PdpPrice** | `products.$handle.tsx` | Yes | PDP-specific currency formatter |
+| **SpecsContent** | `products.$handle.tsx` | Yes | JSON → definition list |
+| **RecommendedProductsSkeleton** | `products.$handle.tsx` | Yes | Loading state for recommended |
+| **ProductCard (homepage)** | `_index.tsx` | Yes | Static placeholder (will be replaced by real ProductCard) |
+
+---
+
+## Figma Component Library
+
+| Item | Value |
+|------|-------|
+| **File key** | `X566CMLIsD8YboYdRU18IS` |
+| **File name** | Component Library |
+| **Page** | Home Components |
+| **Status** | Early stage — Footer is the only component migrated |
+
+### Components in Figma Library
+
+| Component | Node ID | Variants | Code Equivalent |
+|-----------|---------|----------|----------------|
+| **Footer** | `659:113` | Default, Primary, Secondary, Tertiary | `layout/Footer.tsx` |
+| Footer > Input | — | PrimarySubmit, Alternate | `ui/pill-input.tsx` |
+| Footer > Logo | — | Default, Alternate | Inline in Footer |
+| Footer > Button | — | Primary, Outline | `ui/button.tsx` |
+| Footer > Link | — | Default, Light | Inline in Footer |
+
+### Components NOT Yet in Figma Library (should be added)
+
+| Component | Current Figma File | Node ID |
+|-----------|-------------------|---------|
+| Header | `d52sF4D2B0bIzt3A4z3UjE` | `2766:311` |
+| ProductCard | Various page files | — |
+| CheckoutProgress | `vzeR7m9jbWjAfD9EVlReyq` | Various |
+| PillInput | Derived from Footer Input | — |
+| Button | Derived from Footer Button | — |
 
 ---
 
 ## Component Audit Checklist
 
-Before creating or modifying a component, complete this checklist:
+Before creating or modifying a component:
 
-### Pre-Work Audit
+### Pre-Work
 
-- [ ] Checked `components/ui/` for existing primitive
-- [ ] Checked Feature Components list above
-- [ ] Checked Storybook for visual examples
+- [ ] Checked `components/ui/` for existing shadcn primitive
+- [ ] Checked Commerce/Layout/Checkout/Product component lists above
 - [ ] Verified no existing component meets the need
-- [ ] If modifying: reviewed current tests and stories
+- [ ] If modifying: read the component file first
 
 ### New Component Requirements
 
-- [ ] Component file created: `components/[Name].tsx` or `components/ui/[name].tsx`
-- [ ] Uses design tokens from `lib/design-tokens.ts`
-- [ ] Has clear prop interface with JSDoc
-- [ ] Has feature flag (if applicable)
-- [ ] Storybook story created: `[Name].stories.tsx`
-- [ ] Unit tests created: `[Name].test.tsx`
-- [ ] Snapshot tests for each variant
+- [ ] Created in appropriate directory (`ui/`, `commerce/`, `checkout/`, `product/`, `layout/`)
+- [ ] Uses design tokens from `app/styles/app.css` — no hardcoded colors
+- [ ] Uses `cn()` for conditional class merging
+- [ ] Has TypeScript interface for props
 - [ ] Added to this document (COMPONENT_LIBRARY.md)
-
-### Variant Addition Requirements
-
-- [ ] Existing tests still pass
-- [ ] New variant has Storybook story
-- [ ] New variant has snapshot test
-- [ ] This document updated if needed
+- [ ] If extracted from inline: verified all page-specific logic removed
 
 ---
 
-## Testing Requirements
+## Icon Usage
 
-Every component in the library must have comprehensive tests.
+All icons via `lucide-react`. 22 distinct icons in use across Homepage, PDP, and Checkout:
 
-### Test File Structure
-
-```
-components/
-├── StatusBadge.tsx
-├── StatusBadge.stories.tsx
-├── StatusBadge.test.tsx
-└── __snapshots__/
-    └── StatusBadge.test.tsx.snap
-```
-
-### Required Test Coverage
-
-#### Behavioral Tests
-
-```typescript
-describe("StatusBadge", () => {
-  it("should render without crashing", () => {});
-  it("should render all status variants", () => {});
-  it("should apply correct colors for each status", () => {});
-  it("should respect size prop", () => {});
-  it("should apply custom className", () => {});
-  it("should handle feature flag disabled state", () => {});
-  it("should handle feature flag enabled state", () => {});
-});
-```
-
-#### Snapshot Tests
-
-```typescript
-describe("Snapshots", () => {
-  it.each(["todo", "in-progress", "review", "done"])
-    ("should match snapshot for status: %s", (status) => {
-      const { container } = render(<StatusBadge status={status} />);
-      expect(container).toMatchSnapshot();
-    });
-
-  it.each(["sm", "md", "lg"])
-    ("should match snapshot for size: %s", (size) => {
-      const { container } = render(<StatusBadge status="todo" size={size} />);
-      expect(container).toMatchSnapshot();
-    });
-});
-```
-
-### Running Tests
-
-```bash
-# Run all component tests
-pnpm test:components
-
-# Watch mode
-pnpm test:components:watch
-
-# Update snapshots (after intentional visual changes)
-pnpm test:update-snapshots
-```
+| Icon | Import | Used On |
+|------|--------|---------|
+| ArrowLeft | `lucide-react` | Checkout (back nav) |
+| ArrowRight | `lucide-react` | Checkout (forward nav) |
+| Calendar | `lucide-react` | Confirmation |
+| Check | `lucide-react` | AddToCart, CheckoutProgress, Review |
+| CheckCircle | `lucide-react` | Confirmation |
+| ChevronDown | `lucide-react` | Header (nav dropdowns) |
+| ChevronLeft | `lucide-react` | ProductGallery |
+| ChevronRight | `lucide-react` | ProductGallery |
+| CreditCard | `lucide-react` | Payment, Review |
+| Frown | `lucide-react` | FaceRating |
+| ImageIcon | `lucide-react` | Cart, Review, Confirmation (fallback) |
+| Info | `lucide-react` | Cart |
+| Loader2 | `lucide-react` | AddToCart (loading) |
+| Lock | `lucide-react` | Checkout (trust badge) |
+| Meh | `lucide-react` | FaceRating |
+| Menu | `lucide-react` | Header (hamburger) |
+| Minus | `lucide-react` | QuantitySelector, Cart |
+| Package | `lucide-react` | Confirmation |
+| Plus | `lucide-react` | QuantitySelector, Homepage, Cart |
+| Search | `lucide-react` | PillInput, Header |
+| ShieldCheck | `lucide-react` | Checkout (trust badge) |
+| ShoppingBag | `lucide-react` | Confirmation |
+| ShoppingCart | `lucide-react` | Header, Cart, PDP |
+| Smile | `lucide-react` | FaceRating |
+| Star | `lucide-react` | PDP (ratings) |
+| User | `lucide-react` | Header (account) |
+| X | `lucide-react` | AddToCart (error), Cart (remove) |
 
 ---
 
-## Feature Flags
+## Utility Modules
 
-Components under development use feature flags for controlled rollout.
-
-### Available Flags
-
-| Flag                  | Component              | Default |
-| --------------------- | ---------------------- | ------- |
-| `STATUS_BADGE`        | StatusBadge            | `false` |
-| `SPINNER`             | Spinner                | `false` |
-| `CONFIRMATION_DIALOG` | ConfirmationDialog     | `false` |
-| `EMPTY_STATE`         | EmptyState             | `false` |
-| `FORM_DIALOG`         | FormDialog             | `false` |
-| `DATA_TABLE`          | DataTable              | `false` |
-| `PAGE_HEADER`         | PageHeader             | `false` |
-| `MEMBER_CARD`         | MemberCard             | `false` |
-| `DESIGN_TOKENS`       | Design token migration | `false` |
-
-### Enabling Flags
-
-Add to `.env.local`:
-
-```bash
-NEXT_PUBLIC_FEATURE_STATUS_BADGE=true
-NEXT_PUBLIC_FEATURE_SPINNER=true
-```
-
-### Using Flags in Code
-
-```typescript
-import { isFeatureEnabled, FeatureFlag } from "@/lib/feature-flags";
-
-function TaskRow({ task }) {
-  return (
-    <div>
-      {isFeatureEnabled(FeatureFlag.STATUS_BADGE) ? (
-        <StatusBadge status={task.status} />
-      ) : (
-        <LegacyStatusDisplay status={task.status} />
-      )}
-    </div>
-  );
-}
-```
-
-### Testing with Flags
-
-```typescript
-import { mockFeatureFlag, clearFeatureFlagMocks } from "@/lib/feature-flags";
-
-describe("Component with feature flag", () => {
-  afterEach(() => {
-    clearFeatureFlagMocks();
-  });
-
-  it("should render new component when flag enabled", () => {
-    mockFeatureFlag(FeatureFlag.STATUS_BADGE, true);
-    // test new behavior
-  });
-
-  it("should render fallback when flag disabled", () => {
-    mockFeatureFlag(FeatureFlag.STATUS_BADGE, false);
-    // test fallback behavior
-  });
-});
-```
-
----
-
-## Storybook
-
-Local Storybook for visual documentation and testing.
-
-### Running Storybook
-
-```bash
-pnpm storybook
-```
-
-Opens at http://localhost:6006
-
-### Story Structure
-
-```typescript
-// StatusBadge.stories.tsx
-import type { Meta, StoryObj } from "@storybook/react";
-import { StatusBadge } from "./StatusBadge";
-
-const meta: Meta<typeof StatusBadge> = {
-  title: "Components/StatusBadge",
-  component: StatusBadge,
-  tags: ["autodocs"],
-  argTypes: {
-    status: {
-      control: "select",
-      options: ["todo", "in-progress", "review", "done"],
-    },
-    size: {
-      control: "select",
-      options: ["sm", "md", "lg"],
-    },
-  },
-};
-
-export default meta;
-type Story = StoryObj<typeof StatusBadge>;
-
-export const Default: Story = {
-  args: {
-    status: "todo",
-    size: "md",
-  },
-};
-
-// Additional stories for specific states
-export const InProgress: Story = {
-  args: {
-    status: "in-progress",
-  },
-};
-
-export const AllSizes: Story = {
-  render: () => (
-    <div className="flex gap-4">
-      <StatusBadge status="todo" size="sm" />
-      <StatusBadge status="todo" size="md" />
-      <StatusBadge status="todo" size="lg" />
-    </div>
-  ),
-};
-```
-
-### Story Guidelines
-
-1. **Keep stories minimal** - rely on Controls addon for testing variants
-2. **One default story** per component with all props controllable
-3. **Additional stories** only for complex compositions or states
-4. **Use `tags: ["autodocs"]`** for auto-generated documentation
-5. **Provide meaningful argTypes** with control types
+| Module | File | Exports | Used By |
+|--------|------|---------|---------|
+| **cn** | `lib/utils.ts` | `cn()` (clsx + tailwind-merge) | Every component |
+| **Checkout** | `lib/checkout.ts` | `formatMoney`, `validateShippingAddress`, `getCheckoutAttributes`, `buildCartAttributes`, GraphQL mutations | All checkout routes |
+| **Breadcrumbs** | `lib/breadcrumbs.ts` | `buildPathFromParentMetafields`, `findDeepestNavPath` | PDP |
+| **Rich Text** | `lib/rich-text.ts` | `richTextToHtml` | PDP (description, warranty, specs) |
+| **Searchanise** | `lib/searchanise.ts` | Searchanise API client | SearchAutocomplete |
 
 ---
 
 ## Changelog
 
-| Date       | Change                                          |
-| ---------- | ----------------------------------------------- |
-| 2026-01-10 | Initial component library documentation created |
+| Date | Change |
+|------|--------|
+| 2026-03-15 | Complete rewrite — replaced generic template with actual Hy-lee component inventory |
+| 2026-03-03 | PillInput extracted from inline patterns across Header, Homepage, Footer |
+| 2026-02-23 | Footer moved to Figma Component Library (`X566CMLIsD8YboYdRU18IS`) |
+| 2026-02-21 | PDP components built (ProductGallery, VariantSelector, FaceRating, Accordion) |
+| 2026-02-19 | Homepage + PLP components built (ProductCard, ProductGrid, CollectionHero) |
+| 2026-02-15 | shadcn/ui integration complete (Button, Card, Input, Separator, etc.) |
