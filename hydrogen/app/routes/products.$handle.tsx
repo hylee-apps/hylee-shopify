@@ -45,6 +45,27 @@ import {
 import {richTextToHtml} from '~/lib/rich-text';
 
 // ============================================================================
+// Constants
+// ============================================================================
+
+/** Collection handles that should show the "Does It Fit" accordion section */
+const DOES_IT_FIT_COLLECTIONS = new Set([
+  'furniture',
+  'appliances',
+  'home-appliances',
+]);
+
+/** Ordered list of primary spec keys — top 6 with values shown inline */
+const PRIMARY_SPEC_KEYS = [
+  'dimensions',
+  'weight',
+  'material',
+  'color',
+  'capacity',
+  'power_source',
+];
+
+// ============================================================================
 // GraphQL Fragments & Query
 // ============================================================================
 
@@ -118,7 +139,7 @@ const PRODUCT_FRAGMENT = `#graphql
         }
       }
     }
-    collections(first: 5) {
+    collections(first: 10) {
       nodes {
         id
         ...BcCollectionWithParents
@@ -486,7 +507,10 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
                 Specs
               </AccordionTrigger>
               <AccordionContent>
-                <SpecsContent productMetafields={product.productMetafields} />
+                <SpecsContent
+                  productMetafields={product.productMetafields}
+                  primaryOnly
+                />
                 <button
                   onClick={() => openAccordionAndScroll('specifications')}
                   className="mt-3 text-sm font-medium text-secondary hover:underline"
@@ -496,20 +520,24 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem
-              value="does-it-fit"
-              className="rounded-lg border border-border bg-surface px-4"
-            >
-              <AccordionTrigger className="text-[16px] font-semibold text-text hover:no-underline">
-                Does It Fit
-              </AccordionTrigger>
-              <AccordionContent>
-                <p className="text-sm text-text-muted">
-                  {product.warranty?.value ??
-                    'Please check product dimensions before purchasing.'}
-                </p>
-              </AccordionContent>
-            </AccordionItem>
+            {productCollections.some((c) =>
+              DOES_IT_FIT_COLLECTIONS.has(c.handle),
+            ) && (
+              <AccordionItem
+                value="does-it-fit"
+                className="rounded-lg border border-border bg-surface px-4"
+              >
+                <AccordionTrigger className="text-[16px] font-semibold text-text hover:no-underline">
+                  Does It Fit
+                </AccordionTrigger>
+                <AccordionContent>
+                  <p className="text-sm text-text-muted">
+                    {product.warranty?.value ??
+                      'Please check product dimensions before purchasing.'}
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+            )}
           </Accordion>
         </div>
 
@@ -723,12 +751,25 @@ const METAFIELD_LABELS: Record<string, string> = {
 
 function SpecsContent({
   productMetafields,
+  primaryOnly,
 }: {
   productMetafields?: Array<{key: string; value: string} | null> | null;
+  /** When true, show only the top 6 primary specs (ordered by PRIMARY_SPEC_KEYS) */
+  primaryOnly?: boolean;
 }) {
-  const entries = (productMetafields ?? []).filter(
+  let entries = (productMetafields ?? []).filter(
     (mf): mf is {key: string; value: string} => mf != null && !!mf.value,
   );
+
+  if (primaryOnly) {
+    // Show primary specs first (in priority order), then fill remaining slots
+    const primary = PRIMARY_SPEC_KEYS.map((key) =>
+      entries.find((mf) => mf.key === key),
+    ).filter(Boolean) as Array<{key: string; value: string}>;
+    const primaryKeySet = new Set(PRIMARY_SPEC_KEYS);
+    const rest = entries.filter((mf) => !primaryKeySet.has(mf.key));
+    entries = [...primary, ...rest].slice(0, 6);
+  }
 
   if (!entries.length) {
     return (

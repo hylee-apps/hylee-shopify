@@ -16,7 +16,7 @@ export interface ShippingAddress {
   email: string;
 }
 
-export type ShippingMethodId = 'standard' | 'expedited' | 'next-day';
+export type ShippingMethodId = 'standard';
 
 export interface ShippingMethod {
   id: ShippingMethodId;
@@ -31,18 +31,6 @@ export const SHIPPING_METHODS: ShippingMethod[] = [
     label: 'Standard Shipping',
     description: '5-7 business days',
     price: 5.99,
-  },
-  {
-    id: 'expedited',
-    label: 'Expedited Shipping',
-    description: '2-3 business days',
-    price: 12.99,
-  },
-  {
-    id: 'next-day',
-    label: 'Next Day Delivery',
-    description: 'Next business day',
-    price: 24.99,
   },
 ];
 

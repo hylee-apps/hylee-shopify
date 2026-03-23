@@ -218,7 +218,7 @@ export function Footer({
                       variant="ghost"
                       asChild
                       className={cn(
-                        'h-10 px-4 py-2.5 text-[14px] font-medium whitespace-nowrap rounded-xl hover:bg-transparent',
+                        'h-10 px-4 py-2.5 text-[15px] font-semibold whitespace-nowrap rounded-xl hover:bg-transparent',
                         colored
                           ? 'text-white hover:text-white/70'
                           : 'text-text-muted hover:text-black',

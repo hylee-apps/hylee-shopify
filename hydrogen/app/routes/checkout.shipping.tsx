@@ -1,4 +1,4 @@
-import {useState, useCallback} from 'react';
+import {useCallback, useState} from 'react';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {Link, redirect, useLoaderData, useActionData, Form} from 'react-router';
 import {Card} from '~/components/ui/card';
@@ -14,13 +14,15 @@ import {
   buildCartAttributes,
   getCheckoutAttributes,
   validateShippingAddress,
-  formatMoney,
-  type ShippingMethodId,
   type ShippingAddress,
   type ValidationErrors,
 } from '~/lib/checkout';
-import {readAddressBook} from '~/lib/address-book-graphql';
+import {
+  readAddressBook,
+  readCustomerAddresses,
+} from '~/lib/address-book-graphql';
 import type {AddressBook} from '~/lib/address-book';
+import type {SavedShippingAddress} from '~/components/checkout/ShippingCategorySelector';
 import type {Route} from './+types/checkout.shipping';
 
 // ============================================================================
@@ -48,26 +50,33 @@ export async function loader({context}: Route.LoaderArgs) {
   // Read any previously stored shipping data from cart attributes
   const checkoutData = getCheckoutAttributes(cart);
 
-  // Optionally fetch address book for logged-in users
+  // Optionally fetch address book + native addresses for logged-in users
   let addressBook: AddressBook | null = null;
+  let savedAddresses: SavedShippingAddress[] = [];
   try {
     const isLoggedIn = await context.customerAccount.isLoggedIn();
     if (isLoggedIn) {
-      const {book} = await readAddressBook(context);
-      addressBook = book;
+      const [bookResult, addressesResult] = await Promise.all([
+        readAddressBook(context).catch(() => null),
+        readCustomerAddresses(context).catch(
+          () => [] as SavedShippingAddress[],
+        ),
+      ]);
+      addressBook = bookResult?.book ?? null;
+      savedAddresses = addressesResult;
     }
   } catch {
-    // Guest checkout — no address book available
+    // Guest checkout — no address book or saved addresses
   }
 
   return {
     cart,
     savedAddress: checkoutData.shippingAddress,
-    savedMethodId: checkoutData.shippingMethod?.id ?? 'standard',
     savedDeliveryInstructions: checkoutData.deliveryInstructions,
     savedShippingCategory: checkoutData.shippingCategory,
     savedContactId: checkoutData.shippingContactId,
     addressBook,
+    savedAddresses,
   };
 }
 
@@ -263,58 +272,6 @@ function ShippingAddressCard({
 }
 
 // ============================================================================
-// Shipping Method Card
-// ============================================================================
-
-function ShippingMethodCard({
-  selected,
-  onSelect,
-}: {
-  selected: ShippingMethodId;
-  onSelect: (id: ShippingMethodId) => void;
-}) {
-  return (
-    <Card className="gap-0 overflow-hidden bg-white p-0 shadow-sm">
-      <div className="border-b border-border px-6 py-5">
-        <h2 className="text-lg font-bold text-[#111827]">Shipping Method</h2>
-      </div>
-
-      <div className="flex flex-col gap-3 p-6">
-        {SHIPPING_METHODS.map((method) => {
-          const isSelected = selected === method.id;
-
-          return (
-            <button
-              key={method.id}
-              type="button"
-              onClick={() => onSelect(method.id)}
-              className={cn(
-                'flex w-full items-center justify-between rounded-lg border-2 p-[18px] text-left transition-colors',
-                isSelected
-                  ? 'border-secondary bg-secondary/5'
-                  : 'border-border hover:border-secondary/40',
-              )}
-            >
-              <div className="flex flex-col">
-                <span className="text-base font-semibold text-[#111827]">
-                  {method.label}
-                </span>
-                <span className="text-sm text-[#6b7280]">
-                  {method.description}
-                </span>
-              </div>
-              <span className="text-base font-semibold text-[#111827]">
-                ${method.price.toFixed(2)}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-    </Card>
-  );
-}
-
-// ============================================================================
 // Delivery Preferences Card
 // ============================================================================
 
@@ -393,24 +350,17 @@ export default function CheckoutShippingPage() {
   const {
     cart,
     savedAddress,
-    savedMethodId,
     savedDeliveryInstructions,
     savedShippingCategory,
     savedContactId,
     addressBook,
+    savedAddresses,
   } = useLoaderData<typeof loader>();
   const actionData = useActionData<{
     errors?: ValidationErrors;
     address?: Partial<ShippingAddress>;
-    shippingMethodId?: string;
     deliveryInstructions?: string;
   }>();
-
-  const [selectedMethod, setSelectedMethod] = useState<ShippingMethodId>(
-    (actionData?.shippingMethodId as ShippingMethodId) ??
-      savedMethodId ??
-      'standard',
-  );
 
   // Track form key to force re-render when address is auto-filled
   const [formKey, setFormKey] = useState(0);
@@ -425,21 +375,22 @@ export default function CheckoutShippingPage() {
 
   // Use action data for form repopulation on error, or filled address, or saved data from cart
   const formDefaults = actionData?.address ?? filledAddress ?? savedAddress;
-  const shippingCost = SHIPPING_METHODS.find((m) => m.id === selectedMethod);
+  const shippingCost = SHIPPING_METHODS[0];
 
   return (
     <div className="min-h-screen bg-[#f9fafb]">
       <CheckoutProgress currentStep="shipping" />
 
       <Form method="post" className="mx-auto max-w-[1443px] px-6 py-8">
-        {/* Hidden field for shipping method */}
-        <input type="hidden" name="shippingMethod" value={selectedMethod} />
+        {/* Hidden field for shipping method — standard only */}
+        <input type="hidden" name="shippingMethod" value="standard" />
 
         <div className="flex items-start gap-8">
           {/* Left: Main content */}
           <div className="flex min-w-0 flex-1 flex-col gap-6">
             <ShippingCategorySelector
               book={addressBook}
+              savedAddresses={savedAddresses}
               defaultCategory={savedShippingCategory}
               defaultContactId={savedContactId}
               onAddressFill={handleAddressFill}
@@ -449,10 +400,6 @@ export default function CheckoutShippingPage() {
               defaultValues={formDefaults}
               errors={actionData?.errors}
             />
-            {/* <ShippingMethodCard
-              selected={selectedMethod}
-              onSelect={setSelectedMethod}
-            /> */}
             <DeliveryPreferencesCard
               defaultValue={
                 actionData?.deliveryInstructions ?? savedDeliveryInstructions

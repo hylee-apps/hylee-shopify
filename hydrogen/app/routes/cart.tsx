@@ -380,12 +380,21 @@ function PromoCodeCard({discountCodes}: {discountCodes: any[] | undefined}) {
 
 interface OrderSummaryProps {
   cart: OptimisticCart<any>;
+  discountCodes?: any[];
 }
 
-function OrderSummary({cart}: OrderSummaryProps) {
+function OrderSummary({cart, discountCodes}: OrderSummaryProps) {
   const {cost, totalQuantity} = cart;
   const subtotal = cost?.subtotalAmount;
   const total = cost?.totalAmount;
+
+  // Calculate promo discount as difference between subtotal and total
+  const hasAppliedDiscount =
+    discountCodes?.some((d: any) => d.applicable) ?? false;
+  const discountAmount =
+    hasAppliedDiscount && subtotal && total
+      ? parseFloat(subtotal.amount) - parseFloat(total.amount)
+      : 0;
 
   return (
     <Card className="sticky top-4 w-[400px] shrink-0 gap-0 overflow-hidden bg-white p-0 shadow-sm">
@@ -420,6 +429,15 @@ function OrderSummary({cart}: OrderSummaryProps) {
               Calculated at next step
             </span>
           </div>
+
+          {discountAmount > 0 && (
+            <div className="flex items-center justify-between">
+              <span className="text-[15px] text-primary">Promo Discount</span>
+              <span className="text-[15px] font-medium text-primary">
+                -${discountAmount.toFixed(2)}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* 2px separator */}
@@ -518,7 +536,10 @@ export default function CartPage() {
             </div>
 
             {/* ── Right: Order Summary ── */}
-            <OrderSummary cart={cart as OptimisticCart<any>} />
+            <OrderSummary
+              cart={cart as OptimisticCart<any>}
+              discountCodes={cart.discountCodes}
+            />
           </div>
         ) : (
           <CartEmpty />

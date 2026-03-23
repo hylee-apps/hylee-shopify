@@ -1,10 +1,11 @@
-import {Link, Form} from 'react-router';
-import {Plus} from 'lucide-react';
+import {Link, Form, useLoaderData} from 'react-router';
 import {PillInput} from '~/components/ui/pill-input';
 import {Button} from '~/components/ui/button';
-import {Card} from '~/components/ui/card';
-import {Skeleton} from '~/components/ui/skeleton';
 import {Separator} from '~/components/ui/separator';
+import {
+  ProductCard,
+  type ProductCardProps,
+} from '~/components/commerce/ProductCard';
 import type {Route} from './+types/_index';
 
 // ============================================================================
@@ -23,57 +24,132 @@ export function meta({}: Route.MetaArgs) {
 }
 
 // ============================================================================
-// Product Card
-// Figma: Card=ProductMedium — flex-col gap-2.5 p-2.5, 313×451px total
-// Image: 293×316px placeholder  |  Add btn: bg-secondary rounded-[25px] h-10
-// Price: $superscript-12px + amount-24px  |  Title: 14px Inter Medium
+// GraphQL — fetch products from a collection by handle
 // ============================================================================
 
-function ProductCard() {
-  return (
-    // Card overrides: strip default gap-6 / rounded-xl / border / py-6 / shadow-sm
-    <Card className="gap-2.5 p-2.5 shrink-0 rounded-sm border-0 shadow-none bg-transparent">
-      {/* Image placeholder — 293×316px; animate-none = static (not loading state) */}
-      <Skeleton className="h-[316px] w-[293px] rounded-sm bg-surface animate-none" />
+const HOMEPAGE_COLLECTION_QUERY = `#graphql
+  query HomepageCollection(
+    $handle: String!
+    $first: Int!
+    $country: CountryCode
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
+    collection(handle: $handle) {
+      id
+      title
+      handle
+      products(first: $first) {
+        nodes {
+          id
+          title
+          handle
+          vendor
+          availableForSale
+          tags
+          createdAt
+          images(first: 2) {
+            nodes {
+              id
+              url
+              altText
+              width
+              height
+            }
+          }
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+          compareAtPriceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+          variants(first: 1) {
+            nodes {
+              id
+              availableForSale
+              price {
+                amount
+                currencyCode
+              }
+              compareAtPrice {
+                amount
+                currencyCode
+              }
+              selectedOptions {
+                name
+                value
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+` as const;
 
-      {/* Add button — Figma: bg-secondary, rounded-[25px], h-10, px-5 */}
-      <Button className="bg-secondary hover:bg-secondary/90 text-white rounded-[25px] h-10 px-5 has-[>svg]:px-10 gap-2.5 self-start">
-        {/* Figma: plus icon 25×25px */}
-        <Plus size={25} />
-        <span className="text-[14px] font-medium">Add</span>
-      </Button>
+// ============================================================================
+// Loader
+// ============================================================================
 
-      {/* Price — $ at 12px (top-left), amount at 24px, SemiBold, tracking-[0.5px] */}
-      <div className="relative h-7 w-16 font-semibold text-black tracking-[0.5px] whitespace-nowrap shrink-0">
-        <span className="absolute left-2 top-0 text-[24px] leading-6">
-          <sup>$</sup>0.00
-        </span>
-      </div>
+export async function loader({context}: Route.LoaderArgs) {
+  const {storefront} = context;
 
-      {/* Product title — 14px Inter Medium */}
-      <p className="text-[14px] font-medium text-black">Product Title</p>
-    </Card>
-  );
+  const queryOpts = {
+    variables: {
+      first: 8,
+      country: storefront.i18n.country,
+      language: storefront.i18n.language,
+    },
+  };
+
+  // Fetch both collections in parallel — gracefully handle missing collections
+  const [whatsNewResult, seasonalResult] = await Promise.all([
+    storefront
+      .query(HOMEPAGE_COLLECTION_QUERY, {
+        variables: {...queryOpts.variables, handle: 'what-s-new'},
+      })
+      .catch(() => null),
+    storefront
+      .query(HOMEPAGE_COLLECTION_QUERY, {
+        variables: {...queryOpts.variables, handle: 'summer-collection'},
+      })
+      .catch(() => null),
+  ]);
+
+  return {
+    whatsNew: whatsNewResult?.collection ?? null,
+    seasonal: seasonalResult?.collection ?? null,
+  };
 }
 
 // ============================================================================
 // Product Section
 // Compact header row (title left + "See all" right) above card row.
-// Matches Walmart-style: ~20px bold, no underline, no double-heading.
 // ============================================================================
+
+type CollectionProduct = ProductCardProps['product'] & {createdAt?: string};
 
 function ProductSection({
   categoryLabel,
   seeAllUrl,
+  collectionHandle,
+  products,
 }: {
   categoryLabel: string;
   seeAllUrl: string;
+  collectionHandle: string;
+  products: CollectionProduct[];
 }) {
+  if (!products.length) return null;
+
   return (
     <div className="flex flex-col pb-4 w-full overflow-x-auto">
-      {/* Shared container — width = cards content, centered on page */}
-      <div className="mx-auto w-fit">
-        {/* Header — spans exactly the cards width */}
+      <div className="mx-auto w-full max-w-300 px-4">
         <div className="flex items-center justify-between py-3">
           <h2 className="text-[20px] font-bold text-black leading-tight">
             {categoryLabel}
@@ -86,12 +162,24 @@ function ProductSection({
           </Link>
         </div>
 
-        {/* Cards row */}
-        <div className="flex gap-2.5">
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
+        <div className="flex gap-2.5 overflow-x-auto">
+          {products.slice(0, 4).map((product) => {
+            const isNew =
+              product.createdAt &&
+              Date.now() - new Date(product.createdAt).getTime() <
+                30 * 24 * 60 * 60 * 1000;
+            return (
+              <ProductCard
+                key={product.id}
+                product={product}
+                size="default"
+                showQuickAdd
+                collectionHandle={collectionHandle}
+                customBadge={isNew ? 'New' : undefined}
+                customBadgeColor={isNew ? 'bg-primary' : undefined}
+              />
+            );
+          })}
         </div>
       </div>
     </div>
@@ -104,6 +192,8 @@ function ProductSection({
 // ============================================================================
 
 export default function Homepage() {
+  const {whatsNew, seasonal} = useLoaderData<typeof loader>();
+
   return (
     <>
       {/* ================================================================ */}
@@ -144,16 +234,24 @@ export default function Homepage() {
       {/* ================================================================ */}
       <div className="flex flex-col items-start w-full gap-10">
         {/* What's New — Figma node 218:337 */}
-        <ProductSection
-          categoryLabel="What's New"
-          seeAllUrl="/collections/what-s-new"
-        />
+        {whatsNew && whatsNew.products.nodes.length > 0 && (
+          <ProductSection
+            categoryLabel="What's New"
+            seeAllUrl="/collections/what-s-new"
+            collectionHandle="what-s-new"
+            products={whatsNew.products.nodes as CollectionProduct[]}
+          />
+        )}
 
-        {/* Summer/Winter/Fall Collection — Figma node 218:384 */}
-        <ProductSection
-          categoryLabel="Summer/Winter/Fall Collection"
-          seeAllUrl="/collections/summer-collection"
-        />
+        {/* Seasonal Collection — Figma node 218:384 */}
+        {seasonal && seasonal.products.nodes.length > 0 && (
+          <ProductSection
+            categoryLabel={seasonal.title}
+            seeAllUrl={`/collections/${seasonal.handle}`}
+            collectionHandle={seasonal.handle}
+            products={seasonal.products.nodes as CollectionProduct[]}
+          />
+        )}
 
         {/* ============================================================== */}
         {/* PROMOTIONS & DISCOUNTS — Figma node 218:430                    */}
