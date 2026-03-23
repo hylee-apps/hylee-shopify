@@ -1,6 +1,7 @@
 import type {Route} from './+types/account.settings';
 import {redirect, Form, useActionData, useNavigation, Link} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
+import {isCustomerLoggedIn} from '~/lib/customer-auth';
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -67,8 +68,7 @@ const UPDATE_CUSTOMER_MUTATION = `#graphql
 // ============================================================================
 
 export async function loader({context}: Route.LoaderArgs) {
-  const isLoggedIn = await context.customerAccount.isLoggedIn();
-  if (!isLoggedIn) {
+  if (!isCustomerLoggedIn(context.session)) {
     return redirect('/account/login');
   }
 
@@ -82,8 +82,7 @@ export async function loader({context}: Route.LoaderArgs) {
 // ============================================================================
 
 export async function action({request, context}: Route.ActionArgs) {
-  const isLoggedIn = await context.customerAccount.isLoggedIn();
-  if (!isLoggedIn) {
+  if (!isCustomerLoggedIn(context.session)) {
     return redirect('/account/login');
   }
 

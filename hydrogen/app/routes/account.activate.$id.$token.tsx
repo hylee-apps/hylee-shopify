@@ -1,15 +1,14 @@
 import {Form, Link, useActionData, useNavigation} from 'react-router';
 import {redirect} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
-import type {Route} from './+types/account.login';
+import type {Route} from './+types/account.activate.$id.$token';
 import {AuthLayout} from '~/components/auth/AuthLayout';
 import {FormField} from '~/components/auth/FormField';
-import {SocialLoginButtons} from '~/components/auth/SocialLoginButtons';
 import {
   isCustomerLoggedIn,
-  loginCustomer,
+  activateCustomer,
   setCustomerAccessToken,
-  validateEmail,
+  validatePassword,
 } from '~/lib/customer-auth';
 
 // ============================================================================
@@ -18,8 +17,8 @@ import {
 
 export function meta() {
   return getSeoMeta({
-    title: 'Sign In',
-    description: 'Sign in to your Hy-lee account.',
+    title: 'Activate Account',
+    description: 'Activate your Hy-lee account and set your password.',
   });
 }
 
@@ -38,33 +37,42 @@ export async function loader({context}: Route.LoaderArgs) {
 // Action
 // ============================================================================
 
-export async function action({request, context}: Route.ActionArgs) {
+export async function action({request, context, params}: Route.ActionArgs) {
+  const {id, token} = params;
   const formData = await request.formData();
-  const email = (formData.get('email') as string) ?? '';
   const password = (formData.get('password') as string) ?? '';
+  const confirmPassword = (formData.get('confirmPassword') as string) ?? '';
 
   // Validate
   const errors: Record<string, string> = {};
-  const emailError = validateEmail(email);
-  if (emailError) errors.email = emailError;
-  if (!password) errors.password = 'Password is required.';
-
-  if (Object.keys(errors).length) {
-    return Response.json({errors, email}, {status: 400});
+  const passwordError = validatePassword(password);
+  if (passwordError) errors.password = passwordError;
+  if (!confirmPassword) {
+    errors.confirmPassword = 'Please confirm your password.';
+  } else if (password !== confirmPassword) {
+    errors.confirmPassword = 'Passwords do not match.';
   }
 
-  // Attempt login
-  const result = await loginCustomer(context.storefront, email, password);
+  if (Object.keys(errors).length) {
+    return Response.json({errors}, {status: 400});
+  }
+
+  // Activate account via Storefront API
+  const result = await activateCustomer(
+    context.storefront,
+    id!,
+    token!,
+    password,
+  );
 
   if ('errors' in result) {
     const message =
-      result.errors[0]?.code === 'UNIDENTIFIED_CUSTOMER'
-        ? 'Invalid email or password. Please try again.'
-        : (result.errors[0]?.message ?? 'Login failed. Please try again.');
-    return Response.json({errors: {form: message}, email}, {status: 400});
+      result.errors[0]?.message ??
+      'Account activation failed. The link may have expired.';
+    return Response.json({errors: {form: message}}, {status: 400});
   }
 
-  // Set session token and redirect
+  // Auto-login with the new token
   setCustomerAccessToken(
     context.session,
     result.data.accessToken,
@@ -75,14 +83,14 @@ export async function action({request, context}: Route.ActionArgs) {
 }
 
 // ============================================================================
-// Login Features (left panel)
+// Features (left panel)
 // ============================================================================
 
-const LOGIN_FEATURES = [
-  {text: 'Track orders in real-time'},
-  {text: 'Easy returns and exchanges'},
-  {text: 'Faster checkout experience'},
-  {text: 'Exclusive offers and discounts'},
+const ACTIVATE_FEATURES = [
+  {text: 'Save shipping addresses'},
+  {text: 'Secure payment storage'},
+  {text: 'Order history tracking'},
+  {text: 'Wishlist and favorites'},
 ];
 
 // ============================================================================
@@ -91,10 +99,9 @@ const LOGIN_FEATURES = [
 
 interface ActionData {
   errors?: Record<string, string>;
-  email?: string;
 }
 
-export default function LoginPage() {
+export default function ActivateAccountPage() {
   const actionData = useActionData() as ActionData | undefined;
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
@@ -102,32 +109,20 @@ export default function LoginPage() {
 
   return (
     <AuthLayout
-      gradient={{from: 'rgb(66, 133, 244)', to: 'rgb(43, 217, 168)'}}
-      tagline="Welcome Back"
-      description="Sign in to access your orders, track deliveries, and manage your account."
-      features={LOGIN_FEATURES}
+      gradient={{from: 'rgb(64, 40, 60)', to: 'rgb(38, 153, 166)'}}
+      tagline="Almost There!"
+      description="Set your password to activate your account and start shopping."
+      features={ACTIVATE_FEATURES}
     >
       <div className="px-8 py-8">
         {/* Header */}
         <div className="mb-8 flex flex-col items-center gap-2">
           <h1 className="text-center text-[28px] font-light text-[#111827]">
-            Sign In
+            Activate Your Account
           </h1>
           <p className="text-center text-[15px] text-[#6b7280]">
-            Enter your credentials to access your account
+            Choose a password to complete your account setup.
           </p>
-        </div>
-
-        {/* Social Login */}
-        <SocialLoginButtons mode="signin" />
-
-        {/* Divider */}
-        <div className="my-6 flex items-center gap-4">
-          <div className="h-px flex-1 bg-[#e5e7eb]" />
-          <span className="text-[13px] text-[#9ca3af]">
-            or sign in with email
-          </span>
-          <div className="h-px flex-1 bg-[#e5e7eb]" />
         </div>
 
         {/* Form-level error */}
@@ -140,60 +135,42 @@ export default function LoginPage() {
         {/* Form */}
         <Form method="post" className="flex flex-col gap-5">
           <FormField
-            label="Email Address"
-            name="email"
-            type="email"
-            placeholder="you@example.com"
-            defaultValue={actionData?.email}
-            error={errors?.email}
-            autoComplete="email"
-          />
-
-          <FormField
             label="Password"
             name="password"
             type="password"
-            placeholder="Enter your password"
+            placeholder="Create a password (min 8 characters)"
             error={errors?.password}
-            autoComplete="current-password"
+            hint="Must contain at least 8 characters, 1 number, and 1 special character"
+            autoComplete="new-password"
           />
 
-          {/* Remember me + Forgot password */}
-          <div className="flex items-center justify-between">
-            <label className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                name="rememberMe"
-                className="size-4 rounded-[2.5px] border-[#767676] accent-secondary"
-              />
-              <span className="text-[14px] text-[#4b5563]">Remember me</span>
-            </label>
-            <Link
-              to="/account/recover"
-              className="text-[14px] font-medium text-secondary no-underline hover:underline"
-            >
-              Forgot password?
-            </Link>
-          </div>
+          <FormField
+            label="Confirm Password"
+            name="confirmPassword"
+            type="password"
+            placeholder="Confirm your password"
+            error={errors?.confirmPassword}
+            autoComplete="new-password"
+          />
 
           {/* Submit */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="h-[48px] w-full rounded-[8px] bg-[#56972d] text-[15px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+            className="h-[48px] w-full rounded-[8px] bg-secondary text-[15px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
           >
-            {isSubmitting ? 'Signing in...' : 'Sign In'}
+            {isSubmitting ? 'Activating...' : 'Activate Account'}
           </button>
         </Form>
 
         {/* Footer */}
         <div className="mt-8 border-t border-[#e5e7eb] pt-6 text-center text-[15px] text-[#6b7280]">
-          Don&apos;t have an account?{' '}
+          Already have an account?{' '}
           <Link
-            to="/account/register"
+            to="/account/login"
             className="font-medium text-secondary no-underline hover:underline"
           >
-            Create account
+            Sign in
           </Link>
         </div>
       </div>

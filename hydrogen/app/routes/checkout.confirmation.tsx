@@ -40,7 +40,9 @@ export async function loader({request, context}: Route.LoaderArgs) {
   // Check if user is logged in to show/hide account creation CTA
   let isLoggedIn = false;
   try {
-    isLoggedIn = await context.customerAccount.isLoggedIn();
+    const {isCustomerLoggedIn: checkLoggedIn} =
+      await import('~/lib/customer-auth');
+    isLoggedIn = checkLoggedIn(context.session);
   } catch {
     // Guest user
   }

@@ -2,6 +2,7 @@ import type {Route} from './+types/account.addresses';
 import {redirect, useActionData, useNavigation, Link} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {useState} from 'react';
+import {isCustomerLoggedIn} from '~/lib/customer-auth';
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -24,7 +25,15 @@ import {FamilySubTabs} from '~/components/account/FamilySubTabs';
 import {ContactList} from '~/components/account/ContactList';
 import {ContactFormDialog} from '~/components/account/ContactFormDialog';
 
-import {readAddressBook, writeAddressBook} from '~/lib/address-book-graphql';
+import {
+  readAddressBook,
+  writeAddressBook,
+  readCustomerAddresses,
+  createShopifyAddress,
+  updateShopifyAddress,
+  deleteShopifyAddress,
+  setDefaultShopifyAddress,
+} from '~/lib/address-book-graphql';
 import {
   getContactsByCategory,
   getContactsBySubcategory,
@@ -51,108 +60,20 @@ export function meta() {
 }
 
 // ============================================================================
-// GraphQL Queries (Shopify native addresses — kept for Home sync)
-// ============================================================================
-
-const ADDRESSES_QUERY = `#graphql
-  query CustomerAddresses {
-    customer {
-      defaultAddress {
-        id
-      }
-      addresses(first: 20) {
-        nodes {
-          id
-          name
-          firstName
-          lastName
-          company
-          address1
-          address2
-          city
-          zoneCode
-          zip
-          territoryCode
-          phoneNumber
-          formatted
-        }
-      }
-    }
-  }
-` as const;
-
-const CREATE_ADDRESS_MUTATION = `#graphql
-  mutation CreateAddress($address: CustomerAddressInput!) {
-    customerAddressCreate(address: $address) {
-      customerAddress {
-        id
-      }
-      userErrors {
-        field
-        message
-      }
-    }
-  }
-` as const;
-
-const UPDATE_ADDRESS_MUTATION = `#graphql
-  mutation UpdateAddress($addressId: ID!, $address: CustomerAddressInput!) {
-    customerAddressUpdate(addressId: $addressId, address: $address) {
-      customerAddress {
-        id
-      }
-      userErrors {
-        field
-        message
-      }
-    }
-  }
-` as const;
-
-const DELETE_ADDRESS_MUTATION = `#graphql
-  mutation DeleteAddress($addressId: ID!) {
-    customerAddressDelete(addressId: $addressId) {
-      deletedAddressId
-      userErrors {
-        field
-        message
-      }
-    }
-  }
-` as const;
-
-const SET_DEFAULT_MUTATION = `#graphql
-  mutation SetDefaultAddress($addressId: ID!) {
-    customerAddressUpdate(addressId: $addressId, defaultAddress: true) {
-      customerAddress {
-        id
-      }
-      userErrors {
-        field
-        message
-      }
-    }
-  }
-` as const;
-
-// ============================================================================
 // Loader
 // ============================================================================
 
 export async function loader({context}: Route.LoaderArgs) {
-  const isLoggedIn = await context.customerAccount.isLoggedIn();
-  if (!isLoggedIn) {
+  if (!isCustomerLoggedIn(context.session)) {
     return redirect('/account/login');
   }
 
-  // Fetch both Shopify native addresses and the address book metafield
-  const [{data: addressData}, {book, customerId}] = await Promise.all([
-    context.customerAccount.query(ADDRESSES_QUERY),
-    readAddressBook(context),
-  ]);
-
-  const shopifyAddresses = addressData.customer?.addresses.nodes ?? [];
-  const defaultAddressId = addressData.customer?.defaultAddress?.id ?? null;
+  // Fetch both address book metafield and native addresses via Storefront API
+  const [{book, customerId}, {addresses: shopifyAddresses, defaultAddressId}] =
+    await Promise.all([
+      readAddressBook(context),
+      readCustomerAddresses(context),
+    ]);
 
   // Sync: auto-create home contacts for Shopify addresses not yet in the book
   const homeContacts = getContactsByCategory(book, 'home');
@@ -163,7 +84,7 @@ export async function loader({context}: Route.LoaderArgs) {
   );
 
   let bookChanged = false;
-  for (const addr of shopifyAddresses as any[]) {
+  for (const addr of shopifyAddresses) {
     if (!trackedShopifyIds.has(addr.id)) {
       book.contacts.push({
         id: crypto.randomUUID(),
@@ -178,13 +99,13 @@ export async function loader({context}: Route.LoaderArgs) {
             address1: addr.address1 ?? '',
             address2: addr.address2 ?? '',
             city: addr.city ?? '',
-            state: addr.zoneCode ?? '',
+            state: addr.provinceCode ?? '',
             zip: addr.zip ?? '',
-            country: addr.territoryCode ?? 'US',
+            country: addr.countryCodeV2 ?? 'US',
           },
         ],
-        phones: addr.phoneNumber
-          ? [{id: crypto.randomUUID(), primary: true, number: addr.phoneNumber}]
+        phones: addr.phone
+          ? [{id: crypto.randomUUID(), primary: true, number: addr.phone}]
           : [],
         emails: [],
       });
@@ -204,8 +125,7 @@ export async function loader({context}: Route.LoaderArgs) {
 // ============================================================================
 
 export async function action({request, context}: Route.ActionArgs) {
-  const isLoggedIn = await context.customerAccount.isLoggedIn();
-  if (!isLoggedIn) {
+  if (!isCustomerLoggedIn(context.session)) {
     return redirect('/account/login');
   }
 
@@ -223,21 +143,15 @@ export async function action({request, context}: Route.ActionArgs) {
       if (contact.category === 'home' && contact.addresses.length > 0) {
         const primaryAddr =
           contact.addresses.find((a) => a.primary) ?? contact.addresses[0];
-        const {data} = await context.customerAccount.mutate(
-          CREATE_ADDRESS_MUTATION,
-          {
-            variables: {
-              address: toShopifyAddress(primaryAddr, contact),
-            },
-          },
+        const {errors, addressId} = await createShopifyAddress(
+          context,
+          toShopifyAddress(primaryAddr, contact),
         );
-        const shopifyId = data?.customerAddressCreate?.customerAddress?.id;
-        if (shopifyId) {
-          primaryAddr.shopifyAddressId = shopifyId;
-        }
-        const errors = data?.customerAddressCreate?.userErrors;
         if (errors?.length) {
           return {errors, intent};
+        }
+        if (addressId) {
+          primaryAddr.shopifyAddressId = addressId;
         }
       }
 
@@ -265,31 +179,21 @@ export async function action({request, context}: Route.ActionArgs) {
         const primaryAddr =
           updated.addresses.find((a) => a.primary) ?? updated.addresses[0];
         if (primaryAddr?.shopifyAddressId) {
-          const {data} = await context.customerAccount.mutate(
-            UPDATE_ADDRESS_MUTATION,
-            {
-              variables: {
-                addressId: primaryAddr.shopifyAddressId,
-                address: toShopifyAddress(primaryAddr, updated),
-              },
-            },
+          const {errors} = await updateShopifyAddress(
+            context,
+            primaryAddr.shopifyAddressId,
+            toShopifyAddress(primaryAddr, updated),
           );
-          const errors = data?.customerAddressUpdate?.userErrors;
           if (errors?.length) {
             return {errors, intent};
           }
         } else if (primaryAddr) {
-          const {data} = await context.customerAccount.mutate(
-            CREATE_ADDRESS_MUTATION,
-            {
-              variables: {
-                address: toShopifyAddress(primaryAddr, updated),
-              },
-            },
+          const {addressId} = await createShopifyAddress(
+            context,
+            toShopifyAddress(primaryAddr, updated),
           );
-          const shopifyId = data?.customerAddressCreate?.customerAddress?.id;
-          if (shopifyId) {
-            primaryAddr.shopifyAddressId = shopifyId;
+          if (addressId) {
+            primaryAddr.shopifyAddressId = addressId;
           }
         }
       }
@@ -315,9 +219,7 @@ export async function action({request, context}: Route.ActionArgs) {
       if (contact.category === 'home') {
         for (const addr of contact.addresses) {
           if (addr.shopifyAddressId) {
-            await context.customerAccount.mutate(DELETE_ADDRESS_MUTATION, {
-              variables: {addressId: addr.shopifyAddressId},
-            });
+            await deleteShopifyAddress(context, addr.shopifyAddressId);
           }
         }
       }
@@ -348,9 +250,7 @@ export async function action({request, context}: Route.ActionArgs) {
         book.contacts[idx].category === 'home' &&
         newPrimary?.shopifyAddressId
       ) {
-        await context.customerAccount.mutate(SET_DEFAULT_MUTATION, {
-          variables: {addressId: newPrimary.shopifyAddressId},
-        });
+        await setDefaultShopifyAddress(context, newPrimary.shopifyAddressId);
       }
 
       await writeAddressBook(context, customerId, book);
@@ -361,51 +261,36 @@ export async function action({request, context}: Route.ActionArgs) {
 
     case 'create': {
       const address = extractShopifyAddressFromForm(formData);
-      const {data} = await context.customerAccount.mutate(
-        CREATE_ADDRESS_MUTATION,
-        {variables: {address}},
-      );
-      const errors = data?.customerAddressCreate?.userErrors;
+      const {errors, addressId} = await createShopifyAddress(context, address);
       if (errors?.length) {
         return {errors, intent};
       }
-      if (formData.get('isDefault') === 'on') {
-        const id = data?.customerAddressCreate?.customerAddress?.id;
-        if (id) {
-          await context.customerAccount.mutate(SET_DEFAULT_MUTATION, {
-            variables: {addressId: id},
-          });
-        }
+      if (formData.get('isDefault') === 'on' && addressId) {
+        await setDefaultShopifyAddress(context, addressId);
       }
       return {success: true, intent};
     }
 
     case 'update': {
-      const addressId = formData.get('addressId') as string;
+      const existingAddressId = formData.get('addressId') as string;
       const address = extractShopifyAddressFromForm(formData);
-      const {data} = await context.customerAccount.mutate(
-        UPDATE_ADDRESS_MUTATION,
-        {variables: {addressId, address}},
+      const {errors} = await updateShopifyAddress(
+        context,
+        existingAddressId,
+        address,
       );
-      const errors = data?.customerAddressUpdate?.userErrors;
       if (errors?.length) {
         return {errors, intent};
       }
       if (formData.get('isDefault') === 'on') {
-        await context.customerAccount.mutate(SET_DEFAULT_MUTATION, {
-          variables: {addressId},
-        });
+        await setDefaultShopifyAddress(context, existingAddressId);
       }
       return {success: true, intent};
     }
 
     case 'delete': {
-      const addressId = formData.get('addressId') as string;
-      const {data} = await context.customerAccount.mutate(
-        DELETE_ADDRESS_MUTATION,
-        {variables: {addressId}},
-      );
-      const errors = data?.customerAddressDelete?.userErrors;
+      const existingAddressId = formData.get('addressId') as string;
+      const {errors} = await deleteShopifyAddress(context, existingAddressId);
       if (errors?.length) {
         return {errors, intent};
       }
@@ -413,12 +298,11 @@ export async function action({request, context}: Route.ActionArgs) {
     }
 
     case 'setDefault': {
-      const addressId = formData.get('addressId') as string;
-      const {data} = await context.customerAccount.mutate(
-        SET_DEFAULT_MUTATION,
-        {variables: {addressId}},
+      const existingAddressId = formData.get('addressId') as string;
+      const {errors} = await setDefaultShopifyAddress(
+        context,
+        existingAddressId,
       );
-      const errors = data?.customerAddressUpdate?.userErrors;
       if (errors?.length) {
         return {errors, intent};
       }
@@ -514,10 +398,10 @@ function extractShopifyAddressFromForm(formData: FormData) {
     address1: formData.get('address1') as string,
     address2: (formData.get('address2') as string) || undefined,
     city: formData.get('city') as string,
-    zoneCode: (formData.get('zoneCode') as string) || undefined,
+    province: (formData.get('zoneCode') as string) || undefined,
     zip: formData.get('zip') as string,
-    territoryCode: formData.get('territoryCode') as string,
-    phoneNumber: (formData.get('phoneNumber') as string) || undefined,
+    country: formData.get('territoryCode') as string,
+    phone: (formData.get('phoneNumber') as string) || undefined,
   };
 }
 
@@ -528,9 +412,9 @@ function toShopifyAddress(addr: ContactAddress, contact: AddressBookContact) {
     address1: addr.address1,
     address2: addr.address2 || undefined,
     city: addr.city,
-    zoneCode: addr.state || undefined,
+    province: addr.state || undefined,
     zip: addr.zip,
-    territoryCode: addr.country || 'US',
+    country: addr.country || 'US',
   };
 }
 

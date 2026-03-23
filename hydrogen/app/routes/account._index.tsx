@@ -2,6 +2,7 @@ import type {Route} from './+types/account._index';
 import {redirect, Link, Form} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {readAddressBook} from '~/lib/address-book-graphql';
+import {getAuthenticatedCustomer} from '~/lib/customer-auth';
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -34,52 +35,38 @@ export function meta() {
 }
 
 // ============================================================================
-// GraphQL Query
-// ============================================================================
-
-const CUSTOMER_QUERY = `#graphql
-  query Customer {
-    customer {
-      firstName
-      lastName
-      emailAddress {
-        emailAddress
-      }
-      phoneNumber {
-        phoneNumber
-      }
-      creationDate
-      defaultAddress {
-        formatted
-      }
-    }
-  }
-` as const;
-
-// ============================================================================
 // Loader
 // ============================================================================
 
 export async function loader({context}: Route.LoaderArgs) {
-  const isLoggedIn = await context.customerAccount.isLoggedIn();
-  if (!isLoggedIn) {
-    return redirect('/account/login');
-  }
-
-  const {data} = await context.customerAccount.query(CUSTOMER_QUERY);
+  const customer = await getAuthenticatedCustomer(
+    context.storefront,
+    context.session,
+  );
 
   // Redirect new customers to the welcome survey
-  const {surveyCompleted} = await readAddressBook(context);
-  const creationDate = data.customer?.creationDate;
-  if (!surveyCompleted && creationDate) {
-    const accountAge = Date.now() - new Date(creationDate as string).getTime();
-    const sevenDays = 7 * 24 * 60 * 60 * 1000;
-    if (accountAge < sevenDays) {
-      return redirect('/account/welcome');
+  const surveyDone = context.session.get('surveyCompleted') === 'true';
+  if (!surveyDone) {
+    try {
+      const {surveyCompleted} = await readAddressBook(context);
+      if (surveyCompleted) {
+        context.session.set('surveyCompleted', 'true');
+      } else {
+        const createdAt = customer.createdAt;
+        if (createdAt) {
+          const accountAge = Date.now() - new Date(createdAt).getTime();
+          const sevenDays = 7 * 24 * 60 * 60 * 1000;
+          if (accountAge < sevenDays) {
+            return redirect('/account/welcome');
+          }
+        }
+      }
+    } catch {
+      // Metafield read failed — skip survey redirect
     }
   }
 
-  return {customer: data.customer};
+  return {customer};
 }
 
 // ============================================================================
@@ -147,8 +134,8 @@ export default function AccountDashboard({loaderData}: Route.ComponentProps) {
   const {customer} = loaderData;
 
   const firstName = customer?.firstName ?? 'there';
-  const memberSince = customer?.creationDate
-    ? new Date(customer.creationDate).toLocaleDateString('en-US', {
+  const memberSince = customer?.createdAt
+    ? new Date(customer.createdAt).toLocaleDateString('en-US', {
         month: 'long',
         year: 'numeric',
       })

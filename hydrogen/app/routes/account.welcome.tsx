@@ -2,6 +2,7 @@ import type {Route} from './+types/account.welcome';
 import {redirect, Form, useNavigation} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {useState} from 'react';
+import {isCustomerLoggedIn} from '~/lib/customer-auth';
 import {
   readAddressBook,
   writeAddressBook,
@@ -37,14 +38,24 @@ export function meta() {
 // ============================================================================
 
 export async function loader({context}: Route.LoaderArgs) {
-  const isLoggedIn = await context.customerAccount.isLoggedIn();
-  if (!isLoggedIn) {
+  if (!isCustomerLoggedIn(context.session)) {
     return redirect('/account/login');
   }
 
-  const {surveyCompleted} = await readAddressBook(context);
-  if (surveyCompleted) {
+  // Check session flag first (set when user completes/skips survey)
+  if (context.session.get('surveyCompleted') === 'true') {
     return redirect('/account');
+  }
+
+  // Fall back to metafield check
+  try {
+    const {surveyCompleted} = await readAddressBook(context);
+    if (surveyCompleted) {
+      context.session.set('surveyCompleted', 'true');
+      return redirect('/account');
+    }
+  } catch {
+    // Metafield read failed — continue to show survey
   }
 
   return {};
@@ -55,8 +66,7 @@ export async function loader({context}: Route.LoaderArgs) {
 // ============================================================================
 
 export async function action({request, context}: Route.ActionArgs) {
-  const isLoggedIn = await context.customerAccount.isLoggedIn();
-  if (!isLoggedIn) {
+  if (!isCustomerLoggedIn(context.session)) {
     return redirect('/account/login');
   }
 
@@ -64,8 +74,16 @@ export async function action({request, context}: Route.ActionArgs) {
   const intent = formData.get('intent');
 
   if (intent === 'skip') {
-    const {customerId} = await readAddressBook(context);
-    await setSurveyCompleted(context, customerId);
+    try {
+      const {customerId} = await readAddressBook(context);
+      await setSurveyCompleted(context, customerId);
+    } catch (err) {
+      console.warn(
+        '[welcome] Could not persist survey_completed metafield:',
+        err,
+      );
+    }
+    context.session.set('surveyCompleted', 'true');
     return redirect('/account');
   }
 
@@ -77,21 +95,24 @@ export async function action({request, context}: Route.ActionArgs) {
     return {error: 'Please select how you heard about us.'};
   }
 
-  const {book, customerId} = await readAddressBook(context);
+  try {
+    const {book, customerId} = await readAddressBook(context);
+    const updatedBook: AddressBook = {
+      ...book,
+      surveyResponse: {
+        source: source as 'social_media' | 'search' | 'referral' | 'other',
+        ...(platform ? {platform} : {}),
+        ...(referrerPhone ? {referrerPhone} : {}),
+        answeredAt: new Date().toISOString(),
+      },
+    };
+    await writeAddressBook(context, customerId, updatedBook);
+    await setSurveyCompleted(context, customerId);
+  } catch (err) {
+    console.warn('[welcome] Could not persist survey data to metafields:', err);
+  }
 
-  const updatedBook: AddressBook = {
-    ...book,
-    surveyResponse: {
-      source: source as 'social_media' | 'search' | 'referral' | 'other',
-      ...(platform ? {platform} : {}),
-      ...(referrerPhone ? {referrerPhone} : {}),
-      answeredAt: new Date().toISOString(),
-    },
-  };
-
-  await writeAddressBook(context, customerId, updatedBook);
-  await setSurveyCompleted(context, customerId);
-
+  context.session.set('surveyCompleted', 'true');
   return redirect('/account');
 }
 

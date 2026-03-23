@@ -1,11 +1,11 @@
-import type {Route} from './+types/account.authorize';
+import {redirect} from 'react-router';
 
 /**
- * Account Authorize — OAuth callback handler
+ * Account Authorize — Legacy OAuth callback handler
  *
- * This route handles the Customer Account API OAuth callback.
- * After the customer logs in, Shopify redirects here.
+ * This route previously handled the Customer Account API OAuth callback.
+ * Now that we use custom Storefront API auth, it simply redirects to login.
  */
-export async function loader({context}: Route.LoaderArgs) {
-  return context.customerAccount.authorize();
+export async function loader() {
+  return redirect('/account/login');
 }
