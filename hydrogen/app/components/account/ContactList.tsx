@@ -1,13 +1,13 @@
 'use client';
 
-import {Plus, MapPin} from 'lucide-react';
-import {Button} from '~/components/ui/button';
+import {List} from 'lucide-react';
 import {ContactCard} from './ContactCard';
+import {AddContactCard} from './AddContactCard';
 import type {AddressBookContact} from '~/lib/address-book';
 
 interface ContactListProps {
   contacts: AddressBookContact[];
-  categoryLabel: string;
+  sectionLabel: string;
   onAdd: () => void;
   onEdit: (contact: AddressBookContact) => void;
   onDelete: (contactId: string) => void;
@@ -15,29 +15,23 @@ interface ContactListProps {
 
 export function ContactList({
   contacts,
-  categoryLabel,
+  sectionLabel,
   onAdd,
   onEdit,
   onDelete,
 }: ContactListProps) {
-  if (contacts.length === 0) {
-    return (
-      <div className="flex flex-col items-center py-12 text-center">
-        <MapPin size={48} className="mb-3 text-text-muted" />
-        <p className="mb-4 text-text-muted">
-          No contacts yet. Add one to get started.
-        </p>
-        <Button variant="outline" onClick={onAdd}>
-          <Plus size={16} className="mr-1" />
-          Add {categoryLabel}
-        </Button>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="flex flex-col gap-4">
+      {/* Section Header */}
+      <div className="flex items-center gap-2">
+        <List size={16} className="text-gray-400" />
+        <span className="text-[16px] font-medium leading-6 text-gray-700">
+          {sectionLabel}
+        </span>
+      </div>
+
+      {/* Contact Grid */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {contacts.map((contact) => (
           <ContactCard
             key={contact.id}
@@ -46,12 +40,7 @@ export function ContactList({
             onDelete={onDelete}
           />
         ))}
-      </div>
-      <div className="mt-4">
-        <Button variant="outline" onClick={onAdd}>
-          <Plus size={16} className="mr-1" />
-          Add {categoryLabel}
-        </Button>
+        <AddContactCard onAdd={onAdd} />
       </div>
     </div>
   );

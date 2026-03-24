@@ -1,14 +1,6 @@
 'use client';
 
-import {Form} from 'react-router';
-import {MapPin, Phone, Mail, Star, Pencil, Trash2} from 'lucide-react';
-import {Button} from '~/components/ui/button';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '~/components/ui/accordion';
+import {Pencil, Trash2} from 'lucide-react';
 import {
   generateContactLabel,
   getPrimaryAddress,
@@ -25,119 +17,106 @@ interface ContactCardProps {
 
 export function ContactCard({contact, onEdit, onDelete}: ContactCardProps) {
   const label = generateContactLabel(contact);
-  const fullName = `${contact.firstName} ${contact.lastName}`.trim();
   const primaryAddress = getPrimaryAddress(contact);
   const primaryPhone = getPrimaryPhone(contact);
   const primaryEmail = getPrimaryEmail(contact);
-  const additionalAddresses = contact.addresses.filter((a) => !a.primary);
+  const hasMultipleAddresses = contact.addresses.length > 1;
+  const hasMultiplePhones = contact.phones.length > 1;
+  const hasMultipleEmails = contact.emails.length > 1;
 
   return (
-    <div className="rounded-lg border border-border p-5">
-      {/* Header */}
-      <div className="mb-3 flex items-start justify-between">
-        <div>
-          <h3 className="font-medium text-dark">{label}</h3>
-          {label !== fullName && fullName && (
-            <p className="text-sm text-text-muted">{fullName}</p>
-          )}
-        </div>
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
+    <div className="overflow-clip rounded-xl border border-gray-200 bg-white shadow-sm">
+      {/* Card Header */}
+      <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-5 pt-4 pb-4.25">
+        <span className="text-[16px] font-semibold leading-6 text-gray-900">
+          {label}
+        </span>
+        <div className="flex items-start gap-2">
+          <button
+            type="button"
             onClick={() => onEdit(contact)}
+            className="flex size-8 items-center justify-center rounded-lg bg-[#4fd1a8] transition-opacity hover:opacity-90"
           >
-            <Pencil size={14} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-text-muted hover:text-red-600"
+            <Pencil size={13} className="text-white" />
+          </button>
+          <button
+            type="button"
             onClick={() => onDelete(contact.id)}
+            className="flex size-8 items-center justify-center rounded-lg bg-red-100 transition-opacity hover:opacity-80"
           >
-            <Trash2 size={14} />
-          </Button>
+            <Trash2 size={13} className="text-gray-800" />
+          </button>
         </div>
       </div>
 
-      {/* Primary address */}
-      {primaryAddress && (
-        <div className="mb-2 flex items-start gap-2 text-sm text-text">
-          <MapPin size={14} className="mt-0.5 shrink-0 text-text-muted" />
-          <span>{formatAddress(primaryAddress)}</span>
-        </div>
-      )}
+      {/* Card Body */}
+      <div className="flex flex-col gap-4 p-5">
+        {/* Address Row */}
+        {primaryAddress && (
+          <InfoRow
+            label="Address"
+            value={formatAddress(primaryAddress)}
+            sideLabel={hasMultipleAddresses ? 'Other Address' : undefined}
+            hasBorder
+          />
+        )}
 
-      {/* Phone */}
-      {primaryPhone && (
-        <div className="mb-2 flex items-center gap-2 text-sm text-text">
-          <Phone size={14} className="shrink-0 text-text-muted" />
-          <span>{primaryPhone.number}</span>
-        </div>
-      )}
+        {/* Phone Row */}
+        {primaryPhone && (
+          <InfoRow
+            label="Phone"
+            value={primaryPhone.number}
+            sideLabel={hasMultiplePhones ? 'Other Numbers' : undefined}
+            hasBorder={!!primaryEmail}
+          />
+        )}
 
-      {/* Email */}
-      {primaryEmail && (
-        <div className="mb-2 flex items-center gap-2 text-sm text-text">
-          <Mail size={14} className="shrink-0 text-text-muted" />
-          <span>{primaryEmail.email}</span>
-        </div>
-      )}
+        {/* Email Row */}
+        {primaryEmail && (
+          <InfoRow
+            label="Email"
+            value={primaryEmail.email}
+            sideLabel={hasMultipleEmails ? 'Other Email' : undefined}
+            hasBorder={false}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
 
-      {/* Additional addresses */}
-      {additionalAddresses.length > 0 && (
-        <Accordion type="single" collapsible className="mt-3">
-          <AccordionItem value="addresses" className="border-none">
-            <AccordionTrigger className="py-2 text-sm text-text-muted hover:text-primary">
-              {additionalAddresses.length} more address
-              {additionalAddresses.length > 1 ? 'es' : ''}
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="space-y-3">
-                {additionalAddresses.map((addr) => (
-                  <div
-                    key={addr.id}
-                    className="flex items-start justify-between text-sm text-text"
-                  >
-                    <div className="flex items-start gap-2">
-                      <MapPin
-                        size={14}
-                        className="mt-0.5 shrink-0 text-text-muted"
-                      />
-                      <span>{formatAddress(addr)}</span>
-                    </div>
-                    <Form method="post">
-                      <input type="hidden" name="intent" value="setPrimary" />
-                      <input
-                        type="hidden"
-                        name="contactId"
-                        value={contact.id}
-                      />
-                      <input type="hidden" name="addressId" value={addr.id} />
-                      <button
-                        type="submit"
-                        className="ml-2 shrink-0 text-text-muted hover:text-primary"
-                        title="Set as primary"
-                      >
-                        <Star size={14} />
-                      </button>
-                    </Form>
-                  </div>
-                ))}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+interface InfoRowProps {
+  label: string;
+  value: string;
+  sideLabel?: string;
+  hasBorder: boolean;
+}
+
+function InfoRow({label, value, sideLabel, hasBorder}: InfoRowProps) {
+  return (
+    <div
+      className={`flex items-start justify-between ${hasBorder ? 'border-b border-gray-100 pb-4' : ''}`}
+    >
+      <div className="flex flex-col gap-1">
+        <span className="text-xs font-normal uppercase leading-[18px] tracking-[0.5px] text-gray-500">
+          {label}
+        </span>
+        <span className="whitespace-pre-line text-sm font-normal leading-[22.4px] text-gray-700">
+          {value}
+        </span>
+      </div>
+      {sideLabel && (
+        <span className="shrink-0 pl-4 text-[11px] font-normal uppercase leading-[16.5px] tracking-[0.5px] text-right text-gray-400">
+          {sideLabel}
+        </span>
       )}
     </div>
   );
 }
 
 function formatAddress(addr: ContactAddress): string {
-  const parts = [addr.address1];
-  if (addr.address2) parts.push(addr.address2);
-  parts.push(`${addr.city}, ${addr.state} ${addr.zip}`);
-  if (addr.country && addr.country !== 'US') parts.push(addr.country);
-  return parts.join(', ');
+  const line1 = addr.address1;
+  const line2 = addr.address2 ? `${addr.address2}\n` : '';
+  const cityLine = `${addr.city}, ${addr.state} ${addr.zip}`;
+  return line2 ? `${line1}\n${line2}${cityLine}` : `${line1}\n${cityLine}`;
 }
