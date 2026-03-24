@@ -10,12 +10,28 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog';
-import {Plus} from 'lucide-react';
+import {
+  Users,
+  UserPlus,
+  Baby,
+  Heart,
+  Crown,
+  Home,
+  Briefcase,
+  MapPin,
+  User,
+} from 'lucide-react';
 
-import {CategoryTabs} from '~/components/account/CategoryTabs';
-import {FamilySubTabs} from '~/components/account/FamilySubTabs';
+import {CategoryBar} from '~/components/account/CategoryTabs';
+import {
+  SubcategoryBar,
+  RelationshipBar,
+} from '~/components/account/FamilySubTabs';
 import {ContactList} from '~/components/account/ContactList';
 import {ContactFormDialog} from '~/components/account/ContactFormDialog';
+import {SubsectionHeader} from '~/components/account/SubsectionHeader';
+import {StatsBar} from '~/components/account/StatsBar';
+import type {StatConfig} from '~/components/account/StatsBar';
 
 import {
   readAddressBook,
@@ -31,14 +47,18 @@ import {
   getContactsBySubcategory,
   setPrimaryAddress,
   FAMILY_SUBCATEGORIES,
+  ADDRESS_CATEGORIES,
 } from '~/lib/address-book';
 import type {
   AddressBookContact,
   AddressCategory,
   ContactAddress,
   FamilySubcategory,
+  FamilyRelationship,
   OtherSubcategory,
 } from '~/lib/address-book';
+import type {ComponentType} from 'react';
+import type {LucideProps} from 'lucide-react';
 
 // ============================================================================
 // Route Meta
@@ -411,6 +431,143 @@ function toShopifyAddress(addr: ContactAddress, contact: AddressBookContact) {
 }
 
 // ============================================================================
+// Subsection Config
+// ============================================================================
+
+const SUBCATEGORY_ICONS: Record<
+  FamilySubcategory,
+  ComponentType<LucideProps>
+> = {
+  parents: Users,
+  siblings: UserPlus,
+  children: Baby,
+  aunts_uncles: Heart,
+  cousins: User,
+  grandparents: Crown,
+};
+
+const SUBCATEGORY_DESCRIPTIONS: Record<FamilySubcategory, string> = {
+  parents: "Manage your parents' information and addresses",
+  siblings: "Manage your siblings' information and addresses",
+  children: "Manage your children's information and addresses",
+  aunts_uncles: "Manage your aunts and uncles' information and addresses",
+  cousins: "Manage your cousins' information and addresses",
+  grandparents: "Manage your grandparents' information and addresses",
+};
+
+const CATEGORY_ICONS: Record<AddressCategory, ComponentType<LucideProps>> = {
+  home: Home,
+  family: Users,
+  friends: Heart,
+  work: Briefcase,
+  other: MapPin,
+};
+
+const CATEGORY_DESCRIPTIONS: Record<AddressCategory, string> = {
+  home: 'Manage your home addresses and contacts',
+  family: 'Manage your family contacts and addresses',
+  friends: 'Manage your friends and their addresses',
+  work: 'Manage your work contacts and addresses',
+  other: 'Manage other addresses and contacts',
+};
+
+function buildFamilyStats(
+  contacts: AddressBookContact[],
+  subcategory: FamilySubcategory,
+): [StatConfig, StatConfig, StatConfig] {
+  const sub = FAMILY_SUBCATEGORIES.find((s) => s.value === subcategory);
+  const rels = sub?.relationships ?? [];
+
+  if (rels.length >= 2) {
+    const count1 = contacts.filter(
+      (c) => c.relationship === rels[0].value,
+    ).length;
+    const count2 = contacts.filter(
+      (c) => c.relationship === rels[1].value,
+    ).length;
+    return [
+      {
+        icon: User,
+        iconBgClass: 'bg-primary/10',
+        iconColorClass: 'text-primary',
+        label: `${rels[0].label}s`,
+        value: count1,
+      },
+      {
+        icon: User,
+        iconBgClass: 'bg-[rgba(242,176,94,0.1)]',
+        iconColorClass: 'text-[#f2b05e]',
+        label: `${rels[1].label}s`,
+        value: count2,
+      },
+      {
+        icon: Users,
+        iconBgClass: 'bg-[rgba(79,209,168,0.1)]',
+        iconColorClass: 'text-[#4fd1a8]',
+        label: `Total ${sub?.label ?? ''}`,
+        value: contacts.length,
+      },
+    ];
+  }
+
+  // Single relationship type (e.g., Cousins)
+  return [
+    {
+      icon: User,
+      iconBgClass: 'bg-primary/10',
+      iconColorClass: 'text-primary',
+      label: rels[0]?.label ?? 'Contacts',
+      value: contacts.length,
+    },
+    {
+      icon: MapPin,
+      iconBgClass: 'bg-[rgba(242,176,94,0.1)]',
+      iconColorClass: 'text-[#f2b05e]',
+      label: 'With Address',
+      value: contacts.filter((c) => c.addresses.length > 0).length,
+    },
+    {
+      icon: Users,
+      iconBgClass: 'bg-[rgba(79,209,168,0.1)]',
+      iconColorClass: 'text-[#4fd1a8]',
+      label: `Total ${sub?.label ?? ''}`,
+      value: contacts.length,
+    },
+  ];
+}
+
+function buildCategoryStats(
+  contacts: AddressBookContact[],
+  category: AddressCategory,
+): [StatConfig, StatConfig, StatConfig] {
+  const label =
+    ADDRESS_CATEGORIES.find((c) => c.value === category)?.label ?? category;
+  return [
+    {
+      icon: User,
+      iconBgClass: 'bg-primary/10',
+      iconColorClass: 'text-primary',
+      label: 'Contacts',
+      value: contacts.length,
+    },
+    {
+      icon: MapPin,
+      iconBgClass: 'bg-[rgba(242,176,94,0.1)]',
+      iconColorClass: 'text-[#f2b05e]',
+      label: 'Addresses',
+      value: contacts.reduce((sum, c) => sum + c.addresses.length, 0),
+    },
+    {
+      icon: Users,
+      iconBgClass: 'bg-[rgba(79,209,168,0.1)]',
+      iconColorClass: 'text-[#4fd1a8]',
+      label: `Total ${label}`,
+      value: contacts.length,
+    },
+  ];
+}
+
+// ============================================================================
 // Main Component
 // ============================================================================
 
@@ -420,6 +577,15 @@ export default function AddressBookPage({loaderData}: Route.ComponentProps) {
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
 
+  // Controlled state for navigation
+  const [activeCategory, setActiveCategory] = useState<AddressCategory>('home');
+  const [activeSubcategory, setActiveSubcategory] =
+    useState<FamilySubcategory>('parents');
+  const [activeRelationship, setActiveRelationship] = useState<
+    FamilyRelationship | undefined
+  >(undefined);
+
+  // Dialog state
   const [formOpen, setFormOpen] = useState(false);
   const [editContact, setEditContact] = useState<AddressBookContact | null>(
     null,
@@ -429,6 +595,17 @@ export default function AddressBookPage({loaderData}: Route.ComponentProps) {
   const [addSubcategory, setAddSubcategory] = useState<
     FamilySubcategory | OtherSubcategory | undefined
   >(undefined);
+
+  function handleCategoryChange(category: AddressCategory) {
+    setActiveCategory(category);
+    setActiveSubcategory('parents');
+    setActiveRelationship(undefined);
+  }
+
+  function handleSubcategoryChange(subcategory: FamilySubcategory) {
+    setActiveSubcategory(subcategory);
+    setActiveRelationship(undefined);
+  }
 
   function handleAdd(
     category: AddressCategory,
@@ -449,25 +626,58 @@ export default function AddressBookPage({loaderData}: Route.ComponentProps) {
     setFormOpen(true);
   }
 
+  // Derive current subcategory config
+  const currentSubConfig = FAMILY_SUBCATEGORIES.find(
+    (s) => s.value === activeSubcategory,
+  );
+  const relationships = currentSubConfig?.relationships ?? [];
+
+  // Derive contacts for the current view
+  let displayContacts: AddressBookContact[];
+  let sectionLabel: string;
+  let sectionIcon: ComponentType<LucideProps>;
+  let sectionDescription: string;
+  let addLabel: string;
+  let stats: [StatConfig, StatConfig, StatConfig];
+
+  if (activeCategory === 'family') {
+    displayContacts = getContactsBySubcategory(
+      book,
+      'family',
+      activeSubcategory,
+    );
+    sectionLabel = `${currentSubConfig?.label ?? activeSubcategory} Contacts`;
+    sectionIcon = SUBCATEGORY_ICONS[activeSubcategory] ?? Users;
+    sectionDescription = SUBCATEGORY_DESCRIPTIONS[activeSubcategory] ?? '';
+    addLabel = `Add ${currentSubConfig?.label?.replace(/s$/, '') ?? 'Contact'}`;
+    stats = buildFamilyStats(displayContacts, activeSubcategory);
+  } else {
+    displayContacts = getContactsByCategory(book, activeCategory);
+    const catLabel =
+      ADDRESS_CATEGORIES.find((c) => c.value === activeCategory)?.label ??
+      activeCategory;
+    sectionLabel = `${catLabel} Contacts`;
+    sectionIcon = CATEGORY_ICONS[activeCategory] ?? MapPin;
+    sectionDescription = CATEGORY_DESCRIPTIONS[activeCategory] ?? '';
+    addLabel = `Add ${catLabel}`;
+    stats = buildCategoryStats(displayContacts, activeCategory);
+  }
+
   return (
-    <div>
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-dark">Address Book</h1>
-          <p className="mt-1 text-text-muted">
-            {book.contacts.length} contact
-            {book.contacts.length !== 1 ? 's' : ''} saved
-          </p>
-        </div>
-        <Button onClick={() => handleAdd('home')}>
-          <Plus size={16} className="mr-1" />
-          Add Contact
-        </Button>
+    <div className="flex flex-col gap-6">
+      {/* Page Header */}
+      <div className="flex flex-col gap-2">
+        <h1 className="text-2xl font-light leading-10.5 text-gray-900 sm:text-[28px]">
+          Address Book
+        </h1>
+        <p className="text-[15px] leading-[22.5px] text-gray-600">
+          Manage your contacts and addresses
+        </p>
       </div>
 
       {/* Success Message */}
       {actionData?.success && (
-        <div className="mb-6 rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+        <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
           Contact{' '}
           {actionData.intent === 'createContact'
             ? 'added'
@@ -478,58 +688,64 @@ export default function AddressBookPage({loaderData}: Route.ComponentProps) {
         </div>
       )}
 
-      {/* Tabbed Category View */}
-      <CategoryTabs book={book}>
-        {(category) => {
-          if (category === 'family') {
-            return (
-              <FamilySubTabs book={book}>
-                {(subcategory) => (
-                  <ContactList
-                    contacts={getContactsBySubcategory(
-                      book,
-                      'family',
-                      subcategory,
-                    )}
-                    categoryLabel={
-                      FAMILY_SUBCATEGORIES.find((s) => s.value === subcategory)
-                        ?.label ?? subcategory
-                    }
-                    onAdd={() => handleAdd('family', subcategory)}
-                    onEdit={handleEdit}
-                    onDelete={setDeleteContactId}
-                  />
-                )}
-              </FamilySubTabs>
-            );
-          }
+      {/* Category Bar */}
+      <CategoryBar
+        activeCategory={activeCategory}
+        onCategoryChange={handleCategoryChange}
+      />
 
-          if (category === 'other') {
-            const otherContacts = getContactsByCategory(book, 'other');
-            return (
-              <ContactList
-                contacts={otherContacts}
-                categoryLabel="Other"
-                onAdd={() => handleAdd('other')}
-                onEdit={handleEdit}
-                onDelete={setDeleteContactId}
-              />
-            );
-          }
+      {/* Subcategory Bar (Family only) */}
+      {activeCategory === 'family' && (
+        <SubcategoryBar
+          activeSubcategory={activeSubcategory}
+          onSubcategoryChange={handleSubcategoryChange}
+        />
+      )}
 
-          return (
-            <ContactList
-              contacts={getContactsByCategory(book, category)}
-              categoryLabel={
-                category.charAt(0).toUpperCase() + category.slice(1)
-              }
-              onAdd={() => handleAdd(category)}
-              onEdit={handleEdit}
-              onDelete={setDeleteContactId}
-            />
-          );
-        }}
-      </CategoryTabs>
+      {/* Relationship Bar (when subcategory has multiple relationships) */}
+      {activeCategory === 'family' && relationships.length > 1 && (
+        <RelationshipBar
+          relationships={relationships}
+          activeRelationship={activeRelationship}
+          onRelationshipChange={setActiveRelationship}
+        />
+      )}
+
+      {/* Subsection Header */}
+      <SubsectionHeader
+        icon={sectionIcon}
+        title={
+          activeCategory === 'family'
+            ? (currentSubConfig?.label ?? activeSubcategory)
+            : (ADDRESS_CATEGORIES.find((c) => c.value === activeCategory)
+                ?.label ?? activeCategory)
+        }
+        description={sectionDescription}
+        addLabel={addLabel}
+        onAdd={() =>
+          handleAdd(
+            activeCategory,
+            activeCategory === 'family' ? activeSubcategory : undefined,
+          )
+        }
+      />
+
+      {/* Stats Bar */}
+      <StatsBar stats={stats} />
+
+      {/* Contact List */}
+      <ContactList
+        contacts={displayContacts}
+        sectionLabel={sectionLabel}
+        onAdd={() =>
+          handleAdd(
+            activeCategory,
+            activeCategory === 'family' ? activeSubcategory : undefined,
+          )
+        }
+        onEdit={handleEdit}
+        onDelete={setDeleteContactId}
+      />
 
       {/* Add / Edit Contact Dialog */}
       <ContactFormDialog
@@ -584,6 +800,27 @@ export default function AddressBookPage({loaderData}: Route.ComponentProps) {
           </div>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+export function HydrateFallback() {
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        <div className="h-10.5 w-48 animate-pulse rounded bg-gray-200" />
+        <div className="h-5.5 w-72 animate-pulse rounded bg-gray-200" />
+      </div>
+      <div className="h-17 animate-pulse rounded-lg border-2 border-gray-200 bg-gray-50" />
+      <div className="flex gap-4">
+        <div className="h-19.75 flex-1 animate-pulse rounded-lg border border-gray-200 bg-gray-50" />
+        <div className="h-19.75 flex-1 animate-pulse rounded-lg border border-gray-200 bg-gray-50" />
+        <div className="h-19.75 flex-1 animate-pulse rounded-lg border border-gray-200 bg-gray-50" />
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="h-70 animate-pulse rounded-xl border border-gray-200 bg-gray-50" />
+        <div className="h-70 animate-pulse rounded-xl border border-gray-200 bg-gray-50" />
+      </div>
     </div>
   );
 }

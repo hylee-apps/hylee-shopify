@@ -11,6 +11,7 @@ export type AddressCategory = 'home' | 'family' | 'friends' | 'work' | 'other';
 export type FamilySubcategory =
   | 'parents'
   | 'siblings'
+  | 'children'
   | 'aunts_uncles'
   | 'cousins'
   | 'grandparents';
@@ -26,6 +27,8 @@ export type FamilyRelationship =
   | 'father'
   | 'brother'
   | 'sister'
+  | 'son'
+  | 'daughter'
   | 'aunt'
   | 'uncle'
   | 'grandmother'
@@ -111,6 +114,14 @@ export const FAMILY_SUBCATEGORIES: {
     ],
   },
   {
+    value: 'children',
+    label: 'Children',
+    relationships: [
+      {value: 'son', label: 'Son'},
+      {value: 'daughter', label: 'Daughter'},
+    ],
+  },
+  {
     value: 'aunts_uncles',
     label: 'Aunts/Uncles',
     relationships: [
@@ -150,6 +161,8 @@ const RELATIONSHIP_LABELS: Record<FamilyRelationship, string> = {
   father: 'Dad',
   brother: 'Brother',
   sister: 'Sister',
+  son: 'Son',
+  daughter: 'Daughter',
   aunt: 'Aunt',
   uncle: 'Uncle',
   grandmother: 'Grandmother',
@@ -217,6 +230,8 @@ export function generateContactLabel(contact: AddressBookContact): string {
     const multipleAllowed: FamilyRelationship[] = [
       'brother',
       'sister',
+      'son',
+      'daughter',
       'cousin',
       'aunt',
       'uncle',
@@ -293,6 +308,7 @@ export const ContactFormSchema = z.object({
     .enum([
       'parents',
       'siblings',
+      'children',
       'aunts_uncles',
       'cousins',
       'grandparents',
@@ -308,6 +324,8 @@ export const ContactFormSchema = z.object({
       'father',
       'brother',
       'sister',
+      'son',
+      'daughter',
       'aunt',
       'uncle',
       'grandmother',
