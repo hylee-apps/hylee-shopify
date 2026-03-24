@@ -1,11 +1,14 @@
+import {useState} from 'react';
 import type {Route} from './+types/account.orders._index';
 import {redirect, Link, useSearchParams} from 'react-router';
-import {getSeoMeta, Image} from '@shopify/hydrogen';
+import {getSeoMeta} from '@shopify/hydrogen';
 import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {Button} from '~/components/ui/button';
-import {ChevronDown, ChevronRight, ImageIcon, Package} from 'lucide-react';
-import {RecipientBadge} from '~/components/account/RecipientBadge';
-import {CHECKOUT_ATTR} from '~/lib/checkout';
+import {Package} from 'lucide-react';
+import {OrderStatsCards} from '~/components/account/OrderStatsCards';
+import {OrderTabBar, type OrderTab} from '~/components/account/OrderTabBar';
+import {OrderCard} from '~/components/account/OrderCard';
+import {OrderPagination} from '~/components/account/OrderPagination';
 
 // ============================================================================
 // Route Meta
@@ -13,8 +16,8 @@ import {CHECKOUT_ATTR} from '~/lib/checkout';
 
 export function meta() {
   return getSeoMeta({
-    title: 'Your Orders',
-    description: 'View and track your orders.',
+    title: 'My Orders',
+    description: 'View and manage your order history.',
   });
 }
 
@@ -36,11 +39,15 @@ const CUSTOMER_ORDERS_QUERY = `#graphql
             amount
             currencyCode
           }
+          shippingAddress {
+            firstName
+            lastName
+          }
           customAttributes {
             key
             value
           }
-          lineItems(first: 5) {
+          lineItems(first: 10) {
             nodes {
               title
               quantity
@@ -56,6 +63,9 @@ const CUSTOMER_ORDERS_QUERY = `#graphql
                   amount
                   currencyCode
                 }
+                product {
+                  handle
+                }
               }
             }
           }
@@ -70,6 +80,34 @@ const CUSTOMER_ORDERS_QUERY = `#graphql
 ` as const;
 
 // ============================================================================
+// Constants
+// ============================================================================
+
+const ORDERS_PER_PAGE = 10;
+
+type TimeFilter = 'past-3-months' | 'past-6-months' | 'past-year' | 'all-time';
+
+const TIME_FILTER_OPTIONS: {value: TimeFilter; label: string}[] = [
+  {value: 'past-3-months', label: 'past 3 months'},
+  {value: 'past-6-months', label: 'past 6 months'},
+  {value: 'past-year', label: 'past year'},
+  {value: 'all-time', label: 'all time'},
+];
+
+function getFilterMonths(filter: TimeFilter): number | null {
+  switch (filter) {
+    case 'past-3-months':
+      return 3;
+    case 'past-6-months':
+      return 6;
+    case 'past-year':
+      return 12;
+    case 'all-time':
+      return null;
+  }
+}
+
+// ============================================================================
 // Loader
 // ============================================================================
 
@@ -79,53 +117,17 @@ export async function loader({context, request}: Route.LoaderArgs) {
   }
 
   const token = getCustomerAccessToken(context.session)!;
-  const url = new URL(request.url);
-  const after = url.searchParams.get('after') ?? undefined;
 
+  // Fetch a generous batch for client-side filtering, pagination, and stats
   const data = await context.storefront.query(CUSTOMER_ORDERS_QUERY, {
-    variables: {customerAccessToken: token, first: 10, after},
+    variables: {customerAccessToken: token, first: 250},
   });
+
+  const allOrders = data.customer?.orders.nodes ?? [];
 
   return {
-    orders: data.customer?.orders.nodes ?? [],
-    pageInfo: data.customer?.orders.pageInfo,
+    orders: allOrders,
   };
-}
-
-// ============================================================================
-// Helpers
-// ============================================================================
-
-function formatMoney(money: {amount: string; currencyCode: string}): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: money.currencyCode,
-  }).format(parseFloat(money.amount));
-}
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
-
-function getFulfillmentBadge(status: string | null): {
-  label: string;
-  variant: 'success' | 'warning' | 'info' | 'default';
-} {
-  switch (status) {
-    case 'FULFILLED':
-      return {label: 'Delivered', variant: 'success'};
-    case 'PARTIALLY_FULFILLED':
-      return {label: 'Partially Shipped', variant: 'warning'};
-    case 'IN_PROGRESS':
-      return {label: 'In Progress', variant: 'info'};
-    case 'UNFULFILLED':
-    default:
-      return {label: 'Processing', variant: 'default'};
-  }
 }
 
 // ============================================================================
@@ -133,37 +135,132 @@ function getFulfillmentBadge(status: string | null): {
 // ============================================================================
 
 export default function OrdersPage({loaderData}: Route.ComponentProps) {
-  const {orders, pageInfo} = loaderData;
+  const {orders} = loaderData;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<OrderTab>('orders');
+
+  // Time filter
+  const timeFilter =
+    (searchParams.get('time') as TimeFilter) || 'past-3-months';
+
+  // Filter orders by time
+  const filterMonths = getFilterMonths(timeFilter);
+  const timeFilteredOrders = filterMonths
+    ? orders.filter((order: any) => {
+        const orderDate = new Date(order.processedAt);
+        const cutoff = new Date();
+        cutoff.setMonth(cutoff.getMonth() - filterMonths);
+        return orderDate >= cutoff;
+      })
+    : orders;
+
+  // Stats (from time-filtered orders)
+  const totalOrders = timeFilteredOrders.length;
+  const inTransitOrders = timeFilteredOrders.filter(
+    (o: any) =>
+      o.fulfillmentStatus === 'UNFULFILLED' ||
+      o.fulfillmentStatus === 'IN_PROGRESS' ||
+      o.fulfillmentStatus === 'PARTIALLY_FULFILLED',
+  ).length;
+  const deliveredOrders = timeFilteredOrders.filter(
+    (o: any) => o.fulfillmentStatus === 'FULFILLED',
+  ).length;
+
+  // Tab filtering
+  const tabFilteredOrders =
+    activeTab === 'buy-again'
+      ? timeFilteredOrders.filter(
+          (o: any) => o.fulfillmentStatus === 'FULFILLED',
+        )
+      : activeTab === 'on-the-way-out'
+        ? timeFilteredOrders.filter(
+            (o: any) =>
+              o.fulfillmentStatus === 'UNFULFILLED' ||
+              o.fulfillmentStatus === 'IN_PROGRESS' ||
+              o.fulfillmentStatus === 'PARTIALLY_FULFILLED',
+          )
+        : timeFilteredOrders;
+
+  // Pagination
+  const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1'));
+  const totalPages = Math.ceil(tabFilteredOrders.length / ORDERS_PER_PAGE);
+  const safePage = Math.min(currentPage, Math.max(1, totalPages));
+  const startIdx = (safePage - 1) * ORDERS_PER_PAGE;
+  const pageOrders = tabFilteredOrders.slice(
+    startIdx,
+    startIdx + ORDERS_PER_PAGE,
+  );
+
+  function handleTabChange(tab: OrderTab) {
+    setActiveTab(tab);
+    // Reset page when switching tabs
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('page');
+    setSearchParams(newParams, {replace: true});
+  }
+
+  function handleTimeFilterChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('time', e.target.value);
+    newParams.delete('page');
+    setSearchParams(newParams, {replace: true});
+  }
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-dark">Your Orders</h1>
-        <p className="mt-1 text-text-muted">
-          {orders.length > 0
-            ? `${orders.length} order${orders.length !== 1 ? 's' : ''}`
-            : 'No orders yet'}
+    <div className="flex flex-col gap-[15px]">
+      {/* Page Header */}
+      <div className="flex flex-col gap-[8px]">
+        <h1 className="text-2xl font-bold leading-[51.2px] text-[#1f2937] sm:text-[32px]">
+          My Orders
+        </h1>
+        <p className="text-[16px] leading-[25.6px] text-[#6b7280]">
+          View and manage your order history
         </p>
       </div>
 
-      {orders.length > 0 ? (
-        <div className="space-y-6">
-          {orders.map((order: any) => (
-            <OrderCard key={order.id} order={order} />
-          ))}
+      {/* Stats Cards */}
+      <OrderStatsCards
+        totalOrders={totalOrders}
+        inTransitOrders={inTransitOrders}
+        deliveredOrders={deliveredOrders}
+      />
 
-          {/* Load More */}
-          {pageInfo?.hasNextPage && (
-            <div className="text-center">
-              <Link
-                to={`/account/orders?after=${pageInfo.endCursor}`}
-                className="inline-flex items-center gap-2 rounded-md border border-border px-5 py-2.5 text-sm font-medium text-text transition-colors hover:border-primary hover:text-primary"
+      {/* Tab Bar */}
+      <OrderTabBar activeTab={activeTab} onTabChange={handleTabChange} />
+
+      {/* Orders Content */}
+      {tabFilteredOrders.length > 0 ? (
+        <div className="flex max-w-[1400px] flex-col gap-[24px] p-[24px]">
+          {/* Orders Header */}
+          <div className="flex flex-wrap items-center">
+            <div className="flex flex-col items-start">
+              <div className="text-[18px] leading-[27px] text-[#111827]">
+                <span>{tabFilteredOrders.length}</span>{' '}
+                <span className="font-bold">orders placed in</span>
+              </div>
+              <select
+                value={timeFilter}
+                onChange={handleTimeFilterChange}
+                className="mt-[4px] rounded-[8px] border border-[#d1d5db] bg-white px-[17px] py-[9px] text-[14px] leading-[16px] text-black"
               >
-                Load More Orders
-                <ChevronDown size={16} />
-              </Link>
+                {TIME_FILTER_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
             </div>
-          )}
+          </div>
+
+          {/* Order Cards */}
+          <div className="flex flex-col gap-[24px]">
+            {pageOrders.map((order: any) => (
+              <OrderCard key={order.id} order={order} />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          <OrderPagination currentPage={safePage} totalPages={totalPages} />
         </div>
       ) : (
         <EmptyOrders />
@@ -173,122 +270,36 @@ export default function OrdersPage({loaderData}: Route.ComponentProps) {
 }
 
 // ============================================================================
-// StatusBadge Component
+// HydrateFallback (loading skeleton)
 // ============================================================================
 
-function StatusBadge({
-  variant,
-  children,
-}: {
-  variant: 'success' | 'warning' | 'info' | 'default';
-  children: React.ReactNode;
-}) {
-  const cls = {
-    success:
-      'inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800',
-    warning:
-      'inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800',
-    info: 'inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800',
-    default:
-      'inline-flex items-center rounded-full bg-surface px-2.5 py-0.5 text-xs font-medium text-text',
-  }[variant];
-  return <span className={cls}>{children}</span>;
-}
-
-// ============================================================================
-// OrderCard Component
-// ============================================================================
-
-function OrderCard({order}: {order: any}) {
-  const {label: statusLabel, variant: statusVariant} = getFulfillmentBadge(
-    order.fulfillmentStatus,
-  );
-  const orderId = order.id.split('/').pop();
-
-  // Extract recipient from custom attributes
-  const attrs = order.customAttributes ?? [];
-  const getAttr = (key: string): string | null =>
-    attrs.find((a: any) => a.key === key)?.value ?? null;
-  const recipientLabel = getAttr(CHECKOUT_ATTR.SHIPPING_RECIPIENT_LABEL);
-  const recipientCategory = getAttr(CHECKOUT_ATTR.SHIPPING_CATEGORY);
-
+export function HydrateFallback() {
   return (
-    <div className="overflow-hidden rounded-lg border border-border">
-      {/* Order Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-surface/50 px-5 py-3">
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
-          <div>
-            <span className="text-text-muted">Order placed</span>{' '}
-            <span className="font-medium text-dark">
-              {formatDate(order.processedAt)}
-            </span>
-          </div>
-          <div>
-            <span className="text-text-muted">Total</span>{' '}
-            <span className="font-medium text-dark">
-              {formatMoney(order.totalPrice)}
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          {recipientLabel && recipientCategory && (
-            <RecipientBadge
-              category={recipientCategory}
-              label={recipientLabel}
-            />
-          )}
-          <StatusBadge variant={statusVariant}>{statusLabel}</StatusBadge>
-          <span className="text-sm text-text-muted">{order.name}</span>
-        </div>
+    <div className="flex flex-col gap-[15px]">
+      {/* Header skeleton */}
+      <div className="flex flex-col gap-[8px]">
+        <div className="h-[40px] w-[200px] animate-pulse rounded bg-gray-200" />
+        <div className="h-[20px] w-[300px] animate-pulse rounded bg-gray-200" />
       </div>
-
-      {/* Line Items */}
-      <div className="divide-y divide-border px-5">
-        {order.lineItems.nodes.map((item: any, idx: number) => {
-          const image = item.variant?.image;
-          const variantTitle = item.variant?.title;
-          const price = item.variant?.price;
-          return (
-            <div key={idx} className="flex items-center gap-4 py-4">
-              {image ? (
-                <Image
-                  data={image}
-                  width={64}
-                  height={64}
-                  className="h-16 w-16 rounded-md object-cover"
-                  alt={image.altText || item.title}
-                />
-              ) : (
-                <div className="flex h-16 w-16 items-center justify-center rounded-md bg-surface">
-                  <ImageIcon size={24} className="text-text-muted" />
-                </div>
-              )}
-              <div className="flex-1">
-                <p className="text-sm font-medium text-dark">{item.title}</p>
-                {variantTitle && variantTitle !== 'Default Title' && (
-                  <p className="text-xs text-text-muted">{variantTitle}</p>
-                )}
-                <p className="text-xs text-text-muted">Qty: {item.quantity}</p>
-              </div>
-              {price && (
-                <span className="text-sm font-medium text-dark">
-                  {formatMoney(price)}
-                </span>
-              )}
-            </div>
-          );
-        })}
+      {/* Stats skeleton */}
+      <div className="flex flex-col gap-[24px] pb-[16px] sm:flex-row">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="h-[134px] flex-1 animate-pulse rounded-[12px] bg-gray-200"
+          />
+        ))}
       </div>
-
-      {/* Footer */}
-      <div className="flex items-center justify-end gap-3 border-t border-border px-5 py-3">
-        <Link
-          to={`/account/orders/${orderId}`}
-          className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-        >
-          View Order Details
-          <ChevronRight size={14} />
-        </Link>
+      {/* Tab bar skeleton */}
+      <div className="h-[59px] w-full animate-pulse rounded bg-gray-200" />
+      {/* Order cards skeleton */}
+      <div className="flex flex-col gap-[24px] p-[24px]">
+        {[1, 2].map((i) => (
+          <div
+            key={i}
+            className="h-[300px] w-full animate-pulse rounded-[12px] bg-gray-200"
+          />
+        ))}
       </div>
     </div>
   );
@@ -301,9 +312,11 @@ function OrderCard({order}: {order: any}) {
 function EmptyOrders() {
   return (
     <div className="flex flex-col items-center py-16 text-center">
-      <Package size={64} className="mb-4 text-text-muted" />
-      <h2 className="mb-2 text-xl font-semibold text-dark">No orders yet</h2>
-      <p className="mb-6 text-text-muted">
+      <Package size={64} className="mb-4 text-[#9ca3af]" />
+      <h2 className="mb-2 text-xl font-semibold text-[#1f2937]">
+        No orders yet
+      </h2>
+      <p className="mb-6 text-[#6b7280]">
         When you place your first order, it will appear here.
       </p>
       <Button asChild>
