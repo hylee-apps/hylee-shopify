@@ -229,6 +229,7 @@ Repeat Steps 3-4 until the implementation matches the design. For each iteration
 | Cart Shipping | `327:887` | 1920w light | Captured 2026-02-23. File key: `vzeR7m9jbWjAfD9EVlReyq`. Step 3 active. Shipping address form (8 fields), shipping method selector (3 options), delivery preferences textarea. Stores data via `cartBuyerIdentityUpdate` + `cartAttributesUpdate`. Route: `app/routes/checkout.shipping.tsx`. |
 | Cart Review | `327:1413` | 1920w light | Captured 2026-02-23. File key: `vzeR7m9jbWjAfD9EVlReyq`. Step 4 active. Review card (shipping address, shipping method, payment method, order items) with Edit links. "Place Order" → Shopify `checkoutUrl` with pre-filled buyer identity. Route: `app/routes/checkout.review.tsx`. |
 | Cart Confirmation | `327:1721` | 1920w light | Captured 2026-02-23. File key: `vzeR7m9jbWjAfD9EVlReyq`. No progress bar. Success hero (checkmark icon, order #, Track Order + Continue Shopping), Order Details card (address, delivery estimate, items, totals), Create Account CTA for guests. Route: `app/routes/checkout.confirmation.tsx`. |
+| Account Dashboard | `2:530` | — | Captured 2026-03-23. File key: `Q541sIDD20eXqQSSozFUw4`. Sidebar (280px) + main content layout. Welcome banner (gradient), 3 stat cards, recent orders, saved for later. Phase 1 complete; Phases 2–4 pending (sub-route integration, mobile, real data). Plan: `plans/ACCOUNT_DASHBOARD_REDESIGN_PLAN.md`. |
 
 ## Design Token Mapping
 

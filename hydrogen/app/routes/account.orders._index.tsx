@@ -1,16 +1,7 @@
 import type {Route} from './+types/account.orders._index';
 import {redirect, Link, useSearchParams} from 'react-router';
 import {getSeoMeta, Image} from '@shopify/hydrogen';
-import {isCustomerLoggedIn} from '~/lib/customer-auth';
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '~/components/ui/breadcrumb';
-import {Badge} from '~/components/ui/badge';
+import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {Button} from '~/components/ui/button';
 import {ChevronDown, ChevronRight, ImageIcon, Package} from 'lucide-react';
 import {RecipientBadge} from '~/components/account/RecipientBadge';
@@ -28,12 +19,12 @@ export function meta() {
 }
 
 // ============================================================================
-// GraphQL Query
+// GraphQL Query (Storefront API)
 // ============================================================================
 
 const CUSTOMER_ORDERS_QUERY = `#graphql
-  query CustomerOrders($first: Int, $after: String) {
-    customer {
+  query CustomerOrders($customerAccessToken: String!, $first: Int, $after: String) {
+    customer(customerAccessToken: $customerAccessToken) {
       orders(first: $first, after: $after, sortKey: PROCESSED_AT, reverse: true) {
         nodes {
           id
@@ -53,16 +44,18 @@ const CUSTOMER_ORDERS_QUERY = `#graphql
             nodes {
               title
               quantity
-              image {
-                url
-                altText
-                width
-                height
-              }
-              variantTitle
-              price {
-                amount
-                currencyCode
+              variant {
+                image {
+                  url
+                  altText
+                  width
+                  height
+                }
+                title
+                price {
+                  amount
+                  currencyCode
+                }
               }
             }
           }
@@ -85,12 +78,12 @@ export async function loader({context, request}: Route.LoaderArgs) {
     return redirect('/account/login');
   }
 
+  const token = getCustomerAccessToken(context.session)!;
   const url = new URL(request.url);
   const after = url.searchParams.get('after') ?? undefined;
 
-  // TODO: Migrate to Storefront API — currently uses Customer Account API
-  const {data} = await context.customerAccount.query(CUSTOMER_ORDERS_QUERY, {
-    variables: {first: 10, after},
+  const data = await context.storefront.query(CUSTOMER_ORDERS_QUERY, {
+    variables: {customerAccessToken: token, first: 10, after},
   });
 
   return {
@@ -143,27 +136,7 @@ export default function OrdersPage({loaderData}: Route.ComponentProps) {
   const {orders, pageInfo} = loaderData;
 
   return (
-    <div className="mx-auto max-w-300 px-4 py-8 sm:px-6">
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/account">Account</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Your Orders</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
+    <div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-dark">Your Orders</h1>
         <p className="mt-1 text-text-muted">
@@ -271,35 +244,40 @@ function OrderCard({order}: {order: any}) {
 
       {/* Line Items */}
       <div className="divide-y divide-border px-5">
-        {order.lineItems.nodes.map((item: any, idx: number) => (
-          <div key={idx} className="flex items-center gap-4 py-4">
-            {item.image ? (
-              <Image
-                data={item.image}
-                width={64}
-                height={64}
-                className="h-16 w-16 rounded-md object-cover"
-                alt={item.image.altText || item.title}
-              />
-            ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-md bg-surface">
-                <ImageIcon size={24} className="text-text-muted" />
-              </div>
-            )}
-            <div className="flex-1">
-              <p className="text-sm font-medium text-dark">{item.title}</p>
-              {item.variantTitle && item.variantTitle !== 'Default Title' && (
-                <p className="text-xs text-text-muted">{item.variantTitle}</p>
+        {order.lineItems.nodes.map((item: any, idx: number) => {
+          const image = item.variant?.image;
+          const variantTitle = item.variant?.title;
+          const price = item.variant?.price;
+          return (
+            <div key={idx} className="flex items-center gap-4 py-4">
+              {image ? (
+                <Image
+                  data={image}
+                  width={64}
+                  height={64}
+                  className="h-16 w-16 rounded-md object-cover"
+                  alt={image.altText || item.title}
+                />
+              ) : (
+                <div className="flex h-16 w-16 items-center justify-center rounded-md bg-surface">
+                  <ImageIcon size={24} className="text-text-muted" />
+                </div>
               )}
-              <p className="text-xs text-text-muted">Qty: {item.quantity}</p>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-dark">{item.title}</p>
+                {variantTitle && variantTitle !== 'Default Title' && (
+                  <p className="text-xs text-text-muted">{variantTitle}</p>
+                )}
+                <p className="text-xs text-text-muted">Qty: {item.quantity}</p>
+              </div>
+              {price && (
+                <span className="text-sm font-medium text-dark">
+                  {formatMoney(price)}
+                </span>
+              )}
             </div>
-            {item.price && (
-              <span className="text-sm font-medium text-dark">
-                {formatMoney(item.price)}
-              </span>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Footer */}

@@ -1,16 +1,8 @@
 import type {Route} from './+types/account.addresses';
-import {redirect, useActionData, useNavigation, Link} from 'react-router';
+import {redirect, useActionData, useNavigation} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {useState} from 'react';
 import {isCustomerLoggedIn} from '~/lib/customer-auth';
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '~/components/ui/breadcrumb';
 import {Button} from '~/components/ui/button';
 import {
   Dialog,
@@ -458,27 +450,7 @@ export default function AddressBookPage({loaderData}: Route.ComponentProps) {
   }
 
   return (
-    <div className="mx-auto max-w-300 px-4 py-8 sm:px-6">
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/account">Account</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Address Book</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
+    <div>
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-dark">Address Book</h1>

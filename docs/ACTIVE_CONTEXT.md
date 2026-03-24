@@ -1,7 +1,7 @@
 # Active Context Checkpoint
 
-> **Updated:** 2026-02-23
-> **Branch:** main
+> **Updated:** 2026-03-23
+> **Branch:** feature/production-review-fixes
 > **Status:** in-progress
 
 ## Active Feature
@@ -37,6 +37,18 @@ The most recently completed milestone is a **5-step custom checkout flow**
 - `CLAUDE.md` — Modified: added Context Checkpoint section
 - `hydrogen/CLAUDE.md` — Modified: added Context Checkpoint section
 
+### Account Dashboard Redesign — Phase 1 (completed 2026-03-23)
+- `hydrogen/app/components/account/AccountSidebar.tsx` — Created: reusable sidebar with gradient avatar initials, 7 nav links (Dashboard, My Orders, Wishlist, Addresses, Payment Methods, Notifications, Settings) + Sign Out, active route highlighting via `useLocation`
+- `hydrogen/app/routes/account.tsx` — Created: shared layout route wrapping all `account.*` sub-routes; renders sidebar for authenticated users, passthrough for auth pages (login, register, etc.)
+- `hydrogen/app/routes/account._index.tsx` — Rewritten: new dashboard with welcome banner (secondary→accent gradient), 3 stat cards (Total Orders, Active Orders, Saved Addresses), recent orders card with status badges, saved-for-later wishlist placeholder
+- `hydrogen/.graphqlrc.ts` — Modified: added `account._index` to customer-account codegen project
+- `hydrogen/design-references/account-dashboard/` — Created: figma-spec.md + design-context.tsx
+- **Plan**: `plans/ACCOUNT_DASHBOARD_REDESIGN_PLAN.md` — Phases 2–4 pending (sub-route integration, mobile responsiveness, real data + polish)
+
+### Production Review Fixes (completed 2026-03-23)
+- See `plans/PRODUCTION_REVIEW_MAR15_PLAN.md` for full checklist
+- Shipping simplified to Standard only; footer link typography updated; PDP specs/fit conditional; promo discount display; homepage wired to real collections
+
 ### Earlier Milestones (Phase 1 + pages)
 - Hydrogen scaffold, Vite config, Tailwind v4 `@theme` token mapping
 - Header (shadcn DropdownMenu nav), Footer, Homepage, PDP, Collection pages
@@ -46,7 +58,11 @@ The most recently completed milestone is a **5-step custom checkout flow**
 
 ## Remaining Work
 
-1. **[HIGH]** Shopify checkout redirect → confirmation — After Shopify's hosted checkout
+1. **[HIGH]** Account Dashboard Redesign — Phases 2–4: remove redundant wrappers from
+   sub-routes (`settings`, `addresses`, `orders`), add mobile responsiveness to sidebar
+   layout, wire wishlist to real data, add visual tests. See `plans/ACCOUNT_DASHBOARD_REDESIGN_PLAN.md`.
+
+2. **[HIGH]** Shopify checkout redirect → confirmation — After Shopify's hosted checkout
    completes, configure it to redirect back to `/checkout/confirmation?order_id=...`.
    Mechanism: append `?return_to=/checkout/confirmation` to the `checkoutUrl`, OR use
    Shopify's post-purchase extension. Currently the confirmation page exists but won't
@@ -107,6 +123,7 @@ The most recently completed milestone is a **5-step custom checkout flow**
 | Header / Footer | `d52sF4D2B0bIzt3A4z3UjE` | various |
 | Homepage | `qoaTDaCkxR1VBE559Snhjd` | — |
 | PDP | `Cz8f2ycIjQZOoremTy2eBM` | `1460:1444` |
+| Account Pages | `Q541sIDD20eXqQSSozFUw4` | `2:530` |
 | Cart & Checkout | `vzeR7m9jbWjAfD9EVlReyq` | see below |
 | Cart (step 1) | `vzeR7m9jbWjAfD9EVlReyq` | `327:72` |
 | Payment (step 2) | `vzeR7m9jbWjAfD9EVlReyq` | `327:1178` |
@@ -149,10 +166,17 @@ The most recently completed milestone is a **5-step custom checkout flow**
 - **Error**: `.graphqlrc.ts` codegen — `preset()` is wrong API
   **Fix**: Use `preset.buildGeneratesSection()` instead.
 
+- **Error**: `numberOfOrders` does not exist on Customer Account API `Customer` type
+  **Fix**: Field exists in Storefront API but not Customer Account API. Use `orders(first: 50)` and count the results instead.
+
+- **Error**: GraphQL codegen validates Customer Account API queries against Storefront schema
+  **Fix**: Add the route file to `.graphqlrc.ts` `customer-account` project's `documents` array and exclude it from `default` project.
+
 ## Next Immediate Action
 
-> Wire Shopify's checkout redirect back to our confirmation page. In
-> `hydrogen/app/routes/checkout.review.tsx`, append `?return_to=/checkout/confirmation`
-> (or the appropriate param) to `cart.checkoutUrl` before redirecting. Verify by
-> completing a test checkout and confirming the redirect lands on our confirmation page.
-> Reference Shopify docs on post-checkout redirect configuration for Hydrogen storefronts.
+> Continue Account Dashboard Redesign — Phase 2: Remove redundant outer wrappers and
+> breadcrumbs from `account.settings.tsx`, `account.addresses.tsx`, `account.orders._index.tsx`,
+> and `account.orders.$id.tsx`. These routes now render inside the shared `account.tsx` layout
+> which provides the sidebar + container. Verify each sub-route renders correctly within the
+> new layout. Then proceed to Phase 3 (mobile responsiveness) per
+> `plans/ACCOUNT_DASHBOARD_REDESIGN_PLAN.md`.

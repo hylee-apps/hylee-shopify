@@ -10,21 +10,7 @@ const graphqlConfig: IGraphQLConfig = {
   projects: {
     default: {
       schema: getSchema('storefront'),
-      documents: [
-        './*.{ts,tsx,js,jsx}',
-        './app/**/*.{ts,tsx,js,jsx}',
-        '!./app/graphql/customer-account/*.{ts,tsx,js,jsx}',
-        '!./app/routes/account.orders*.{ts,tsx,js,jsx}',
-        '!./app/routes/account.settings.{ts,tsx,js,jsx}',
-      ],
-    },
-    'customer-account': {
-      schema: getSchema('customer-account'),
-      documents: [
-        './app/graphql/customer-account/*.{ts,tsx,js,jsx}',
-        './app/routes/account.orders*.{ts,tsx,js,jsx}',
-        './app/routes/account.settings.{ts,tsx,js,jsx}',
-      ],
+      documents: ['./*.{ts,tsx,js,jsx}', './app/**/*.{ts,tsx,js,jsx}'],
     },
   },
 };
