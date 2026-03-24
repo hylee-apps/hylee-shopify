@@ -108,7 +108,7 @@ function NewsletterSignup({colored = false}: NewsletterSignupProps) {
 
   return (
     <div className="flex flex-col gap-[13px] items-center w-[560px] max-w-full">
-      {/* Figma: 20px Inter Regular (400), text-black, leading-[1.2], centered — all variants */}
+      {/* Figma: 20px Roboto Regular (400), text-black, leading-[1.2], centered — all variants */}
       <h3
         className={cn(
           'text-[20px] font-normal leading-[1.2] text-center',
@@ -169,7 +169,7 @@ export function Footer({
                 loading="lazy"
               />
             </Link>
-            {/* Figma: 14px Inter Medium, text-black — all variants */}
+            {/* Figma: 14px Roboto Medium, text-black — all variants */}
             <p
               className={cn(
                 'text-[14px] font-medium',

@@ -1,15 +1,7 @@
 import type {Route} from './+types/account.orders.$id';
 import {redirect, Link} from 'react-router';
 import {getSeoMeta, Image} from '@shopify/hydrogen';
-import {isCustomerLoggedIn} from '~/lib/customer-auth';
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '~/components/ui/breadcrumb';
+import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {Truck, ExternalLink, ImageIcon, ArrowLeft} from 'lucide-react';
 import {RecipientBadge} from '~/components/account/RecipientBadge';
 import {CHECKOUT_ATTR} from '~/lib/checkout';
@@ -27,126 +19,125 @@ export function meta({data}: Route.MetaArgs) {
 }
 
 // ============================================================================
-// GraphQL Query
+// GraphQL Query (Storefront API — uses node() since there's no root order())
 // ============================================================================
 
 const ORDER_QUERY = `#graphql
   query OrderDetail($orderId: ID!) {
-    order(id: $orderId) {
-      id
-      name
-      processedAt
-      cancelledAt
-      cancelReason
-      financialStatus
-      fulfillmentStatus
-      totalPrice {
-        amount
-        currencyCode
-      }
-      subtotal {
-        amount
-        currencyCode
-      }
-      totalTax {
-        amount
-        currencyCode
-      }
-      totalShipping {
-        amount
-        currencyCode
-      }
-      shippingAddress {
+    node(id: $orderId) {
+      ... on Order {
+        id
         name
-        formatted
-        address1
-        address2
-        city
-        zoneCode
-        zip
-        country
-      }
-      customAttributes {
-        key
-        value
-      }
-      billingAddress {
-        name
-        formatted
-      }
-      lineItems(first: 50) {
-        nodes {
-          title
-          quantity
-          image {
-            url
-            altText
-            width
-            height
-          }
-          totalPrice {
-            amount
-            currencyCode
-          }
-          variantTitle
-          price {
-            amount
-            currencyCode
-          }
-          discountAllocations {
-            allocatedAmount {
+        processedAt
+        canceledAt
+        cancelReason
+        financialStatus
+        fulfillmentStatus
+        totalPrice {
+          amount
+          currencyCode
+        }
+        subtotalPrice {
+          amount
+          currencyCode
+        }
+        totalTax {
+          amount
+          currencyCode
+        }
+        totalShippingPrice {
+          amount
+          currencyCode
+        }
+        shippingAddress {
+          name
+          formatted
+          address1
+          address2
+          city
+          provinceCode
+          zip
+          country
+        }
+        customAttributes {
+          key
+          value
+        }
+        billingAddress {
+          name
+          formatted
+        }
+        lineItems(first: 50) {
+          nodes {
+            title
+            quantity
+            discountedTotalPrice {
               amount
               currencyCode
             }
-            discountApplication {
-              ... on AutomaticDiscountApplication {
-                title
+            variant {
+              image {
+                url
+                altText
+                width
+                height
               }
-              ... on ManualDiscountApplication {
-                title
+              title
+              price {
+                amount
+                currencyCode
               }
-              ... on DiscountCodeApplication {
-                code
+            }
+            discountAllocations {
+              allocatedAmount {
+                amount
+                currencyCode
+              }
+              discountApplication {
+                ... on AutomaticDiscountApplication {
+                  title
+                }
+                ... on ManualDiscountApplication {
+                  title
+                }
+                ... on DiscountCodeApplication {
+                  code
+                }
               }
             }
           }
         }
-      }
-      fulfillments(first: 10) {
-        nodes {
-          status
-          createdAt
-          updatedAt
-          trackingInformation {
+        successfulFulfillments(first: 10) {
+          trackingCompany
+          trackingInfo {
             number
-            company
             url
           }
         }
-      }
-      discountApplications(first: 10) {
-        nodes {
-          ... on AutomaticDiscountApplication {
-            title
-            value {
-              ... on MoneyV2 {
-                amount
-                currencyCode
-              }
-              ... on PricingPercentageValue {
-                percentage
+        discountApplications(first: 10) {
+          nodes {
+            ... on AutomaticDiscountApplication {
+              title
+              value {
+                ... on MoneyV2 {
+                  amount
+                  currencyCode
+                }
+                ... on PricingPercentageValue {
+                  percentage
+                }
               }
             }
-          }
-          ... on DiscountCodeApplication {
-            code
-            value {
-              ... on MoneyV2 {
-                amount
-                currencyCode
-              }
-              ... on PricingPercentageValue {
-                percentage
+            ... on DiscountCodeApplication {
+              code
+              value {
+                ... on MoneyV2 {
+                  amount
+                  currencyCode
+                }
+                ... on PricingPercentageValue {
+                  percentage
+                }
               }
             }
           }
@@ -167,22 +158,22 @@ export async function loader({context, params}: Route.LoaderArgs) {
 
   const orderId = `gid://shopify/Order/${params.id}`;
 
-  // TODO: Migrate to Storefront API — currently uses Customer Account API
-  const {data} = await context.customerAccount.query(ORDER_QUERY, {
+  const data = await context.storefront.query(ORDER_QUERY, {
     variables: {orderId},
   });
 
-  if (!data.order) {
+  const order = data.node;
+  if (!order) {
     throw new Response('Order not found', {status: 404});
   }
 
   // Extract recipient data from custom attributes
-  const attrs = (data.order as any).customAttributes ?? [];
+  const attrs = (order as any).customAttributes ?? [];
   const getAttr = (key: string): string | null =>
     attrs.find((a: any) => a.key === key)?.value ?? null;
 
   return {
-    order: data.order,
+    order,
     shippingCategory: getAttr(CHECKOUT_ATTR.SHIPPING_CATEGORY),
     shippingRecipientLabel: getAttr(CHECKOUT_ATTR.SHIPPING_RECIPIENT_LABEL),
   };
@@ -259,32 +250,15 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
   );
 
   return (
-    <div className="mx-auto max-w-300 px-4 py-8 sm:px-6">
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/account">Account</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/account/orders">Orders</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{order.name}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <div>
+      {/* Back link */}
+      <Link
+        to="/account/orders"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-text-muted hover:text-secondary"
+      >
+        <ArrowLeft size={14} />
+        Back to Orders
+      </Link>
 
       {/* Page Header */}
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
@@ -297,10 +271,10 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
         <StatusBadge variant={statusVariant}>{statusLabel}</StatusBadge>
       </div>
 
-      {order.cancelledAt && (
+      {order.canceledAt && (
         <div className="mb-6 rounded-md border border-red-200 bg-red-50 p-4">
           <p className="text-sm font-medium text-red-800">
-            This order was cancelled on {formatDate(order.cancelledAt)}
+            This order was cancelled on {formatDate(order.canceledAt)}
             {order.cancelReason && ` — ${order.cancelReason}`}
           </p>
         </div>
@@ -310,46 +284,48 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Tracking / Fulfillment */}
-          {order.fulfillments?.nodes?.length > 0 && (
+          {(order.successfulFulfillments?.length ?? 0) > 0 && (
             <div className="rounded-lg border border-border p-5">
               <h2 className="mb-4 text-lg font-semibold text-dark">
                 Delivery Status
               </h2>
-              {order.fulfillments.nodes.map((fulfillment: any, idx: number) => (
-                <div key={idx} className="space-y-2">
-                  {fulfillment.trackingInformation?.map(
-                    (tracking: any, tIdx: number) => (
-                      <div
-                        key={tIdx}
-                        className="flex items-center justify-between rounded-md bg-surface p-3"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Truck size={20} className="text-primary" />
-                          <div>
-                            <p className="text-sm font-medium text-dark">
-                              {tracking.company || 'Carrier'}
-                            </p>
-                            <p className="text-xs text-text-muted">
-                              Tracking: {tracking.number}
-                            </p>
+              {order.successfulFulfillments!.map(
+                (fulfillment: any, idx: number) => (
+                  <div key={idx} className="space-y-2">
+                    {fulfillment.trackingInfo?.map(
+                      (tracking: any, tIdx: number) => (
+                        <div
+                          key={tIdx}
+                          className="flex items-center justify-between rounded-md bg-surface p-3"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Truck size={20} className="text-primary" />
+                            <div>
+                              <p className="text-sm font-medium text-dark">
+                                {fulfillment.trackingCompany || 'Carrier'}
+                              </p>
+                              <p className="text-xs text-text-muted">
+                                Tracking: {tracking.number}
+                              </p>
+                            </div>
                           </div>
+                          {tracking.url && (
+                            <a
+                              href={tracking.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                            >
+                              Track
+                              <ExternalLink size={14} />
+                            </a>
+                          )}
                         </div>
-                        {tracking.url && (
-                          <a
-                            href={tracking.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-                          >
-                            Track
-                            <ExternalLink size={14} />
-                          </a>
-                        )}
-                      </div>
-                    ),
-                  )}
-                </div>
-              ))}
+                      ),
+                    )}
+                  </div>
+                ),
+              )}
             </div>
           )}
 
@@ -359,53 +335,56 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
               Items
             </h2>
             <div className="divide-y divide-border">
-              {order.lineItems.nodes.map((item: any, idx: number) => (
-                <div key={idx} className="flex items-center gap-4 px-5 py-4">
-                  {item.image ? (
-                    <Image
-                      data={item.image}
-                      width={80}
-                      height={80}
-                      className="h-20 w-20 rounded-md object-cover"
-                      alt={item.image.altText || item.title}
-                    />
-                  ) : (
-                    <div className="flex h-20 w-20 items-center justify-center rounded-md bg-surface">
-                      <ImageIcon size={32} className="text-text-muted" />
-                    </div>
-                  )}
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-dark">
-                      {item.title}
-                    </p>
-                    {item.variantTitle &&
-                      item.variantTitle !== 'Default Title' && (
+              {order.lineItems.nodes.map((item: any, idx: number) => {
+                const image = item.variant?.image;
+                const variantTitle = item.variant?.title;
+                return (
+                  <div key={idx} className="flex items-center gap-4 px-5 py-4">
+                    {image ? (
+                      <Image
+                        data={image}
+                        width={80}
+                        height={80}
+                        className="h-20 w-20 rounded-md object-cover"
+                        alt={image.altText || item.title}
+                      />
+                    ) : (
+                      <div className="flex h-20 w-20 items-center justify-center rounded-md bg-surface">
+                        <ImageIcon size={32} className="text-text-muted" />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-dark">
+                        {item.title}
+                      </p>
+                      {variantTitle && variantTitle !== 'Default Title' && (
                         <p className="text-xs text-text-muted">
-                          {item.variantTitle}
+                          {variantTitle}
                         </p>
                       )}
-                    <p className="text-xs text-text-muted">
-                      Qty: {item.quantity}
-                    </p>
-                    {item.discountAllocations?.length > 0 &&
-                      item.discountAllocations.map(
-                        (disc: any, dIdx: number) => (
-                          <p
-                            key={dIdx}
-                            className="text-xs font-medium text-primary"
-                          >
-                            {disc.discountApplication?.title ||
-                              disc.discountApplication?.code}{' '}
-                            (-{formatMoney(disc.allocatedAmount)})
-                          </p>
-                        ),
-                      )}
+                      <p className="text-xs text-text-muted">
+                        Qty: {item.quantity}
+                      </p>
+                      {item.discountAllocations?.length > 0 &&
+                        item.discountAllocations.map(
+                          (disc: any, dIdx: number) => (
+                            <p
+                              key={dIdx}
+                              className="text-xs font-medium text-primary"
+                            >
+                              {disc.discountApplication?.title ||
+                                disc.discountApplication?.code}{' '}
+                              (-{formatMoney(disc.allocatedAmount)})
+                            </p>
+                          ),
+                        )}
+                    </div>
+                    <span className="shrink-0 text-sm font-medium text-dark">
+                      {formatMoney(item.discountedTotalPrice)}
+                    </span>
                   </div>
-                  <span className="shrink-0 text-sm font-medium text-dark">
-                    {formatMoney(item.totalPrice)}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -418,21 +397,21 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
               Order Summary
             </h2>
             <div className="space-y-2 text-sm">
-              {order.subtotal && (
+              {order.subtotalPrice && (
                 <div className="flex justify-between">
                   <span className="text-text">Subtotal</span>
                   <span className="font-medium text-dark">
-                    {formatMoney(order.subtotal)}
+                    {formatMoney(order.subtotalPrice)}
                   </span>
                 </div>
               )}
-              {order.totalShipping && (
+              {order.totalShippingPrice && (
                 <div className="flex justify-between">
                   <span className="text-text">Shipping</span>
                   <span className="font-medium text-dark">
-                    {parseFloat(order.totalShipping.amount) === 0
+                    {parseFloat(order.totalShippingPrice.amount) === 0
                       ? 'Free'
-                      : formatMoney(order.totalShipping)}
+                      : formatMoney(order.totalShippingPrice)}
                   </span>
                 </div>
               )}

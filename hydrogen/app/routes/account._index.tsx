@@ -1,27 +1,14 @@
 import type {Route} from './+types/account._index';
-import {redirect, Link, Form} from 'react-router';
+import {redirect, Link} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {readAddressBook} from '~/lib/address-book-graphql';
-import {getAuthenticatedCustomer} from '~/lib/customer-auth';
 import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '~/components/ui/breadcrumb';
-import {
-  LogOut,
-  Package,
-  Settings,
-  MapPin,
-  Mail,
-  Heart,
-  ChevronRight,
-  type LucideProps,
-} from 'lucide-react';
-import type {ComponentType} from 'react';
+  getAuthenticatedCustomer,
+  getCustomerAccessToken,
+  isCustomerLoggedIn,
+} from '~/lib/customer-auth';
+import {Package, ImageIcon} from 'lucide-react';
+import {mapOrder, statusColor, type OrderSummary} from '~/lib/account-helpers';
 
 // ============================================================================
 // Route Meta
@@ -35,10 +22,37 @@ export function meta() {
 }
 
 // ============================================================================
+// GraphQL — Recent Orders (Storefront API)
+// ============================================================================
+
+const DASHBOARD_ORDERS_QUERY = `#graphql
+  query DashboardOrders($customerAccessToken: String!) {
+    customer(customerAccessToken: $customerAccessToken) {
+      orders(first: 50, sortKey: PROCESSED_AT, reverse: true) {
+        nodes {
+          id
+          name
+          processedAt
+          fulfillmentStatus
+          totalPrice {
+            amount
+            currencyCode
+          }
+        }
+      }
+    }
+  }
+` as const;
+
+// ============================================================================
 // Loader
 // ============================================================================
 
 export async function loader({context}: Route.LoaderArgs) {
+  if (!isCustomerLoggedIn(context.session)) {
+    return redirect('/account/login');
+  }
+
   const customer = await getAuthenticatedCustomer(
     context.storefront,
     context.session,
@@ -66,189 +80,224 @@ export async function loader({context}: Route.LoaderArgs) {
     }
   }
 
-  return {customer};
+  // Fetch recent orders + address count in parallel
+  let recentOrders: OrderSummary[] = [];
+  let totalOrders = 0;
+  let activeOrders = 0;
+  let addressCount = 0;
+  const token = getCustomerAccessToken(context.session)!;
+
+  try {
+    const [ordersResult, addressBookResult] = await Promise.all([
+      context.storefront.query(DASHBOARD_ORDERS_QUERY, {
+        variables: {customerAccessToken: token},
+      }),
+      readAddressBook(context).catch(() => null),
+    ]);
+    const data = ordersResult;
+
+    const allOrders = (data.customer?.orders.nodes ?? []).map(mapOrder);
+    totalOrders = allOrders.length;
+    activeOrders = allOrders.filter((o) => o.status !== 'FULFILLED').length;
+    recentOrders = allOrders.slice(0, 3);
+    addressCount = addressBookResult?.book.contacts?.length ?? 0;
+  } catch {
+    // Graceful degradation — show empty dashboard
+  }
+
+  return {
+    customer,
+    recentOrders,
+    totalOrders,
+    activeOrders,
+    addressCount,
+  };
 }
-
-// ============================================================================
-// Nav Card Data
-// ============================================================================
-
-interface NavCard {
-  title: string;
-  description: string;
-  icon: 'package' | 'user' | 'map-pin' | 'mail' | 'heart' | 'settings';
-  to: string;
-  disabled?: boolean;
-  badge?: string;
-}
-
-const NAV_ICONS: Record<NavCard['icon'], ComponentType<LucideProps>> = {
-  package: Package,
-  user: Package,
-  'map-pin': MapPin,
-  mail: Mail,
-  heart: Heart,
-  settings: Settings,
-};
-
-const navCards: NavCard[] = [
-  {
-    title: 'Your Orders',
-    description: 'Track, return, or buy again',
-    icon: 'package',
-    to: '/account/orders',
-  },
-  {
-    title: 'Login & Security',
-    description: 'Edit name, email, and password',
-    icon: 'settings',
-    to: '/account/settings',
-  },
-  {
-    title: 'Address Book',
-    description: 'Manage contacts and shipping addresses',
-    icon: 'map-pin',
-    to: '/account/addresses',
-  },
-  {
-    title: 'Contact Us',
-    description: 'Get help with your account',
-    icon: 'mail',
-    to: '/pages/contact-us',
-  },
-  {
-    title: 'Gift Cards',
-    description: 'Coming soon',
-    icon: 'heart',
-    to: '#',
-    disabled: true,
-    badge: 'Coming Soon',
-  },
-];
 
 // ============================================================================
 // Main Component
 // ============================================================================
 
 export default function AccountDashboard({loaderData}: Route.ComponentProps) {
-  const {customer} = loaderData;
-
+  const {customer, recentOrders, totalOrders, activeOrders, addressCount} =
+    loaderData;
   const firstName = customer?.firstName ?? 'there';
-  const memberSince = customer?.createdAt
-    ? new Date(customer.createdAt).toLocaleDateString('en-US', {
-        month: 'long',
-        year: 'numeric',
-      })
-    : '';
 
   return (
-    <div className="mx-auto max-w-300 px-4 py-8 sm:px-6">
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Your Account</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-dark">Your Account</h1>
-        <p className="mt-1 text-text-muted">
-          Hello, {firstName}
-          {memberSince && <> &middot; Member since {memberSince}</>}
-        </p>
+    <div className="flex flex-col gap-6">
+      {/* Welcome Banner */}
+      <div
+        className="flex items-center rounded-2xl px-5 py-6 sm:p-8"
+        style={{
+          backgroundImage:
+            'linear-gradient(135deg, var(--color-secondary) 0%, var(--color-brand-accent) 100%)',
+        }}
+      >
+        <div className="flex flex-col gap-2">
+          <h2 className="text-[24px] font-light leading-9 text-white">
+            Welcome back, {firstName}!
+          </h2>
+          <p className="text-[16px] leading-6 text-white/90">
+            Here&apos;s what&apos;s happening with your account today.
+          </p>
+        </div>
       </div>
 
-      {/* Nav Cards Grid */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {navCards.map((card) => (
-          <AccountNavCard key={card.title} {...card} />
-        ))}
+      {/* Stats Row */}
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+        <StatCard value={totalOrders} label="Total Orders" />
+        <StatCard value={activeOrders} label="Active Orders" />
+        <StatCard value={addressCount} label="Saved Addresses" />
       </div>
 
-      {/* Sign Out */}
-      <div className="mt-12 border-t border-border pt-8">
-        <Form method="post" action="/account/logout">
-          <button
-            type="submit"
-            className="inline-flex items-center gap-2 text-sm font-medium text-text-muted transition-colors hover:text-primary"
+      {/* Recent Orders */}
+      <div className="overflow-hidden rounded-xl border border-border bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b border-border px-6 py-5">
+          <h2 className="text-lg font-bold text-gray-900">Recent Orders</h2>
+          <Link
+            to="/account/orders"
+            className="text-[15px] font-medium text-secondary hover:underline"
           >
-            <LogOut size={16} />
-            Sign Out
-          </button>
-        </Form>
+            View All
+          </Link>
+        </div>
+        <div className="p-6">
+          {recentOrders.length === 0 ? (
+            <p className="py-8 text-center text-sm text-text-muted">
+              No orders yet.{' '}
+              <Link to="/" className="text-secondary hover:underline">
+                Start shopping
+              </Link>
+            </p>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {recentOrders.map((order) => (
+                <OrderRow key={order.id} order={order} />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Saved for Later / Wishlist (placeholder) */}
+      <div className="overflow-hidden rounded-xl border border-border bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b border-border px-6 py-5">
+          <h2 className="text-lg font-bold text-gray-900">Saved for Later</h2>
+          <span className="text-[15px] font-medium text-secondary">
+            View Wishlist
+          </span>
+        </div>
+        <div className="grid grid-cols-1 gap-4 p-6 sm:grid-cols-3">
+          {['Wireless Mouse Pro', 'USB-C Hub', 'Monitor Stand'].map(
+            (name, i) => (
+              <WishlistPlaceholder
+                key={name}
+                name={name}
+                price={['$79.00', '$45.00', '$89.00'][i]}
+              />
+            ),
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
 // ============================================================================
-// AccountNavCard Component
+// Sub-components
 // ============================================================================
 
-function AccountNavCard({
-  title,
-  description,
-  icon,
-  to,
-  disabled = false,
-  badge,
-}: NavCard) {
-  const content = (
-    <div
-      className={`group flex items-start gap-4 rounded-lg border border-border p-5 transition-all ${
-        disabled
-          ? 'cursor-not-allowed opacity-60'
-          : 'hover:border-primary hover:shadow-sm'
-      }`}
-    >
-      <div
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-surface ${
-          !disabled ? 'group-hover:bg-primary/10' : ''
-        }`}
-      >
-        {(() => {
-          const NavIcon = NAV_ICONS[icon];
-          return (
-            <NavIcon
-              size={20}
-              className={`text-text ${!disabled ? 'group-hover:text-primary' : ''}`}
-            />
-          );
-        })()}
-      </div>
-      <div className="flex-1">
-        <div className="flex items-center gap-2">
-          <h3
-            className={`text-base font-medium ${!disabled ? 'text-dark group-hover:text-primary' : 'text-text'}`}
-          >
-            {title}
-          </h3>
-          {badge && (
-            <span className="rounded-full bg-surface px-2 py-0.5 text-xs font-medium text-text-muted">
-              {badge}
-            </span>
-          )}
-        </div>
-        <p className="mt-0.5 text-sm text-text-muted">{description}</p>
-      </div>
-      {!disabled && (
-        <ChevronRight
-          size={20}
-          className="mt-0.5 shrink-0 text-text-muted group-hover:text-primary"
-        />
-      )}
+function StatCard({value, label}: {value: number; label: string}) {
+  return (
+    <div className="flex flex-col items-center gap-1 rounded-xl border border-border bg-white p-6 shadow-sm">
+      <span className="text-[32px] font-bold text-secondary">{value}</span>
+      <span className="text-sm text-text-muted">{label}</span>
     </div>
   );
+}
 
-  if (disabled) return content;
+function OrderRow({order}: {order: OrderSummary}) {
+  const colors = statusColor(order.status);
 
-  return <Link to={to}>{content}</Link>;
+  return (
+    <Link
+      to={`/account/orders/${encodeURIComponent(order.id)}`}
+      className="flex flex-col gap-3 py-4 transition-colors hover:bg-gray-50 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <div className="flex items-center gap-4">
+        <div className="hidden size-[60px] shrink-0 items-center justify-center rounded-lg bg-gray-100 sm:flex">
+          <Package size={16} className="text-gray-400" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <h4 className="text-base font-medium text-gray-800">{order.name}</h4>
+          <p className="text-sm text-text-muted">
+            Placed on {order.date} &middot; {order.total}
+          </p>
+        </div>
+      </div>
+      <span
+        className={`self-start rounded-xl px-3 py-1 text-[13px] font-medium sm:self-auto ${colors.bg} ${colors.text}`}
+      >
+        {order.statusLabel}
+      </span>
+    </Link>
+  );
+}
+
+// ============================================================================
+// Loading Skeleton (exported as HydrateFallback for initial page load)
+// ============================================================================
+
+export function HydrateFallback() {
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Welcome Banner Skeleton */}
+      <div className="h-[104px] animate-pulse rounded-2xl bg-gray-200" />
+
+      {/* Stats Row Skeleton */}
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="flex flex-col items-center gap-2 rounded-xl border border-border bg-white p-6"
+          >
+            <div className="h-10 w-16 animate-pulse rounded bg-gray-200" />
+            <div className="h-4 w-24 animate-pulse rounded bg-gray-100" />
+          </div>
+        ))}
+      </div>
+
+      {/* Recent Orders Skeleton */}
+      <div className="overflow-hidden rounded-xl border border-border bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b border-border px-6 py-5">
+          <div className="h-5 w-32 animate-pulse rounded bg-gray-200" />
+          <div className="h-4 w-16 animate-pulse rounded bg-gray-100" />
+        </div>
+        <div className="divide-y divide-gray-100 p-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center gap-4 py-4">
+              <div className="hidden size-[60px] animate-pulse rounded-lg bg-gray-100 sm:block" />
+              <div className="flex flex-1 flex-col gap-2">
+                <div className="h-4 w-28 animate-pulse rounded bg-gray-200" />
+                <div className="h-3 w-48 animate-pulse rounded bg-gray-100" />
+              </div>
+              <div className="h-6 w-20 animate-pulse rounded-xl bg-gray-100" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WishlistPlaceholder({name, price}: {name: string; price: string}) {
+  return (
+    <div className="flex flex-col items-center">
+      <div className="flex aspect-square w-full items-center justify-center rounded-lg bg-gray-100">
+        <ImageIcon size={24} className="text-gray-400" />
+      </div>
+      <h4 className="mt-3 text-sm font-medium text-gray-800">{name}</h4>
+      <p className="text-sm font-semibold text-secondary">{price}</p>
+    </div>
+  );
 }

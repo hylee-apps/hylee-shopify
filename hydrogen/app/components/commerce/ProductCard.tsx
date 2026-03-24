@@ -272,7 +272,7 @@ export function ProductCard({
           </div>
         )}
 
-        {/* Title — Figma: 14px Inter Medium, text-black */}
+        {/* Title — Figma: 14px Roboto Medium, text-black */}
         <p className="text-[14px] font-medium text-black line-clamp-2">
           <Link to={productUrl} className="hover:text-primary">
             {product.title}
