@@ -281,7 +281,9 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
         params.set(option.name.toLowerCase(), option.value);
       },
     );
-    throw redirect(`/products/${handle}?${params.toString()}`);
+    throw redirect(
+      `/products/${encodeURIComponent(handle)}?${params.toString()}`,
+    );
   }
 
   const recommendedProducts = storefront.query(RECOMMENDED_PRODUCTS_QUERY, {
