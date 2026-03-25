@@ -1,14 +1,18 @@
-import {useState} from 'react';
+import {useMemo, useState} from 'react';
 import type {Route} from './+types/account.orders._index';
 import {redirect, Link, useSearchParams} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {Button} from '~/components/ui/button';
-import {Package} from 'lucide-react';
+import {Package, Undo2, RotateCcw} from 'lucide-react';
 import {OrderStatsCards} from '~/components/account/OrderStatsCards';
 import {OrderTabBar, type OrderTab} from '~/components/account/OrderTabBar';
 import {OrderCard} from '~/components/account/OrderCard';
+import {OutgoingCard} from '~/components/account/OutgoingCard';
+import {BuyAgainCard} from '~/components/account/BuyAgainCard';
 import {OrderPagination} from '~/components/account/OrderPagination';
+import {simulateOutgoingItems} from '~/lib/outgoing-data';
+import {extractBuyAgainProducts} from '~/lib/buy-again-data';
 
 // ============================================================================
 // Route Meta
@@ -52,6 +56,7 @@ const CUSTOMER_ORDERS_QUERY = `#graphql
               title
               quantity
               variant {
+                id
                 image {
                   url
                   altText
@@ -166,7 +171,7 @@ export default function OrdersPage({loaderData}: Route.ComponentProps) {
     (o: any) => o.fulfillmentStatus === 'FULFILLED',
   ).length;
 
-  // Tab filtering
+  // Tab filtering (for Orders and Buy Again tabs)
   const tabFilteredOrders =
     activeTab === 'buy-again'
       ? timeFilteredOrders.filter(
@@ -181,12 +186,41 @@ export default function OrdersPage({loaderData}: Route.ComponentProps) {
           )
         : timeFilteredOrders;
 
+  // Simulated outgoing items (for On the Way Out tab)
+  const outgoingItems = useMemo(
+    () => simulateOutgoingItems(timeFilteredOrders as any),
+    [timeFilteredOrders],
+  );
+
+  // Buy Again products (extracted from fulfilled orders)
+  const buyAgainProducts = useMemo(
+    () => extractBuyAgainProducts(timeFilteredOrders as any),
+    [timeFilteredOrders],
+  );
+
+  // Determine items for pagination based on active tab
+  const isOutgoingTab = activeTab === 'on-the-way-out';
+  const isBuyAgainTab = activeTab === 'buy-again';
+  const paginationItemCount = isOutgoingTab
+    ? outgoingItems.length
+    : isBuyAgainTab
+      ? buyAgainProducts.length
+      : tabFilteredOrders.length;
+
   // Pagination
   const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1'));
-  const totalPages = Math.ceil(tabFilteredOrders.length / ORDERS_PER_PAGE);
+  const totalPages = Math.ceil(paginationItemCount / ORDERS_PER_PAGE);
   const safePage = Math.min(currentPage, Math.max(1, totalPages));
   const startIdx = (safePage - 1) * ORDERS_PER_PAGE;
   const pageOrders = tabFilteredOrders.slice(
+    startIdx,
+    startIdx + ORDERS_PER_PAGE,
+  );
+  const pageOutgoingItems = outgoingItems.slice(
+    startIdx,
+    startIdx + ORDERS_PER_PAGE,
+  );
+  const pageBuyAgainProducts = buyAgainProducts.slice(
     startIdx,
     startIdx + ORDERS_PER_PAGE,
   );
@@ -228,8 +262,63 @@ export default function OrdersPage({loaderData}: Route.ComponentProps) {
       {/* Tab Bar */}
       <OrderTabBar activeTab={activeTab} onTabChange={handleTabChange} />
 
-      {/* Orders Content */}
-      {tabFilteredOrders.length > 0 ? (
+      {/* Tab Content */}
+      {isOutgoingTab ? (
+        // On the Way Out Tab
+        outgoingItems.length > 0 ? (
+          <div className="flex max-w-[1400px] flex-col gap-[24px] p-[24px]">
+            {/* Sub-section Header */}
+            <div className="flex flex-col gap-[8px]">
+              <h2 className="text-xl font-bold leading-[36px] text-[#111827] sm:text-[24px]">
+                On the Way Out
+              </h2>
+              <p className="text-[15px] leading-[22.5px] text-[#4b5563]">
+                Track your returns and items being shipped back
+              </p>
+            </div>
+
+            {/* Outgoing Cards */}
+            <div className="flex flex-col gap-[24px]">
+              {pageOutgoingItems.map((item) => (
+                <OutgoingCard key={item.id} item={item} />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            <OrderPagination currentPage={safePage} totalPages={totalPages} />
+          </div>
+        ) : (
+          <EmptyOutgoing />
+        )
+      ) : isBuyAgainTab ? (
+        // Buy Again Tab — 3-column product grid
+        buyAgainProducts.length > 0 ? (
+          <div className="flex max-w-[1400px] flex-col gap-[24px] p-[24px]">
+            {/* Sub-section Header */}
+            <div className="flex flex-col gap-[8px]">
+              <h2 className="text-xl font-bold leading-[36px] text-[#111827] sm:text-[24px]">
+                Buy Again
+              </h2>
+              <p className="text-[15px] leading-[22.5px] text-[#4b5563]">
+                Quickly reorder items you&apos;ve purchased before
+              </p>
+            </div>
+
+            {/* Product Grid */}
+            <div className="grid grid-cols-1 gap-[24px] sm:grid-cols-2 lg:grid-cols-3">
+              {pageBuyAgainProducts.map((product) => (
+                <BuyAgainCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            <OrderPagination currentPage={safePage} totalPages={totalPages} />
+          </div>
+        ) : (
+          <EmptyBuyAgain />
+        )
+      ) : // Orders Tab
+      tabFilteredOrders.length > 0 ? (
         <div className="flex max-w-[1400px] flex-col gap-[24px] p-[24px]">
           {/* Orders Header */}
           <div className="flex flex-wrap items-center">
@@ -321,6 +410,49 @@ function EmptyOrders() {
       </p>
       <Button asChild>
         <Link to="/collections">Start Shopping</Link>
+      </Button>
+    </div>
+  );
+}
+
+// ============================================================================
+// EmptyBuyAgain Component
+// ============================================================================
+
+function EmptyBuyAgain() {
+  return (
+    <div className="flex flex-col items-center py-16 text-center">
+      <RotateCcw size={64} className="mb-4 text-[#9ca3af]" />
+      <h2 className="mb-2 text-xl font-semibold text-[#1f2937]">
+        No items to buy again
+      </h2>
+      <p className="mb-6 text-[#6b7280]">
+        Once you receive your first order, products will appear here for easy
+        re-ordering.
+      </p>
+      <Button asChild>
+        <Link to="/collections">Start Shopping</Link>
+      </Button>
+    </div>
+  );
+}
+
+// ============================================================================
+// EmptyOutgoing Component
+// ============================================================================
+
+function EmptyOutgoing() {
+  return (
+    <div className="flex flex-col items-center py-16 text-center">
+      <Undo2 size={64} className="mb-4 text-[#9ca3af]" />
+      <h2 className="mb-2 text-xl font-semibold text-[#1f2937]">
+        No returns or exchanges
+      </h2>
+      <p className="mb-6 text-[#6b7280]">
+        You don&apos;t have any active returns or exchanges at this time.
+      </p>
+      <Button asChild>
+        <Link to="/collections">Continue Shopping</Link>
       </Button>
     </div>
   );
