@@ -80,53 +80,68 @@ export async function loader({context}: Route.LoaderArgs) {
     return redirect('/account/login');
   }
 
-  // Fetch both address book metafield and native addresses via Storefront API
-  const [{book, customerId}, {addresses: shopifyAddresses, defaultAddressId}] =
-    await Promise.all([
-      readAddressBook(context),
-      readCustomerAddresses(context),
-    ]);
-
-  // Sync: auto-create home contacts for Shopify addresses not yet in the book
-  const homeContacts = getContactsByCategory(book, 'home');
-  const trackedShopifyIds = new Set(
-    homeContacts.flatMap((c) =>
-      c.addresses.map((a) => a.shopifyAddressId).filter(Boolean),
-    ),
-  );
-
-  let bookChanged = false;
-  for (const addr of shopifyAddresses) {
-    if (!trackedShopifyIds.has(addr.id)) {
-      book.contacts.push({
-        id: crypto.randomUUID(),
-        category: 'home',
-        firstName: addr.firstName ?? '',
-        lastName: addr.lastName ?? '',
-        addresses: [
-          {
-            id: crypto.randomUUID(),
-            primary: addr.id === defaultAddressId,
-            shopifyAddressId: addr.id,
-            address1: addr.address1 ?? '',
-            address2: addr.address2 ?? '',
-            city: addr.city ?? '',
-            state: addr.provinceCode ?? '',
-            zip: addr.zip ?? '',
-            country: addr.countryCodeV2 ?? 'US',
-          },
-        ],
-        phones: addr.phone
-          ? [{id: crypto.randomUUID(), primary: true, number: addr.phone}]
-          : [],
-        emails: [],
-      });
-      bookChanged = true;
-    }
+  // Fetch both address book metafield and native addresses via Storefront API.
+  // Re-throw Response objects (redirects) but catch other errors gracefully.
+  let book, customerId, shopifyAddresses, defaultAddressId;
+  try {
+    [{book, customerId}, {addresses: shopifyAddresses, defaultAddressId}] =
+      await Promise.all([
+        readAddressBook(context),
+        readCustomerAddresses(context),
+      ]);
+  } catch (error) {
+    if (error instanceof Response) throw error;
+    console.error('Failed to load address book data:', error);
+    return redirect('/account/login');
   }
 
-  if (bookChanged) {
-    await writeAddressBook(context, customerId, book);
+  // Sync: auto-create home contacts for Shopify addresses not yet in the book.
+  // Wrapped in try/catch so Admin API failures (e.g. missing env vars) don't
+  // crash the entire page — the address book still loads, just without the sync.
+  try {
+    const homeContacts = getContactsByCategory(book, 'home');
+    const trackedShopifyIds = new Set(
+      homeContacts.flatMap((c) =>
+        c.addresses.map((a) => a.shopifyAddressId).filter(Boolean),
+      ),
+    );
+
+    let bookChanged = false;
+    for (const addr of shopifyAddresses) {
+      if (!trackedShopifyIds.has(addr.id)) {
+        book.contacts.push({
+          id: crypto.randomUUID(),
+          category: 'home',
+          firstName: addr.firstName ?? '',
+          lastName: addr.lastName ?? '',
+          addresses: [
+            {
+              id: crypto.randomUUID(),
+              primary: addr.id === defaultAddressId,
+              shopifyAddressId: addr.id,
+              address1: addr.address1 ?? '',
+              address2: addr.address2 ?? '',
+              city: addr.city ?? '',
+              state: addr.provinceCode ?? '',
+              zip: addr.zip ?? '',
+              country: addr.countryCodeV2 ?? 'US',
+            },
+          ],
+          phones: addr.phone
+            ? [{id: crypto.randomUUID(), primary: true, number: addr.phone}]
+            : [],
+          emails: [],
+        });
+        bookChanged = true;
+      }
+    }
+
+    if (bookChanged) {
+      await writeAddressBook(context, customerId, book);
+    }
+  } catch (error) {
+    // Log but don't crash — sync is best-effort
+    console.error('Address book sync failed:', error);
   }
 
   return {book, customerId};
