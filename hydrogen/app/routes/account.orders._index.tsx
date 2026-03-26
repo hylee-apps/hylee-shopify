@@ -4,7 +4,7 @@ import {redirect, Link, useSearchParams} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {Button} from '~/components/ui/button';
-import {Package, Undo2, RotateCcw} from 'lucide-react';
+import {Package, Undo2, RotateCcw, ChevronDown} from 'lucide-react';
 import {OrderStatsCards} from '~/components/account/OrderStatsCards';
 import {OrderTabBar, type OrderTab} from '~/components/account/OrderTabBar';
 import {OrderCard} from '~/components/account/OrderCard';
@@ -321,23 +321,36 @@ export default function OrdersPage({loaderData}: Route.ComponentProps) {
       tabFilteredOrders.length > 0 ? (
         <div className="flex max-w-[1400px] flex-col gap-[24px] p-[24px]">
           {/* Orders Header */}
-          <div className="flex flex-wrap items-center">
-            <div className="flex flex-col items-start">
-              <div className="text-[18px] leading-[27px] text-[#111827]">
-                <span>{tabFilteredOrders.length}</span>{' '}
-                <span className="font-bold">orders placed in</span>
+          <div className="flex flex-wrap items-center gap-x-[24px] gap-y-[8px]">
+            <div className="flex flex-col gap-[2px]">
+              <span className="text-[12px] font-normal uppercase leading-[18px] tracking-[0.5px] text-[#6b7280]">
+                Orders Placed
+              </span>
+              <span className="text-[14px] leading-[21px] text-[#374151]">
+                {tabFilteredOrders.length} orders
+              </span>
+            </div>
+            <div className="flex flex-col gap-[2px]">
+              <span className="text-[12px] font-normal uppercase leading-[18px] tracking-[0.5px] text-[#6b7280]">
+                Time Period
+              </span>
+              <div className="relative">
+                <select
+                  value={timeFilter}
+                  onChange={handleTimeFilterChange}
+                  className="appearance-none rounded-[4px] border border-[#d1d5db] bg-white py-[5px] pl-[9px] pr-[26px] text-[14px] leading-[21px] text-[#374151] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
+                >
+                  {TIME_FILTER_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown
+                  size={14}
+                  className="pointer-events-none absolute right-[7px] top-1/2 -translate-y-1/2 text-[#374151]"
+                />
               </div>
-              <select
-                value={timeFilter}
-                onChange={handleTimeFilterChange}
-                className="mt-[4px] rounded-[8px] border border-[#d1d5db] bg-white px-[17px] py-[9px] text-[14px] leading-[16px] text-black"
-              >
-                {TIME_FILTER_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
 
