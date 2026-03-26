@@ -188,10 +188,18 @@ interface CustomerAddressesData {
 function getToken(context: AnyContext): string {
   if ('session' in context) {
     const token = getCustomerAccessToken(context.session);
-    if (!token) throw new Error('Not authenticated');
+    if (!token) {
+      throw new Response(null, {
+        status: 302,
+        headers: {Location: '/account/login'},
+      });
+    }
     return token;
   }
-  throw new Error('No session available in context');
+  throw new Response(null, {
+    status: 302,
+    headers: {Location: '/account/login'},
+  });
 }
 
 function getStorefront(context: AnyContext): StorefrontLike {
