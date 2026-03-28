@@ -2,7 +2,7 @@ import type {Route} from './+types/account.orders.$id';
 import {redirect, Link} from 'react-router';
 import {getSeoMeta, Image} from '@shopify/hydrogen';
 import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
-import {Truck, ExternalLink, ImageIcon, ArrowLeft} from 'lucide-react';
+import {Truck, ExternalLink, ImageIcon, ArrowLeft, Undo2} from 'lucide-react';
 import {RecipientBadge} from '~/components/account/RecipientBadge';
 import {CHECKOUT_ATTR} from '~/lib/checkout';
 
@@ -268,7 +268,19 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
             Placed {formatDate(order.processedAt)}
           </p>
         </div>
-        <StatusBadge variant={statusVariant}>{statusLabel}</StatusBadge>
+        <div className="flex items-center gap-3">
+          {order.fulfillmentStatus === 'FULFILLED' && (
+            <Link
+              to={`/account/orders/${order.id.split('/').pop()?.split('?')[0]}/return`}
+              reloadDocument
+              className="inline-flex items-center gap-2 rounded-lg border border-[#d1d5db] bg-white px-4 py-2 text-sm font-medium text-[#374151] transition-colors hover:bg-[#f9fafb]"
+            >
+              <Undo2 size={14} />
+              Return or Replace Items
+            </Link>
+          )}
+          <StatusBadge variant={statusVariant}>{statusLabel}</StatusBadge>
+        </div>
       </div>
 
       {order.canceledAt && (

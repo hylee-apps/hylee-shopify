@@ -155,7 +155,7 @@ function getActionButtons(status: string): {
 // ============================================================================
 
 export function OrderCard({order}: OrderCardProps) {
-  const orderId = order.id.split('/').pop();
+  const orderId = order.id.split('/').pop()?.split('?')[0];
   const delivery = getDeliveryDisplay(
     order.processedAt,
     order.fulfillmentStatus,
@@ -240,6 +240,7 @@ export function OrderCard({order}: OrderCardProps) {
             processedAt={order.processedAt}
             actionButtons={idx === 0 ? actionButtons : undefined}
             hasBorder={idx < order.lineItems.nodes.length - 1}
+            orderId={orderId}
           />
         ))}
       </div>
@@ -273,10 +274,12 @@ function ProductRow({
   processedAt,
   actionButtons,
   hasBorder,
+  orderId,
 }: {
   item: LineItem;
   processedAt: string;
   actionButtons?: ReturnType<typeof getActionButtons>;
+  orderId?: string;
   hasBorder: boolean;
 }) {
   const image = item.variant?.image;
@@ -351,19 +354,34 @@ function ProductRow({
       {/* Actions Panel (desktop only, first product row only) */}
       {actionButtons && actionButtons.length > 0 && (
         <div className="hidden w-[200px] min-w-[200px] flex-col gap-[8px] lg:flex">
-          {actionButtons.map((action) => (
-            <button
-              key={action.label}
-              type="button"
-              className={`w-full px-[17px] py-[13px] text-center text-[14px] leading-[21px] transition-colors ${
-                action.primary
-                  ? 'border border-[#14b8a6] bg-[#14b8a6] text-white hover:bg-[#0d9488]'
-                  : 'border border-[#d1d5db] bg-white text-[#374151] hover:border-[#9ca3af]'
-              }`}
-            >
-              {action.label}
-            </button>
-          ))}
+          {actionButtons.map((action) => {
+            // Wire "Return or replace items" to the return flow
+            if (action.label === 'Return or replace items') {
+              return (
+                <Link
+                  key={action.label}
+                  to={`/account/orders/${orderId}/return`}
+                  reloadDocument
+                  className="w-full border border-[#d1d5db] bg-white px-[17px] py-[13px] text-center text-[14px] leading-[21px] text-[#374151] transition-colors hover:border-[#9ca3af]"
+                >
+                  {action.label}
+                </Link>
+              );
+            }
+            return (
+              <button
+                key={action.label}
+                type="button"
+                className={`w-full px-[17px] py-[13px] text-center text-[14px] leading-[21px] transition-colors ${
+                  action.primary
+                    ? 'border border-[#14b8a6] bg-[#14b8a6] text-white hover:bg-[#0d9488]'
+                    : 'border border-[#d1d5db] bg-white text-[#374151] hover:border-[#9ca3af]'
+                }`}
+              >
+                {action.label}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

@@ -22,6 +22,7 @@
   --color-brand-accent: #2bd9a8; /* vivid teal — use when shadcn accent is too subtle */
   --color-dark: #40283c;
   --color-warning: #f2b05e;
+  --color-return-accent: #4fd1a8; /* mint green — return process wizard */
 
   --color-background: #ffffff;
   --color-surface: #f8fafc;

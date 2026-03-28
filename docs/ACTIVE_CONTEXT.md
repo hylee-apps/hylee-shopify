@@ -1,7 +1,7 @@
 # Active Context Checkpoint
 
-> **Updated:** 2026-03-23
-> **Branch:** feature/production-review-fixes
+> **Updated:** 2026-03-28
+> **Branch:** feature/account/return-process
 > **Status:** in-progress
 
 ## Active Feature
@@ -48,6 +48,18 @@ The most recently completed milestone is a **5-step custom checkout flow**
 ### Production Review Fixes (completed 2026-03-23)
 - See `plans/PRODUCTION_REVIEW_MAR15_PLAN.md` for full checklist
 - Shipping simplified to Standard only; footer link typography updated; PDP specs/fit conditional; promo discount display; homepage wired to real collections
+
+### Return Process — Steps 1–4 (completed 2026-03-28)
+- `hydrogen/app/routes/account.orders.$id_.return.tsx` — Step 1: Select Items. Item selection with checkboxes, select all, estimated refund summary, policy notice.
+- `hydrogen/app/routes/account.orders.$id_.return_.reason.tsx` — Step 2: Return Reason. Per-item reason selection (dropdown + optional details textarea), reason summary sidebar.
+- `hydrogen/app/routes/account.orders.$id_.return_.shipping.tsx` — Step 3: Return Shipping. 3 shipping options (UPS Drop-off/Pickup/Instant Return), return address card, packing instructions, summary with shipping cost adjustment, tracking notice.
+- `hydrogen/app/routes/account.orders.$id_.return_.resolve.tsx` — Step 4: Make It Right. 2×2 resolution grid (Exchange, Replace, Store Credit, Refund), selected items preview thumbnails, resolution summary (inside card), "Our Promise" notice. Submit shows confirmation alert (placeholder for API integration).
+- 5 new Step 3 components: `ShippingOptionCard`, `ReturnAddressCard`, `PackingInstructions`, `ReturnShippingSummary`, `ReturnTrackingNotice`
+- 4 new Step 4 components: `ResolutionOptionCard`, `SelectedItemsPreview`, `ResolutionSummary`, `OurPromiseNotice`
+- Reused across steps: `ReturnStepProgress` (currentStep=1-4), `ReturnLineItem` type
+- State passed between all 4 steps via URL search params (`?items=id1,id2&reasons=defective,wrong-item&shipping=drop-off`)
+- E2E tests: `return-process.spec.ts` (Step 1), `return-reason.spec.ts` (Step 2), `return-shipping.spec.ts` (Step 3), `return-resolve.spec.ts` (Step 4 — 80 tests)
+- Plans: `plans/RETURN_PROCESS_PLAN.md` (Step 1), `plans/RETURN_REASON_PLAN.md` (Step 2), `plans/RETURN_SHIPPING_PLAN.md` (Step 3), `plans/RETURN_RESOLVE_PLAN.md` (Step 4)
 
 ### Earlier Milestones (Phase 1 + pages)
 - Hydrogen scaffold, Vite config, Tailwind v4 `@theme` token mapping
@@ -124,6 +136,7 @@ The most recently completed milestone is a **5-step custom checkout flow**
 | Homepage | `qoaTDaCkxR1VBE559Snhjd` | — |
 | PDP | `Cz8f2ycIjQZOoremTy2eBM` | `1460:1444` |
 | Account Pages | `Q541sIDD20eXqQSSozFUw4` | `2:530` |
+| Return Process | `NEk59QDkRMC3a6LD0WZVQJ` | Steps 1-4: `1:74`, `1:365`, `1:656`, `1:1030` |
 | Cart & Checkout | `vzeR7m9jbWjAfD9EVlReyq` | see below |
 | Cart (step 1) | `vzeR7m9jbWjAfD9EVlReyq` | `327:72` |
 | Payment (step 2) | `vzeR7m9jbWjAfD9EVlReyq` | `327:1178` |
@@ -174,9 +187,6 @@ The most recently completed milestone is a **5-step custom checkout flow**
 
 ## Next Immediate Action
 
-> Continue Account Dashboard Redesign — Phase 2: Remove redundant outer wrappers and
-> breadcrumbs from `account.settings.tsx`, `account.addresses.tsx`, `account.orders._index.tsx`,
-> and `account.orders.$id.tsx`. These routes now render inside the shared `account.tsx` layout
-> which provides the sidebar + container. Verify each sub-route renders correctly within the
-> new layout. Then proceed to Phase 3 (mobile responsiveness) per
-> `plans/ACCOUNT_DASHBOARD_REDESIGN_PLAN.md`.
+> Return Process complete (all 4 steps). Next: wire Submit Return to Shopify API
+> (currently shows `window.alert()` placeholder), or move on to the next feature.
+> All work is on branch `feature/account/return-process`.

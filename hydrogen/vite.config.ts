@@ -42,6 +42,6 @@ export default defineConfig({
     noExternal: [/^@radix-ui\//, 'set-cookie-parser', 'cookie'],
   },
   server: {
-    allowedHosts: ['.tryhydrogen.dev'],
+    allowedHosts: ['.tryhydrogen.dev', '.trycloudflare.com'],
   },
 });
