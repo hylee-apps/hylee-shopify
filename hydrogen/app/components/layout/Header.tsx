@@ -302,7 +302,6 @@ export function Header({
     ? [
         {title: 'My Account', url: '/account'},
         {title: 'My Orders', url: '/account/orders'},
-        {title: 'Track Order', url: '/account/orders'},
         {title: 'Sign Out', url: '/account/logout'},
       ]
     : [

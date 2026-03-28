@@ -54,7 +54,7 @@ export function AccountSidebar({
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="sticky top-8 hidden h-fit w-[280px] shrink-0 flex-col gap-6 self-start rounded-xl border border-border bg-white p-6 shadow-sm lg:flex">
+      <aside className="sticky top-25 hidden h-fit max-h-[calc(100vh-120px)] w-70 shrink-0 flex-col gap-6 self-start overflow-y-auto rounded-xl border border-border bg-white p-6 shadow-sm lg:flex">
         <SidebarContent
           firstName={firstName}
           lastName={lastName}
