@@ -7,9 +7,9 @@ import {
 import {AccountSidebar} from '~/components/account/AccountSidebar';
 
 /**
- * Routes that should NOT render the sidebar layout (unauthenticated pages).
+ * Routes that should NOT render the sidebar layout.
  */
-const AUTH_ROUTES = [
+const NO_SIDEBAR_ROUTES = [
   '/account/login',
   '/account/register',
   '/account/recover',
@@ -17,6 +17,11 @@ const AUTH_ROUTES = [
   '/account/activate',
   '/account/authorize',
 ];
+
+/**
+ * Route patterns that should NOT render the sidebar layout (regex).
+ */
+const NO_SIDEBAR_PATTERNS = [/^\/account\/orders\/[^/]+\/return/];
 
 export async function loader({context}: Route.LoaderArgs) {
   const loggedIn = isCustomerLoggedIn(context.session);
@@ -40,12 +45,12 @@ export default function AccountLayout({loaderData}: Route.ComponentProps) {
   const {customer} = loaderData;
   const location = useLocation();
 
-  const isAuthRoute = AUTH_ROUTES.some((route) =>
-    location.pathname.startsWith(route),
-  );
+  const isNoSidebarRoute =
+    NO_SIDEBAR_ROUTES.some((route) => location.pathname.startsWith(route)) ||
+    NO_SIDEBAR_PATTERNS.some((pattern) => pattern.test(location.pathname));
 
-  // Auth pages (login, register, etc.) render without sidebar
-  if (!customer || isAuthRoute) {
+  // Auth pages, return flow, etc. render without sidebar
+  if (!customer || isNoSidebarRoute) {
     return <Outlet />;
   }
 
