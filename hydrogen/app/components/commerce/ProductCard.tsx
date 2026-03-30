@@ -70,8 +70,12 @@ export interface ProductCardProps {
    * - 'default': standard grid card (homepage-style)
    * - 'small': PLP compact card — Figma Card=ProductSmall (173×191px image,
    *   bg-secondary Add button, superscript price, 14px title)
+   * - 'category': PLP non-end-node category card — Figma node 5006:775
+   *   (bg-white border rounded-[12px], 203px image, brand+name+stars+price)
+   * - 'end-node': PLP end-node leaf card — Figma node 5030:728
+   *   (identical to 'category' but 250px image height for the wider 4-col grid)
    */
-  size?: 'default' | 'small';
+  size?: 'default' | 'small' | 'category' | 'end-node';
   /** Show vendor name */
   showVendor?: boolean;
   /** Show quick add button */
@@ -206,6 +210,147 @@ export function ProductCard({
 
   // Variant count for subtitle
   const variantCount = product.variants.nodes.length;
+
+  // ============================================================================
+  // Category variant — Figma node 5006:775 (PLP non-end-node category page)
+  // bg-white border border-[#e5e7eb] rounded-[12px], 203px image, brand+name+stars+price
+  // ============================================================================
+
+  if (size === 'category' || size === 'end-node') {
+    // end-node is identical to category except image height: 250px vs 203px
+    const imageHeight = size === 'end-node' ? 'h-[250px]' : 'h-[203px]';
+    const compareAtPrice = firstVariant?.compareAtPrice;
+    const hasDiscount =
+      compareAtPrice &&
+      parseFloat(compareAtPrice.amount) > parseFloat(price?.amount ?? '0');
+
+    // Badge logic: Sale/discount > New > Best Seller
+    // Colors: discount=orange #f2b05e, new=primary green, best-seller=secondary teal
+    let badgeText: string | null = null;
+    let badgeBg = 'bg-[#f2b05e]'; // default: orange for sale/discount
+    if (hasDiscount && compareAtPrice && price) {
+      const pct = Math.round(
+        ((parseFloat(compareAtPrice.amount) - parseFloat(price.amount)) /
+          parseFloat(compareAtPrice.amount)) *
+          100,
+      );
+      badgeText = pct >= 10 ? `-${pct}%` : 'Sale';
+    } else if (product.tags?.includes('new')) {
+      badgeText = 'New';
+      badgeBg = 'bg-primary';
+    } else if (product.tags?.includes('best-seller')) {
+      badgeText = 'Best Seller';
+      badgeBg = 'bg-secondary';
+    }
+
+    const ratingMeta = product.metafields?.find((m) => m?.key === 'rating');
+    const ratingCountMeta = product.metafields?.find(
+      (m) => m?.key === 'rating_count',
+    );
+    const starRating = ratingMeta ? parseFloat(ratingMeta.value) : null;
+    const starCount = ratingCountMeta
+      ? parseInt(ratingCountMeta.value, 10)
+      : null;
+
+    return (
+      <article
+        className={`flex flex-col bg-white border border-[#e5e7eb] rounded-[12px] overflow-hidden ${className}`}
+      >
+        {/* Image area */}
+        <div className={`relative ${imageHeight} w-full bg-[#f3f4f6]`}>
+          <Link to={productUrl} className="block w-full h-full">
+            {primaryImage ? (
+              <Image
+                data={primaryImage}
+                aspectRatio="1/1"
+                sizes="(min-width: 1280px) 17vw, (min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+                className="w-full h-full object-cover"
+                loading={lazyLoad ? 'lazy' : 'eager'}
+              />
+            ) : (
+              <div className="flex w-full h-full items-center justify-center text-[#9ca3af]">
+                <ImageIcon size={32} />
+              </div>
+            )}
+          </Link>
+
+          {/* Badge — top-left */}
+          {badgeText && (
+            <span
+              className={`absolute left-3 top-3 ${badgeBg} px-3 py-1 rounded-[4px] text-[11px] font-bold text-white uppercase leading-none pointer-events-none`}
+            >
+              {badgeText}
+            </span>
+          )}
+
+          {/* Wishlist — top-right */}
+          <button
+            type="button"
+            onClick={() => setWishlisted(!wishlisted)}
+            aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            className="absolute right-3 top-3 flex items-center justify-center size-8 rounded-full bg-white/90 transition-colors hover:bg-white"
+          >
+            <Heart
+              size={14}
+              className={wishlisted ? 'text-primary' : 'text-[#9ca3af]'}
+              fill={wishlisted ? 'currentColor' : 'none'}
+            />
+          </button>
+        </div>
+
+        {/* Product info */}
+        <div className="p-4 flex flex-col gap-1">
+          {/* Brand */}
+          <p className="text-[12px] font-semibold text-[#6b7280] tracking-[0.5px] uppercase leading-[18px] truncate">
+            {product.vendor}
+          </p>
+
+          {/* Name */}
+          <h3 className="text-[15px] font-medium text-[#111827] leading-[21px] line-clamp-2">
+            <Link
+              to={productUrl}
+              className="hover:text-primary transition-colors"
+            >
+              {product.title}
+            </Link>
+          </h3>
+
+          {/* Stars + count */}
+          {starRating !== null && (
+            <div className="flex items-center gap-1 pt-1">
+              {/* Render 5 stars: filled up to rounded rating, empty beyond */}
+              <span className="text-[#f2b05e] text-[12px] leading-none tracking-[1px]">
+                {'★'.repeat(Math.round(starRating))}
+                {'☆'.repeat(5 - Math.round(starRating))}
+              </span>
+              {starCount !== null && (
+                <span className="text-[12px] text-[#6b7280] leading-[18px]">
+                  ({starCount})
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Price */}
+          {price && (
+            <div className="flex items-center gap-2 pt-1">
+              <span className="text-[18px] font-bold text-[#111827] leading-[27px]">
+                {formatPrice(price.amount, price.currencyCode)}
+              </span>
+              {hasDiscount && compareAtPrice && (
+                <span className="text-[14px] font-normal text-[#9ca3af] line-through leading-[21px]">
+                  {formatPrice(
+                    compareAtPrice.amount,
+                    compareAtPrice.currencyCode,
+                  )}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      </article>
+    );
+  }
 
   // ============================================================================
   // Small variant — Figma Card=ProductSmall (PLP)
