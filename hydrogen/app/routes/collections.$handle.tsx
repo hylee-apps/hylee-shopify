@@ -12,11 +12,10 @@ import {
   getPaginationVariables,
   Pagination,
   getSeoMeta,
-  Image,
 } from '@shopify/hydrogen';
 import type {ProductCardProps} from '~/components/commerce/ProductCard';
 import {Link} from 'react-router';
-import {ChevronUp, Loader2, Search} from 'lucide-react';
+import {ChevronRight, ChevronUp, Filter, Loader2, Search} from 'lucide-react';
 import {Button} from '~/components/ui/button';
 import {
   Breadcrumb,
@@ -27,9 +26,12 @@ import {
   BreadcrumbSeparator,
 } from '~/components/ui/breadcrumb';
 import {CollectionHero} from '~/components/commerce/CollectionHero';
-import {CollectionToolbar} from '~/components/commerce/CollectionToolbar';
-import {ProductGrid} from '~/components/commerce/ProductGrid';
+import {ActiveFilterChips} from '~/components/commerce/ActiveFilterChips';
+import {ProductCard} from '~/components/commerce/ProductCard';
 import {FilterSidebar} from '~/components/commerce/FilterSidebar';
+import {SubcategoryScrollSection} from '~/components/commerce/SubcategoryScrollSection';
+import type {SubcollectionNode} from '~/components/commerce/SubcategoryScrollSection';
+import {SortSelect} from '~/components/commerce/SortSelect';
 import {
   parseFiltersFromSearchParams,
   parseSortFromSearchParams,
@@ -37,66 +39,6 @@ import {
 } from '~/lib/collection/filters';
 
 type CollectionProduct = ProductCardProps['product'];
-
-type SubcollectionNode = {
-  handle: string;
-  title: string;
-  image?: {
-    url: string;
-    altText?: string | null;
-    width?: number | null;
-    height?: number | null;
-  } | null;
-};
-
-// ============================================================================
-// Subcollection Grid
-// ============================================================================
-
-function SubcollectionGrid({
-  collection,
-}: {
-  collection: {
-    childCollections?: {
-      references?: {nodes?: SubcollectionNode[] | null} | null;
-    } | null;
-  };
-}) {
-  const subcollections = collection.childCollections?.references?.nodes ?? [];
-  if (!subcollections.length) return null;
-
-  return (
-    <div className="max-w-300 mx-auto px-4 sm:px-6 py-4">
-      <div className="mx-auto flex w-fit flex-wrap justify-center gap-4">
-        {subcollections.map((sub) => (
-          <Link
-            key={sub.handle}
-            to={`/collections/${sub.handle}`}
-            className="group flex w-28 flex-col items-center gap-2 sm:w-32 md:w-36"
-          >
-            <div className="aspect-square w-full overflow-hidden rounded-full bg-surface">
-              {sub.image ? (
-                <Image
-                  data={sub.image}
-                  aspectRatio="1/1"
-                  sizes="(min-width: 1024px) 16vw, (min-width: 640px) 20vw, 33vw"
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-surface text-text-muted text-xs">
-                  {sub.title.slice(0, 2)}
-                </div>
-              )}
-            </div>
-            <span className="text-center text-xs font-medium text-text leading-tight group-hover:text-primary transition-colors">
-              {sub.title}
-            </span>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 // ============================================================================
 // GraphQL Fragments & Query
@@ -303,6 +245,148 @@ export function meta({data}: Route.MetaArgs) {
 }
 
 // ============================================================================
+// Shared Breadcrumbs
+// ============================================================================
+
+const HOME_CRUMB = {url: '/', title: 'Home'};
+const CATEGORIES_CRUMB = {url: '/collections', title: 'Categories'};
+
+function CollectionBreadcrumbs({
+  navPath,
+  title,
+}: {
+  navPath: Array<{url: string; title: string}> | null;
+  title: string;
+}) {
+  // Always build: Home > Categories > [nav hierarchy] > Current Collection
+  // Filter navPath items that are already covered by Home or Categories crumbs.
+  const navItems = navPath
+    ? navPath.filter((n) => n.url !== '/' && n.url !== '/collections')
+    : [{url: null, title}];
+
+  const crumbs: Array<{url: string | null; title: string}> = [
+    HOME_CRUMB,
+    CATEGORIES_CRUMB,
+    ...navItems,
+  ];
+
+  return (
+    <Breadcrumb className="max-w-350 mx-auto px-6 py-4">
+      <BreadcrumbList className="text-[14px] font-medium text-[#4b5563]">
+        {crumbs.map((node, i) => {
+          const isLast = i === crumbs.length - 1;
+          return (
+            <>
+              {i > 0 && (
+                <BreadcrumbSeparator key={`sep-${i}`}>
+                  <ChevronRight size={12} className="text-[#9ca3af]" />
+                </BreadcrumbSeparator>
+              )}
+              <BreadcrumbItem key={node.url ?? node.title}>
+                {isLast || !node.url ? (
+                  <BreadcrumbPage className="text-[#111827] font-medium h-10 px-4 inline-flex items-center">
+                    {node.title}
+                  </BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink
+                    asChild
+                    className="h-10 px-4 rounded-xl hover:bg-accent inline-flex items-center"
+                  >
+                    <Link to={node.url}>{node.title}</Link>
+                  </BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+            </>
+          );
+        })}
+      </BreadcrumbList>
+    </Breadcrumb>
+  );
+}
+
+// ============================================================================
+// Non-end-node results header (count + sort, no filter sidebar)
+// ============================================================================
+
+function CategoryResultsHeader({
+  count,
+  hasNextPage,
+  searchParams,
+}: {
+  count: number;
+  hasNextPage: boolean;
+  searchParams: URLSearchParams;
+}) {
+  return (
+    <div className="flex items-center justify-between border-b border-[#e5e7eb] pb-4.25 w-full">
+      {/* Count — Figma: Roboto Medium 18px #111827 */}
+      <p className="font-medium text-[18px] text-[#111827] leading-6.75">
+        {count}
+        {hasNextPage ? '+' : ''} Product Results
+      </p>
+
+      {/* Sort dropdown — reuse existing SortSelect (pill style) */}
+      <SortSelect searchParams={searchParams} />
+    </div>
+  );
+}
+
+// ============================================================================
+// End-node results header — Figma 5030:728
+// Left: count (18px medium) + subtitle (14px gray)
+// Right: Filters button (border rounded-[8px]) + Sort button (border rounded-[8px])
+// ============================================================================
+
+function EndNodeResultsHeader({
+  count,
+  hasNextPage,
+  searchParams,
+  onOpenFilters,
+}: {
+  count: number;
+  hasNextPage: boolean;
+  searchParams: URLSearchParams;
+  onOpenFilters: () => void;
+}) {
+  return (
+    <div className="flex items-center justify-between border-b border-[#e5e7eb] pb-[17px] w-full">
+      {/* Left: count + subtitle */}
+      <div className="flex flex-col gap-[4px]">
+        <h2 className="font-medium text-[18px] text-[#111827] leading-[27px]">
+          {count}
+          {hasNextPage ? '+' : ''} Product Results
+        </h2>
+        <p className="text-[14px] text-[#6b7280] leading-[21px]">
+          Showing 1 – {count}
+          {hasNextPage ? '+' : ''} results
+        </p>
+      </div>
+
+      {/* Right: Filters + Sort */}
+      <div className="flex items-center gap-[12px]">
+        {/* Filters button — opens mobile sheet on all viewports */}
+        <button
+          type="button"
+          onClick={onOpenFilters}
+          className="bg-white border border-[#d1d5db] rounded-[8px] px-[17px] py-[9px] flex items-center gap-[8px] hover:bg-[#f9fafb] transition-colors lg:hidden"
+        >
+          <Filter size={13} className="text-[#374151]" />
+          <span className="font-medium text-[13px] text-[#374151]">
+            Filters
+          </span>
+        </button>
+
+        {/* Sort — override pill style → Figma square rounded-[8px] */}
+        <SortSelect
+          searchParams={searchParams}
+          className="!rounded-[8px] !border-[#d1d5db] !px-[17px] !py-[9px] !text-[14px] !text-[#374151] !font-normal"
+        />
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
 // Component
 // ============================================================================
 
@@ -313,8 +397,6 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const root = useRouteLoaderData<RootLoader>('root');
 
-  // Key for Pagination: changes when filters/sort change but NOT on cursor
-  // navigation, so "Load More" still works while filters trigger a fresh mount.
   const paginationKey = useMemo(() => {
     const p = new URLSearchParams(searchParamsString);
     p.delete('cursor');
@@ -324,130 +406,71 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
 
   const isNavigating = navigation.state !== 'idle';
 
-  // Build breadcrumb path — prefer metafield chain, fall back to nav menu
   const metafieldPath = buildPathFromParentMetafields(
     collection as unknown as CollectionRef,
   );
   const navPath =
     metafieldPath ?? findNavPath(root?.header?.menu, collection.handle);
 
-  // Reconstruct searchParams from serialized string
   const searchParams = new URLSearchParams(searchParamsString);
 
-  if (!collection) {
-    return null;
-  }
+  if (!collection) return null;
 
   const {products} = collection;
   const availableFilters = products.filters ?? [];
 
-  return (
-    <div className="pb-12">
-      {/* ================================================================ */}
-      {/* BREADCRUMBS — Figma: ghost-button links h-10 px-4 rounded-xl  */}
-      {/* Nav-aware: Home > Parent Collection > ... > This Collection       */}
-      {/* ================================================================ */}
-      <Breadcrumb className="max-w-300 mx-auto px-4 sm:px-6 py-2.5">
-        <BreadcrumbList className="text-[14px] font-medium text-text-muted">
-          {navPath ? (
-            // Nav-hierarchy: L1 / L2 / ... / This Collection
-            navPath.map((node, i) => {
-              const isLast = i === navPath.length - 1;
-              return (
-                <>
-                  {i > 0 && (
-                    <BreadcrumbSeparator key={`sep-${node.url}`}>
-                      /
-                    </BreadcrumbSeparator>
-                  )}
-                  <BreadcrumbItem key={node.url}>
-                    {isLast ? (
-                      <BreadcrumbPage className="text-black h-10 px-4 inline-flex items-center">
-                        {node.title}
-                      </BreadcrumbPage>
-                    ) : (
-                      <BreadcrumbLink
-                        asChild
-                        className="h-10 px-4 rounded-xl hover:bg-accent inline-flex items-center"
-                      >
-                        <Link to={node.url}>{node.title}</Link>
-                      </BreadcrumbLink>
-                    )}
-                  </BreadcrumbItem>
-                </>
-              );
-            })
-          ) : (
-            // Fallback: just the current collection title, no parent link
-            <BreadcrumbItem>
-              <BreadcrumbPage className="text-black h-10 px-4 inline-flex items-center">
-                {collection.title}
-              </BreadcrumbPage>
-            </BreadcrumbItem>
-          )}
-        </BreadcrumbList>
-      </Breadcrumb>
+  // Subcollections — determines which layout to use
+  const subcollections: SubcollectionNode[] = (collection.childCollections
+    ?.references?.nodes ?? []) as SubcollectionNode[];
+  const isCategory = subcollections.length > 0;
 
-      {/* ================================================================ */}
-      {/* COLLECTION HERO — Figma: image left 328px + title right 57px    */}
-      {/* ================================================================ */}
-      <CollectionHero
-        title={collection.title}
-        description={collection.description}
-        descriptionHtml={collection.descriptionHtml}
-        image={collection.image}
-      />
+  // ============================================================================
+  // NON-END-NODE layout (has child subcollections)
+  // Figma: hero image+desc, subcategory scroll, 6-col grid, no filter sidebar
+  // ============================================================================
 
-      {/* ================================================================ */}
-      {/* SUBCOLLECTIONS — square cards with image + title               */}
-      {/* ================================================================ */}
-      <SubcollectionGrid collection={collection} />
+  if (isCategory) {
+    return (
+      <div className="pb-12">
+        {/* Breadcrumbs */}
+        <CollectionBreadcrumbs navPath={navPath} title={collection.title} />
 
-      {/* ================================================================ */}
-      {/* PRODUCTS SECTION — Figma: px-[122px] py-[20px]                  */}
-      {/* ================================================================ */}
-      <div className="max-w-300 mx-auto px-4 sm:px-6 py-5">
-        <Pagination key={paginationKey} connection={products}>
-          {({
-            nodes,
-            NextLink,
-            PreviousLink,
-            hasNextPage,
-            hasPreviousPage,
-            isLoading,
-          }) => (
-            <>
-              {/* Results heading — uses Pagination's accumulated nodes for accurate count */}
-              {/* Figma: "{N} Product Results", 30px SemiBold, centered, pb-[10px]        */}
-              {nodes.length > 0 && (
-                <div className="flex items-center justify-center pb-[10px]">
-                  <p className="font-semibold text-[30px] text-black">
-                    {nodes.length}
-                    {hasNextPage ? '+' : ''} Product Results
-                  </p>
-                </div>
-              )}
+        {/* Hero — image left + title/description right */}
+        <CollectionHero
+          title={collection.title}
+          description={collection.description}
+          image={collection.image}
+        />
 
-              {/* Toolbar */}
-              <CollectionToolbar
-                productCount={nodes.length}
-                searchParams={searchParams}
-                onOpenMobileFilters={() => setMobileFiltersOpen(true)}
-              />
+        {/* Subcategory horizontal scroll */}
+        <SubcategoryScrollSection subcollections={subcollections} />
 
-              {/* 2-column layout: filters + grid */}
-              <div className="flex gap-10">
-                {/* Filter Sidebar — always visible on desktop, Sheet on mobile */}
-                <FilterSidebar
-                  filters={availableFilters}
+        {/* Products section */}
+        <div className="max-w-350 mx-auto px-6 py-8">
+          <Pagination key={paginationKey} connection={products}>
+            {({
+              nodes,
+              NextLink,
+              PreviousLink,
+              hasNextPage,
+              hasPreviousPage,
+              isLoading,
+            }) => (
+              <>
+                {/* Results header: count + sort */}
+                <CategoryResultsHeader
+                  count={nodes.length}
+                  hasNextPage={hasNextPage}
                   searchParams={searchParams}
-                  isOpen={mobileFiltersOpen}
-                  onClose={() => setMobileFiltersOpen(false)}
                 />
 
-                {/* Product grid */}
+                {/* Product grid — 6 columns, no sidebar */}
                 <div
-                  className={`flex-1 min-w-0 transition-opacity duration-200 ${isNavigating ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}
+                  className={`mt-6 transition-opacity duration-200 ${
+                    isNavigating
+                      ? 'opacity-40 pointer-events-none'
+                      : 'opacity-100'
+                  }`}
                 >
                   {nodes.length > 0 ? (
                     <>
@@ -462,12 +485,17 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
                         </div>
                       )}
 
-                      {/* Figma: 5-column grid, gap-[10px], Card=ProductSmall */}
-                      <ProductGrid
-                        products={nodes as CollectionProduct[]}
-                        size="small"
-                        collectionHandle={collection.handle}
-                      />
+                      {/* 6-column grid — Figma: ~229px pitch on 1400px container */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5">
+                        {nodes.map((product) => (
+                          <ProductCard
+                            key={product.id}
+                            product={product as CollectionProduct}
+                            size="category"
+                            collectionHandle={collection.handle}
+                          />
+                        ))}
+                      </div>
 
                       {hasNextPage && (
                         <div className="mt-10 flex justify-center">
@@ -487,13 +515,134 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
                       )}
                     </>
                   ) : (
-                    /* Empty state */
                     <div className="flex flex-col items-center justify-center py-16 text-center">
-                      <Search size={48} className="mb-4 text-text-muted" />
-                      <h2 className="mb-2 text-lg font-medium text-dark">
+                      <Search size={48} className="mb-4 text-[#9ca3af]" />
+                      <h2 className="mb-2 text-lg font-medium text-[#111827]">
                         No products found
                       </h2>
-                      <p className="mb-6 text-sm text-text-muted">
+                      <p className="mb-6 text-sm text-[#6b7280]">
+                        Browse the subcategories above or clear your filters.
+                      </p>
+                      <Button asChild className="rounded-full px-6">
+                        <Link to={clearAllFiltersUrl(pathname, searchParams)}>
+                          Clear All Filters
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </Pagination>
+        </div>
+      </div>
+    );
+  }
+
+  // ============================================================================
+  // END-NODE layout (leaf collection — no children)
+  // Figma 5030:728: NO hero, card FilterSidebar, 4-col grid, teal chips
+  // ============================================================================
+
+  return (
+    <div className="pb-12">
+      {/* Breadcrumbs */}
+      <CollectionBreadcrumbs navPath={navPath} title={collection.title} />
+
+      {/* Listing layout: sidebar (240px) + main (flex-1) */}
+      <div className="max-w-[1400px] mx-auto px-[24px] py-[24px]">
+        <Pagination key={paginationKey} connection={products}>
+          {({
+            nodes,
+            NextLink,
+            PreviousLink,
+            hasNextPage,
+            hasPreviousPage,
+            isLoading,
+          }) => (
+            <div className="flex gap-[32px] items-start">
+              {/* Card filter sidebar */}
+              <FilterSidebar
+                filters={availableFilters}
+                searchParams={searchParams}
+                isOpen={mobileFiltersOpen}
+                onClose={() => setMobileFiltersOpen(false)}
+              />
+
+              {/* Main content */}
+              <main className="flex-1 min-w-0">
+                {/* Results header */}
+                <EndNodeResultsHeader
+                  count={nodes.length}
+                  hasNextPage={hasNextPage}
+                  searchParams={searchParams}
+                  onOpenFilters={() => setMobileFiltersOpen(true)}
+                />
+
+                {/* Active filter chips */}
+                <ActiveFilterChips
+                  filters={availableFilters}
+                  searchParams={searchParams}
+                  className="pt-[16px]"
+                />
+
+                {/* Product grid */}
+                <div
+                  className={`mt-[24px] transition-opacity duration-200 ${
+                    isNavigating
+                      ? 'opacity-40 pointer-events-none'
+                      : 'opacity-100'
+                  }`}
+                >
+                  {nodes.length > 0 ? (
+                    <>
+                      {hasPreviousPage && (
+                        <div className="mb-6 flex justify-center">
+                          <Button variant="outline" asChild>
+                            <PreviousLink>
+                              <ChevronUp size={16} />
+                              Load Previous
+                            </PreviousLink>
+                          </Button>
+                        </div>
+                      )}
+
+                      {/* 4-column grid — Figma: 4 cols at 1080px main width */}
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                        {nodes.map((product) => (
+                          <ProductCard
+                            key={product.id}
+                            product={product as CollectionProduct}
+                            size="end-node"
+                            collectionHandle={collection.handle}
+                          />
+                        ))}
+                      </div>
+
+                      {hasNextPage && (
+                        <div className="mt-10 flex justify-center">
+                          <Button asChild className="rounded-full px-8 py-3">
+                            <NextLink>
+                              {isLoading ? (
+                                <>
+                                  <Loader2 size={16} className="animate-spin" />
+                                  Loading...
+                                </>
+                              ) : (
+                                'Load More Products'
+                              )}
+                            </NextLink>
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <Search size={48} className="mb-4 text-[#9ca3af]" />
+                      <h2 className="mb-2 text-lg font-medium text-[#111827]">
+                        No products found
+                      </h2>
+                      <p className="mb-6 text-sm text-[#6b7280]">
                         Try adjusting your filters or browse all products in
                         this collection.
                       </p>
@@ -505,8 +654,8 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
                     </div>
                   )}
                 </div>
-              </div>
-            </>
+              </main>
+            </div>
           )}
         </Pagination>
       </div>

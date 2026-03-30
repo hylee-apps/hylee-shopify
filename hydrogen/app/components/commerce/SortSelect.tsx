@@ -39,7 +39,10 @@ export function SortSelect({searchParams, className}: SortSelectProps) {
         className={`cursor-pointer rounded-full border border-border bg-white px-4 py-2.5 text-sm font-medium text-dark transition-colors hover:border-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary h-auto w-auto ${className ?? ''}`}
         aria-label="Sort products"
       >
-        <SelectValue />
+        <span className="flex items-center gap-1 whitespace-nowrap">
+          <span>Sort by:</span>
+          <SelectValue />
+        </span>
       </SelectTrigger>
       <SelectContent>
         {SORT_OPTIONS.map((option) => (
