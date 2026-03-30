@@ -1,4 +1,4 @@
-import {useState, useRef, useEffect} from 'react';
+import {useState} from 'react';
 import {Link, useLocation, useNavigate} from 'react-router';
 import type {Filter} from '@shopify/hydrogen/storefront-api-types';
 import {
@@ -17,6 +17,7 @@ import {Input} from '~/components/ui/input';
 import {Button} from '~/components/ui/button';
 import {Sheet, SheetContent, SheetTitle} from '~/components/ui/sheet';
 import {cn} from '~/lib/utils';
+import {X} from 'lucide-react';
 
 // ============================================================================
 // Types
@@ -36,7 +37,49 @@ export interface FilterSidebarProps {
 }
 
 // ============================================================================
-// Sub-components
+// Category link list item — Figma: plain text label + count badge (no checkbox)
+// ============================================================================
+
+interface CategoryLinkItemProps {
+  label: string;
+  count?: number;
+  isActive: boolean;
+  href: string;
+}
+
+function CategoryLinkItem({
+  label,
+  count,
+  isActive,
+  href,
+}: CategoryLinkItemProps) {
+  return (
+    <Link
+      to={href}
+      preventScrollReset
+      className="flex items-center justify-between py-[8px] w-full group"
+    >
+      <span
+        className={cn(
+          'text-[14px] leading-[21px] transition-colors',
+          isActive
+            ? 'font-medium text-[#111827]'
+            : 'font-normal text-[#374151] group-hover:text-[#111827]',
+        )}
+      >
+        {label}
+      </span>
+      {count !== undefined && (
+        <span className="bg-[#f3f4f6] px-[8px] py-[2px] rounded-[10px] text-[12px] text-[#9ca3af] leading-[18px] shrink-0 ml-2">
+          {count}
+        </span>
+      )}
+    </Link>
+  );
+}
+
+// ============================================================================
+// Checkbox filter item — Figma: teal checked state, 18px square, rounded-[2.5px]
 // ============================================================================
 
 interface CheckboxFilterItemProps {
@@ -56,32 +99,37 @@ function CheckboxFilterItem({
     <Link
       to={href}
       preventScrollReset
-      className="flex cursor-pointer items-center gap-2.5 py-1.5 group"
+      className="flex cursor-pointer items-center gap-[12px] py-1.5 group"
     >
       <Checkbox
         checked={isActive}
         tabIndex={-1}
-        className="pointer-events-none data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+        className="pointer-events-none size-[18px] rounded-[2.5px] data-[state=checked]:bg-secondary data-[state=checked]:border-secondary"
       />
-      <span className="text-sm text-text-muted transition-colors group-hover:text-dark">
+      <span className="text-[14px] text-[#374151] leading-[21px] transition-colors group-hover:text-[#111827]">
         {label}
       </span>
       {count !== undefined && (
-        <span className="ml-auto text-xs text-text-muted">({count})</span>
+        <span className="ml-auto text-xs text-[#9ca3af]">({count})</span>
       )}
     </Link>
   );
 }
 
 // ============================================================================
-// Price Range
+// Price Range Filter — Figma: inputs + Apply btn + preset checkboxes
 // ============================================================================
 
-function PriceRangeFilter({searchParams}: {searchParams: URLSearchParams}) {
-  const {pathname, search} = useLocation();
+interface PriceRangeFilterProps {
+  presetValues?: Filter['values'];
+  searchParams: URLSearchParams;
+}
+
+function PriceRangeFilter({presetValues, searchParams}: PriceRangeFilterProps) {
+  const {pathname} = useLocation();
   const navigate = useNavigate();
 
-  // Parse current price filter from the URL params passed in (URL-derived, optimistic)
+  // Parse current custom price filter from URL
   let initialMin = '';
   let initialMax = '';
   for (const val of searchParams.getAll('filter')) {
@@ -98,55 +146,86 @@ function PriceRangeFilter({searchParams}: {searchParams: URLSearchParams}) {
 
   const [minVal, setMinVal] = useState(initialMin);
   const [maxVal, setMaxVal] = useState(initialMax);
-  // Skip navigation on the first render — only fire when user actually types
-  const isFirstRender = useRef(true);
 
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
+  function handleApply() {
+    const min = minVal !== '' ? parseInt(minVal, 10) : undefined;
+    const max = maxVal !== '' ? parseInt(maxVal, 10) : undefined;
+    const url = buildPriceFilterUrl(
+      pathname,
+      new URLSearchParams(searchParams.toString()),
+      isNaN(min as number) ? undefined : min,
+      isNaN(max as number) ? undefined : max,
+    );
+    navigate(url, {preventScrollReset: true});
+  }
 
-    const timer = setTimeout(() => {
-      const min = minVal !== '' ? parseInt(minVal, 10) : undefined;
-      const max = maxVal !== '' ? parseInt(maxVal, 10) : undefined;
-      const url = buildPriceFilterUrl(
-        pathname,
-        new URLSearchParams(search),
-        isNaN(min as number) ? undefined : min,
-        isNaN(max as number) ? undefined : max,
-      );
-      navigate(url, {preventScrollReset: true});
-    }, 600);
-
-    return () => clearTimeout(timer);
-  }, [minVal, maxVal]);
+  const activeFilters = searchParams.getAll('filter');
 
   return (
-    <div className="flex items-center gap-3">
-      <Input
-        type="number"
-        value={minVal}
-        onChange={(e) => setMinVal(e.target.value)}
-        placeholder="Min"
-        min={0}
-        className="w-16 text-center text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-      />
-      <span className="text-xs text-text-muted">to</span>
-      <Input
-        type="number"
-        value={maxVal}
-        onChange={(e) => setMaxVal(e.target.value)}
-        placeholder="Max"
-        min={0}
-        className="w-16 text-center text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-      />
+    <div className="flex flex-col gap-[12px]">
+      {/* Min / Max inputs */}
+      <div className="flex items-center gap-[12px]">
+        <Input
+          type="number"
+          value={minVal}
+          onChange={(e) => setMinVal(e.target.value)}
+          placeholder="Min"
+          min={0}
+          className="w-[80px] h-[34px] border-[#d1d5db] rounded-[8px] text-[14px] text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        />
+        <span className="text-[#9ca3af] text-[16px] leading-[24px]">-</span>
+        <Input
+          type="number"
+          value={maxVal}
+          onChange={(e) => setMaxVal(e.target.value)}
+          placeholder="Max"
+          min={0}
+          className="w-[80px] h-[34px] border-[#d1d5db] rounded-[8px] text-[14px] text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        />
+      </div>
+
+      {/* Apply button — Figma: full-width teal, rounded-[8px], Medium 13px */}
+      <button
+        type="button"
+        onClick={handleApply}
+        className="w-full bg-[#2699a6] hover:bg-[#2699a6]/90 transition-colors rounded-[8px] px-[16px] py-[8px] font-medium text-[13px] text-white text-center"
+      >
+        Apply
+      </button>
+
+      {/* Preset price range checkboxes (rendered only if Shopify returns values) */}
+      {presetValues && presetValues.length > 0 && (
+        <div className="flex flex-col gap-[12px] pt-[4px]">
+          {presetValues.map((value) => {
+            const inputStr =
+              typeof value.input === 'string'
+                ? value.input
+                : JSON.stringify(value.input);
+            const isActive = activeFilters.includes(inputStr);
+            const href = buildFilterUrl(
+              pathname,
+              searchParams,
+              inputStr,
+              'toggle',
+            );
+            return (
+              <CheckboxFilterItem
+                key={value.id}
+                label={value.label}
+                count={value.count}
+                isActive={isActive}
+                href={href}
+              />
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
 
 // ============================================================================
-// Expandable List Helper
+// Expandable checkbox list
 // ============================================================================
 
 interface ExpandableListProps {
@@ -154,6 +233,8 @@ interface ExpandableListProps {
   searchParams: URLSearchParams;
   pathname: string;
   initialShow?: number;
+  /** Lowercase filter label used in "Show more {label}s" text, e.g. "brand" */
+  filterLabel?: string;
 }
 
 function ExpandableList({
@@ -161,6 +242,7 @@ function ExpandableList({
   searchParams,
   pathname,
   initialShow = 6,
+  filterLabel,
 }: ExpandableListProps) {
   const [showAll, setShowAll] = useState(false);
   const activeFilters = searchParams.getAll('filter');
@@ -201,9 +283,13 @@ function ExpandableList({
           variant="link"
           size="xs"
           onClick={() => setShowAll(!showAll)}
-          className="mt-2 h-auto px-0 text-primary"
+          className="mt-2 h-auto px-0 text-secondary"
         >
-          {showAll ? 'Show less' : 'Show more'}
+          {showAll
+            ? 'Show less'
+            : filterLabel
+              ? `Show more ${filterLabel}s`
+              : `Show ${items.length - initialShow} more`}
         </Button>
       )}
     </div>
@@ -211,7 +297,44 @@ function ExpandableList({
 }
 
 // ============================================================================
-// Filter Sections (shared between desktop sidebar and mobile Sheet)
+// Category link list (no checkboxes)
+// ============================================================================
+
+interface CategoryListProps {
+  items: Filter['values'];
+  searchParams: URLSearchParams;
+  pathname: string;
+}
+
+function CategoryList({items, searchParams, pathname}: CategoryListProps) {
+  const activeFilters = searchParams.getAll('filter');
+
+  return (
+    <div className="flex flex-col">
+      {items.map((value) => {
+        const inputStr =
+          typeof value.input === 'string'
+            ? value.input
+            : JSON.stringify(value.input);
+        const isActive = activeFilters.includes(inputStr);
+        const href = buildFilterUrl(pathname, searchParams, inputStr, 'toggle');
+
+        return (
+          <CategoryLinkItem
+            key={value.id}
+            label={value.label}
+            count={value.count}
+            isActive={isActive}
+            href={href}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+// ============================================================================
+// Filter Sections — shared between desktop sidebar and mobile Sheet
 // ============================================================================
 
 interface FilterSectionsProps {
@@ -229,8 +352,6 @@ function FilterSections({
 }: FilterSectionsProps) {
   const defaultOpen = filters.map((f) => f.id);
 
-  // Derive a key for PriceRangeFilter so it resets when the price filter is
-  // cleared externally (e.g. "Clear All"), while staying mounted during debounce.
   const priceKey =
     searchParams.getAll('filter').find((f) => f.includes('"price"')) ??
     'no-price';
@@ -240,21 +361,44 @@ function FilterSections({
       {filters.map((filter) => {
         if (!filter.values || filter.values.length === 0) return null;
 
-        const isPriceFilter = filter.type === 'PRICE_RANGE';
+        const isPriceRange = filter.type === 'PRICE_RANGE';
+        // Category filter renders as link list (not checkboxes)
+        const isCategoryList =
+          !isPriceRange &&
+          (filter.label.toLowerCase() === 'category' ||
+            filter.label.toLowerCase() === 'product type');
 
         return (
-          <AccordionItem key={filter.id} value={filter.id}>
-            <AccordionTrigger className="py-5 text-sm font-bold text-dark hover:no-underline">
+          <AccordionItem
+            key={filter.id}
+            value={filter.id}
+            className="border-b border-[#e5e7eb]"
+          >
+            {/* Filter title — Figma: Bold 14px #111827 tracking-[0.5px] uppercase */}
+            <AccordionTrigger className="py-[14px] text-[14px] font-bold text-[#111827] tracking-[0.5px] uppercase hover:no-underline">
               {filter.label}
             </AccordionTrigger>
-            <AccordionContent>
-              {isPriceFilter ? (
-                <PriceRangeFilter key={priceKey} searchParams={searchParams} />
+            <AccordionContent className="pb-[16px]">
+              {isPriceRange ? (
+                <PriceRangeFilter
+                  key={priceKey}
+                  presetValues={
+                    filter.values.length > 0 ? filter.values : undefined
+                  }
+                  searchParams={searchParams}
+                />
+              ) : isCategoryList ? (
+                <CategoryList
+                  items={filter.values}
+                  searchParams={searchParams}
+                  pathname={pathname}
+                />
               ) : (
                 <ExpandableList
                   items={filter.values}
                   searchParams={searchParams}
                   pathname={pathname}
+                  filterLabel={filter.label.toLowerCase()}
                 />
               )}
             </AccordionContent>
@@ -270,9 +414,13 @@ function FilterSections({
 // ============================================================================
 
 /**
- * FilterSidebar — filter panel for collection pages.
+ * FilterSidebar — redesigned per Figma node 5030:728 (PLP end-node).
  *
- * Desktop (lg+): always-visible static left sidebar.
+ * Desktop (lg+): white card `bg-white border border-[#e5e7eb] rounded-[12px] w-[240px]`,
+ *   sticky top-[24px]. Header shows "Filters" + teal × clear button.
+ *   Sections: Category (link list), Price Range (inputs + Apply + presets),
+ *   Brand/Rating/Availability (teal checkboxes).
+ *
  * Mobile (<lg): hidden; controlled by isOpen/onClose as a Sheet drawer.
  */
 export function FilterSidebar({
@@ -283,35 +431,47 @@ export function FilterSidebar({
   className = '',
 }: FilterSidebarProps) {
   const {pathname, search} = useLocation();
-  // Derive searchParams from the current URL so filter state is optimistic:
-  // the checkboxes reflect the URL immediately after navigate(), before the
-  // loader finishes, rather than waiting for fresh loaderData.
   const searchParams = new URLSearchParams(search);
   const hasActiveFilters = searchParams.getAll('filter').length > 0;
 
-  const clearAllLink = (
-    <Button variant="outline" size="xs" asChild>
-      <Link to={clearAllFiltersUrl(pathname, searchParams)} preventScrollReset>
-        Clear All
-      </Link>
-    </Button>
-  );
+  const clearAllLink = clearAllFiltersUrl(pathname, searchParams);
 
   return (
     <>
       {/* ------------------------------------------------------------------ */}
-      {/* Desktop — always visible static sidebar                            */}
+      {/* Desktop — card sidebar                                              */}
       {/* ------------------------------------------------------------------ */}
-      <aside className={cn('hidden lg:block w-60 shrink-0', className)}>
-        <div className="flex items-center justify-between border-b border-border pb-4">
-          <h2 className="text-lg font-bold text-dark">Filters</h2>
-          {hasActiveFilters && clearAllLink}
+      <aside
+        className={cn(
+          'hidden lg:block w-[240px] shrink-0 self-start sticky top-[24px]',
+          className,
+        )}
+      >
+        <div className="bg-white border border-[#e5e7eb] rounded-[12px] pb-[33px] pt-[21px] px-[21px] flex flex-col gap-[20px]">
+          {/* Sidebar header — "Filters" + × clear */}
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold text-[16px] text-[#1f2937] leading-[24px]">
+              Filters
+            </h2>
+            {hasActiveFilters && (
+              <Link
+                to={clearAllLink}
+                preventScrollReset
+                className="p-[4px] rounded-[8px] hover:bg-[#f3f4f6] transition-colors"
+                aria-label="Clear all filters"
+              >
+                <X size={13} className="text-secondary" />
+              </Link>
+            )}
+          </div>
+
+          {/* Filter sections */}
+          <FilterSections
+            filters={filters}
+            searchParams={searchParams}
+            pathname={pathname}
+          />
         </div>
-        <FilterSections
-          filters={filters}
-          searchParams={searchParams}
-          pathname={pathname}
-        />
       </aside>
 
       {/* ------------------------------------------------------------------ */}
@@ -320,9 +480,22 @@ export function FilterSidebar({
       <Sheet open={isOpen} onOpenChange={(open) => !open && onClose?.()}>
         <SheetContent side="left" className="w-80 overflow-y-auto pt-10">
           <SheetTitle className="sr-only">Filters</SheetTitle>
-          <div className="flex items-center justify-between border-b border-border pb-4">
-            <h2 className="text-lg font-bold text-dark">Filters</h2>
-            {hasActiveFilters && clearAllLink}
+          {/* Mobile sheet header */}
+          <div className="flex items-center justify-between border-b border-[#e5e7eb] pb-4 mb-2">
+            <h2 className="font-semibold text-[16px] text-[#1f2937] leading-[24px]">
+              Filters
+            </h2>
+            {hasActiveFilters && (
+              <Link
+                to={clearAllLink}
+                preventScrollReset
+                onClick={onClose}
+                className="p-[4px] rounded-[8px] hover:bg-[#f3f4f6] transition-colors"
+                aria-label="Clear all filters"
+              >
+                <X size={13} className="text-secondary" />
+              </Link>
+            )}
           </div>
           <FilterSections
             filters={filters}
