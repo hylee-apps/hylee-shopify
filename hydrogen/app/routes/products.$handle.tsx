@@ -73,7 +73,6 @@ const PRODUCT_VARIANT_FRAGMENT = `#graphql
   fragment ProductVariant on ProductVariant {
     id
     availableForSale
-    quantityAvailable
     selectedOptions {
       name
       value
@@ -587,7 +586,7 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
                 quantity={quantity}
                 onChange={setQuantity}
                 min={1}
-                max={selectedVariant.quantityAvailable ?? 99}
+                max={99}
                 className="shrink-0"
               />
               <AddToCart

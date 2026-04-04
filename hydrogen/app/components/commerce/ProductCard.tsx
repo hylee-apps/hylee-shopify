@@ -22,11 +22,11 @@ type ProductCardProduct = Pick<
 > & {
   images: {
     nodes: Array<{
-      id?: string;
+      id?: string | null;
       url: string;
       altText?: string | null;
-      width?: number;
-      height?: number;
+      width?: number | null;
+      height?: number | null;
     }>;
   };
   priceRange: {

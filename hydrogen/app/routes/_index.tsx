@@ -6,7 +6,30 @@ import {
   ProductCard,
   type ProductCardProps,
 } from '~/components/commerce/ProductCard';
+import {HeroCarousel, type CarouselSlide} from '~/components/home/HeroCarousel';
 import type {Route} from './+types/_index';
+
+// ============================================================================
+// Carousel slides — update here or wire to Shopify metaobjects in future
+// ============================================================================
+
+const CAROUSEL_SLIDES: CarouselSlide[] = [
+  {
+    id: 'slide-1',
+    backgroundImage: '/hero-bg.jpg',
+    bgColor: '#14b8a6',
+  },
+  {
+    id: 'slide-2',
+    backgroundImage: '',
+    bgColor: '#2699a6',
+  },
+  {
+    id: 'slide-3',
+    backgroundImage: '',
+    bgColor: '#2ac864',
+  },
+];
 
 // ============================================================================
 // Meta
@@ -24,11 +47,139 @@ export function meta({}: Route.MetaArgs) {
 }
 
 // ============================================================================
-// GraphQL — fetch products from a collection by handle
+// GraphQL
 // ============================================================================
 
-const HOMEPAGE_COLLECTION_QUERY = `#graphql
-  query HomepageCollection(
+const WHATS_NEW_QUERY = `#graphql
+  query WhatsNewProducts(
+    $first: Int!
+    $query: String!
+    $country: CountryCode
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
+    products(
+      first: $first
+      query: $query
+      sortKey: CREATED_AT
+      reverse: true
+    ) {
+      nodes {
+        id
+        title
+        handle
+        vendor
+        availableForSale
+        tags
+        createdAt
+        images(first: 2) {
+          nodes {
+            id
+            url
+            altText
+            width
+            height
+          }
+        }
+        priceRange {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+        compareAtPriceRange {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+        variants(first: 1) {
+          nodes {
+            id
+            availableForSale
+            price {
+              amount
+              currencyCode
+            }
+            compareAtPrice {
+              amount
+              currencyCode
+            }
+            selectedOptions {
+              name
+              value
+            }
+          }
+        }
+      }
+    }
+  }
+` as const;
+
+const DISCOUNTED_PRODUCTS_QUERY = `#graphql
+  query DiscountedProducts(
+    $first: Int!
+    $country: CountryCode
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
+    products(
+      first: $first
+      query: "compare_at_price:>0"
+      sortKey: BEST_SELLING
+    ) {
+      nodes {
+        id
+        title
+        handle
+        vendor
+        availableForSale
+        tags
+        createdAt
+        images(first: 2) {
+          nodes {
+            id
+            url
+            altText
+            width
+            height
+          }
+        }
+        priceRange {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+        compareAtPriceRange {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+        variants(first: 1) {
+          nodes {
+            id
+            availableForSale
+            price {
+              amount
+              currencyCode
+            }
+            compareAtPrice {
+              amount
+              currencyCode
+            }
+            selectedOptions {
+              name
+              value
+            }
+          }
+        }
+      }
+    }
+  }
+` as const;
+
+const SEASONAL_COLLECTION_QUERY = `#graphql
+  query SeasonalCollection(
     $handle: String!
     $first: Int!
     $country: CountryCode
@@ -99,31 +250,44 @@ const HOMEPAGE_COLLECTION_QUERY = `#graphql
 export async function loader({context}: Route.LoaderArgs) {
   const {storefront} = context;
 
-  const queryOpts = {
-    variables: {
-      first: 8,
-      country: storefront.i18n.country,
-      language: storefront.i18n.language,
-    },
+  const baseVars = {
+    first: 8,
+    country: storefront.i18n.country,
+    language: storefront.i18n.language,
   };
 
-  // Fetch both collections in parallel — gracefully handle missing collections
-  const [whatsNewResult, seasonalResult] = await Promise.all([
+  // Calculate the 30-day cutoff date for "What's New"
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split('T')[0];
+
+  // Fetch all homepage data in parallel
+  const [whatsNewResult, seasonalResult, discountedResult] = await Promise.all([
     storefront
-      .query(HOMEPAGE_COLLECTION_QUERY, {
-        variables: {...queryOpts.variables, handle: 'what-s-new'},
+      .query(WHATS_NEW_QUERY, {
+        variables: {
+          ...baseVars,
+          first: 20,
+          query: `created_at:>${thirtyDaysAgo}`,
+        },
       })
       .catch(() => null),
     storefront
-      .query(HOMEPAGE_COLLECTION_QUERY, {
-        variables: {...queryOpts.variables, handle: 'summer-collection'},
+      .query(SEASONAL_COLLECTION_QUERY, {
+        variables: {...baseVars, handle: 'kitchen-dining'},
+      })
+      .catch(() => null),
+    storefront
+      .query(DISCOUNTED_PRODUCTS_QUERY, {
+        variables: baseVars,
       })
       .catch(() => null),
   ]);
 
   return {
-    whatsNew: whatsNewResult?.collection ?? null,
+    whatsNew: whatsNewResult?.products?.nodes ?? [],
     seasonal: seasonalResult?.collection ?? null,
+    discounted: discountedResult?.products?.nodes ?? [],
   };
 }
 
@@ -162,8 +326,8 @@ function ProductSection({
           </Link>
         </div>
 
-        <div className="flex gap-2.5 overflow-x-auto">
-          {products.slice(0, 4).map((product) => {
+        <div className="flex gap-2.5 overflow-x-auto items-stretch">
+          {products.slice(0, 5).map((product) => {
             const isNew =
               product.createdAt &&
               Date.now() - new Date(product.createdAt).getTime() <
@@ -177,6 +341,7 @@ function ProductSection({
                 collectionHandle={collectionHandle}
                 customBadge={isNew ? 'New' : undefined}
                 customBadgeColor={isNew ? 'bg-primary' : undefined}
+                className="flex-1 min-w-40"
               />
             );
           })}
@@ -192,32 +357,25 @@ function ProductSection({
 // ============================================================================
 
 export default function Homepage() {
-  const {whatsNew, seasonal} = useLoaderData<typeof loader>();
+  const {whatsNew, seasonal, discounted} = useLoaderData<typeof loader>();
 
   return (
     <>
       {/* ================================================================ */}
-      {/* HERO — Figma node 203:267                                        */}
-      {/* bg-hero (#14b8a6), h-[422px], shadow, centered logo + search    */}
+      {/* HERO CAROUSEL — Figma node 203:267                              */}
+      {/* Carousel IS the hero: cycling bg + logo + search always shown   */}
       {/* ================================================================ */}
-      <section
-        className="relative flex flex-col h-[522px] items-center justify-center px-4 sm:px-[157px] py-[59px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] w-full shrink-0 mb-8 bg-cover bg-center bg-hero"
-        style={{backgroundImage: "url('/hero-bg.jpg')"}}
-      >
-        {/* Teal scrim over the photo */}
-        <div
-          className="absolute inset-0 bg-hero/10 pointer-events-none"
-          aria-hidden="true"
-        />
-        <div className="relative z-10 flex flex-col gap-[17px] items-center justify-center overflow-clip px-4 sm:px-[221px] py-[17px] w-full">
-          {/* White full Hylee logo — Figma: Logo=Alternate, 183×101.821px */}
+      <HeroCarousel
+        slides={CAROUSEL_SLIDES}
+        header={
           <img
             src="/logo-white.png"
             alt="Hylee"
             className="h-[101.821px] w-[183px] object-cover shrink-0"
             loading="eager"
           />
-          {/* Search form — Figma: white bg, border-secondary, rounded-[25px], h-10, max-w-[683px] */}
+        }
+        footer={
           <Form action="/search" method="get" className="w-full max-w-[683px]">
             <PillInput
               type="search"
@@ -226,20 +384,20 @@ export default function Homepage() {
               autoComplete="off"
             />
           </Form>
-        </div>
-      </section>
+        }
+      />
 
       {/* ================================================================ */}
       {/* PRODUCTS CONTAINER — Figma node 218:476 (1440×1778px)           */}
       {/* ================================================================ */}
       <div className="flex flex-col items-start w-full gap-10">
-        {/* What's New — Figma node 218:337 */}
-        {whatsNew && whatsNew.products.nodes.length > 0 && (
+        {/* What's New — products created in the last 30 days */}
+        {whatsNew.length > 0 && (
           <ProductSection
             categoryLabel="What's New"
-            seeAllUrl="/collections/what-s-new"
-            collectionHandle="what-s-new"
-            products={whatsNew.products.nodes as CollectionProduct[]}
+            seeAllUrl="/collections/all?sort_by=created-descending"
+            collectionHandle="all"
+            products={whatsNew as CollectionProduct[]}
           />
         )}
 
@@ -253,8 +411,18 @@ export default function Homepage() {
           />
         )}
 
+        {/* Discounted Products */}
+        {discounted.length > 0 && (
+          <ProductSection
+            categoryLabel="Discounted"
+            seeAllUrl="/collections/discounted"
+            collectionHandle="discounted"
+            products={discounted as CollectionProduct[]}
+          />
+        )}
+
         {/* ============================================================== */}
-        {/* PROMOTIONS & DISCOUNTS — Figma node 218:430                    */}
+        {/* PROMOTIONS & DEALS — Figma node 218:430                        */}
         {/* Section header h-25 xl:px-[122px], card frame 861×314px        */}
         {/* ============================================================== */}
         <Separator className="w-full" />
@@ -263,7 +431,7 @@ export default function Homepage() {
             {/* Section header */}
             <div className="flex items-center py-3">
               <h2 className="text-[20px] font-bold text-black leading-tight">
-                Promotions &amp; Discounts
+                Promotions &amp; Deals
               </h2>
             </div>
 
