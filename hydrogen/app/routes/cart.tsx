@@ -14,7 +14,7 @@ import {
   Minus,
   Plus,
   X,
-  Info,
+  UserCircle,
   ShieldCheck,
   Lock,
   ArrowRight,
@@ -142,8 +142,8 @@ function CartEmpty() {
 
 function GuestBanner() {
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-accent bg-accent/10 p-[17px]">
-      <Info size={20} className="shrink-0 text-accent" />
+    <div className="flex items-center gap-3 rounded-sm border border-brand-accent bg-brand-accent/10 p-[17px]">
+      <UserCircle size={20} className="shrink-0 text-brand-accent" />
       <p className="text-sm text-[#374151]">
         Checking out as guest.{' '}
         <Link
@@ -191,7 +191,7 @@ function CartLineRow({line, isLast}: CartLineRowProps) {
     >
       {/* Product Image */}
       <Link to={lineUrl} className="shrink-0">
-        <div className="relative size-20 overflow-hidden rounded-lg bg-[#f3f4f6]">
+        <div className="relative size-20 overflow-hidden rounded-sm bg-[#f3f4f6]">
           {image ? (
             <Image
               data={image}
@@ -357,13 +357,13 @@ function PromoCodeCard({discountCodes}: {discountCodes: any[] | undefined}) {
             <Input
               name="discountCode"
               placeholder="Enter promo code"
-              className="flex-1 rounded-lg border-[#d1d5db] text-sm placeholder:text-[#757575]"
+              className="flex-1 rounded-sm border-[#d1d5db] px-[17px] py-[13px] text-[15px] placeholder:text-[#757575]"
             />
             <Button
               type="submit"
               variant="outline"
               disabled={isSubmitting}
-              className="rounded-lg border-[#d1d5db] px-5 text-sm font-medium text-[#374151]"
+              className="rounded-sm border-[#d1d5db] px-[21px] py-[13px] text-[15px] font-medium text-[#374151]"
             >
               {isSubmitting ? '...' : 'Apply'}
             </Button>
@@ -397,7 +397,7 @@ function OrderSummary({cart, discountCodes}: OrderSummaryProps) {
       : 0;
 
   return (
-    <Card className="sticky top-4 w-[400px] shrink-0 gap-0 overflow-hidden bg-white p-0 shadow-sm">
+    <Card className="sticky top-0 w-[400px] shrink-0 gap-0 overflow-hidden bg-white p-0 shadow-sm">
       {/* Title */}
       <div className="border-b border-border px-6 pb-[18px] pt-6">
         <h3 className="text-lg font-bold text-[#1f2937]">Order Summary</h3>
@@ -418,14 +418,14 @@ function OrderSummary({cart, discountCodes}: OrderSummaryProps) {
 
           <div className="flex items-center justify-between">
             <span className="text-[15px] text-[#4b5563]">Shipping</span>
-            <span className="text-[15px] text-text-light">
+            <span className="text-[15px] text-[#9ca3af]">
               Calculated at next step
             </span>
           </div>
 
           <div className="flex items-center justify-between">
             <span className="text-[15px] text-[#4b5563]">Tax</span>
-            <span className="text-[15px] text-text-light">
+            <span className="text-[15px] text-[#9ca3af]">
               Calculated at next step
             </span>
           </div>
@@ -457,7 +457,7 @@ function OrderSummary({cart, discountCodes}: OrderSummaryProps) {
         <div className="mt-[22px]">
           <Link
             to="/checkout/payment"
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-secondary px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-secondary/90"
+            className="flex w-full items-center justify-center gap-2 rounded-sm bg-brand-accent px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-brand-accent/90"
           >
             Proceed to Checkout
             <ArrowRight size={16} />
@@ -467,11 +467,11 @@ function OrderSummary({cart, discountCodes}: OrderSummaryProps) {
         {/* Trust Badges */}
         <div className="mb-6 mt-6 flex items-center justify-center gap-6 border-t border-border pt-6">
           <div className="flex items-center gap-2">
-            <ShieldCheck size={13} className="text-primary" />
+            <Lock size={13} className="text-primary" />
             <span className="text-[13px] text-[#4b5563]">Secure Checkout</span>
           </div>
           <div className="flex items-center gap-2">
-            <Lock size={13} className="text-primary" />
+            <ShieldCheck size={13} className="text-primary" />
             <span className="text-[13px] text-[#4b5563]">SSL Encrypted</span>
           </div>
         </div>
@@ -520,7 +520,7 @@ export default function CartPage() {
                 </div>
 
                 {/* Items */}
-                <div className="px-6">
+                <div className="px-6 pt-6">
                   {cart.lines.nodes.map((line: any, idx: number) => (
                     <CartLineRow
                       key={line.id}
