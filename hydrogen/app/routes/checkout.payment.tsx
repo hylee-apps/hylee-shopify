@@ -128,7 +128,7 @@ function PaymentMethodOption({
       type="button"
       onClick={() => onSelect(id)}
       className={cn(
-        'flex w-full cursor-pointer items-center gap-3 rounded-lg border-2 p-[18px] text-left transition-colors',
+        'flex w-full cursor-pointer items-center gap-3 rounded-[8px] border-2 p-[18px] text-left transition-colors',
         isSelected
           ? 'border-secondary bg-secondary/5'
           : 'border-border hover:border-secondary/40',
@@ -178,7 +178,7 @@ function CardDetailsForm() {
             inputMode="numeric"
             maxLength={19}
             placeholder="1234 5678 9012 3456"
-            className="h-[44px] w-full rounded-lg border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
+            className="h-[44px] w-full rounded-[8px] border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
           />
         </div>
 
@@ -193,7 +193,7 @@ function CardDetailsForm() {
               inputMode="numeric"
               maxLength={7}
               placeholder="MM / YY"
-              className="h-[44px] w-full rounded-lg border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
+              className="h-[44px] w-full rounded-[8px] border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
             />
           </div>
           <div className="flex flex-1 flex-col gap-2">
@@ -203,7 +203,7 @@ function CardDetailsForm() {
               inputMode="numeric"
               maxLength={4}
               placeholder="123"
-              className="h-[44px] w-full rounded-lg border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
+              className="h-[44px] w-full rounded-[8px] border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
             />
           </div>
         </div>
@@ -216,7 +216,7 @@ function CardDetailsForm() {
           <input
             type="text"
             placeholder="John Doe"
-            className="h-[44px] w-full rounded-lg border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
+            className="h-[44px] w-full rounded-[8px] border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
           />
         </div>
       </div>
@@ -232,11 +232,11 @@ function BillingAddressCard() {
   const [sameAsShipping, setSameAsShipping] = useState(true);
 
   return (
-    <Card className="gap-0 overflow-hidden bg-white p-0 shadow-sm">
+    <Card className="gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
       <div className="border-b border-border px-6 py-5">
         <h2 className="text-lg font-bold text-[#111827]">Billing Address</h2>
       </div>
-      <div className="px-6 py-6">
+      <div className="px-6 pt-6 pb-[41px]">
         <label className="flex cursor-pointer items-center gap-3">
           <div
             onClick={() => setSameAsShipping(!sameAsShipping)}
@@ -285,7 +285,7 @@ function OrderSummary({cart}: OrderSummaryProps) {
   const taxAmount = cart.cost?.totalTaxAmount;
 
   return (
-    <Card className="sticky top-4 w-[400px] shrink-0 gap-0 overflow-hidden bg-white p-0 shadow-sm">
+    <Card className="sticky top-0 w-[400px] shrink-0 gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
       {/* Header */}
       <div className="border-b border-border px-6 pb-[17px] pt-6">
         <h3 className="text-lg font-bold text-[#1f2937]">Order Summary</h3>
@@ -302,13 +302,19 @@ function OrderSummary({cart}: OrderSummaryProps) {
           </div>
           <div className="flex items-center justify-between">
             <span className="text-[15px] text-[#4b5563]">Shipping</span>
-            <span className="text-[15px] text-text-light">
+            <span className="text-[15px] text-[#9ca3af]">
               Calculated at next step
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-[15px] text-[#4b5563]">Tax</span>
-            <span className="text-[15px] text-[#4b5563]">
+            <span
+              className={
+                taxAmount
+                  ? 'text-[15px] text-[#4b5563]'
+                  : 'text-[15px] text-[#9ca3af]'
+              }
+            >
               {taxAmount ? formatMoney(taxAmount) : 'Calculated at next step'}
             </span>
           </div>
@@ -327,7 +333,7 @@ function OrderSummary({cart}: OrderSummaryProps) {
         <div className="mt-[22px]">
           <button
             type="submit"
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-secondary px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-secondary/90"
+            className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-primary/90"
           >
             Continue to Shipping
             <ArrowRight size={16} />
@@ -376,7 +382,7 @@ function PaymentMethodCard({
     useState<PaymentMethodType>(defaultMethod);
 
   return (
-    <Card className="gap-0 overflow-hidden bg-white p-0 shadow-sm">
+    <Card className="gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
       {/* Header */}
       <div className="border-b border-border px-6 py-5">
         <h2 className="text-lg font-bold text-[#111827]">Payment Method</h2>
@@ -391,7 +397,7 @@ function PaymentMethodCard({
           selected={selectedMethod}
           onSelect={setSelectedMethod}
           icon={
-            <div className="flex h-[26px] w-10 shrink-0 items-center justify-center rounded bg-[#f3f4f6]">
+            <div className="flex h-[26px] w-10 shrink-0 items-center justify-center rounded-[4px] bg-[#f3f4f6]">
               <CreditCard size={14} className="text-[#4b5563]" />
             </div>
           }
@@ -416,7 +422,7 @@ function PaymentMethodCard({
           selected={selectedMethod}
           onSelect={setSelectedMethod}
           icon={
-            <div className="flex h-[26px] w-10 shrink-0 items-center justify-center rounded bg-[#552bed]">
+            <div className="flex h-[26px] w-10 shrink-0 items-center justify-center rounded-[4px] bg-[#552bed]">
               <span className="text-xs font-bold text-white">S</span>
             </div>
           }
@@ -429,7 +435,7 @@ function PaymentMethodCard({
           selected={selectedMethod}
           onSelect={setSelectedMethod}
           icon={
-            <div className="flex h-[26px] w-10 shrink-0 items-center justify-center rounded bg-black">
+            <div className="flex h-[26px] w-10 shrink-0 items-center justify-center rounded-[4px] bg-black">
               <svg
                 viewBox="0 0 14 16"
                 className="h-3.5 w-3 fill-white"
@@ -448,7 +454,7 @@ function PaymentMethodCard({
           selected={selectedMethod}
           onSelect={setSelectedMethod}
           icon={
-            <div className="flex h-[26px] w-10 shrink-0 items-center justify-center rounded bg-[#4285f4]">
+            <div className="flex h-[26px] w-10 shrink-0 items-center justify-center rounded-[4px] bg-[#4285f4]">
               <span className="text-xs font-bold text-white">G</span>
             </div>
           }
