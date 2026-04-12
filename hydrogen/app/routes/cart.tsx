@@ -1,4 +1,5 @@
 import type {Route} from './+types/cart';
+import {isCustomerLoggedIn} from '~/lib/customer-auth';
 import {
   CartForm,
   Image,
@@ -42,7 +43,8 @@ export function meta({data}: Route.MetaArgs) {
 
 export async function loader({context}: Route.LoaderArgs) {
   const cart = await context.cart.get();
-  return {cart};
+  const isLoggedIn = isCustomerLoggedIn(context.session);
+  return {cart, isLoggedIn};
 }
 
 // ============================================================================
@@ -485,7 +487,7 @@ function OrderSummary({cart, discountCodes}: OrderSummaryProps) {
 // ============================================================================
 
 export default function CartPage() {
-  const {cart: originalCart} = useLoaderData<typeof loader>();
+  const {cart: originalCart, isLoggedIn} = useLoaderData<typeof loader>();
   const cart = useOptimisticCart(originalCart);
   const hasItems = cart && (cart.totalQuantity ?? 0) > 0;
 
@@ -499,8 +501,8 @@ export default function CartPage() {
           <div className="flex items-start gap-8">
             {/* ── Left: Main content ── */}
             <div className="flex min-w-0 flex-1 flex-col gap-6">
-              {/* Guest banner */}
-              <GuestBanner />
+              {/* Guest banner — hidden for logged-in users */}
+              {!isLoggedIn && <GuestBanner />}
 
               {/* Shopping Cart card */}
               <Card className="gap-0 overflow-hidden bg-white p-0 shadow-sm">

@@ -183,8 +183,8 @@ export function ShippingCategorySelector({
   }, [selectedId, book, savedAddresses]);
 
   return (
-    <Card className="gap-0 overflow-hidden bg-white p-0 shadow-sm">
-      <div className="border-b border-border px-6 py-5">
+    <Card className="gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
+      <div className="border-b border-border px-6 pt-5 pb-[21px]">
         <h2 className="text-lg font-bold text-[#111827]">
           Who is this shipment for?
         </h2>

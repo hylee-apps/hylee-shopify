@@ -285,87 +285,89 @@ function OrderSummary({cart}: OrderSummaryProps) {
   const taxAmount = cart.cost?.totalTaxAmount;
 
   return (
-    <Card className="sticky top-0 w-[400px] shrink-0 gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
-      {/* Header */}
-      <div className="border-b border-border px-6 pb-[17px] pt-6">
-        <h3 className="text-lg font-bold text-[#1f2937]">Order Summary</h3>
-      </div>
+    <div className="sticky top-4">
+      <Card className="gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
+        {/* Header */}
+        <div className="border-b border-border px-6 pb-[17px] pt-6">
+          <h3 className="text-lg font-bold text-[#1f2937]">Order Summary</h3>
+        </div>
 
-      <div className="px-6 pt-[22px]">
-        {/* Summary rows */}
-        <div className="flex flex-col gap-[17px]">
+        <div className="px-6 pt-[22px]">
+          {/* Summary rows */}
+          <div className="flex flex-col gap-[17px]">
+            <div className="flex items-center justify-between">
+              <span className="text-[15px] text-[#4b5563]">Subtotal</span>
+              <span className="text-[15px] text-[#4b5563]">
+                {subtotal ? formatMoney(subtotal) : '—'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[15px] text-[#4b5563]">Shipping</span>
+              <span className="text-[15px] text-[#9ca3af]">
+                Calculated at next step
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[15px] text-[#4b5563]">Tax</span>
+              <span
+                className={
+                  taxAmount
+                    ? 'text-[15px] text-[#4b5563]'
+                    : 'text-[15px] text-[#9ca3af]'
+                }
+              >
+                {taxAmount ? formatMoney(taxAmount) : 'Calculated at next step'}
+              </span>
+            </div>
+          </div>
+
+          {/* 2px separator + Total */}
+          <div className="my-[22px] border-t-2 border-border" />
           <div className="flex items-center justify-between">
-            <span className="text-[15px] text-[#4b5563]">Subtotal</span>
-            <span className="text-[15px] text-[#4b5563]">
-              {subtotal ? formatMoney(subtotal) : '—'}
+            <span className="text-lg font-bold text-[#111827]">Total</span>
+            <span className="text-lg font-bold text-[#111827]">
+              {total ? formatMoney(total) : '—'}
             </span>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-[15px] text-[#4b5563]">Shipping</span>
-            <span className="text-[15px] text-[#9ca3af]">
-              Calculated at next step
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-[15px] text-[#4b5563]">Tax</span>
-            <span
-              className={
-                taxAmount
-                  ? 'text-[15px] text-[#4b5563]'
-                  : 'text-[15px] text-[#9ca3af]'
-              }
+
+          {/* Continue to Shipping CTA */}
+          <div className="mt-[22px]">
+            <button
+              type="submit"
+              className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-primary/90"
             >
-              {taxAmount ? formatMoney(taxAmount) : 'Calculated at next step'}
-            </span>
+              Continue to Shipping
+              <ArrowRight size={16} />
+            </button>
+          </div>
+
+          {/* Return to Cart */}
+          <div className="mt-1">
+            <Link
+              to="/cart"
+              className="flex w-full items-center justify-center gap-2 rounded-lg p-2 text-[15px] font-medium text-secondary transition-colors hover:bg-secondary/5"
+            >
+              <ArrowLeft size={15} />
+              Return to Cart
+            </Link>
+          </div>
+
+          {/* Trust badges */}
+          <div className="mt-[22px] flex flex-col gap-3 border-t border-border pt-[25px] pb-6">
+            <div className="flex items-center gap-2">
+              <Lock size={13} className="shrink-0 text-primary" />
+              <span className="text-[13px] text-[#4b5563]">
+                256-bit SSL Encryption
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={13} className="shrink-0 text-primary" />
+              <span className="text-[13px] text-[#4b5563]">PCI Compliant</span>
+            </div>
           </div>
         </div>
-
-        {/* 2px separator + Total */}
-        <div className="my-[22px] border-t-2 border-border" />
-        <div className="flex items-center justify-between">
-          <span className="text-lg font-bold text-[#111827]">Total</span>
-          <span className="text-lg font-bold text-[#111827]">
-            {total ? formatMoney(total) : '—'}
-          </span>
-        </div>
-
-        {/* Continue to Shipping CTA */}
-        <div className="mt-[22px]">
-          <button
-            type="submit"
-            className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-primary/90"
-          >
-            Continue to Shipping
-            <ArrowRight size={16} />
-          </button>
-        </div>
-
-        {/* Return to Cart */}
-        <div className="mt-1">
-          <Link
-            to="/cart"
-            className="flex w-full items-center justify-center gap-2 rounded-lg p-2 text-[15px] font-medium text-secondary transition-colors hover:bg-secondary/5"
-          >
-            <ArrowLeft size={15} />
-            Return to Cart
-          </Link>
-        </div>
-
-        {/* Trust badges */}
-        <div className="mt-[22px] flex flex-col gap-3 border-t border-border pt-[25px] pb-6">
-          <div className="flex items-center gap-2">
-            <Lock size={13} className="shrink-0 text-primary" />
-            <span className="text-[13px] text-[#4b5563]">
-              256-bit SSL Encryption
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <ShieldCheck size={13} className="shrink-0 text-primary" />
-            <span className="text-[13px] text-[#4b5563]">PCI Compliant</span>
-          </div>
-        </div>
-      </div>
-    </Card>
+      </Card>
+    </div>
   );
 }
 
@@ -482,9 +484,9 @@ export default function CheckoutPaymentPage() {
       <CheckoutProgress currentStep="payment" />
 
       <Form method="post" className="mx-auto max-w-[1443px] px-6 py-8">
-        <div className="flex items-start gap-8">
+        <div className="grid grid-cols-[1fr_400px] items-start gap-8">
           {/* ── Left: Main content ── */}
-          <div className="flex min-w-0 flex-1 flex-col gap-6">
+          <div className="flex flex-col gap-6">
             <PaymentMethodCard
               defaultMethod={savedPaymentMethod as PaymentMethodType}
             />
