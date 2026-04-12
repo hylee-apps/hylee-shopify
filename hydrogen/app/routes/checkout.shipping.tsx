@@ -1,6 +1,13 @@
 import {useCallback, useState} from 'react';
 import {getSeoMeta} from '@shopify/hydrogen';
-import {Link, redirect, useLoaderData, useActionData, Form} from 'react-router';
+import {
+  Link,
+  redirect,
+  useLoaderData,
+  useActionData,
+  useFetcher,
+  Form,
+} from 'react-router';
 import {Card} from '~/components/ui/card';
 import {cn} from '~/lib/utils';
 import {CheckoutProgress} from '~/components/checkout/CheckoutProgress';
@@ -93,6 +100,36 @@ export async function action({request, context}: Route.ActionArgs) {
 
   const formData = await request.formData();
 
+  // Auto-save intent: persist selected address without validation or redirect,
+  // so navigating to an earlier step and returning doesn't lose the filled data.
+  if (formData.get('intent') === 'autosave') {
+    const addressJson = formData.get('addressJson') as string | null;
+    const deliveryInstructions = formData.get('deliveryInstructions') as
+      | string
+      | null;
+    // Preserve all existing cart attributes so we don't clobber payment_method etc.
+    const existingAttrs = Object.fromEntries(
+      (cart.attributes ?? []).map(
+        (a) => [a.key, a.value ?? undefined] as [string, string | undefined],
+      ),
+    );
+    await context.storefront.mutate(CART_ATTRIBUTES_UPDATE, {
+      variables: {
+        cartId: cart.id,
+        attributes: buildCartAttributes({
+          ...existingAttrs,
+          ...(addressJson
+            ? {[CHECKOUT_ATTR.SHIPPING_ADDRESS]: addressJson}
+            : {}),
+          ...(deliveryInstructions !== null
+            ? {[CHECKOUT_ATTR.DELIVERY_INSTRUCTIONS]: deliveryInstructions}
+            : {}),
+        }),
+      },
+    });
+    return {};
+  }
+
   // Parse address fields
   const address: ShippingAddress = {
     firstName: (formData.get('firstName') as string) ?? '',
@@ -179,8 +216,8 @@ function ShippingAddressCard({
   errors?: ValidationErrors;
 }) {
   return (
-    <Card className="gap-0 overflow-hidden bg-white p-0 shadow-sm">
-      <div className="flex items-center justify-between border-b border-border px-6 py-5">
+    <Card className="gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
+      <div className="flex items-center justify-between border-b border-border px-6 pt-5 pb-[21px]">
         <h2 className="text-lg font-bold text-[#111827]">Shipping Address</h2>
       </div>
 
@@ -203,23 +240,34 @@ function ShippingAddressCard({
           />
         </div>
 
-        {/* Address */}
-        <FormField
-          label="Address"
-          name="address1"
-          placeholder="123 Main Street"
-          defaultValue={defaultValues?.address1}
-          error={errors?.address1}
-        />
-
-        {/* Apt / Suite */}
-        <div>
+        {/* Address — Address1 and Address2 share one label (Figma groups them) */}
+        <div className="flex flex-col gap-2">
+          <label
+            htmlFor="address1"
+            className="text-sm font-medium text-[#374151]"
+          >
+            Address
+          </label>
+          <input
+            id="address1"
+            type="text"
+            name="address1"
+            placeholder="123 Main Street"
+            defaultValue={defaultValues?.address1 ?? ''}
+            className={cn(
+              'h-[44px] w-full rounded-[8px] border bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary',
+              errors?.address1 ? 'border-red-400' : 'border-[#d1d5db]',
+            )}
+          />
+          {errors?.address1 && (
+            <span className="text-xs text-red-500">{errors.address1}</span>
+          )}
           <input
             type="text"
             name="address2"
             placeholder="Apt, suite, unit (optional)"
             defaultValue={defaultValues?.address2 ?? ''}
-            className="h-[44px] w-full rounded-lg border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
+            className="h-[44px] w-full rounded-[8px] border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
           />
         </div>
 
@@ -275,13 +323,47 @@ function ShippingAddressCard({
 }
 
 // ============================================================================
+// Shipping Method Card
+// ============================================================================
+
+function ShippingMethodCard() {
+  return (
+    <Card className="gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
+      <div className="border-b border-border px-6 pt-5 pb-[21px]">
+        <h2 className="text-lg font-bold text-[#111827]">Shipping Method</h2>
+      </div>
+      <div className="flex flex-col gap-3 px-[24px] pt-[24px] pb-[36px]">
+        {/* Standard is the only option — simplified per Mar 15 production decision */}
+        <div className="flex items-center justify-between rounded-[8px] border-2 border-secondary bg-secondary/5 p-[18px]">
+          <div className="flex flex-col gap-1">
+            <span className="text-[15px] font-medium text-[#1f2937]">
+              Standard Shipping
+            </span>
+            <span className="text-[13px] text-[#6b7280]">
+              5-7 business days
+            </span>
+          </div>
+          <span className="text-base font-semibold text-[#111827]">$5.99</span>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+// ============================================================================
 // Delivery Preferences Card
 // ============================================================================
 
-function DeliveryPreferencesCard({defaultValue}: {defaultValue?: string}) {
+function DeliveryPreferencesCard({
+  defaultValue,
+  onBlurSave,
+}: {
+  defaultValue?: string;
+  onBlurSave?: (value: string) => void;
+}) {
   return (
-    <Card className="gap-0 overflow-hidden bg-white p-0 shadow-sm">
-      <div className="border-b border-border px-6 py-5">
+    <Card className="gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
+      <div className="border-b border-border px-6 pt-5 pb-[21px]">
         <h2 className="text-lg font-bold text-[#111827]">
           Delivery Preferences
         </h2>
@@ -297,7 +379,8 @@ function DeliveryPreferencesCard({defaultValue}: {defaultValue?: string}) {
             placeholder="Leave at front door, call upon arrival, etc."
             defaultValue={defaultValue ?? ''}
             rows={3}
-            className="w-full resize-none rounded-lg border border-[#d1d5db] bg-white px-[17px] py-[13px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
+            className="w-full resize-none rounded-[8px] border border-[#d1d5db] bg-white px-[17px] pt-[13px] pb-[49px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
+            onBlur={(e) => onBlurSave?.(e.currentTarget.value)}
           />
         </div>
       </div>
@@ -336,7 +419,7 @@ function FormField({
         placeholder={placeholder}
         defaultValue={defaultValue ?? ''}
         className={cn(
-          'h-[44px] w-full rounded-lg border bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary',
+          'h-[44px] w-full rounded-[8px] border bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary',
           error ? 'border-red-400' : 'border-[#d1d5db]',
         )}
       />
@@ -370,11 +453,42 @@ export default function CheckoutShippingPage() {
   const [filledAddress, setFilledAddress] = useState<ShippingAddress | null>(
     null,
   );
+  const [deliveryInstructions, setDeliveryInstructions] = useState(
+    savedDeliveryInstructions ?? '',
+  );
+  const autosaveFetcher = useFetcher();
 
-  const handleAddressFill = useCallback((address: ShippingAddress) => {
-    setFilledAddress(address);
-    setFormKey((k) => k + 1);
-  }, []);
+  const handleAddressFill = useCallback(
+    (address: ShippingAddress) => {
+      setFilledAddress(address);
+      setFormKey((k) => k + 1);
+      // Persist to cart attributes immediately so the address survives navigation
+      // to an earlier step without submitting the form.
+      autosaveFetcher.submit(
+        {
+          intent: 'autosave',
+          addressJson: JSON.stringify(address),
+          deliveryInstructions,
+        },
+        {method: 'post'},
+      );
+    },
+    [autosaveFetcher, deliveryInstructions],
+  );
+
+  const handleDeliveryInstructionsBlur = useCallback(
+    (value: string) => {
+      setDeliveryInstructions(value);
+      autosaveFetcher.submit(
+        {
+          intent: 'autosave',
+          deliveryInstructions: value,
+        },
+        {method: 'post'},
+      );
+    },
+    [autosaveFetcher],
+  );
 
   // Use action data for form repopulation on error, or filled address, or saved data from cart
   const formDefaults = actionData?.address ?? filledAddress ?? savedAddress;
@@ -388,9 +502,9 @@ export default function CheckoutShippingPage() {
         {/* Hidden field for shipping method — standard only */}
         <input type="hidden" name="shippingMethod" value="standard" />
 
-        <div className="flex items-start gap-8">
+        <div className="grid grid-cols-[1fr_400px] items-start gap-8">
           {/* Left: Main content */}
-          <div className="flex min-w-0 flex-1 flex-col gap-6">
+          <div className="flex flex-col gap-6">
             <ShippingCategorySelector
               book={addressBook}
               savedAddresses={savedAddresses}
@@ -403,10 +517,12 @@ export default function CheckoutShippingPage() {
               defaultValues={formDefaults}
               errors={actionData?.errors}
             />
+            <ShippingMethodCard />
             <DeliveryPreferencesCard
               defaultValue={
                 actionData?.deliveryInstructions ?? savedDeliveryInstructions
               }
+              onBlurSave={handleDeliveryInstructionsBlur}
             />
           </div>
 

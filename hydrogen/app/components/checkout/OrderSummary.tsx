@@ -95,132 +95,138 @@ export function OrderSummary({
     : 'Subtotal';
 
   return (
-    <Card className="sticky top-4 w-[400px] shrink-0 gap-0 overflow-hidden bg-white p-0 shadow-sm">
-      {/* Header */}
-      <div className="border-b border-border px-6 pb-[17px] pt-6">
-        <h3 className="text-lg font-bold text-[#1f2937]">{title}</h3>
-      </div>
+    <div className="sticky top-4">
+      <Card className="gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
+        {/* Header */}
+        <div className="border-b border-border px-6 pb-[17px] pt-6">
+          <h3 className="text-lg font-bold text-[#1f2937]">{title}</h3>
+        </div>
 
-      <div className="px-6 pt-[22px]">
-        {/* Product items (when enabled) */}
-        {showProductItems && lines.length > 0 && (
-          <div className="mb-4 flex flex-col gap-3 border-b border-border pb-4">
-            {lines.map((line) => (
-              <ProductItemRow key={line.id} line={line} />
-            ))}
-          </div>
-        )}
+        <div className="px-6 pt-[22px]">
+          {/* Product items (when enabled) */}
+          {showProductItems && lines.length > 0 && (
+            <div className="mb-4 flex flex-col gap-3 border-b border-border pb-4">
+              {lines.map((line) => (
+                <ProductItemRow key={line.id} line={line} />
+              ))}
+            </div>
+          )}
 
-        {/* Summary rows */}
-        <div className="flex flex-col gap-[17px]">
-          <div className="flex items-center justify-between">
-            <span className="text-[15px] text-[#4b5563]">
-              {subtotalLabel ?? defaultSubtotalLabel}
-            </span>
-            <span className="text-[15px] text-[#4b5563]">
-              {subtotal ? formatMoney(subtotal) : '—'}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-[15px] text-[#4b5563]">Shipping</span>
-            <span className="text-[15px] text-[#4b5563]">
-              {shippingDisplay ?? (
-                <span className="text-text-light">Calculated at next step</span>
-              )}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-[15px] text-[#4b5563]">Tax</span>
-            <span className="text-[15px] text-[#4b5563]">
-              {taxDisplay ??
-                (taxAmount ? (
-                  formatMoney(taxAmount)
-                ) : (
+          {/* Summary rows */}
+          <div className="flex flex-col gap-[17px]">
+            <div className="flex items-center justify-between">
+              <span className="text-[15px] text-[#4b5563]">
+                {subtotalLabel ?? defaultSubtotalLabel}
+              </span>
+              <span className="text-[15px] text-[#4b5563]">
+                {subtotal ? formatMoney(subtotal) : '—'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[15px] text-[#4b5563]">Shipping</span>
+              <span className="text-[15px] text-[#4b5563]">
+                {shippingDisplay ?? (
                   <span className="text-text-light">
                     Calculated at next step
                   </span>
-                ))}
+                )}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[15px] text-[#4b5563]">Tax</span>
+              <span className="text-[15px] text-[#4b5563]">
+                {taxDisplay ??
+                  (taxAmount ? (
+                    formatMoney(taxAmount)
+                  ) : (
+                    <span className="text-text-light">
+                      Calculated at next step
+                    </span>
+                  ))}
+              </span>
+            </div>
+          </div>
+
+          {/* Separator + Total */}
+          <div className="my-[22px] border-t-2 border-border" />
+          <div className="flex items-center justify-between">
+            <span className="text-lg font-bold text-[#111827]">
+              {totalLabel}
+            </span>
+            <span className="text-lg font-bold text-[#111827]">
+              {total ? formatMoney(total) : '—'}
             </span>
           </div>
-        </div>
 
-        {/* Separator + Total */}
-        <div className="my-[22px] border-t-2 border-border" />
-        <div className="flex items-center justify-between">
-          <span className="text-lg font-bold text-[#111827]">{totalLabel}</span>
-          <span className="text-lg font-bold text-[#111827]">
-            {total ? formatMoney(total) : '—'}
-          </span>
-        </div>
+          {/* CTA */}
+          {cta && (
+            <div className="mt-[22px]">
+              {cta.isSubmit ? (
+                <button
+                  type="submit"
+                  className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-primary/90"
+                >
+                  {cta.label}
+                  {cta.icon === 'arrow' && <ArrowRight size={16} />}
+                  {cta.icon === 'check' && <Check size={16} />}
+                </button>
+              ) : (
+                <Link
+                  to={cta.href}
+                  className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-primary/90"
+                >
+                  {cta.label}
+                  {cta.icon === 'arrow' && <ArrowRight size={16} />}
+                  {cta.icon === 'check' && <Check size={16} />}
+                </Link>
+              )}
+            </div>
+          )}
 
-        {/* CTA */}
-        {cta && (
-          <div className="mt-[22px]">
-            {cta.isSubmit ? (
-              <button
-                type="submit"
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-secondary px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-secondary/90"
-              >
-                {cta.label}
-                {cta.icon === 'arrow' && <ArrowRight size={16} />}
-                {cta.icon === 'check' && <Check size={16} />}
-              </button>
-            ) : (
+          {/* Back link */}
+          {back && (
+            <div className="mt-1">
               <Link
-                to={cta.href}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-secondary px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-secondary/90"
+                to={back.href}
+                className="flex w-full items-center justify-center gap-2 rounded-[8px] p-2 text-[15px] font-medium text-secondary transition-colors hover:bg-secondary/5"
               >
-                {cta.label}
-                {cta.icon === 'arrow' && <ArrowRight size={16} />}
-                {cta.icon === 'check' && <Check size={16} />}
+                <ArrowLeft size={15} />
+                {back.label}
               </Link>
-            )}
-          </div>
-        )}
+            </div>
+          )}
 
-        {/* Back link */}
-        {back && (
-          <div className="mt-1">
-            <Link
-              to={back.href}
-              className="flex w-full items-center justify-center gap-2 rounded-lg p-2 text-[15px] font-medium text-secondary transition-colors hover:bg-secondary/5"
-            >
-              <ArrowLeft size={15} />
-              {back.label}
-            </Link>
-          </div>
-        )}
-
-        {/* Trust badges */}
-        {trustBadges !== 'none' && (
-          <div className="mt-[22px] flex flex-col gap-3 border-t border-border pb-6 pt-[25px]">
-            {trustBadges === 'ssl-pci' ? (
-              <>
-                <div className="flex items-center gap-2">
+          {/* Trust badges */}
+          {trustBadges !== 'none' && (
+            <div className="mt-[22px] flex flex-col gap-3 border-t border-border pb-6 pt-[25px]">
+              {trustBadges === 'ssl-pci' ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    <Lock size={13} className="shrink-0 text-primary" />
+                    <span className="text-[13px] text-[#4b5563]">
+                      256-bit SSL Encryption
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck size={13} className="shrink-0 text-primary" />
+                    <span className="text-[13px] text-[#4b5563]">
+                      PCI Compliant
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center justify-center gap-2">
                   <Lock size={13} className="shrink-0 text-primary" />
                   <span className="text-[13px] text-[#4b5563]">
-                    256-bit SSL Encryption
+                    Secure SSL Encrypted Transaction
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <ShieldCheck size={13} className="shrink-0 text-primary" />
-                  <span className="text-[13px] text-[#4b5563]">
-                    PCI Compliant
-                  </span>
-                </div>
-              </>
-            ) : (
-              <div className="flex items-center justify-center gap-2">
-                <Lock size={13} className="shrink-0 text-primary" />
-                <span className="text-[13px] text-[#4b5563]">
-                  Secure SSL Encrypted Transaction
-                </span>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </Card>
+              )}
+            </div>
+          )}
+        </div>
+      </Card>
+    </div>
   );
 }
 
@@ -233,7 +239,7 @@ function ProductItemRow({line}: {line: CartLine}) {
   return (
     <div className="flex items-start gap-3">
       {/* Thumbnail */}
-      <div className="relative size-[60px] shrink-0 overflow-hidden rounded-lg bg-[#f3f4f6]">
+      <div className="relative size-[60px] shrink-0 overflow-hidden rounded-[8px] bg-[#f3f4f6]">
         {image ? (
           <Image
             data={image}

@@ -13,6 +13,7 @@ import {
   type ShippingMethod,
   type PaymentMethodType,
 } from '~/lib/checkout';
+import {getCustomerAccessToken} from '~/lib/customer-auth';
 import type {Route} from './+types/checkout.review';
 
 // ============================================================================
@@ -66,8 +67,12 @@ export async function action({context}: Route.ActionArgs) {
   if (!cart?.id || !cart.checkoutUrl) throw redirect('/cart');
 
   const checkoutData = getCheckoutAttributes(cart);
+  const customerAccessToken =
+    getCustomerAccessToken(context.session) ?? undefined;
 
-  // Final buyer identity update to ensure Shopify checkout is pre-populated
+  // Final buyer identity update to ensure Shopify checkout is pre-populated.
+  // For logged-in users, passing customerAccessToken lets Shopify's checkout
+  // recognise the account and pre-fill their saved shipping address.
   if (checkoutData.shippingAddress) {
     await context.storefront.mutate(CART_BUYER_IDENTITY_UPDATE, {
       variables: {
@@ -76,6 +81,7 @@ export async function action({context}: Route.ActionArgs) {
           email: checkoutData.shippingAddress.email,
           phone: checkoutData.shippingAddress.phone || undefined,
           countryCode: 'US',
+          customerAccessToken,
         },
       },
     });
@@ -270,9 +276,9 @@ export default function CheckoutReviewPage() {
       <CheckoutProgress currentStep="review" />
 
       <div className="mx-auto max-w-[1443px] px-6 py-8">
-        <div className="flex items-start gap-8">
+        <div className="grid grid-cols-[1fr_400px] items-start gap-8">
           {/* Left: Review content */}
-          <div className="flex min-w-0 flex-1 flex-col gap-6">
+          <div className="flex flex-col gap-6">
             <Card className="gap-0 overflow-hidden bg-white p-0 shadow-sm">
               <div className="border-b border-border px-6 py-5">
                 <h2 className="text-lg font-bold text-[#111827]">
@@ -318,7 +324,7 @@ export default function CheckoutReviewPage() {
           </div>
 
           {/* Right: Order Total sidebar */}
-          <Form method="post">
+          <Form method="post" className="contents">
             <OrderSummary
               cart={cart as any}
               title="Order Total"
