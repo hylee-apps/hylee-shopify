@@ -1,0 +1,1088 @@
+{
+  "nav": {
+    "categories": "Categories",
+    "whatsNew": "What's New",
+    "discounts": "Discounts",
+    "promotionsDeals": "Promotions & Deals",
+    "blogMedia": "Blog & Media",
+    "account": "Account",
+    "myAccount": "My Account",
+    "myOrders": "My Orders",
+    "signIn": "Sign In",
+    "register": "Register",
+    "signOut": "Sign Out",
+    "categoryTitles": {
+      "seasonal": "Seasonal"
+    }
+  },
+  "header": {
+    "openMenu": "Open menu",
+    "openCategoriesMenu": "Open categories menu",
+    "search": "Search",
+    "cartCount": "Cart ({{count}} items)",
+    "selectLanguage": "Select language",
+    "mobileMenuTitle": "Menu"
+  },
+  "footer": {
+    "followUs": "Follow us on social media",
+    "copyright": "© {{year}} {{name}}. All rights reserved.",
+    "newsletter": {
+      "heading": "Sign up for Hylee news & updates!",
+      "placeholder": "Enter your email",
+      "submit": "Submit",
+      "sent": "Sent!"
+    },
+    "links": {
+      "about": "About",
+      "faq": "FAQ",
+      "termsOfUse": "Terms of Use",
+      "privacyPolicy": "Privacy Policy",
+      "returnPolicy": "Return Policy",
+      "becomeSupplier": "Become a Supplier"
+    }
+  },
+  "cart": {
+    "empty": {
+      "heading": "Your cart is empty",
+      "subtitle": "Add items to get started",
+      "cta": "Start Shopping"
+    },
+    "guest": {
+      "message": "Checking out as guest.",
+      "signIn": "Sign in",
+      "suffix": "for faster checkout and order tracking."
+    },
+    "heading": "Shopping Cart ({{count}} {{item}})",
+    "item": "item",
+    "items": "items",
+    "continueShopping": "Continue Shopping",
+    "qty": "Qty:",
+    "decreaseQty": "Decrease quantity",
+    "increaseQty": "Increase quantity",
+    "removeItem": "Remove item",
+    "promoCode": {
+      "title": "Promo Code",
+      "placeholder": "Enter promo code",
+      "apply": "Apply"
+    },
+    "summary": {
+      "title": "Order Summary",
+      "subtotal": "Subtotal ({{count}} {{item}})",
+      "shipping": "Shipping",
+      "shippingCalc": "Calculated at next step",
+      "tax": "Tax",
+      "promoDiscount": "Promo Discount",
+      "total": "Estimated Total",
+      "checkout": "Proceed to Checkout",
+      "secureCheckout": "Secure Checkout",
+      "sslEncrypted": "SSL Encrypted"
+    }
+  },
+  "checkout": {
+    "steps": {
+      "cart": "Cart",
+      "payment": "Payment",
+      "shipping": "Shipping",
+      "review": "Review"
+    },
+    "payment": {
+      "metaTitle": "Payment — Checkout",
+      "method": {
+        "title": "Payment Method",
+        "creditDebit": "Credit / Debit Card",
+        "shopPay": "Shop Pay",
+        "applePay": "Apple Pay",
+        "googlePay": "Google Pay"
+      },
+      "cardDetails": {
+        "title": "Card Details",
+        "cardNumber": "Card Number",
+        "cardNumberPlaceholder": "1234 5678 9012 3456",
+        "expirationDate": "Expiration Date",
+        "expirationPlaceholder": "MM / YY",
+        "cvc": "CVC",
+        "cvcPlaceholder": "123",
+        "nameOnCard": "Name on Card",
+        "nameOnCardPlaceholder": "John Doe"
+      },
+      "billing": {
+        "title": "Billing Address",
+        "sameAsShipping": "Same as shipping address"
+      },
+      "trust": {
+        "ssl": "256-bit SSL Encryption",
+        "pci": "PCI Compliant"
+      },
+      "continueToShipping": "Continue to Shipping",
+      "returnToCart": "Return to Cart"
+    },
+    "shipping": {
+      "metaTitle": "Shipping — Checkout",
+      "address": {
+        "title": "Shipping Address",
+        "firstName": "First Name",
+        "firstNamePlaceholder": "John",
+        "lastName": "Last Name",
+        "lastNamePlaceholder": "Doe",
+        "address": "Address",
+        "address1Placeholder": "123 Main Street",
+        "address2Placeholder": "Apt, suite, unit (optional)",
+        "city": "City",
+        "cityPlaceholder": "New York",
+        "zip": "ZIP Code",
+        "zipPlaceholder": "10001",
+        "state": "State",
+        "statePlaceholder": "NY",
+        "phone": "Phone",
+        "phonePlaceholder": "(555) 123-4567",
+        "email": "Email",
+        "emailPlaceholder": "john.doe@example.com"
+      },
+      "method": {
+        "title": "Shipping Method",
+        "standard": "Standard Shipping",
+        "standardDays": "5-7 business days"
+      },
+      "preferences": {
+        "title": "Delivery Preferences",
+        "instructions": "Delivery Instructions (Optional)",
+        "instructionsPlaceholder": "Leave at front door, call upon arrival, etc."
+      },
+      "continueToReview": "Continue to Review"
+    },
+    "review": {
+      "metaTitle": "Review Order — Checkout",
+      "title": "Review Your Order",
+      "disclaimerPart1": "Please review your order details before placing your order. By clicking",
+      "disclaimerPart2": "you agree to our",
+      "disclaimerAnd": "and",
+      "termsOfService": "Terms of Service",
+      "privacyPolicy": "Privacy Policy",
+      "shippingAddress": {
+        "title": "Shipping Address",
+        "for": "For {{label}}",
+        "edit": "Edit"
+      },
+      "shippingMethod": {
+        "title": "Shipping Method",
+        "fallback": "Standard Shipping (5-7 business days) - $5.99"
+      },
+      "paymentMethod": {
+        "title": "Payment Method",
+        "defaultLabel": "Credit / Debit Card",
+        "edit": "Edit"
+      },
+      "items": {
+        "title": "Items in Order",
+        "qty": "Qty: {{quantity}}"
+      },
+      "placeOrder": "Place Order",
+      "summary": {
+        "title": "Order Total",
+        "subtotal": "Subtotal",
+        "total": "Total"
+      },
+      "trust": {
+        "ssl": "Secure SSL Encrypted Transaction"
+      }
+    },
+    "confirmation": {
+      "metaTitle": "Order Confirmed — Hy-lee",
+      "heading": "Thank You for Your Order!",
+      "emailSent": "A confirmation email has been sent to your email address",
+      "orderNumber": "Order #{{number}}",
+      "trackOrder": "Track Order",
+      "continueShopping": "Continue Shopping",
+      "details": {
+        "title": "Order Details",
+        "placedOn": "Placed on {{date}}",
+        "shippingAddress": "Shipping Address",
+        "shippingAddressBody": "Your shipping details will be sent via email",
+        "estimatedDelivery": "Estimated Delivery",
+        "standardShipping": "Standard Shipping",
+        "itemsOrdered": "Items Ordered",
+        "qty": "Qty: {{quantity}}"
+      },
+      "summary": {
+        "subtotal": "Subtotal",
+        "shipping": "Shipping",
+        "tax": "Tax",
+        "total": "Total"
+      },
+      "createAccount": {
+        "heading": "Create an Account for Faster Checkout",
+        "body": "Save your shipping and payment information for next time",
+        "cta": "Create Account"
+      }
+    }
+  },
+  "orderSummary": {
+    "defaultTitle": "Order Summary",
+    "defaultSubtotal": "Subtotal",
+    "subtotalWithCount": "Subtotal ({{count}} {{label}})",
+    "subtotalItem": "item",
+    "subtotalItems": "items",
+    "shipping": "Shipping",
+    "shippingCalculated": "Calculated at next step",
+    "tax": "Tax",
+    "taxCalculated": "Calculated at next step",
+    "defaultTotal": "Total",
+    "trust": {
+      "ssl": "256-bit SSL Encryption",
+      "pci": "PCI Compliant",
+      "secure": "Secure SSL Encrypted Transaction"
+    },
+    "qty": "Qty: {{quantity}}"
+  },
+  "shippingSelector": {
+    "title": "Who is this shipment for?",
+    "savedAddress": {
+      "label": "Select a saved address",
+      "placeholder": "Choose a recipient or enter manually",
+      "newRecipient": "New recipient"
+    },
+    "noSavedAddresses": "No saved addresses in this category. Enter the address manually below."
+  },
+  "search": {
+    "placeholder": "Search products...",
+    "submit": "Search",
+    "breadcrumb": {
+      "home": "Home",
+      "search": "Search"
+    },
+    "results_one": "{{count}} result for \"{{term}}\"",
+    "results_other": "{{count}} results for \"{{term}}\"",
+    "noResults": "No results for \"{{term}}\"",
+    "enterTerm": "Enter a search term to find products",
+    "noResultsHeading": "No results found",
+    "noResultsBody": "We couldn't find anything for \"{{term}}\". Try checking your spelling or using different search terms.",
+    "browseCollections": "Browse Collections",
+    "resultPages": "Search result pages",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {{page}} of {{total}}"
+    }
+  },
+  "toolbar": {
+    "showing": "Showing",
+    "result": "Result",
+    "results": "Results",
+    "fromTotal": "from total",
+    "filters": "Filters",
+    "openFilters": "Open filters",
+    "gridView": "Grid view",
+    "listView": "List view"
+  },
+  "addToCart": {
+    "idle": "Add to Cart",
+    "adding": "Adding...",
+    "added": "Added!",
+    "error": "Error",
+    "soldOut": "Sold Out",
+    "ariaLabel": "Add to cart",
+    "soldOutAria": "Sold out"
+  },
+  "account": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "myOrders": "My Orders",
+      "wishlist": "Wishlist",
+      "addresses": "Addresses",
+      "paymentMethods": "Payment Methods",
+      "notifications": "Notifications",
+      "settings": "Settings",
+      "signOut": "Sign Out"
+    },
+    "sidebar": {
+      "menuButton": "Account Menu",
+      "sheetTitle": "Account Navigation",
+      "fallbackName": "Account"
+    },
+    "dashboard": {
+      "welcomeBack": "Welcome back, {{name}}!",
+      "subtitle": "Here's what's happening with your account today.",
+      "totalOrders": "Total Orders",
+      "activeOrders": "Active Orders",
+      "savedAddresses": "Saved Addresses",
+      "recentOrders": "Recent Orders",
+      "viewAll": "View All",
+      "noOrders": "No orders yet.",
+      "startShopping": "Start shopping",
+      "savedForLater": "Saved for Later",
+      "viewWishlist": "View Wishlist",
+      "placedOn": "Placed on {{date}}"
+    }
+  },
+  "addresses": {
+    "pageTitle": "Address Book",
+    "pageSubtitle": "Manage your contacts and addresses",
+    "contactUpdated": "Contact updated successfully.",
+    "sectionLabel": "{{label}} Contacts",
+    "addLabel": "Add {{label}}",
+    "bulkActionBar": {
+      "selected_one": "{{count}} contact selected",
+      "selected_other": "{{count}} contacts selected",
+      "deleteSelected": "Delete Selected"
+    },
+    "deleteDialog": {
+      "title": "Delete Contact",
+      "body": "Are you sure you want to delete this contact and all their addresses? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
+    "bulkDeleteDialog": {
+      "title_one": "Delete {{count}} Contact",
+      "title_other": "Delete {{count}} Contacts",
+      "bodyThis": "this contact",
+      "bodyThese": "these {{count}} contacts",
+      "body": "Are you sure you want to delete {{label}} and all their addresses? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm_one": "Delete {{count}} Contact",
+      "confirm_other": "Delete {{count}} Contacts"
+    }
+  },
+  "settings": {
+    "pageTitle": "Profile Information",
+    "personalInfo": {
+      "cardTitle": "Personal Information",
+      "changePhoto": "Change Photo",
+      "photoHint": "JPG, GIF or PNG. Max size 2MB",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "emailAddress": "Email Address",
+      "emailReadonlyHint": "Contact support to change your email address",
+      "phoneNumber": "Phone Number",
+      "phonePlaceholder": "(555) 123-4567",
+      "dateOfBirth": "Date of Birth",
+      "saveChanges": "Save Changes",
+      "saving": "Saving..."
+    },
+    "password": {
+      "cardTitle": "Change Password",
+      "currentPassword": "Current Password",
+      "currentPasswordPlaceholder": "Enter current password",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter new password",
+      "confirmPassword": "Confirm New Password",
+      "confirmPasswordPlaceholder": "Confirm new password",
+      "update": "Update Password",
+      "updating": "Updating..."
+    },
+    "error": {
+      "allFieldsRequired": "All password fields are required.",
+      "passwordsDoNotMatch": "Passwords do not match.",
+      "passwordTooShort": "Password must be at least 8 characters.",
+      "unableToVerify": "Unable to verify identity.",
+      "currentPasswordIncorrect": "Current password is incorrect.",
+      "unknownAction": "Unknown action"
+    },
+    "success": {
+      "profileUpdated": "Profile updated successfully.",
+      "passwordUpdated": "Password updated successfully."
+    }
+  },
+  "activate": {
+    "metaTitle": "Activate Account",
+    "tagline": "Almost There!",
+    "taglineDescription": "Set your password to activate your account and start shopping.",
+    "features": {
+      "saveAddresses": "Save shipping addresses",
+      "securePayment": "Secure payment storage",
+      "orderHistory": "Order history tracking",
+      "wishlist": "Wishlist and favorites"
+    },
+    "heading": "Activate Your Account",
+    "subheading": "Choose a password to complete your account setup.",
+    "password": {
+      "label": "Password",
+      "placeholder": "Create a password (min 8 characters)",
+      "hint": "Must contain at least 8 characters, 1 number, and 1 special character"
+    },
+    "confirmPassword": {
+      "label": "Confirm Password",
+      "placeholder": "Confirm your password"
+    },
+    "submit": "Activate Account",
+    "submitting": "Activating...",
+    "footer": {
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Sign in"
+    },
+    "error": {
+      "confirmRequired": "Please confirm your password.",
+      "passwordsDoNotMatch": "Passwords do not match.",
+      "activationFailed": "Account activation failed. The link may have expired."
+    }
+  },
+  "reset": {
+    "metaTitle": "Reset Password",
+    "tagline": "Welcome Back",
+    "taglineDescription": "Set a new password to regain access to your account.",
+    "features": {
+      "trackOrders": "Track orders in real-time",
+      "easyReturns": "Easy returns and exchanges",
+      "fasterCheckout": "Faster checkout experience",
+      "exclusiveOffers": "Exclusive offers and discounts"
+    },
+    "heading": "Set New Password",
+    "subheading": "Enter your new password below.",
+    "newPassword": {
+      "label": "New Password",
+      "placeholder": "Create a new password (min 8 characters)",
+      "hint": "Must contain at least 8 characters, 1 number, and 1 special character"
+    },
+    "confirmPassword": {
+      "label": "Confirm New Password",
+      "placeholder": "Confirm your new password"
+    },
+    "submit": "Reset Password",
+    "submitting": "Resetting...",
+    "footer": {
+      "rememberPassword": "Remember your password?",
+      "signIn": "Sign in"
+    },
+    "error": {
+      "confirmRequired": "Please confirm your password.",
+      "passwordsDoNotMatch": "Passwords do not match.",
+      "resetFailed": "Password reset failed. The link may have expired."
+    }
+  },
+  "welcome": {
+    "metaTitle": "Welcome to Hy-lee!",
+    "heading": "Welcome to Hy-lee!",
+    "question": "Quick question — how did you hear about us?",
+    "source": {
+      "socialMedia": "Social Media",
+      "search": "Google / Bing Search",
+      "referral": "Referred by a Friend",
+      "other": "Other"
+    },
+    "platform": {
+      "label": "Which platform?",
+      "placeholder": "Select a platform",
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "facebook": "Facebook",
+      "x": "X (Twitter)",
+      "youtube": "YouTube",
+      "linkedin": "LinkedIn",
+      "other": "Other"
+    },
+    "referrer": {
+      "label": "Your friend's phone number",
+      "placeholder": "(555) 000-0000",
+      "discount": "Your friend gets 20% off!"
+    },
+    "submit": "Continue to Your Account",
+    "submitting": "Saving...",
+    "skip": "Skip",
+    "error": {
+      "selectSource": "Please select how you heard about us."
+    }
+  },
+  "orderDetail": {
+    "backToOrders": "Back to Orders",
+    "placed": "Placed {{date}}",
+    "returnOrReplace": "Return or Replace Items",
+    "cancelledNotice": "This order was cancelled on {{date}}",
+    "deliveryStatus": {
+      "title": "Delivery Status",
+      "carrier": "Carrier",
+      "tracking": "Tracking: {{number}}",
+      "trackLink": "Track"
+    },
+    "items": {
+      "title": "Items",
+      "qty": "Qty: {{quantity}}"
+    },
+    "summary": {
+      "title": "Order Summary",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "shippingFree": "Free",
+      "tax": "Tax",
+      "total": "Total"
+    },
+    "shippingAddress": {
+      "title": "Shipping Address"
+    },
+    "billingAddress": {
+      "title": "Billing Address"
+    },
+    "status": {
+      "delivered": "Delivered",
+      "partiallyShipped": "Partially Shipped",
+      "inProgress": "In Progress",
+      "processing": "Processing"
+    }
+  },
+  "pdp": {
+    "accordion": {
+      "keyFeatures": "Key Item Features",
+      "viewFullDetails": "View full details",
+      "specs": "Specs",
+      "viewFullSpecifications": "View full specifications",
+      "doesItFit": "Does It Fit",
+      "doesItFitFallback": "Please check product dimensions before purchasing.",
+      "details": "Details",
+      "specifications": "Specifications",
+      "warranty": "Warranty",
+      "warrantyFallback": "No warranty information available.",
+      "reviews": "Reviews"
+    },
+    "specs": {
+      "noSpecifications": "No specifications available.",
+      "labels": {
+        "dimensions": "Dimensions",
+        "height": "Height",
+        "width": "Width",
+        "depth": "Depth",
+        "weight": "Weight",
+        "material": "Material",
+        "color": "Color",
+        "modelNumber": "Model Number",
+        "manufacturer": "Manufacturer",
+        "countryOfOrigin": "Country of Origin",
+        "powerSource": "Power Source",
+        "voltage": "Voltage",
+        "wattage": "Wattage",
+        "capacity": "Capacity",
+        "batteryLife": "Battery Life"
+      }
+    },
+    "reviews": {
+      "noMatch": "No reviews match this filter.",
+      "filter": {
+        "mostPopular": "Most Popular",
+        "mostRecent": "Most Recent",
+        "happy": "Happy",
+        "unhappy": "Unhappy"
+      }
+    },
+    "recommended": {
+      "heading": "Similar Items You Might Also Like"
+    }
+  },
+  "compare": {
+    "addToCompare": "Add to Compare",
+    "removeFromCompare": "Remove from Compare",
+    "comparing": "Comparing",
+    "compare": "Compare",
+    "addAriaLabel": "Add to compare",
+    "removeAriaLabel": "Remove from compare",
+    "maxTitle": "Maximum {{max}} products can be compared",
+    "selectedCount_one": "{{count}} product selected",
+    "selectedCount_other": "{{count}} products selected",
+    "maxCount": "(max {{max}})",
+    "clear": "Clear",
+    "compareNow": "Compare Now",
+    "page": {
+      "breadcrumb": {
+        "home": "Home",
+        "compare": "Compare Products"
+      },
+      "heading": "Compare Products",
+      "subheading_one": "Comparing {{count}} product side by side",
+      "subheading_other": "Comparing {{count}} products side by side",
+      "clearAll": "Clear All",
+      "addMore": "Add More",
+      "empty": {
+        "heading": "No products to compare",
+        "body": "Browse our collections and click the compare button on products you'd like to compare side by side.",
+        "cta": "Browse Products"
+      }
+    }
+  },
+  "policies": {
+    "breadcrumb": {
+      "home": "Home",
+      "policies": "Policies"
+    },
+    "heading": "Store Policies",
+    "viewPolicy": "View our {{title}}",
+    "empty": "No policies available at this time."
+  },
+  "page": {
+    "breadcrumb": {
+      "home": "Home"
+    }
+  },
+  "orders": {
+    "title": "My Orders",
+    "subtitle": "View and manage your order history",
+    "ordersPlaced": "Orders Placed",
+    "ordersCount": "{{count}} orders",
+    "timePeriod": "Time Period",
+    "timeFilters": {
+      "past3Months": "past 3 months",
+      "past6Months": "past 6 months",
+      "pastYear": "past year",
+      "allTime": "all time"
+    },
+    "tabs": {
+      "orders": "Orders",
+      "buyAgain": "Buy Again",
+      "onTheWayOut": "On the Way Out"
+    },
+    "stats": {
+      "orders": "Orders",
+      "onTheWayOut": "On The Way Out",
+      "rePurchase": "Re-Purchase"
+    },
+    "onTheWayOut": {
+      "title": "On the Way Out",
+      "subtitle": "Track your returns and items being shipped back"
+    },
+    "buyAgain": {
+      "title": "Buy Again",
+      "subtitle": "Quickly reorder items you've purchased before"
+    },
+    "empty": {
+      "heading": "No orders yet",
+      "subtitle": "When you place your first order, it will appear here.",
+      "cta": "Start Shopping"
+    },
+    "emptyBuyAgain": {
+      "heading": "No items to buy again",
+      "subtitle": "Once you receive your first order, products will appear here for easy re-ordering."
+    },
+    "emptyOutgoing": {
+      "heading": "No returns or exchanges",
+      "subtitle": "You don't have any active returns or exchanges at this time."
+    },
+    "continueShopping": "Continue Shopping"
+  },
+  "productCard": {
+    "addToWishlist": "Add to Wishlist",
+    "removeFromWishlist": "Remove from Wishlist",
+    "wishlisted": "Wishlisted",
+    "addShortlist": "Add Shortlist",
+    "add": "Add"
+  },
+  "filter": {
+    "min": "Min",
+    "max": "Max",
+    "apply": "Apply",
+    "showLess": "Show less",
+    "showMore": "Show more {{label}}s",
+    "showMoreCount": "Show {{count}} more",
+    "clearAll": "Clear all",
+    "removeFilter": "Remove filter: {{label}}"
+  },
+  "sort": {
+    "label": "Sort by:",
+    "ariaLabel": "Sort products",
+    "relevance": "Relevance",
+    "mostPopular": "Most Popular",
+    "priceLowToHigh": "Price: Low to High",
+    "priceHighToLow": "Price: High to Low",
+    "newest": "Newest",
+    "aZ": "A-Z"
+  },
+  "collection": {
+    "loadMore": "Load More Products",
+    "shopNow": "Shop Now",
+    "seeAll": "See all"
+  },
+  "home": {
+    "searchPlaceholder": "Search Our Products",
+    "whatsNew": "What's New",
+    "discounts": "Discounts",
+    "promotionsDeals": "Promotions & Deals",
+    "newBadge": "New"
+  },
+  "quantity": {
+    "decrease": "Decrease quantity",
+    "increase": "Increase quantity",
+    "ariaLabel": "Quantity"
+  },
+  "auth": {
+    "login": {
+      "tagline": "Welcome Back",
+      "description": "Sign in to access your orders, track deliveries, and manage your account.",
+      "features": {
+        "trackOrders": "Track orders in real-time",
+        "easyReturns": "Easy returns and exchanges",
+        "fasterCheckout": "Faster checkout experience",
+        "exclusiveOffers": "Exclusive offers and discounts"
+      },
+      "title": "Sign In",
+      "subtitle": "Enter your credentials to access your account",
+      "orSignInWithEmail": "or sign in with email",
+      "emailLabel": "Email Address",
+      "passwordLabel": "Password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "submitting": "Signing in...",
+      "submitButton": "Sign In",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Create account",
+      "errors": {
+        "passwordRequired": "Password is required.",
+        "invalidCredentials": "Invalid email or password. Please try again.",
+        "loginFailed": "Login failed. Please try again."
+      }
+    },
+    "register": {
+      "tagline": "Join Hylee Today",
+      "description": "Create an account for a personalized shopping experience.",
+      "features": {
+        "saveAddresses": "Save shipping addresses",
+        "securePayment": "Secure payment storage",
+        "orderHistory": "Order history tracking",
+        "wishlist": "Wishlist and favorites"
+      },
+      "title": "Create Account",
+      "subtitle": "Fill in your details to get started",
+      "orSignUpWithEmail": "or sign up with email",
+      "firstNameLabel": "First Name",
+      "lastNameLabel": "Last Name",
+      "emailLabel": "Email Address",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm Password",
+      "passwordPlaceholder": "Create a password (min 8 characters)",
+      "passwordHint": "Must contain at least 8 characters, 1 number, and 1 special character",
+      "termsOfService": "Terms of Service",
+      "privacyPolicy": "Privacy Policy",
+      "termsConsent": "I agree to the Terms of Service and Privacy Policy. I consent to receiving marketing emails.",
+      "submitting": "Creating account...",
+      "submitButton": "Create Account",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "errors": {
+        "emailTaken": "An account with this email already exists. Check your inbox for an activation email, or try signing in.",
+        "registrationFailed": "Registration failed. Please try again."
+      }
+    },
+    "recover": {
+      "tagline": "Welcome Back",
+      "description": "Sign in to access your orders, track deliveries, and manage your account.",
+      "features": {
+        "trackOrders": "Track orders in real-time",
+        "easyReturns": "Easy returns and exchanges",
+        "fasterCheckout": "Faster checkout experience",
+        "exclusiveOffers": "Exclusive offers and discounts"
+      },
+      "title": "Reset Password",
+      "subtitle": "Enter your email and we'll send you a link to reset your password.",
+      "emailLabel": "Email Address",
+      "submitting": "Sending...",
+      "submitButton": "Send Reset Link",
+      "success": "If an account exists for {{email}}, you'll receive a password reset link shortly.",
+      "backToSignIn": "Back to Sign In",
+      "rememberPassword": "Remember your password?",
+      "signIn": "Sign in"
+    }
+  },
+  "addressBook": {
+    "categories": {
+      "home": "Home",
+      "family": "Family",
+      "friends": "Friends",
+      "work": "Work",
+      "other": "Other"
+    },
+    "categoryDescriptions": {
+      "home": "Manage your home addresses and contacts",
+      "family": "Manage your family contacts and addresses",
+      "friends": "Manage your friends and their addresses",
+      "work": "Manage your work contacts and addresses",
+      "other": "Manage other addresses and contacts"
+    },
+    "subcategories": {
+      "parents": "Parents",
+      "siblings": "Siblings",
+      "children": "Children",
+      "aunts_uncles": "Aunts/Uncles",
+      "cousins": "Cousins",
+      "grandparents": "Grandparents",
+      "hotel": "Hotel",
+      "po_box": "PO Box",
+      "amazon_dropbox": "Amazon Dropbox",
+      "campground": "Campground"
+    },
+    "subcategoryDescriptions": {
+      "parents": "Manage your parents' information and addresses",
+      "siblings": "Manage your siblings' information and addresses",
+      "children": "Manage your children's information and addresses",
+      "aunts_uncles": "Manage your aunts and uncles' information and addresses",
+      "cousins": "Manage your cousins' information and addresses",
+      "grandparents": "Manage your grandparents' information and addresses"
+    },
+    "relationships": {
+      "mother": "Mom",
+      "father": "Dad",
+      "brother": "Brother",
+      "sister": "Sister",
+      "son": "Son",
+      "daughter": "Daughter",
+      "aunt": "Aunt",
+      "uncle": "Uncle",
+      "cousin": "Cousin",
+      "grandmother": "Grandmother",
+      "grandfather": "Grandfather"
+    }
+  },
+  "contactList": {
+    "selectAll": "Select all contacts",
+    "selectionCount": "{{selectedCount}} of {{total}} selected",
+    "cancel": "Cancel",
+    "select": "Select",
+    "selectTitle": "Select contacts to delete multiple at once"
+  },
+  "contactCard": {
+    "selectAriaLabel": "Select {{label}}",
+    "address": "Address",
+    "otherAddress": "Other Address",
+    "phone": "Phone",
+    "otherNumbers": "Other Numbers",
+    "email": "Email",
+    "otherEmail": "Other Email"
+  },
+  "contactForm": {
+    "titleAdd": "Add Contact",
+    "titleEdit": "Edit Contact",
+    "category": "Category",
+    "subcategoryFamily": "Relationship Type",
+    "subcategoryOther": "Type",
+    "subcategoryPlaceholder": "Select type",
+    "relationship": "Relationship",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "addresses": {
+      "legend": "Addresses",
+      "primaryLabel": "Primary Address",
+      "indexLabel": "Address {{number}}",
+      "streetAddress": "Street Address",
+      "apt": "Apt, suite, etc. (Optional)",
+      "city": "City",
+      "state": "State",
+      "statePlaceholder": "Select",
+      "zip": "ZIP Code",
+      "country": "Country",
+      "countryUS": "United States",
+      "countryCA": "Canada",
+      "countryGB": "United Kingdom",
+      "countryAU": "Australia",
+      "addAnother": "Add another address"
+    },
+    "phones": {
+      "legend": "Phone Numbers",
+      "label": "Phone",
+      "labelPrimary": "Phone (Primary)",
+      "placeholder": "(555) 000-0000",
+      "add": "Add phone"
+    },
+    "emails": {
+      "legend": "Email Addresses",
+      "label": "Email",
+      "labelPrimary": "Email (Primary)",
+      "placeholder": "name@example.com",
+      "add": "Add email"
+    },
+    "cancel": "Cancel",
+    "submitAdd": "Add Contact",
+    "submitEdit": "Save Changes",
+    "submitting": "Saving..."
+  },
+  "addContactCard": {
+    "heading": "Add New Contact",
+    "body": "Add a new address to this category"
+  },
+  "orderCard": {
+    "meta": {
+      "orderPlaced": "Order Placed",
+      "total": "Total",
+      "shipTo": "Ship To",
+      "orderNumber": "Order #"
+    },
+    "link": {
+      "viewOrderDetails": "View order details",
+      "viewInvoice": "View invoice"
+    },
+    "action": {
+      "trackPackage": "Track package",
+      "returnOrReplace": "Return or replace items",
+      "shareGiftReceipt": "Share gift receipt",
+      "askProductQuestion": "Ask Product Question",
+      "writeReview": "Write a product review",
+      "getProductSupport": "Get product support",
+      "leaveSellerFeedback": "Leave seller feedback",
+      "viewPickupDetails": "View pickup details",
+      "preparePackage": "Prepare package"
+    },
+    "returnEligibility": "Return or replace items: Eligible through {{date}}",
+    "buyItAgain": "Buy it again",
+    "viewYourItem": "View your item",
+    "delivery": {
+      "deliveredToday": "Delivered today",
+      "delivered": "Delivered {{date}}",
+      "inTransit": "In Transit",
+      "processing": "Processing",
+      "messages": {
+        "deliveredToday": "Your package was delivered.",
+        "delivered": "Your package has been delivered.",
+        "inTransit": "Your package is on the way.",
+        "processing": "Your order is being prepared."
+      }
+    }
+  },
+  "outgoingCard": {
+    "meta": {
+      "exchangeRequested": "Exchange Requested",
+      "returnInitiated": "Return Initiated",
+      "exchangeFor": "Exchange For",
+      "refundAmount": "Refund Amount",
+      "originalOrderNumber": "Original Order #"
+    },
+    "status": {
+      "returnShipped": "Return Shipped",
+      "awaitingPickup": "Awaiting Pickup",
+      "outForDelivery": "Out for Delivery"
+    },
+    "link": {
+      "viewReturnDetails": "View return details",
+      "viewRefundStatus": "View refund status",
+      "cancelReturn": "Cancel return",
+      "viewExchangeDetails": "View exchange details",
+      "trackNewItem": "Track new item"
+    },
+    "action": {
+      "printReturnLabel": "Print return label",
+      "contactSeller": "Contact seller",
+      "trackReturnPackage": "Track return package",
+      "reschedulePickup": "Reschedule pickup",
+      "viewTracking": "View tracking",
+      "contactSupport": "Contact support",
+      "trackDelivery": "Track delivery"
+    },
+    "progress": {
+      "returnRequested": "Return Requested",
+      "labelGenerated": "Label Generated",
+      "packageShipped": "Package Shipped",
+      "inTransit": "In Transit",
+      "refundProcessed": "Refund Processed",
+      "awaitingPickup": "Awaiting Pickup",
+      "exchangeRequested": "Exchange Requested",
+      "returnShipped": "Return Shipped",
+      "newItemShipped": "New Item Shipped",
+      "outForDelivery": "Out for Delivery",
+      "exchangeComplete": "Exchange Complete"
+    }
+  },
+  "orderPagination": {
+    "ariaLabel": "Pagination",
+    "previousPage": "Previous page",
+    "nextPage": "Next page"
+  },
+  "returnStep": {
+    "selectItems": "Select Items",
+    "reason": "Reason",
+    "ship": "Ship",
+    "makeItRight": "Make It Right"
+  },
+  "returnItemCard": {
+    "badgeFinalSale": "FINAL SALE",
+    "badgeWindowClosed": "RETURN WINDOW CLOSED",
+    "badgeEligible": "RETURN ELIGIBLE",
+    "qty": "Qty: {{quantity}}"
+  },
+  "returnReasonForm": {
+    "label": "Reason for return:",
+    "reason": {
+      "defective": "Defective",
+      "wrongItem": "Wrong Item",
+      "notAsDescribed": "Not as Described",
+      "changedMind": "Changed Mind"
+    },
+    "detailsPlaceholder": "Additional details (optional)",
+    "uploadPhotos": "Upload Photos",
+    "uploadHint": "Add photos to support your return request",
+    "uploadAriaLabel": "Upload return photos"
+  },
+  "returnReasonItemCard": {
+    "selectAriaLabel": "Select {{title}}",
+    "deselectAriaLabel": "Deselect {{title}}",
+    "qty": "Qty: {{quantity}}"
+  },
+  "returnActionBar": {
+    "backDefault": "Back to Orders",
+    "continueDefault": "Continue to Reason"
+  },
+  "returnSelectionSummary": {
+    "itemsSelected": "{{selectedCount}} of {{totalCount}} items selected",
+    "estimatedRefund": "Estimated refund: {{amount}}",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All"
+  },
+  "returnAddressCard": {
+    "sectionTitle": "Return Address",
+    "facilityName": "Hylee Returns Center",
+    "address1": "1234 Warehouse Boulevard",
+    "address2": "Building C, Suite 100",
+    "cityStateZip": "Seattle, WA 98101",
+    "country": "United States",
+    "returnId": "Return ID: {{id}}"
+  },
+  "packingInstructions": {
+    "sectionTitle": "Packing Instructions",
+    "step1": "Pack items securely in their original packaging when possible",
+    "step2": "Include all accessories, tags, and original materials",
+    "step3": "Seal the box tightly with strong packing tape",
+    "step4": "Attach the return label to the outside of the package (or show QR code)",
+    "step5": "Remove or cover any old shipping labels"
+  },
+  "returnShippingSummary": {
+    "itemsBeingReturned": "Items being returned",
+    "returnShipping": "Return shipping",
+    "totalRefundAmount": "Total Refund Amount"
+  },
+  "returnTrackingNotice": {
+    "heading": "Return Tracking",
+    "body": "You'll receive email updates at each step: when your return is shipped, received, and when your resolution is processed."
+  },
+  "selectedItemsPreview": {
+    "summary": "{{count}} items • Total value: {{totalValue}}"
+  },
+  "resolutionSummary": {
+    "itemsBeingReturned": "Items being returned",
+    "subtotal": "Subtotal",
+    "returnShipping": "Return shipping",
+    "totalResolutionValue": "Total Resolution Value"
+  },
+  "ourPromiseNotice": {
+    "heading": "Our Promise",
+    "body": "We're committed to making this right for you. All return shipping is free, and we'll keep you updated every step of the way."
+  },
+  "recipientBadge": {
+    "for": "For {{label}}"
+  },
+  "refundSummary": {
+    "title": "Refund Summary",
+    "itemSubtotal": "Item Subtotal",
+    "taxRefund": "Tax Refund",
+    "returnShipping": "Return Shipping",
+    "returnShippingFree": "Free",
+    "estimatedRefund": "Estimated Refund",
+    "disclaimer": "Refund will be processed to original payment method within 5-7 business days after we receive the item."
+  },
+  "returnPolicyNotice": {
+    "heading": "Return Policy",
+    "body": "Items must be returned within 30 days of delivery in original packaging. Refunds are processed within 5-7 business days after we receive your return."
+  },
+  "productGallery": {
+    "ariaLabel": "Product gallery",
+    "thumbnailAriaLabel": "View image {{number}}",
+    "scrollLeft": "Scroll thumbnails left",
+    "scrollRight": "Scroll thumbnails right"
+  },
+  "variantSelector": {
+    "chooseOption": "Choose a {{optionName}}",
+    "outOfStock": "{{value}} (Out of stock)"
+  },
+  "heroCarousel": {
+    "ariaLabel": "Featured promotions",
+    "slideAriaLabel": "Slide {{current}} of {{total}}"
+  }
+}
