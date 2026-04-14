@@ -1,4 +1,5 @@
 import {ShoppingBag, Truck, RotateCcw} from 'lucide-react';
+import {useTranslation} from 'react-i18next';
 
 interface OrderStatsCardsProps {
   totalOrders: number;
@@ -9,21 +10,21 @@ interface OrderStatsCardsProps {
 const STAT_CARDS = [
   {
     key: 'orders',
-    label: 'Orders',
+    labelKey: 'orders.stats.orders',
     icon: ShoppingBag,
     iconBg: 'bg-[rgba(59,130,246,0.1)]',
     iconColor: 'text-[#3b82f6]',
   },
   {
     key: 'inTransit',
-    label: 'On The Way Out',
+    labelKey: 'orders.stats.onTheWayOut',
     icon: Truck,
     iconBg: 'bg-[rgba(245,158,11,0.1)]',
     iconColor: 'text-[#f59e0b]',
   },
   {
     key: 'delivered',
-    label: 'Re-Purchase',
+    labelKey: 'orders.stats.rePurchase',
     icon: RotateCcw,
     iconBg: 'bg-[rgba(16,185,129,0.1)]',
     iconColor: 'text-[#10b981]',
@@ -35,6 +36,7 @@ export function OrderStatsCards({
   inTransitOrders,
   deliveredOrders,
 }: OrderStatsCardsProps) {
+  const {t} = useTranslation();
   const values: Record<string, number> = {
     orders: totalOrders,
     inTransit: inTransitOrders,
@@ -58,7 +60,7 @@ export function OrderStatsCards({
               {values[card.key]}
             </span>
             <span className="text-[14px] leading-[22.4px] text-[#6b7280]">
-              {card.label}
+              {t(card.labelKey)}
             </span>
           </div>
         </div>

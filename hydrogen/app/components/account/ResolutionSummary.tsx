@@ -1,3 +1,5 @@
+import {useTranslation} from 'react-i18next';
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -34,6 +36,8 @@ export function ResolutionSummary({
   totalValue,
   currencyCode = 'USD',
 }: ResolutionSummaryProps) {
+  const {t} = useTranslation('common');
+
   return (
     <div
       className="flex flex-col gap-[12px] rounded-[12px] bg-[#f9fafb] px-[20px] pb-[32px] pt-[28px]"
@@ -42,7 +46,7 @@ export function ResolutionSummary({
       {/* Row 1: Items being returned */}
       <div className="flex items-center justify-between">
         <span className="text-[14px] font-normal leading-[21px] text-[#4b5563]">
-          Items being returned
+          {t('resolutionSummary.itemsBeingReturned')}
         </span>
         <span className="text-[14px] font-medium leading-[21px] text-[#1f2937]">
           {itemCount}
@@ -52,7 +56,7 @@ export function ResolutionSummary({
       {/* Row 2: Subtotal */}
       <div className="flex items-center justify-between">
         <span className="text-[14px] font-normal leading-[21px] text-[#4b5563]">
-          Subtotal
+          {t('resolutionSummary.subtotal')}
         </span>
         <span className="text-[14px] font-medium leading-[21px] text-[#1f2937]">
           {formatMoney(subtotal, currencyCode)}
@@ -62,7 +66,7 @@ export function ResolutionSummary({
       {/* Row 3: Return shipping */}
       <div className="flex items-center justify-between">
         <span className="text-[14px] font-normal leading-[21px] text-[#4b5563]">
-          Return shipping
+          {t('resolutionSummary.returnShipping')}
         </span>
         <span
           className={`text-[14px] font-medium leading-[21px] ${
@@ -76,7 +80,7 @@ export function ResolutionSummary({
       {/* Divider + Total */}
       <div className="flex items-center justify-between border-t-2 border-[#e5e7eb] pt-[14px]">
         <span className="text-[16px] font-bold leading-[24px] text-[#111827]">
-          Total Resolution Value
+          {t('resolutionSummary.totalResolutionValue')}
         </span>
         <span
           className="text-[16px] font-bold leading-[24px] text-return-accent"

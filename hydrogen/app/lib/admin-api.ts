@@ -120,6 +120,51 @@ export async function adminApi<T = Record<string, unknown>>(
   return json.data as T;
 }
 
+// ── Customer Metafield Queries ───────────────────────────────────────────────
+
+const CUSTOMER_METAFIELDS_QUERY = `
+  query CustomerMetafields($customerId: ID!) {
+    customer(id: $customerId) {
+      addressBook: metafield(namespace: "custom", key: "address_book") {
+        value
+      }
+      surveyCompleted: metafield(namespace: "custom", key: "survey_completed") {
+        value
+      }
+    }
+  }
+`;
+
+interface CustomerMetafieldsResult {
+  customer: {
+    addressBook: {value: string} | null;
+    surveyCompleted: {value: string} | null;
+  } | null;
+}
+
+/**
+ * Read address-book metafields for a customer via the Admin API.
+ * Use this instead of the Storefront API to avoid cross-API propagation delay
+ * (Admin API writes are immediately visible to Admin API reads).
+ */
+export async function getCustomerMetafields(
+  env: AdminEnv,
+  customerId: string,
+): Promise<{
+  addressBook: {value: string} | null;
+  surveyCompleted: {value: string} | null;
+}> {
+  const data = await adminApi<CustomerMetafieldsResult>(
+    env,
+    CUSTOMER_METAFIELDS_QUERY,
+    {customerId},
+  );
+  return {
+    addressBook: data.customer?.addressBook ?? null,
+    surveyCompleted: data.customer?.surveyCompleted ?? null,
+  };
+}
+
 // ── Customer Metafield Mutations ────────────────────────────────────────────
 
 const CUSTOMER_METAFIELD_SET = `

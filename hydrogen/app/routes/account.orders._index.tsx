@@ -2,6 +2,7 @@ import {useMemo, useState} from 'react';
 import type {Route} from './+types/account.orders._index';
 import {redirect, Link, useSearchParams} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
+import {useTranslation} from 'react-i18next';
 import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {Button} from '~/components/ui/button';
 import {Package, Undo2, RotateCcw, ChevronDown} from 'lucide-react';
@@ -92,11 +93,11 @@ const ORDERS_PER_PAGE = 10;
 
 type TimeFilter = 'past-3-months' | 'past-6-months' | 'past-year' | 'all-time';
 
-const TIME_FILTER_OPTIONS: {value: TimeFilter; label: string}[] = [
-  {value: 'past-3-months', label: 'past 3 months'},
-  {value: 'past-6-months', label: 'past 6 months'},
-  {value: 'past-year', label: 'past year'},
-  {value: 'all-time', label: 'all time'},
+const TIME_FILTER_OPTIONS: {value: TimeFilter; labelKey: string}[] = [
+  {value: 'past-3-months', labelKey: 'orders.timeFilters.past3Months'},
+  {value: 'past-6-months', labelKey: 'orders.timeFilters.past6Months'},
+  {value: 'past-year', labelKey: 'orders.timeFilters.pastYear'},
+  {value: 'all-time', labelKey: 'orders.timeFilters.allTime'},
 ];
 
 function getFilterMonths(filter: TimeFilter): number | null {
@@ -140,6 +141,7 @@ export async function loader({context, request}: Route.LoaderArgs) {
 // ============================================================================
 
 export default function OrdersPage({loaderData}: Route.ComponentProps) {
+  const {t} = useTranslation();
   const {orders} = loaderData;
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<OrderTab>('orders');
@@ -245,10 +247,10 @@ export default function OrdersPage({loaderData}: Route.ComponentProps) {
       {/* Page Header */}
       <div className="flex flex-col gap-[8px]">
         <h1 className="text-2xl font-bold leading-[51.2px] text-[#1f2937] sm:text-[32px]">
-          My Orders
+          {t('orders.title')}
         </h1>
         <p className="text-[16px] leading-[25.6px] text-[#6b7280]">
-          View and manage your order history
+          {t('orders.subtitle')}
         </p>
       </div>
 
@@ -270,10 +272,10 @@ export default function OrdersPage({loaderData}: Route.ComponentProps) {
             {/* Sub-section Header */}
             <div className="flex flex-col gap-[8px]">
               <h2 className="text-xl font-bold leading-[36px] text-[#111827] sm:text-[24px]">
-                On the Way Out
+                {t('orders.onTheWayOut.title')}
               </h2>
               <p className="text-[15px] leading-[22.5px] text-[#4b5563]">
-                Track your returns and items being shipped back
+                {t('orders.onTheWayOut.subtitle')}
               </p>
             </div>
 
@@ -297,10 +299,10 @@ export default function OrdersPage({loaderData}: Route.ComponentProps) {
             {/* Sub-section Header */}
             <div className="flex flex-col gap-[8px]">
               <h2 className="text-xl font-bold leading-[36px] text-[#111827] sm:text-[24px]">
-                Buy Again
+                {t('orders.buyAgain.title')}
               </h2>
               <p className="text-[15px] leading-[22.5px] text-[#4b5563]">
-                Quickly reorder items you&apos;ve purchased before
+                {t('orders.buyAgain.subtitle')}
               </p>
             </div>
 
@@ -324,15 +326,15 @@ export default function OrdersPage({loaderData}: Route.ComponentProps) {
           <div className="flex flex-wrap items-center gap-x-[24px] gap-y-[8px]">
             <div className="flex flex-col gap-[2px]">
               <span className="text-[12px] font-normal uppercase leading-[18px] tracking-[0.5px] text-[#6b7280]">
-                Orders Placed
+                {t('orders.ordersPlaced')}
               </span>
               <span className="text-[14px] leading-[21px] text-[#374151]">
-                {tabFilteredOrders.length} orders
+                {t('orders.ordersCount', {count: tabFilteredOrders.length})}
               </span>
             </div>
             <div className="flex flex-col gap-[2px]">
               <span className="text-[12px] font-normal uppercase leading-[18px] tracking-[0.5px] text-[#6b7280]">
-                Time Period
+                {t('orders.timePeriod')}
               </span>
               <div className="relative">
                 <select
@@ -342,7 +344,7 @@ export default function OrdersPage({loaderData}: Route.ComponentProps) {
                 >
                   {TIME_FILTER_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
-                      {opt.label}
+                      {t(opt.labelKey)}
                     </option>
                   ))}
                 </select>
@@ -412,17 +414,16 @@ export function HydrateFallback() {
 // ============================================================================
 
 function EmptyOrders() {
+  const {t} = useTranslation();
   return (
     <div className="flex flex-col items-center py-16 text-center">
       <Package size={64} className="mb-4 text-[#9ca3af]" />
       <h2 className="mb-2 text-xl font-semibold text-[#1f2937]">
-        No orders yet
+        {t('orders.empty.heading')}
       </h2>
-      <p className="mb-6 text-[#6b7280]">
-        When you place your first order, it will appear here.
-      </p>
+      <p className="mb-6 text-[#6b7280]">{t('orders.empty.subtitle')}</p>
       <Button asChild>
-        <Link to="/collections">Start Shopping</Link>
+        <Link to="/collections">{t('orders.empty.cta')}</Link>
       </Button>
     </div>
   );
@@ -433,18 +434,18 @@ function EmptyOrders() {
 // ============================================================================
 
 function EmptyBuyAgain() {
+  const {t} = useTranslation();
   return (
     <div className="flex flex-col items-center py-16 text-center">
       <RotateCcw size={64} className="mb-4 text-[#9ca3af]" />
       <h2 className="mb-2 text-xl font-semibold text-[#1f2937]">
-        No items to buy again
+        {t('orders.emptyBuyAgain.heading')}
       </h2>
       <p className="mb-6 text-[#6b7280]">
-        Once you receive your first order, products will appear here for easy
-        re-ordering.
+        {t('orders.emptyBuyAgain.subtitle')}
       </p>
       <Button asChild>
-        <Link to="/collections">Start Shopping</Link>
+        <Link to="/collections">{t('orders.empty.cta')}</Link>
       </Button>
     </div>
   );
@@ -455,17 +456,18 @@ function EmptyBuyAgain() {
 // ============================================================================
 
 function EmptyOutgoing() {
+  const {t} = useTranslation();
   return (
     <div className="flex flex-col items-center py-16 text-center">
       <Undo2 size={64} className="mb-4 text-[#9ca3af]" />
       <h2 className="mb-2 text-xl font-semibold text-[#1f2937]">
-        No returns or exchanges
+        {t('orders.emptyOutgoing.heading')}
       </h2>
       <p className="mb-6 text-[#6b7280]">
-        You don&apos;t have any active returns or exchanges at this time.
+        {t('orders.emptyOutgoing.subtitle')}
       </p>
       <Button asChild>
-        <Link to="/collections">Continue Shopping</Link>
+        <Link to="/collections">{t('orders.continueShopping')}</Link>
       </Button>
     </div>
   );

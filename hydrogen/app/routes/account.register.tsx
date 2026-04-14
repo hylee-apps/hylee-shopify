@@ -1,5 +1,6 @@
 import {Form, Link, useActionData, useNavigation} from 'react-router';
 import {redirect} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import {getSeoMeta} from '@shopify/hydrogen';
 import type {Route} from './+types/account.register';
 import {AuthLayout} from '~/components/auth/AuthLayout';
@@ -101,17 +102,6 @@ export async function action({request, context}: Route.ActionArgs) {
 }
 
 // ============================================================================
-// Register Features (left panel)
-// ============================================================================
-
-const REGISTER_FEATURES = [
-  {text: 'Save shipping addresses'},
-  {text: 'Secure payment storage'},
-  {text: 'Order history tracking'},
-  {text: 'Wishlist and favorites'},
-];
-
-// ============================================================================
 // Component
 // ============================================================================
 
@@ -126,22 +116,30 @@ export default function RegisterPage() {
   const isSubmitting = navigation.state === 'submitting';
   const errors = actionData?.errors;
   const fields = actionData?.fields;
+  const {t} = useTranslation();
+
+  const registerFeatures = [
+    {text: t('auth.register.features.saveAddresses')},
+    {text: t('auth.register.features.securePayment')},
+    {text: t('auth.register.features.orderHistory')},
+    {text: t('auth.register.features.wishlist')},
+  ];
 
   return (
     <AuthLayout
       gradient={{from: 'rgb(64, 40, 60)', to: 'rgb(38, 153, 166)'}}
-      tagline="Join Hylee Today"
-      description="Create an account for a personalized shopping experience."
-      features={REGISTER_FEATURES}
+      tagline={t('auth.register.tagline')}
+      description={t('auth.register.description')}
+      features={registerFeatures}
     >
       <div className="px-8 py-8">
         {/* Header */}
         <div className="mb-8 flex flex-col items-center gap-2">
           <h1 className="text-center text-[28px] font-light text-[#111827]">
-            Create Account
+            {t('auth.register.title')}
           </h1>
           <p className="text-center text-[15px] text-[#6b7280]">
-            Fill in your details to get started
+            {t('auth.register.subtitle')}
           </p>
         </div>
 
@@ -152,7 +150,7 @@ export default function RegisterPage() {
         <div className="my-6 flex items-center gap-4">
           <div className="h-px flex-1 bg-[#e5e7eb]" />
           <span className="text-[13px] text-[#9ca3af]">
-            or sign up with email
+            {t('auth.register.orSignUpWithEmail')}
           </span>
           <div className="h-px flex-1 bg-[#e5e7eb]" />
         </div>
@@ -170,7 +168,7 @@ export default function RegisterPage() {
           <div className="flex gap-4">
             <div className="flex-1">
               <FormField
-                label="First Name"
+                label={t('auth.register.firstNameLabel')}
                 name="firstName"
                 placeholder="John"
                 defaultValue={fields?.firstName}
@@ -180,7 +178,7 @@ export default function RegisterPage() {
             </div>
             <div className="flex-1">
               <FormField
-                label="Last Name"
+                label={t('auth.register.lastNameLabel')}
                 name="lastName"
                 placeholder="Doe"
                 defaultValue={fields?.lastName}
@@ -191,7 +189,7 @@ export default function RegisterPage() {
           </div>
 
           <FormField
-            label="Email Address"
+            label={t('auth.register.emailLabel')}
             name="email"
             type="email"
             placeholder="you@example.com"
@@ -201,20 +199,20 @@ export default function RegisterPage() {
           />
 
           <FormField
-            label="Password"
+            label={t('auth.register.passwordLabel')}
             name="password"
             type="password"
-            placeholder="Create a password (min 8 characters)"
+            placeholder={t('auth.register.passwordPlaceholder')}
             error={errors?.password}
-            hint="Must contain at least 8 characters, 1 number, and 1 special character"
+            hint={t('auth.register.passwordHint')}
             autoComplete="new-password"
           />
 
           <FormField
-            label="Confirm Password"
+            label={t('auth.register.confirmPasswordLabel')}
             name="confirmPassword"
             type="password"
-            placeholder="Confirm your password"
+            placeholder={t('auth.register.confirmPasswordLabel')}
             error={errors?.confirmPassword}
             autoComplete="new-password"
           />
@@ -229,21 +227,37 @@ export default function RegisterPage() {
                 className="mt-[3px] size-[13px] shrink-0 rounded-[2.5px] border-[#767676] accent-secondary"
               />
               <span className="text-[14px] leading-[19.6px] text-[#4b5563]">
-                I agree to the{' '}
-                <Link
-                  to="/policies/terms-of-service"
-                  className="text-secondary no-underline hover:underline"
-                >
-                  Terms of Service
-                </Link>{' '}
-                and{' '}
-                <Link
-                  to="/policies/privacy-policy"
-                  className="text-secondary no-underline hover:underline"
-                >
-                  Privacy Policy
-                </Link>
-                . I consent to receiving marketing emails.
+                {t('auth.register.termsConsent')
+                  .split(t('auth.register.termsOfService'))
+                  .reduce<React.ReactNode[]>((acc, part, i) => {
+                    if (i === 0) {
+                      return [
+                        part,
+                        <Link
+                          key="terms"
+                          to="/policies/terms-of-service"
+                          className="text-secondary no-underline hover:underline"
+                        >
+                          {t('auth.register.termsOfService')}
+                        </Link>,
+                      ];
+                    }
+                    const [before, after] = part.split(
+                      t('auth.register.privacyPolicy'),
+                    );
+                    return [
+                      ...acc,
+                      before,
+                      <Link
+                        key="privacy"
+                        to="/policies/privacy-policy"
+                        className="text-secondary no-underline hover:underline"
+                      >
+                        {t('auth.register.privacyPolicy')}
+                      </Link>,
+                      after,
+                    ];
+                  }, [])}
               </span>
             </label>
             {errors?.acceptsTerms && (
@@ -257,18 +271,20 @@ export default function RegisterPage() {
             disabled={isSubmitting}
             className="h-[48px] w-full rounded-[8px] bg-secondary text-[15px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
           >
-            {isSubmitting ? 'Creating account...' : 'Create Account'}
+            {isSubmitting
+              ? t('auth.register.submitting')
+              : t('auth.register.submitButton')}
           </button>
         </Form>
 
         {/* Footer */}
         <div className="mt-8 border-t border-[#e5e7eb] pt-6 text-center text-[15px] text-[#6b7280]">
-          Already have an account?{' '}
+          {t('auth.register.hasAccount')}{' '}
           <Link
             to="/account/login"
             className="font-medium text-secondary no-underline hover:underline"
           >
-            Sign in
+            {t('auth.register.signIn')}
           </Link>
         </div>
       </div>

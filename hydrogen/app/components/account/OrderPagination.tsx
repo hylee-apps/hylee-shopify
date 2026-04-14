@@ -1,5 +1,6 @@
 import {Link, useSearchParams} from 'react-router';
 import {ChevronLeft, ChevronRight} from 'lucide-react';
+import {useTranslation} from 'react-i18next';
 
 interface OrderPaginationProps {
   currentPage: number;
@@ -44,6 +45,7 @@ export function OrderPagination({
   totalPages,
 }: OrderPaginationProps) {
   const [searchParams] = useSearchParams();
+  const {t} = useTranslation('common');
 
   if (totalPages <= 1) return null;
 
@@ -53,7 +55,7 @@ export function OrderPagination({
 
   return (
     <nav
-      aria-label="Pagination"
+      aria-label={t('orderPagination.ariaLabel')}
       className="flex w-full items-center justify-center gap-[8px]"
     >
       {/* Previous Arrow */}
@@ -68,7 +70,7 @@ export function OrderPagination({
         <Link
           to={buildPageUrl(searchParams, currentPage - 1)}
           className={`${BASE_BTN} border border-[#e5e7eb] bg-white hover:border-[#14b8a6]`}
-          aria-label="Previous page"
+          aria-label={t('orderPagination.previousPage')}
         >
           <ChevronLeft size={14} className="text-[#1f2937]" />
         </Link>
@@ -114,7 +116,7 @@ export function OrderPagination({
         <Link
           to={buildPageUrl(searchParams, currentPage + 1)}
           className={`${BASE_BTN} border border-[#e5e7eb] bg-white hover:border-[#14b8a6]`}
-          aria-label="Next page"
+          aria-label={t('orderPagination.nextPage')}
         >
           <ChevronRight size={14} className="text-[#1f2937]" />
         </Link>

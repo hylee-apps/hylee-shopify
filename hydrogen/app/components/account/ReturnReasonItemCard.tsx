@@ -1,5 +1,6 @@
 import {Image} from '@shopify/hydrogen';
 import {Check, ImageIcon} from 'lucide-react';
+import {useTranslation} from 'react-i18next';
 import type {ReturnLineItem} from '~/components/account/ReturnItemCard';
 import {ReturnReasonForm} from '~/components/account/ReturnReasonForm';
 import type {ReturnReason} from '~/components/account/ReturnReasonForm';
@@ -46,6 +47,8 @@ export function ReturnReasonItemCard({
   onReasonChange,
   onDetailsChange,
 }: ReturnReasonItemCardProps) {
+  const {t} = useTranslation('common');
+
   return (
     <div
       className={`flex w-full items-start gap-[20px] rounded-[12px] border-2 p-[22px] transition-colors ${
@@ -71,7 +74,11 @@ export function ReturnReasonItemCard({
               : 'border-[#d1d5db] bg-white'
           }`}
           data-testid={`return-reason-checkbox-${item.id}`}
-          aria-label={`${selected ? 'Deselect' : 'Select'} ${item.title}`}
+          aria-label={
+            selected
+              ? t('returnReasonItemCard.deselectAriaLabel', {title: item.title})
+              : t('returnReasonItemCard.selectAriaLabel', {title: item.title})
+          }
         >
           {selected && (
             <Check size={14} className="text-white" strokeWidth={3} />
@@ -126,8 +133,8 @@ export function ReturnReasonItemCard({
           {item.title}
         </h4>
         <p className="text-[14px] font-normal leading-[21px] text-[#6b7280]">
-          {item.variantTitle ? `${item.variantTitle} • ` : ''}Qty:{' '}
-          {item.quantity}
+          {item.variantTitle ? `${item.variantTitle} • ` : ''}
+          {t('returnReasonItemCard.qty', {quantity: item.quantity})}
         </p>
         <p className="pt-[4px] text-[16px] font-semibold leading-[24px] text-return-accent">
           {formatMoney(item.price)}

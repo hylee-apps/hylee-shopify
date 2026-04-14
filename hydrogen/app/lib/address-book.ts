@@ -74,6 +74,13 @@ export interface AddressBookContact {
 export interface AddressBook {
   version: 1;
   contacts: AddressBookContact[];
+  /**
+   * Tombstone of Shopify address IDs that were explicitly deleted by the user.
+   * The loader sync skips these IDs so it never recreates a contact from an
+   * address the user removed. Entries are pruned once the ID disappears from
+   * Shopify's address list (confirming the deletion went through).
+   */
+  deletedShopifyIds?: string[];
   surveyResponse?: {
     source: 'social_media' | 'search' | 'referral' | 'other';
     platform?: string;

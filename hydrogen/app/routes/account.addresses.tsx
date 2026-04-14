@@ -1,7 +1,8 @@
 import type {Route} from './+types/account.addresses';
-import {redirect, useActionData, useNavigation} from 'react-router';
+import {redirect, useActionData, useNavigation, Form} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
+import {useTranslation} from 'react-i18next';
 import {isCustomerLoggedIn} from '~/lib/customer-auth';
 import {Button} from '~/components/ui/button';
 import {
@@ -95,56 +96,28 @@ export async function loader({context}: Route.LoaderArgs) {
     return redirect('/account/login');
   }
 
-  // Sync: auto-create home contacts for Shopify addresses not yet in the book.
-  // Wrapped in try/catch so Admin API failures (e.g. missing env vars) don't
-  // crash the entire page — the address book still loads, just without the sync.
-  try {
-    const homeContacts = getContactsByCategory(book, 'home');
-    const trackedShopifyIds = new Set(
-      homeContacts.flatMap((c) =>
-        c.addresses.map((a) => a.shopifyAddressId).filter(Boolean),
-      ),
-    );
+  // ── Compute untracked Shopify addresses (read-only; the loader never writes)
+  //
+  // Writing the book inside the loader races with action writes (createContact,
+  // updateContact) under Admin API eventual consistency: a stale read overwrites
+  // the action's write, replacing the user's real contact with a bare
+  // name+address entry on every page refresh.
+  //
+  // Instead we identify Shopify addresses that have no corresponding home
+  // contact and pass them to the component. The component triggers a one-time
+  // `importShopifyAddresses` action (via useFetcher) which reads the freshest
+  // book state before writing — avoiding the write-write race entirely.
+  const tombstone = new Set(book.deletedShopifyIds ?? []);
+  const trackedShopifyIds = new Set(
+    getContactsByCategory(book, 'home').flatMap((c) =>
+      c.addresses.map((a) => a.shopifyAddressId).filter(Boolean),
+    ),
+  );
+  const untrackedAddresses = shopifyAddresses.filter(
+    (addr) => !tombstone.has(addr.id) && !trackedShopifyIds.has(addr.id),
+  );
 
-    let bookChanged = false;
-    for (const addr of shopifyAddresses) {
-      if (!trackedShopifyIds.has(addr.id)) {
-        book.contacts.push({
-          id: crypto.randomUUID(),
-          category: 'home',
-          firstName: addr.firstName ?? '',
-          lastName: addr.lastName ?? '',
-          addresses: [
-            {
-              id: crypto.randomUUID(),
-              primary: addr.id === defaultAddressId,
-              shopifyAddressId: addr.id,
-              address1: addr.address1 ?? '',
-              address2: addr.address2 ?? '',
-              city: addr.city ?? '',
-              state: addr.provinceCode ?? '',
-              zip: addr.zip ?? '',
-              country: addr.countryCodeV2 ?? 'US',
-            },
-          ],
-          phones: addr.phone
-            ? [{id: crypto.randomUUID(), primary: true, number: addr.phone}]
-            : [],
-          emails: [],
-        });
-        bookChanged = true;
-      }
-    }
-
-    if (bookChanged) {
-      await writeAddressBook(context, customerId, book);
-    }
-  } catch (error) {
-    // Log but don't crash — sync is best-effort
-    console.error('Address book sync failed:', error);
-  }
-
-  return {book, customerId};
+  return {book, customerId, untrackedAddresses};
 }
 
 // ============================================================================
@@ -184,7 +157,10 @@ export async function action({request, context}: Route.ActionArgs) {
 
       book.contacts.push(contact);
       await writeAddressBook(context, customerId, book);
-      return {success: true, intent};
+      // Redirect (like deleteContact) so the loader re-runs after a navigation
+      // delay, giving the Admin API metafield write more time to propagate to
+      // the Storefront API before the sync reads it back.
+      return redirect('/account/addresses');
     }
 
     case 'updateContact': {
@@ -201,8 +177,24 @@ export async function action({request, context}: Route.ActionArgs) {
         };
       }
 
-      // If home category, dual-write primary address to Shopify
+      const existing = book.contacts[idx];
+
+      // If home category, dual-write address changes to Shopify
       if (updated.category === 'home') {
+        // Delete any Shopify addresses that were removed from the contact.
+        // Tombstone each ID before attempting deletion so the sync never
+        // recreates the contact — even if the Shopify delete is still in flight.
+        const updatedAddressIds = new Set(updated.addresses.map((a) => a.id));
+        const tombstone = new Set(book.deletedShopifyIds ?? []);
+        for (const addr of existing.addresses) {
+          if (!updatedAddressIds.has(addr.id) && addr.shopifyAddressId) {
+            tombstone.add(addr.shopifyAddressId);
+            await deleteShopifyAddress(context, addr.shopifyAddressId);
+          }
+        }
+        book.deletedShopifyIds = [...tombstone];
+
+        // Update or create the primary address in Shopify
         const primaryAddr =
           updated.addresses.find((a) => a.primary) ?? updated.addresses[0];
         if (primaryAddr?.shopifyAddressId) {
@@ -230,6 +222,97 @@ export async function action({request, context}: Route.ActionArgs) {
       return {success: true, intent};
     }
 
+    case 'bulkDeleteContacts': {
+      const {book, customerId} = await readAddressBook(context);
+      const contactIdsRaw = formData.get('contactIds') as string;
+      let contactIds: string[] = [];
+      try {
+        contactIds = JSON.parse(contactIdsRaw) as string[];
+      } catch {
+        return {
+          errors: [{field: 'contactIds', message: 'Invalid contact IDs'}],
+        };
+      }
+
+      const tombstone = new Set(book.deletedShopifyIds ?? []);
+      for (const contactId of contactIds) {
+        const contact = book.contacts.find((c) => c.id === contactId);
+        if (!contact) continue;
+        if (contact.category === 'home') {
+          for (const addr of contact.addresses) {
+            if (addr.shopifyAddressId) {
+              tombstone.add(addr.shopifyAddressId);
+              await deleteShopifyAddress(context, addr.shopifyAddressId);
+            }
+          }
+        }
+      }
+      book.deletedShopifyIds = [...tombstone];
+      book.contacts = book.contacts.filter((c) => !contactIds.includes(c.id));
+      await writeAddressBook(context, customerId, book);
+      return redirect('/account/addresses');
+    }
+
+    case 'importShopifyAddresses': {
+      // One-time bootstrap: import Shopify native addresses that have no
+      // corresponding home contact in the book.  This runs as an action (not in
+      // the loader) so there is no write-write race with createContact.  We read
+      // the freshest book state right here before writing, which picks up any
+      // contacts written by recent createContact calls.
+      const {book, customerId} = await readAddressBook(context);
+      const {addresses: shopifyAddresses, defaultAddressId} =
+        await readCustomerAddresses(context);
+
+      const tombstone = new Set(book.deletedShopifyIds ?? []);
+      const trackedShopifyIds = new Set(
+        getContactsByCategory(book, 'home').flatMap((c) =>
+          c.addresses.map((a) => a.shopifyAddressId).filter(Boolean),
+        ),
+      );
+
+      let added = 0;
+      for (const addr of shopifyAddresses) {
+        if (tombstone.has(addr.id)) continue;
+        if (trackedShopifyIds.has(addr.id)) continue;
+
+        book.contacts.push({
+          id: crypto.randomUUID(),
+          category: 'home',
+          firstName: addr.firstName ?? '',
+          lastName: addr.lastName ?? '',
+          addresses: [
+            {
+              id: crypto.randomUUID(),
+              primary: addr.id === defaultAddressId,
+              shopifyAddressId: addr.id,
+              address1: addr.address1 ?? '',
+              address2: addr.address2 ?? '',
+              city: addr.city ?? '',
+              state: addr.provinceCode ?? '',
+              zip: addr.zip ?? '',
+              country: addr.countryCodeV2 ?? 'US',
+            },
+          ],
+          phones: addr.phone
+            ? [{id: crypto.randomUUID(), primary: true, number: addr.phone}]
+            : [],
+          emails: [],
+        });
+        added++;
+      }
+
+      if (added > 0) {
+        await writeAddressBook(context, customerId, book);
+      }
+      // Return JSON (not redirect) so the fetcher does NOT trigger a full
+      // navigation. A redirect would remount the component, reset
+      // importTriggeredRef, and restart the import cycle before the Admin API
+      // write has propagated — causing infinite duplicate creation.
+      // Loader revalidation still fires automatically, updating the UI once the
+      // write is visible, without any remount.
+      return {success: true, intent, added};
+    }
+
     case 'deleteContact': {
       const {book, customerId} = await readAddressBook(context);
       const contactId = formData.get('contactId') as string;
@@ -242,18 +325,28 @@ export async function action({request, context}: Route.ActionArgs) {
         };
       }
 
-      // If home, also delete Shopify native addresses
+      // If home, also delete Shopify native addresses.
+      // Tombstone each ID first so the loader sync never recreates the contact,
+      // even if Shopify deletion is delayed or fails.
       if (contact.category === 'home') {
+        const tombstone = new Set(book.deletedShopifyIds ?? []);
         for (const addr of contact.addresses) {
           if (addr.shopifyAddressId) {
+            tombstone.add(addr.shopifyAddressId);
             await deleteShopifyAddress(context, addr.shopifyAddressId);
           }
         }
+        book.deletedShopifyIds = [...tombstone];
       }
 
       book.contacts = book.contacts.filter((c) => c.id !== contactId);
       await writeAddressBook(context, customerId, book);
-      return {success: true, intent};
+      // Redirect instead of returning JSON so the page fully remounts after
+      // deletion. This closes the dialog via component reset (deleteContactId
+      // defaults to null), avoids any actionData/useEffect race, and lets the
+      // loader re-run after a navigation delay — giving Shopify's API more time
+      // to propagate the metafield write before the next read.
+      return redirect('/account/addresses');
     }
 
     case 'setPrimary': {
@@ -461,14 +554,7 @@ const SUBCATEGORY_ICONS: Record<
   grandparents: Crown,
 };
 
-const SUBCATEGORY_DESCRIPTIONS: Record<FamilySubcategory, string> = {
-  parents: "Manage your parents' information and addresses",
-  siblings: "Manage your siblings' information and addresses",
-  children: "Manage your children's information and addresses",
-  aunts_uncles: "Manage your aunts and uncles' information and addresses",
-  cousins: "Manage your cousins' information and addresses",
-  grandparents: "Manage your grandparents' information and addresses",
-};
+// Descriptions are now resolved via i18n in the component.
 
 const CATEGORY_ICONS: Record<AddressCategory, ComponentType<LucideProps>> = {
   home: Home,
@@ -478,17 +564,12 @@ const CATEGORY_ICONS: Record<AddressCategory, ComponentType<LucideProps>> = {
   other: MapPin,
 };
 
-const CATEGORY_DESCRIPTIONS: Record<AddressCategory, string> = {
-  home: 'Manage your home addresses and contacts',
-  family: 'Manage your family contacts and addresses',
-  friends: 'Manage your friends and their addresses',
-  work: 'Manage your work contacts and addresses',
-  other: 'Manage other addresses and contacts',
-};
+// Category descriptions are now resolved via i18n in the component.
 
 function buildFamilyStats(
   contacts: AddressBookContact[],
   subcategory: FamilySubcategory,
+  t: (key: string) => string,
 ): [StatConfig, StatConfig, StatConfig] {
   const sub = FAMILY_SUBCATEGORIES.find((s) => s.value === subcategory);
   const rels = sub?.relationships ?? [];
@@ -500,52 +581,56 @@ function buildFamilyStats(
     const count2 = contacts.filter(
       (c) => c.relationship === rels[1].value,
     ).length;
+    const subLabel = t(`addressBook.subcategories.${subcategory}`);
     return [
       {
         icon: User,
         iconBgClass: 'bg-primary/10',
         iconColorClass: 'text-primary',
-        label: `${rels[0].label}s`,
+        label: `${t(`addressBook.relationships.${rels[0].value}`)}s`,
         value: count1,
       },
       {
         icon: User,
         iconBgClass: 'bg-[rgba(242,176,94,0.1)]',
         iconColorClass: 'text-[#f2b05e]',
-        label: `${rels[1].label}s`,
+        label: `${t(`addressBook.relationships.${rels[1].value}`)}s`,
         value: count2,
       },
       {
         icon: Users,
         iconBgClass: 'bg-[rgba(79,209,168,0.1)]',
         iconColorClass: 'text-[#4fd1a8]',
-        label: `Total ${sub?.label ?? ''}`,
+        label: `Total ${subLabel}`,
         value: contacts.length,
       },
     ];
   }
 
   // Single relationship type (e.g., Cousins)
+  const subLabel = t(`addressBook.subcategories.${subcategory}`);
   return [
     {
       icon: User,
       iconBgClass: 'bg-primary/10',
       iconColorClass: 'text-primary',
-      label: rels[0]?.label ?? 'Contacts',
+      label: rels[0]?.value
+        ? t(`addressBook.relationships.${rels[0].value}`)
+        : t('contactList.selectionCount').split(' ')[0],
       value: contacts.length,
     },
     {
       icon: MapPin,
       iconBgClass: 'bg-[rgba(242,176,94,0.1)]',
       iconColorClass: 'text-[#f2b05e]',
-      label: 'With Address',
+      label: t('contactCard.address'),
       value: contacts.filter((c) => c.addresses.length > 0).length,
     },
     {
       icon: Users,
       iconBgClass: 'bg-[rgba(79,209,168,0.1)]',
       iconColorClass: 'text-[#4fd1a8]',
-      label: `Total ${sub?.label ?? ''}`,
+      label: `Total ${subLabel}`,
       value: contacts.length,
     },
   ];
@@ -554,29 +639,29 @@ function buildFamilyStats(
 function buildCategoryStats(
   contacts: AddressBookContact[],
   category: AddressCategory,
+  t: (key: string) => string,
 ): [StatConfig, StatConfig, StatConfig] {
-  const label =
-    ADDRESS_CATEGORIES.find((c) => c.value === category)?.label ?? category;
+  const catLabel = t(`addressBook.categories.${category}`);
   return [
     {
       icon: User,
       iconBgClass: 'bg-primary/10',
       iconColorClass: 'text-primary',
-      label: 'Contacts',
+      label: catLabel,
       value: contacts.length,
     },
     {
       icon: MapPin,
       iconBgClass: 'bg-[rgba(242,176,94,0.1)]',
       iconColorClass: 'text-[#f2b05e]',
-      label: 'Addresses',
+      label: t('contactCard.address'),
       value: contacts.reduce((sum, c) => sum + c.addresses.length, 0),
     },
     {
       icon: Users,
       iconBgClass: 'bg-[rgba(79,209,168,0.1)]',
       iconColorClass: 'text-[#4fd1a8]',
-      label: `Total ${label}`,
+      label: `Total ${catLabel}`,
       value: contacts.length,
     },
   ];
@@ -591,6 +676,7 @@ export default function AddressBookPage({loaderData}: Route.ComponentProps) {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
+  const {t} = useTranslation('common');
 
   // Controlled state for navigation
   const [activeCategory, setActiveCategory] = useState<AddressCategory>('home');
@@ -611,15 +697,72 @@ export default function AddressBookPage({loaderData}: Route.ComponentProps) {
     FamilySubcategory | OtherSubcategory | undefined
   >(undefined);
 
+  // Bulk selection state
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedContactIds, setSelectedContactIds] = useState<Set<string>>(
+    new Set(),
+  );
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+
+  // Auto-close the edit dialog on successful update.
+  // (createContact now redirects, so it closes via component remount.)
+  useEffect(() => {
+    if (actionData?.success && actionData.intent === 'updateContact') {
+      setFormOpen(false);
+      setEditContact(null);
+    }
+  }, [actionData]);
+
+  // Close dialogs as soon as the submission is in-flight.
+  // This lets Radix unmount the portal cleanly before React Router's redirect
+  // tears down the component tree — avoids the "removeChild" DOM error.
+  useEffect(() => {
+    if (navigation.state !== 'submitting') return;
+    const intent = navigation.formData?.get('intent');
+    if (intent === 'createContact') {
+      setFormOpen(false);
+      setEditContact(null);
+    } else if (intent === 'deleteContact') {
+      setDeleteContactId(null);
+    } else if (intent === 'bulkDeleteContacts') {
+      setBulkDeleteOpen(false);
+      setSelectionMode(false);
+      setSelectedContactIds(new Set());
+    }
+  }, [navigation.state, navigation.formData]);
+
+  function handleToggleSelect(contactId: string) {
+    setSelectedContactIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(contactId)) next.delete(contactId);
+      else next.add(contactId);
+      return next;
+    });
+  }
+
+  function handleEnterSelectionMode() {
+    setSelectionMode(true);
+    setSelectedContactIds(new Set());
+  }
+
+  function handleExitSelectionMode() {
+    setSelectionMode(false);
+    setSelectedContactIds(new Set());
+  }
+
   function handleCategoryChange(category: AddressCategory) {
     setActiveCategory(category);
     setActiveSubcategory('parents');
     setActiveRelationship(undefined);
+    setSelectionMode(false);
+    setSelectedContactIds(new Set());
   }
 
   function handleSubcategoryChange(subcategory: FamilySubcategory) {
     setActiveSubcategory(subcategory);
     setActiveRelationship(undefined);
+    setSelectionMode(false);
+    setSelectedContactIds(new Set());
   }
 
   function handleAdd(
@@ -661,21 +804,33 @@ export default function AddressBookPage({loaderData}: Route.ComponentProps) {
       'family',
       activeSubcategory,
     );
-    sectionLabel = `${currentSubConfig?.label ?? activeSubcategory} Contacts`;
+    const subLabel = t(`addressBook.subcategories.${activeSubcategory}`);
+    sectionLabel = t('addresses.sectionLabel', {label: subLabel});
     sectionIcon = SUBCATEGORY_ICONS[activeSubcategory] ?? Users;
-    sectionDescription = SUBCATEGORY_DESCRIPTIONS[activeSubcategory] ?? '';
-    addLabel = `Add ${currentSubConfig?.label?.replace(/s$/, '') ?? 'Contact'}`;
-    stats = buildFamilyStats(displayContacts, activeSubcategory);
+    sectionDescription = t(
+      `addressBook.subcategoryDescriptions.${activeSubcategory}`,
+    );
+    addLabel = t('addresses.addLabel', {label: subLabel});
+    stats = buildFamilyStats(displayContacts, activeSubcategory, t);
   } else {
     displayContacts = getContactsByCategory(book, activeCategory);
-    const catLabel =
-      ADDRESS_CATEGORIES.find((c) => c.value === activeCategory)?.label ??
-      activeCategory;
-    sectionLabel = `${catLabel} Contacts`;
+    const catLabel = t(`addressBook.categories.${activeCategory}`);
+    sectionLabel = t('addresses.sectionLabel', {label: catLabel});
     sectionIcon = CATEGORY_ICONS[activeCategory] ?? MapPin;
-    sectionDescription = CATEGORY_DESCRIPTIONS[activeCategory] ?? '';
-    addLabel = `Add ${catLabel}`;
-    stats = buildCategoryStats(displayContacts, activeCategory);
+    sectionDescription = t(
+      `addressBook.categoryDescriptions.${activeCategory}`,
+    );
+    addLabel = t('addresses.addLabel', {label: catLabel});
+    stats = buildCategoryStats(displayContacts, activeCategory, t);
+  }
+
+  function handleSelectAll() {
+    const allSelected = displayContacts.every((c) =>
+      selectedContactIds.has(c.id),
+    );
+    setSelectedContactIds(
+      allSelected ? new Set() : new Set(displayContacts.map((c) => c.id)),
+    );
   }
 
   return (
@@ -683,23 +838,17 @@ export default function AddressBookPage({loaderData}: Route.ComponentProps) {
       {/* Page Header */}
       <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-light leading-10.5 text-gray-900 sm:text-[28px]">
-          Address Book
+          {t('addresses.pageTitle')}
         </h1>
         <p className="text-[15px] leading-[22.5px] text-gray-600">
-          Manage your contacts and addresses
+          {t('addresses.pageSubtitle')}
         </p>
       </div>
 
-      {/* Success Message */}
-      {actionData?.success && (
+      {/* Success Message (updateContact only — create/delete use redirect) */}
+      {actionData?.success && actionData.intent === 'updateContact' && (
         <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-          Contact{' '}
-          {actionData.intent === 'createContact'
-            ? 'added'
-            : actionData.intent === 'deleteContact'
-              ? 'removed'
-              : 'updated'}{' '}
-          successfully.
+          {t('addresses.contactUpdated')}
         </div>
       )}
 
@@ -731,9 +880,8 @@ export default function AddressBookPage({loaderData}: Route.ComponentProps) {
         icon={sectionIcon}
         title={
           activeCategory === 'family'
-            ? (currentSubConfig?.label ?? activeSubcategory)
-            : (ADDRESS_CATEGORIES.find((c) => c.value === activeCategory)
-                ?.label ?? activeCategory)
+            ? t(`addressBook.subcategories.${activeSubcategory}`)
+            : t(`addressBook.categories.${activeCategory}`)
         }
         description={sectionDescription}
         addLabel={addLabel}
@@ -748,6 +896,24 @@ export default function AddressBookPage({loaderData}: Route.ComponentProps) {
       {/* Stats Bar */}
       <StatsBar stats={stats} />
 
+      {/* Bulk Action Bar — visible only in selection mode with ≥1 contact selected */}
+      {selectionMode && selectedContactIds.size > 0 && (
+        <div className="flex items-center justify-between rounded-lg border border-red-200 bg-red-50 px-4 py-2.5">
+          <span className="text-sm font-medium text-red-700">
+            {t('addresses.bulkActionBar.selected', {
+              count: selectedContactIds.size,
+            })}
+          </span>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setBulkDeleteOpen(true)}
+          >
+            {t('addresses.bulkActionBar.deleteSelected')}
+          </Button>
+        </div>
+      )}
+
       {/* Contact List */}
       <ContactList
         contacts={displayContacts}
@@ -760,6 +926,12 @@ export default function AddressBookPage({loaderData}: Route.ComponentProps) {
         }
         onEdit={handleEdit}
         onDelete={setDeleteContactId}
+        selectionMode={selectionMode}
+        selectedIds={selectedContactIds}
+        onToggleSelect={handleToggleSelect}
+        onSelectAll={handleSelectAll}
+        onEnterSelectionMode={handleEnterSelectionMode}
+        onExitSelectionMode={handleExitSelectionMode}
       />
 
       {/* Add / Edit Contact Dialog */}
@@ -785,12 +957,11 @@ export default function AddressBookPage({loaderData}: Route.ComponentProps) {
       >
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Delete Contact</DialogTitle>
+            <DialogTitle>{t('addresses.deleteDialog.title')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-text">
-              Are you sure you want to delete this contact and all their
-              addresses? This action cannot be undone.
+              {t('addresses.deleteDialog.body')}
             </p>
             <div className="flex justify-end gap-3">
               <Button
@@ -798,9 +969,9 @@ export default function AddressBookPage({loaderData}: Route.ComponentProps) {
                 size="sm"
                 onClick={() => setDeleteContactId(null)}
               >
-                Cancel
+                {t('addresses.deleteDialog.cancel')}
               </Button>
-              <form method="post">
+              <Form method="post">
                 <input type="hidden" name="intent" value="deleteContact" />
                 <input
                   type="hidden"
@@ -808,9 +979,59 @@ export default function AddressBookPage({loaderData}: Route.ComponentProps) {
                   value={deleteContactId ?? ''}
                 />
                 <Button type="submit" variant="destructive" size="sm">
-                  Delete
+                  {t('addresses.deleteDialog.confirm')}
                 </Button>
-              </form>
+              </Form>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <Dialog
+        open={bulkDeleteOpen}
+        onOpenChange={(open) => !open && setBulkDeleteOpen(false)}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>
+              {t('addresses.bulkDeleteDialog.title', {
+                count: selectedContactIds.size,
+              })}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-text">
+              {t('addresses.bulkDeleteDialog.body', {
+                label:
+                  selectedContactIds.size === 1
+                    ? t('addresses.bulkDeleteDialog.bodyThis')
+                    : t('addresses.bulkDeleteDialog.bodyThese', {
+                        count: selectedContactIds.size,
+                      }),
+              })}
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setBulkDeleteOpen(false)}
+              >
+                {t('addresses.bulkDeleteDialog.cancel')}
+              </Button>
+              <Form method="post">
+                <input type="hidden" name="intent" value="bulkDeleteContacts" />
+                <input
+                  type="hidden"
+                  name="contactIds"
+                  value={JSON.stringify([...selectedContactIds])}
+                />
+                <Button type="submit" variant="destructive" size="sm">
+                  {t('addresses.bulkDeleteDialog.confirm', {
+                    count: selectedContactIds.size,
+                  })}
+                </Button>
+              </Form>
             </div>
           </div>
         </DialogContent>

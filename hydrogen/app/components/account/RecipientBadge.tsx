@@ -1,3 +1,4 @@
+import {useTranslation} from 'react-i18next';
 import type {AddressCategory} from '~/lib/address-book';
 
 const CATEGORY_COLORS: Record<AddressCategory, {bg: string; text: string}> = {
@@ -14,6 +15,7 @@ interface RecipientBadgeProps {
 }
 
 export function RecipientBadge({category, label}: RecipientBadgeProps) {
+  const {t} = useTranslation('common');
   const colors =
     CATEGORY_COLORS[category as AddressCategory] ?? CATEGORY_COLORS.other;
 
@@ -21,7 +23,7 @@ export function RecipientBadge({category, label}: RecipientBadgeProps) {
     <span
       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${colors.bg} ${colors.text}`}
     >
-      For {label}
+      {t('recipientBadge.for', {label})}
     </span>
   );
 }

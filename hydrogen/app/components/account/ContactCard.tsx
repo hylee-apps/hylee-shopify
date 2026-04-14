@@ -1,6 +1,7 @@
 'use client';
 
 import {Pencil, Trash2} from 'lucide-react';
+import {useTranslation} from 'react-i18next';
 import {
   generateContactLabel,
   getPrimaryAddress,
@@ -13,9 +14,18 @@ interface ContactCardProps {
   contact: AddressBookContact;
   onEdit: (contact: AddressBookContact) => void;
   onDelete: (contactId: string) => void;
+  selected?: boolean;
+  onToggleSelect?: (id: string) => void;
 }
 
-export function ContactCard({contact, onEdit, onDelete}: ContactCardProps) {
+export function ContactCard({
+  contact,
+  onEdit,
+  onDelete,
+  selected,
+  onToggleSelect,
+}: ContactCardProps) {
+  const {t} = useTranslation('common');
   const label = generateContactLabel(contact);
   const primaryAddress = getPrimaryAddress(contact);
   const primaryPhone = getPrimaryPhone(contact);
@@ -25,12 +35,30 @@ export function ContactCard({contact, onEdit, onDelete}: ContactCardProps) {
   const hasMultipleEmails = contact.emails.length > 1;
 
   return (
-    <div className="overflow-clip rounded-xl border border-gray-200 bg-white shadow-sm">
+    <div
+      className={`overflow-clip rounded-xl border bg-white shadow-sm transition-colors ${
+        selected
+          ? 'border-primary/50 ring-1 ring-primary/20'
+          : 'border-gray-200'
+      }`}
+    >
       {/* Card Header */}
       <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-5 pt-4 pb-4.25">
-        <span className="text-[16px] font-semibold leading-6 text-gray-900">
-          {label}
-        </span>
+        <div className="flex items-center gap-3">
+          {onToggleSelect && (
+            <input
+              type="checkbox"
+              checked={selected ?? false}
+              onChange={() => onToggleSelect(contact.id)}
+              onClick={(e) => e.stopPropagation()}
+              className="h-4 w-4 shrink-0 cursor-pointer rounded border-gray-300 accent-primary"
+              aria-label={t('contactCard.selectAriaLabel', {label})}
+            />
+          )}
+          <span className="text-[16px] font-semibold leading-6 text-gray-900">
+            {label}
+          </span>
+        </div>
         <div className="flex items-start gap-2">
           <button
             type="button"
@@ -54,9 +82,11 @@ export function ContactCard({contact, onEdit, onDelete}: ContactCardProps) {
         {/* Address Row */}
         {primaryAddress && (
           <InfoRow
-            label="Address"
+            label={t('contactCard.address')}
             value={formatAddress(primaryAddress)}
-            sideLabel={hasMultipleAddresses ? 'Other Address' : undefined}
+            sideLabel={
+              hasMultipleAddresses ? t('contactCard.otherAddress') : undefined
+            }
             hasBorder
           />
         )}
@@ -64,9 +94,11 @@ export function ContactCard({contact, onEdit, onDelete}: ContactCardProps) {
         {/* Phone Row */}
         {primaryPhone && (
           <InfoRow
-            label="Phone"
+            label={t('contactCard.phone')}
             value={primaryPhone.number}
-            sideLabel={hasMultiplePhones ? 'Other Numbers' : undefined}
+            sideLabel={
+              hasMultiplePhones ? t('contactCard.otherNumbers') : undefined
+            }
             hasBorder={!!primaryEmail}
           />
         )}
@@ -74,9 +106,11 @@ export function ContactCard({contact, onEdit, onDelete}: ContactCardProps) {
         {/* Email Row */}
         {primaryEmail && (
           <InfoRow
-            label="Email"
+            label={t('contactCard.email')}
             value={primaryEmail.email}
-            sideLabel={hasMultipleEmails ? 'Other Email' : undefined}
+            sideLabel={
+              hasMultipleEmails ? t('contactCard.otherEmail') : undefined
+            }
             hasBorder={false}
           />
         )}

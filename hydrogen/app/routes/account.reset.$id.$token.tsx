@@ -5,6 +5,7 @@ import {
   useNavigation,
   useParams,
 } from 'react-router';
+import {useTranslation} from 'react-i18next';
 import {redirect} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
 import type {Route} from './+types/account.reset.$id.$token';
@@ -89,17 +90,6 @@ export async function action({request, context, params}: Route.ActionArgs) {
 }
 
 // ============================================================================
-// Features (left panel)
-// ============================================================================
-
-const RESET_FEATURES = [
-  {text: 'Track orders in real-time'},
-  {text: 'Easy returns and exchanges'},
-  {text: 'Faster checkout experience'},
-  {text: 'Exclusive offers and discounts'},
-];
-
-// ============================================================================
 // Component
 // ============================================================================
 
@@ -110,24 +100,32 @@ interface ActionData {
 export default function ResetPasswordPage() {
   const actionData = useActionData() as ActionData | undefined;
   const navigation = useNavigation();
+  const {t} = useTranslation('common');
   const isSubmitting = navigation.state === 'submitting';
   const errors = actionData?.errors;
+
+  const resetFeatures = [
+    {text: t('reset.features.trackOrders')},
+    {text: t('reset.features.easyReturns')},
+    {text: t('reset.features.fasterCheckout')},
+    {text: t('reset.features.exclusiveOffers')},
+  ];
 
   return (
     <AuthLayout
       gradient={{from: 'rgb(66, 133, 244)', to: 'rgb(43, 217, 168)'}}
-      tagline="Welcome Back"
-      description="Set a new password to regain access to your account."
-      features={RESET_FEATURES}
+      tagline={t('reset.tagline')}
+      description={t('reset.taglineDescription')}
+      features={resetFeatures}
     >
       <div className="px-8 py-8">
         {/* Header */}
         <div className="mb-8 flex flex-col items-center gap-2">
           <h1 className="text-center text-[28px] font-light text-[#111827]">
-            Set New Password
+            {t('reset.heading')}
           </h1>
           <p className="text-center text-[15px] text-[#6b7280]">
-            Enter your new password below.
+            {t('reset.subheading')}
           </p>
         </div>
 
@@ -141,20 +139,20 @@ export default function ResetPasswordPage() {
         {/* Form */}
         <Form method="post" className="flex flex-col gap-5">
           <FormField
-            label="New Password"
+            label={t('reset.newPassword.label')}
             name="password"
             type="password"
-            placeholder="Create a new password (min 8 characters)"
+            placeholder={t('reset.newPassword.placeholder')}
             error={errors?.password}
-            hint="Must contain at least 8 characters, 1 number, and 1 special character"
+            hint={t('reset.newPassword.hint')}
             autoComplete="new-password"
           />
 
           <FormField
-            label="Confirm New Password"
+            label={t('reset.confirmPassword.label')}
             name="confirmPassword"
             type="password"
-            placeholder="Confirm your new password"
+            placeholder={t('reset.confirmPassword.placeholder')}
             error={errors?.confirmPassword}
             autoComplete="new-password"
           />
@@ -165,18 +163,18 @@ export default function ResetPasswordPage() {
             disabled={isSubmitting}
             className="h-[48px] w-full rounded-[8px] bg-secondary text-[15px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
           >
-            {isSubmitting ? 'Resetting...' : 'Reset Password'}
+            {isSubmitting ? t('reset.submitting') : t('reset.submit')}
           </button>
         </Form>
 
         {/* Footer */}
         <div className="mt-8 border-t border-[#e5e7eb] pt-6 text-center text-[15px] text-[#6b7280]">
-          Remember your password?{' '}
+          {t('reset.footer.rememberPassword')}{' '}
           <Link
             to="/account/login"
             className="font-medium text-secondary no-underline hover:underline"
           >
-            Sign in
+            {t('reset.footer.signIn')}
           </Link>
         </div>
       </div>

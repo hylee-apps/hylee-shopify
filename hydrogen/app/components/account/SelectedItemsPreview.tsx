@@ -1,4 +1,5 @@
 import {Package} from 'lucide-react';
+import {useTranslation} from 'react-i18next';
 
 // ============================================================================
 // Types
@@ -23,6 +24,8 @@ export function SelectedItemsPreview({
   items,
   totalValue,
 }: SelectedItemsPreviewProps) {
+  const {t} = useTranslation('common');
+
   return (
     <div
       className="flex flex-col gap-[16px]"
@@ -51,7 +54,10 @@ export function SelectedItemsPreview({
 
       {/* Summary text */}
       <p className="text-[14px] font-normal leading-[21px] text-[#4b5563]">
-        {items.length} items &bull; Total value: {totalValue}
+        {t('selectedItemsPreview.summary', {
+          count: items.length,
+          totalValue,
+        })}
       </p>
     </div>
   );

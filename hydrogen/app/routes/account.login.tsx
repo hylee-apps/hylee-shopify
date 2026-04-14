@@ -1,5 +1,6 @@
 import {Form, Link, useActionData, useNavigation} from 'react-router';
 import {redirect} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import {getSeoMeta} from '@shopify/hydrogen';
 import type {Route} from './+types/account.login';
 import {AuthLayout} from '~/components/auth/AuthLayout';
@@ -75,17 +76,6 @@ export async function action({request, context}: Route.ActionArgs) {
 }
 
 // ============================================================================
-// Login Features (left panel)
-// ============================================================================
-
-const LOGIN_FEATURES = [
-  {text: 'Track orders in real-time'},
-  {text: 'Easy returns and exchanges'},
-  {text: 'Faster checkout experience'},
-  {text: 'Exclusive offers and discounts'},
-];
-
-// ============================================================================
 // Component
 // ============================================================================
 
@@ -99,22 +89,30 @@ export default function LoginPage() {
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
   const errors = actionData?.errors;
+  const {t} = useTranslation();
+
+  const loginFeatures = [
+    {text: t('auth.login.features.trackOrders')},
+    {text: t('auth.login.features.easyReturns')},
+    {text: t('auth.login.features.fasterCheckout')},
+    {text: t('auth.login.features.exclusiveOffers')},
+  ];
 
   return (
     <AuthLayout
       gradient={{from: 'rgb(66, 133, 244)', to: 'rgb(43, 217, 168)'}}
-      tagline="Welcome Back"
-      description="Sign in to access your orders, track deliveries, and manage your account."
-      features={LOGIN_FEATURES}
+      tagline={t('auth.login.tagline')}
+      description={t('auth.login.description')}
+      features={loginFeatures}
     >
       <div className="px-8 py-8">
         {/* Header */}
         <div className="mb-8 flex flex-col items-center gap-2">
           <h1 className="text-center text-[28px] font-light text-[#111827]">
-            Sign In
+            {t('auth.login.title')}
           </h1>
           <p className="text-center text-[15px] text-[#6b7280]">
-            Enter your credentials to access your account
+            {t('auth.login.subtitle')}
           </p>
         </div>
 
@@ -125,7 +123,7 @@ export default function LoginPage() {
         <div className="my-6 flex items-center gap-4">
           <div className="h-px flex-1 bg-[#e5e7eb]" />
           <span className="text-[13px] text-[#9ca3af]">
-            or sign in with email
+            {t('auth.login.orSignInWithEmail')}
           </span>
           <div className="h-px flex-1 bg-[#e5e7eb]" />
         </div>
@@ -140,7 +138,7 @@ export default function LoginPage() {
         {/* Form */}
         <Form method="post" className="flex flex-col gap-5">
           <FormField
-            label="Email Address"
+            label={t('auth.login.emailLabel')}
             name="email"
             type="email"
             placeholder="you@example.com"
@@ -150,10 +148,10 @@ export default function LoginPage() {
           />
 
           <FormField
-            label="Password"
+            label={t('auth.login.passwordLabel')}
             name="password"
             type="password"
-            placeholder="Enter your password"
+            placeholder={t('auth.login.passwordLabel')}
             error={errors?.password}
             autoComplete="current-password"
           />
@@ -166,13 +164,15 @@ export default function LoginPage() {
                 name="rememberMe"
                 className="size-4 rounded-[2.5px] border-[#767676] accent-secondary"
               />
-              <span className="text-[14px] text-[#4b5563]">Remember me</span>
+              <span className="text-[14px] text-[#4b5563]">
+                {t('auth.login.rememberMe')}
+              </span>
             </label>
             <Link
               to="/account/recover"
               className="text-[14px] font-medium text-secondary no-underline hover:underline"
             >
-              Forgot password?
+              {t('auth.login.forgotPassword')}
             </Link>
           </div>
 
@@ -182,18 +182,20 @@ export default function LoginPage() {
             disabled={isSubmitting}
             className="h-[48px] w-full rounded-[8px] bg-[#56972d] text-[15px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
           >
-            {isSubmitting ? 'Signing in...' : 'Sign In'}
+            {isSubmitting
+              ? t('auth.login.submitting')
+              : t('auth.login.submitButton')}
           </button>
         </Form>
 
         {/* Footer */}
         <div className="mt-8 border-t border-[#e5e7eb] pt-6 text-center text-[15px] text-[#6b7280]">
-          Don&apos;t have an account?{' '}
+          {t('auth.login.noAccount')}{' '}
           <Link
             to="/account/register"
             className="font-medium text-secondary no-underline hover:underline"
           >
-            Create account
+            {t('auth.login.createAccount')}
           </Link>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import {Form, Link, useActionData, useNavigation} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import {redirect} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
 import type {Route} from './+types/account.activate.$id.$token';
@@ -83,17 +84,6 @@ export async function action({request, context, params}: Route.ActionArgs) {
 }
 
 // ============================================================================
-// Features (left panel)
-// ============================================================================
-
-const ACTIVATE_FEATURES = [
-  {text: 'Save shipping addresses'},
-  {text: 'Secure payment storage'},
-  {text: 'Order history tracking'},
-  {text: 'Wishlist and favorites'},
-];
-
-// ============================================================================
 // Component
 // ============================================================================
 
@@ -104,24 +94,32 @@ interface ActionData {
 export default function ActivateAccountPage() {
   const actionData = useActionData() as ActionData | undefined;
   const navigation = useNavigation();
+  const {t} = useTranslation('common');
   const isSubmitting = navigation.state === 'submitting';
   const errors = actionData?.errors;
+
+  const activateFeatures = [
+    {text: t('activate.features.saveAddresses')},
+    {text: t('activate.features.securePayment')},
+    {text: t('activate.features.orderHistory')},
+    {text: t('activate.features.wishlist')},
+  ];
 
   return (
     <AuthLayout
       gradient={{from: 'rgb(64, 40, 60)', to: 'rgb(38, 153, 166)'}}
-      tagline="Almost There!"
-      description="Set your password to activate your account and start shopping."
-      features={ACTIVATE_FEATURES}
+      tagline={t('activate.tagline')}
+      description={t('activate.taglineDescription')}
+      features={activateFeatures}
     >
       <div className="px-8 py-8">
         {/* Header */}
         <div className="mb-8 flex flex-col items-center gap-2">
           <h1 className="text-center text-[28px] font-light text-[#111827]">
-            Activate Your Account
+            {t('activate.heading')}
           </h1>
           <p className="text-center text-[15px] text-[#6b7280]">
-            Choose a password to complete your account setup.
+            {t('activate.subheading')}
           </p>
         </div>
 
@@ -135,20 +133,20 @@ export default function ActivateAccountPage() {
         {/* Form */}
         <Form method="post" className="flex flex-col gap-5">
           <FormField
-            label="Password"
+            label={t('activate.password.label')}
             name="password"
             type="password"
-            placeholder="Create a password (min 8 characters)"
+            placeholder={t('activate.password.placeholder')}
             error={errors?.password}
-            hint="Must contain at least 8 characters, 1 number, and 1 special character"
+            hint={t('activate.password.hint')}
             autoComplete="new-password"
           />
 
           <FormField
-            label="Confirm Password"
+            label={t('activate.confirmPassword.label')}
             name="confirmPassword"
             type="password"
-            placeholder="Confirm your password"
+            placeholder={t('activate.confirmPassword.placeholder')}
             error={errors?.confirmPassword}
             autoComplete="new-password"
           />
@@ -159,18 +157,18 @@ export default function ActivateAccountPage() {
             disabled={isSubmitting}
             className="h-[48px] w-full rounded-[8px] bg-secondary text-[15px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
           >
-            {isSubmitting ? 'Activating...' : 'Activate Account'}
+            {isSubmitting ? t('activate.submitting') : t('activate.submit')}
           </button>
         </Form>
 
         {/* Footer */}
         <div className="mt-8 border-t border-[#e5e7eb] pt-6 text-center text-[15px] text-[#6b7280]">
-          Already have an account?{' '}
+          {t('activate.footer.alreadyHaveAccount')}{' '}
           <Link
             to="/account/login"
             className="font-medium text-secondary no-underline hover:underline"
           >
-            Sign in
+            {t('activate.footer.signIn')}
           </Link>
         </div>
       </div>
