@@ -28,6 +28,15 @@ export async function createHydrogenRouterContext(
     AppSession.init(request, [env.SESSION_SECRET]),
   ]);
 
+  // Resolve language from the cookie set by /api/language; default EN.
+  const cookieHeader = request.headers.get('Cookie') ?? '';
+  const langMatch = /(?:^|;\s*)language=([^;]+)/.exec(cookieHeader);
+  const rawLang = langMatch?.[1]?.toUpperCase() ?? '';
+  const language = (['EN', 'ES', 'FR'].includes(rawLang) ? rawLang : 'EN') as
+    | 'EN'
+    | 'ES'
+    | 'FR';
+
   const hydrogenContext = createHydrogenContext(
     {
       env,
@@ -35,7 +44,7 @@ export async function createHydrogenRouterContext(
       cache,
       waitUntil,
       session,
-      i18n: {language: 'EN', country: 'US'},
+      i18n: {language, country: 'US'},
       cart: {
         queryFragment: CART_QUERY_FRAGMENT,
       },

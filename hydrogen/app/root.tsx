@@ -1,4 +1,5 @@
 import {Analytics, getShopAnalytics, useNonce} from '@shopify/hydrogen';
+import type {LanguageCode} from '@shopify/hydrogen/storefront-api-types';
 import {
   Outlet,
   useRouteError,
@@ -11,6 +12,11 @@ import {
   useRouteLoaderData,
 } from 'react-router';
 import type {Route} from './+types/root';
+import {useMemo} from 'react';
+import i18next from 'i18next';
+import {initReactI18next} from 'react-i18next';
+import {I18nextProvider} from 'react-i18next';
+import {resources, i18nConfig} from '~/i18n';
 import {PageLayout} from '~/components/layout';
 import appStyles from '~/styles/app.css?url';
 import {isCustomerLoggedIn} from '~/lib/customer-auth';
@@ -74,8 +80,14 @@ export async function loader(args: Route.LoaderArgs) {
   };
 }
 
-async function loadCriticalData({context}: Route.LoaderArgs) {
+async function loadCriticalData({context, request}: Route.LoaderArgs) {
   const {storefront} = context;
+
+  // Read language preference from cookie; default to EN
+  const cookie = request.headers.get('Cookie') ?? '';
+  const langMatch = /(?:^|;\s*)language=([^;]+)/.exec(cookie);
+  const lang = langMatch?.[1]?.toUpperCase() ?? '';
+  const currentLanguage = ['EN', 'ES', 'FR'].includes(lang) ? lang : 'EN';
 
   const [header, collectionsResult] = await Promise.all([
     storefront.query(HEADER_QUERY, {
@@ -86,6 +98,7 @@ async function loadCriticalData({context}: Route.LoaderArgs) {
     }),
     storefront.query(HEADER_COLLECTIONS_QUERY, {
       cache: storefront.CacheLong(),
+      variables: {language: currentLanguage as LanguageCode},
     }),
   ]);
 
@@ -106,7 +119,8 @@ async function loadCriticalData({context}: Route.LoaderArgs) {
 
   const categories = prioritizeCategories(rawCategories, categoryNavConfig);
 
-  return {header, categories};
+  const locale = currentLanguage.toLowerCase() as 'en' | 'es' | 'fr';
+  return {header, categories, currentLanguage, locale};
 }
 
 function loadDeferredData({context}: Route.LoaderArgs) {
@@ -154,19 +168,34 @@ export function Layout({children}: {children?: React.ReactNode}) {
 
 export default function App() {
   const data = useRouteLoaderData<RootLoader>('root');
+  const locale = (data?.locale ?? 'en') as string;
+
+  // Create a per-render i18next instance with the correct locale.
+  // With inline resources, init() resolves synchronously — no flash.
+  const i18nInstance = useMemo(() => {
+    const instance = i18next.createInstance();
+    void instance.use(initReactI18next).init({
+      ...i18nConfig,
+      lng: locale,
+      resources,
+    });
+    return instance;
+  }, [locale]);
 
   if (!data) {
     return <Outlet />;
   }
 
   return (
-    <Analytics.Provider
-      cart={data.cart}
-      shop={data.shop}
-      consent={data.consent}
-    >
-      <PageLayout />
-    </Analytics.Provider>
+    <I18nextProvider i18n={i18nInstance}>
+      <Analytics.Provider
+        cart={data.cart}
+        shop={data.shop}
+        consent={data.consent}
+      >
+        <PageLayout />
+      </Analytics.Provider>
+    </I18nextProvider>
   );
 }
 
