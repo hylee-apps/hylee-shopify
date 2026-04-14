@@ -1,5 +1,6 @@
 import {useCallback, useState} from 'react';
 import {getSeoMeta} from '@shopify/hydrogen';
+import {useTranslation} from 'react-i18next';
 import {
   Link,
   redirect,
@@ -113,20 +114,26 @@ export async function action({request, context}: Route.ActionArgs) {
         (a) => [a.key, a.value ?? undefined] as [string, string | undefined],
       ),
     );
-    await context.storefront.mutate(CART_ATTRIBUTES_UPDATE, {
-      variables: {
-        cartId: cart.id,
-        attributes: buildCartAttributes({
-          ...existingAttrs,
-          ...(addressJson
-            ? {[CHECKOUT_ATTR.SHIPPING_ADDRESS]: addressJson}
-            : {}),
-          ...(deliveryInstructions !== null
-            ? {[CHECKOUT_ATTR.DELIVERY_INSTRUCTIONS]: deliveryInstructions}
-            : {}),
-        }),
-      },
-    });
+    // Cart conflict errors are transient — address is already in client state,
+    // so a failed autosave is safe to ignore.
+    try {
+      await context.storefront.mutate(CART_ATTRIBUTES_UPDATE, {
+        variables: {
+          cartId: cart.id,
+          attributes: buildCartAttributes({
+            ...existingAttrs,
+            ...(addressJson
+              ? {[CHECKOUT_ATTR.SHIPPING_ADDRESS]: addressJson}
+              : {}),
+            ...(deliveryInstructions !== null
+              ? {[CHECKOUT_ATTR.DELIVERY_INSTRUCTIONS]: deliveryInstructions}
+              : {}),
+          }),
+        },
+      });
+    } catch {
+      // Swallow cart conflict errors — data is preserved in client state
+    }
     return {};
   }
 
@@ -165,36 +172,54 @@ export async function action({request, context}: Route.ActionArgs) {
     (m) => m.id === shippingMethodId,
   );
 
-  // Update buyer identity (email, phone, country)
-  await context.storefront.mutate(CART_BUYER_IDENTITY_UPDATE, {
-    variables: {
-      cartId: cart.id,
-      buyerIdentity: {
-        email: address.email,
-        phone: address.phone || undefined,
-        countryCode: 'US',
-      },
+  // Update buyer identity (email, phone, country).
+  // Retry once on cart conflict — a background autosave may still be in-flight.
+  const buyerIdentityVars = {
+    cartId: cart.id,
+    buyerIdentity: {
+      email: address.email,
+      phone: address.phone || undefined,
+      countryCode: 'US' as const,
     },
-  });
+  };
+  try {
+    await context.storefront.mutate(CART_BUYER_IDENTITY_UPDATE, {
+      variables: buyerIdentityVars,
+    });
+  } catch {
+    // Single retry after a brief yield to let any in-flight mutation settle
+    await new Promise((r) => setTimeout(r, 300));
+    await context.storefront.mutate(CART_BUYER_IDENTITY_UPDATE, {
+      variables: buyerIdentityVars,
+    });
+  }
 
   // Store checkout data in cart attributes
-  await context.storefront.mutate(CART_ATTRIBUTES_UPDATE, {
-    variables: {
-      cartId: cart.id,
-      attributes: buildCartAttributes({
-        [CHECKOUT_ATTR.SHIPPING_ADDRESS]: JSON.stringify(address),
-        [CHECKOUT_ATTR.SHIPPING_METHOD]: shippingMethodId,
-        [CHECKOUT_ATTR.SHIPPING_COST]: selectedMethod
-          ? String(selectedMethod.price)
-          : '5.99',
-        [CHECKOUT_ATTR.DELIVERY_INSTRUCTIONS]: deliveryInstructions,
-        [CHECKOUT_ATTR.SHIPPING_CATEGORY]: shippingCategory || undefined,
-        [CHECKOUT_ATTR.SHIPPING_RECIPIENT_LABEL]:
-          shippingRecipientLabel || undefined,
-        [CHECKOUT_ATTR.SHIPPING_CONTACT_ID]: shippingContactId || undefined,
-      }),
-    },
-  });
+  const cartAttributeVars = {
+    cartId: cart.id,
+    attributes: buildCartAttributes({
+      [CHECKOUT_ATTR.SHIPPING_ADDRESS]: JSON.stringify(address),
+      [CHECKOUT_ATTR.SHIPPING_METHOD]: shippingMethodId,
+      [CHECKOUT_ATTR.SHIPPING_COST]: selectedMethod
+        ? String(selectedMethod.price)
+        : '5.99',
+      [CHECKOUT_ATTR.DELIVERY_INSTRUCTIONS]: deliveryInstructions,
+      [CHECKOUT_ATTR.SHIPPING_CATEGORY]: shippingCategory || undefined,
+      [CHECKOUT_ATTR.SHIPPING_RECIPIENT_LABEL]:
+        shippingRecipientLabel || undefined,
+      [CHECKOUT_ATTR.SHIPPING_CONTACT_ID]: shippingContactId || undefined,
+    }),
+  };
+  try {
+    await context.storefront.mutate(CART_ATTRIBUTES_UPDATE, {
+      variables: cartAttributeVars,
+    });
+  } catch {
+    await new Promise((r) => setTimeout(r, 300));
+    await context.storefront.mutate(CART_ATTRIBUTES_UPDATE, {
+      variables: cartAttributeVars,
+    });
+  }
 
   // Store delivery instructions in cart note as well
   if (deliveryInstructions) {
@@ -215,26 +240,29 @@ function ShippingAddressCard({
   defaultValues?: Partial<ShippingAddress> | null;
   errors?: ValidationErrors;
 }) {
+  const {t} = useTranslation('common');
   return (
     <Card className="gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
       <div className="flex items-center justify-between border-b border-border px-6 pt-5 pb-[21px]">
-        <h2 className="text-lg font-bold text-[#111827]">Shipping Address</h2>
+        <h2 className="text-lg font-bold text-[#111827]">
+          {t('checkout.shipping.address.title')}
+        </h2>
       </div>
 
       <div className="flex flex-col gap-5 px-6 py-6">
         {/* First Name / Last Name */}
         <div className="flex gap-4">
           <FormField
-            label="First Name"
+            label={t('checkout.shipping.address.firstName')}
             name="firstName"
-            placeholder="John"
+            placeholder={t('checkout.shipping.address.firstNamePlaceholder')}
             defaultValue={defaultValues?.firstName}
             error={errors?.firstName}
           />
           <FormField
-            label="Last Name"
+            label={t('checkout.shipping.address.lastName')}
             name="lastName"
-            placeholder="Doe"
+            placeholder={t('checkout.shipping.address.lastNamePlaceholder')}
             defaultValue={defaultValues?.lastName}
             error={errors?.lastName}
           />
@@ -246,13 +274,13 @@ function ShippingAddressCard({
             htmlFor="address1"
             className="text-sm font-medium text-[#374151]"
           >
-            Address
+            {t('checkout.shipping.address.address')}
           </label>
           <input
             id="address1"
             type="text"
             name="address1"
-            placeholder="123 Main Street"
+            placeholder={t('checkout.shipping.address.address1Placeholder')}
             defaultValue={defaultValues?.address1 ?? ''}
             className={cn(
               'h-[44px] w-full rounded-[8px] border bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary',
@@ -265,7 +293,7 @@ function ShippingAddressCard({
           <input
             type="text"
             name="address2"
-            placeholder="Apt, suite, unit (optional)"
+            placeholder={t('checkout.shipping.address.address2Placeholder')}
             defaultValue={defaultValues?.address2 ?? ''}
             className="h-[44px] w-full rounded-[8px] border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
           />
@@ -274,16 +302,16 @@ function ShippingAddressCard({
         {/* City / ZIP Code */}
         <div className="flex gap-4">
           <FormField
-            label="City"
+            label={t('checkout.shipping.address.city')}
             name="city"
-            placeholder="New York"
+            placeholder={t('checkout.shipping.address.cityPlaceholder')}
             defaultValue={defaultValues?.city}
             error={errors?.city}
           />
           <FormField
-            label="ZIP Code"
+            label={t('checkout.shipping.address.zip')}
             name="zip"
-            placeholder="10001"
+            placeholder={t('checkout.shipping.address.zipPlaceholder')}
             defaultValue={defaultValues?.zip}
             error={errors?.zip}
           />
@@ -292,16 +320,16 @@ function ShippingAddressCard({
         {/* State / Phone */}
         <div className="flex gap-4">
           <FormField
-            label="State"
+            label={t('checkout.shipping.address.state')}
             name="state"
-            placeholder="NY"
+            placeholder={t('checkout.shipping.address.statePlaceholder')}
             defaultValue={defaultValues?.state}
             error={errors?.state}
           />
           <FormField
-            label="Phone"
+            label={t('checkout.shipping.address.phone')}
             name="phone"
-            placeholder="(555) 123-4567"
+            placeholder={t('checkout.shipping.address.phonePlaceholder')}
             type="tel"
             defaultValue={defaultValues?.phone}
             error={errors?.phone}
@@ -310,9 +338,9 @@ function ShippingAddressCard({
 
         {/* Email */}
         <FormField
-          label="Email"
+          label={t('checkout.shipping.address.email')}
           name="email"
-          placeholder="john.doe@example.com"
+          placeholder={t('checkout.shipping.address.emailPlaceholder')}
           type="email"
           defaultValue={defaultValues?.email}
           error={errors?.email}
@@ -327,20 +355,23 @@ function ShippingAddressCard({
 // ============================================================================
 
 function ShippingMethodCard() {
+  const {t} = useTranslation('common');
   return (
     <Card className="gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
       <div className="border-b border-border px-6 pt-5 pb-[21px]">
-        <h2 className="text-lg font-bold text-[#111827]">Shipping Method</h2>
+        <h2 className="text-lg font-bold text-[#111827]">
+          {t('checkout.shipping.method.title')}
+        </h2>
       </div>
       <div className="flex flex-col gap-3 px-[24px] pt-[24px] pb-[36px]">
         {/* Standard is the only option — simplified per Mar 15 production decision */}
         <div className="flex items-center justify-between rounded-[8px] border-2 border-secondary bg-secondary/5 p-[18px]">
           <div className="flex flex-col gap-1">
             <span className="text-[15px] font-medium text-[#1f2937]">
-              Standard Shipping
+              {t('checkout.shipping.method.standard')}
             </span>
             <span className="text-[13px] text-[#6b7280]">
-              5-7 business days
+              {t('checkout.shipping.method.standardDays')}
             </span>
           </div>
           <span className="text-base font-semibold text-[#111827]">$5.99</span>
@@ -361,22 +392,25 @@ function DeliveryPreferencesCard({
   defaultValue?: string;
   onBlurSave?: (value: string) => void;
 }) {
+  const {t} = useTranslation('common');
   return (
     <Card className="gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
       <div className="border-b border-border px-6 pt-5 pb-[21px]">
         <h2 className="text-lg font-bold text-[#111827]">
-          Delivery Preferences
+          {t('checkout.shipping.preferences.title')}
         </h2>
       </div>
 
       <div className="px-6 py-6">
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-[#374151]">
-            Delivery Instructions (Optional)
+            {t('checkout.shipping.preferences.instructions')}
           </label>
           <textarea
             name="deliveryInstructions"
-            placeholder="Leave at front door, call upon arrival, etc."
+            placeholder={t(
+              'checkout.shipping.preferences.instructionsPlaceholder',
+            )}
             defaultValue={defaultValue ?? ''}
             rows={3}
             className="w-full resize-none rounded-[8px] border border-[#d1d5db] bg-white px-[17px] pt-[13px] pb-[49px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
@@ -425,6 +459,39 @@ function FormField({
       />
       {error && <span className="text-xs text-red-500">{error}</span>}
     </div>
+  );
+}
+
+// ============================================================================
+// OrderSummary wrapper (needs t() for labels)
+// ============================================================================
+
+function OrderSummaryWithTranslation({
+  cart,
+  shippingCost,
+}: {
+  cart: any;
+  shippingCost: (typeof SHIPPING_METHODS)[number] | undefined;
+}) {
+  const {t} = useTranslation('common');
+  return (
+    <OrderSummary
+      cart={cart}
+      showProductItems
+      shippingDisplay={
+        shippingCost ? `$${shippingCost.price.toFixed(2)}` : null
+      }
+      cta={{
+        label: t('checkout.shipping.continueToReview'),
+        href: '#',
+        isSubmit: true,
+        icon: 'arrow',
+      }}
+      back={{
+        label: t('checkout.payment.returnToCart'),
+        href: '/checkout/payment',
+      }}
+    />
   );
 }
 
@@ -527,22 +594,9 @@ export default function CheckoutShippingPage() {
           </div>
 
           {/* Right: Order Summary */}
-          <OrderSummary
+          <OrderSummaryWithTranslation
             cart={cart as any}
-            showProductItems
-            shippingDisplay={
-              shippingCost ? `$${shippingCost.price.toFixed(2)}` : null
-            }
-            cta={{
-              label: 'Continue to Review',
-              href: '#',
-              isSubmit: true,
-              icon: 'arrow',
-            }}
-            back={{
-              label: 'Return to Payment',
-              href: '/checkout/payment',
-            }}
+            shippingCost={shippingCost}
           />
         </div>
       </Form>

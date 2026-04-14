@@ -1,5 +1,6 @@
 import {getSeoMeta, Image} from '@shopify/hydrogen';
 import {Link, useLoaderData} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import {
   CheckCircle,
   Package,
@@ -60,6 +61,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
 // ============================================================================
 
 function SuccessHero({orderNumber}: {orderNumber: string}) {
+  const {t} = useTranslation('common');
   return (
     <div className="flex flex-col items-center py-12 text-center">
       {/* Success icon */}
@@ -69,18 +71,18 @@ function SuccessHero({orderNumber}: {orderNumber: string}) {
 
       {/* Title */}
       <h1 className="mb-3 text-4xl font-bold text-[#111827]">
-        Thank You for Your Order!
+        {t('checkout.confirmation.heading')}
       </h1>
 
       {/* Confirmation email notice */}
       <p className="mb-6 text-lg text-[#4b5563]">
-        A confirmation email has been sent to your email address
+        {t('checkout.confirmation.emailSent')}
       </p>
 
       {/* Order number badge */}
       <div className="mb-8 rounded-lg border border-border bg-white px-6 py-3.5">
         <span className="text-lg font-semibold text-[#111827]">
-          Order #{orderNumber}
+          {t('checkout.confirmation.orderNumber', {number: orderNumber})}
         </span>
       </div>
 
@@ -91,14 +93,14 @@ function SuccessHero({orderNumber}: {orderNumber: string}) {
           className="flex items-center gap-2 rounded-lg bg-[#e67e22] px-6 py-3.5 text-base font-semibold text-white transition-colors hover:bg-[#d35400]"
         >
           <Package size={18} />
-          Track Order
+          {t('checkout.confirmation.trackOrder')}
         </Link>
         <Link
           to="/collections"
           className="flex items-center gap-2 rounded-lg border border-border bg-white px-6 py-3.5 text-base font-semibold text-[#111827] transition-colors hover:bg-[#f9fafb]"
         >
           <ShoppingBag size={18} />
-          Continue Shopping
+          {t('checkout.confirmation.continueShopping')}
         </Link>
       </div>
     </div>
@@ -110,6 +112,7 @@ function SuccessHero({orderNumber}: {orderNumber: string}) {
 // ============================================================================
 
 function OrderDetailsCard({cart}: {cart: any}) {
+  const {t} = useTranslation('common');
   const lines = cart?.lines?.nodes ?? [];
   const cost = cart?.cost;
   const today = new Date();
@@ -130,8 +133,12 @@ function OrderDetailsCard({cart}: {cart: any}) {
     <Card className="gap-0 overflow-hidden bg-white p-0 shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border px-6 py-5">
-        <h2 className="text-lg font-bold text-[#111827]">Order Details</h2>
-        <span className="text-sm text-[#6b7280]">Placed on {placedDate}</span>
+        <h2 className="text-lg font-bold text-[#111827]">
+          {t('checkout.confirmation.details.title')}
+        </h2>
+        <span className="text-sm text-[#6b7280]">
+          {t('checkout.confirmation.details.placedOn', {date: placedDate})}
+        </span>
       </div>
 
       <div className="flex flex-col px-6 py-6">
@@ -139,15 +146,15 @@ function OrderDetailsCard({cart}: {cart: any}) {
         <div className="flex gap-8">
           <div className="flex flex-1 flex-col gap-1">
             <h4 className="text-xs font-bold uppercase tracking-wider text-[#6b7280]">
-              Shipping Address
+              {t('checkout.confirmation.details.shippingAddress')}
             </h4>
             <p className="mt-2 text-sm leading-relaxed text-[#4b5563]">
-              Your shipping details will be sent via email
+              {t('checkout.confirmation.details.shippingAddressBody')}
             </p>
           </div>
           <div className="flex flex-1 flex-col gap-1">
             <h4 className="text-xs font-bold uppercase tracking-wider text-[#6b7280]">
-              Estimated Delivery
+              {t('checkout.confirmation.details.estimatedDelivery')}
             </h4>
             <div className="mt-2 flex items-center gap-2">
               <Calendar size={16} className="text-secondary" />
@@ -155,7 +162,9 @@ function OrderDetailsCard({cart}: {cart: any}) {
                 {deliveryRange}
               </span>
             </div>
-            <span className="text-sm text-[#6b7280]">Standard Shipping</span>
+            <span className="text-sm text-[#6b7280]">
+              {t('checkout.confirmation.details.standardShipping')}
+            </span>
           </div>
         </div>
 
@@ -164,7 +173,7 @@ function OrderDetailsCard({cart}: {cart: any}) {
           <>
             <div className="my-6 border-t border-border" />
             <h4 className="mb-4 text-base font-semibold text-[#111827]">
-              Items Ordered
+              {t('checkout.confirmation.details.itemsOrdered')}
             </h4>
             <div className="flex flex-col divide-y divide-[#f3f4f6]">
               {lines.map((line: any) => {
@@ -205,7 +214,7 @@ function OrderDetailsCard({cart}: {cart: any}) {
                         </span>
                       ))}
                       <span className="text-sm text-[#6b7280]">
-                        Qty: {quantity}
+                        {t('checkout.confirmation.details.qty', {quantity})}
                       </span>
                     </div>
                     <span className="shrink-0 text-base font-semibold text-[#111827]">
@@ -224,24 +233,24 @@ function OrderDetailsCard({cart}: {cart: any}) {
             <div className="my-4 border-t border-border" />
             <div className="flex flex-col gap-3 rounded-lg bg-[#f9fafb] p-5">
               <div className="flex justify-between text-[15px] text-[#4b5563]">
-                <span>Subtotal</span>
+                <span>{t('checkout.confirmation.summary.subtotal')}</span>
                 <span>
                   {cost.subtotalAmount ? formatMoney(cost.subtotalAmount) : '—'}
                 </span>
               </div>
               <div className="flex justify-between text-[15px] text-[#4b5563]">
-                <span>Shipping</span>
+                <span>{t('checkout.confirmation.summary.shipping')}</span>
                 <span>$5.99</span>
               </div>
               <div className="flex justify-between text-[15px] text-[#4b5563]">
-                <span>Tax</span>
+                <span>{t('checkout.confirmation.summary.tax')}</span>
                 <span>
                   {cost.totalTaxAmount ? formatMoney(cost.totalTaxAmount) : '—'}
                 </span>
               </div>
               <div className="border-t border-border pt-3">
                 <div className="flex justify-between text-lg font-bold text-[#111827]">
-                  <span>Total</span>
+                  <span>{t('checkout.confirmation.summary.total')}</span>
                   <span>
                     {cost.totalAmount ? formatMoney(cost.totalAmount) : '—'}
                   </span>
@@ -260,19 +269,20 @@ function OrderDetailsCard({cart}: {cart: any}) {
 // ============================================================================
 
 function CreateAccountCTA() {
+  const {t} = useTranslation('common');
   return (
     <div className="flex flex-col items-center py-8 text-center">
       <h3 className="mb-2 text-xl font-bold text-[#111827]">
-        Create an Account for Faster Checkout
+        {t('checkout.confirmation.createAccount.heading')}
       </h3>
       <p className="mb-5 text-base text-[#4b5563]">
-        Save your shipping and payment information for next time
+        {t('checkout.confirmation.createAccount.body')}
       </p>
       <Link
         to="/account/register"
         className="rounded-lg bg-secondary px-8 py-3 text-base font-semibold text-white transition-colors hover:bg-secondary/90"
       >
-        Create Account
+        {t('checkout.confirmation.createAccount.cta')}
       </Link>
     </div>
   );

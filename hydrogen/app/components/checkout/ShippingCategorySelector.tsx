@@ -1,6 +1,7 @@
 'use client';
 
 import {useState, useEffect, useMemo} from 'react';
+import {useTranslation} from 'react-i18next';
 import {Home, Users, Heart, Briefcase, MoreHorizontal} from 'lucide-react';
 import {Card} from '~/components/ui/card';
 import {
@@ -24,7 +25,7 @@ import type {LucideProps} from 'lucide-react';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-/** Native Shopify address from the Customer Account API */
+/** Native Shopify address from the Customer Account API (Storefront API shape) */
 export interface SavedShippingAddress {
   id: string;
   firstName?: string | null;
@@ -32,10 +33,11 @@ export interface SavedShippingAddress {
   address1?: string | null;
   address2?: string | null;
   city?: string | null;
-  zoneCode?: string | null;
+  /** State/province code — `provinceCode` from the Storefront API */
+  provinceCode?: string | null;
   zip?: string | null;
-  territoryCode?: string | null;
-  phoneNumber?: string | null;
+  /** Customer's phone associated with this address */
+  phone?: string | null;
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -66,6 +68,7 @@ export function ShippingCategorySelector({
   defaultContactId,
   onAddressFill,
 }: ShippingCategorySelectorProps) {
+  const {t} = useTranslation('common');
   const [category, setCategory] = useState<AddressCategory | null>(
     (defaultCategory as AddressCategory) ?? null,
   );
@@ -132,8 +135,8 @@ export function ShippingCategorySelector({
         address2: addr.address2 ?? '',
         city: addr.city ?? '',
         zip: addr.zip ?? '',
-        state: addr.zoneCode ?? '',
-        phone: addr.phoneNumber ?? '',
+        state: addr.provinceCode ?? '',
+        phone: addr.phone ?? '',
         email: '',
       });
       return;
@@ -186,14 +189,14 @@ export function ShippingCategorySelector({
     <Card className="gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
       <div className="border-b border-border px-6 pt-5 pb-[21px]">
         <h2 className="text-lg font-bold text-[#111827]">
-          Who is this shipment for?
+          {t('shippingSelector.title')}
         </h2>
       </div>
 
       <div className="flex flex-col gap-5 px-6 py-6">
         {/* Category buttons */}
         <div className="flex flex-wrap gap-2">
-          {ADDRESS_CATEGORIES.map(({value, label}) => {
+          {ADDRESS_CATEGORIES.map(({value}) => {
             const Icon = CATEGORY_ICONS[value];
             const isActive = category === value;
 
@@ -213,7 +216,7 @@ export function ShippingCategorySelector({
                 )}
               >
                 <Icon size={16} />
-                {label}
+                {t(`addressBook.categories.${value}`)}
               </button>
             );
           })}
@@ -236,14 +239,18 @@ export function ShippingCategorySelector({
         {category && dropdownItems.length > 0 && (
           <div>
             <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-              Select a saved address
+              {t('shippingSelector.savedAddress.label')}
             </label>
             <Select value={selectedId} onValueChange={setSelectedId}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Choose a recipient or enter manually" />
+                <SelectValue
+                  placeholder={t('shippingSelector.savedAddress.placeholder')}
+                />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="__new__">New recipient</SelectItem>
+                <SelectItem value="__new__">
+                  {t('shippingSelector.savedAddress.newRecipient')}
+                </SelectItem>
                 {dropdownItems.map((item) => (
                   <SelectItem key={item.id} value={item.id}>
                     {item.label}
@@ -258,8 +265,7 @@ export function ShippingCategorySelector({
           dropdownItems.length === 0 &&
           (book || savedAddresses.length > 0) && (
             <p className="text-sm text-[#6b7280]">
-              No saved addresses in this category. Enter the address manually
-              below.
+              {t('shippingSelector.noSavedAddresses')}
             </p>
           )}
       </div>

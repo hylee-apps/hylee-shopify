@@ -1,22 +1,17 @@
 import {useState} from 'react';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {Link, redirect, useLoaderData, Form} from 'react-router';
-import {
-  CreditCard,
-  ArrowRight,
-  ArrowLeft,
-  Lock,
-  ShieldCheck,
-} from 'lucide-react';
+import {useTranslation} from 'react-i18next';
+import {CreditCard} from 'lucide-react';
 import {Card} from '~/components/ui/card';
 import {cn} from '~/lib/utils';
 import {CheckoutProgress} from '~/components/checkout/CheckoutProgress';
+import {OrderSummary} from '~/components/checkout/OrderSummary';
 import {
   CHECKOUT_ATTR,
   CART_ATTRIBUTES_UPDATE,
   buildCartAttributes,
   getCheckoutAttributes,
-  formatMoney,
   type PaymentMethodType,
 } from '~/lib/checkout';
 import type {Route} from './+types/checkout.payment';
@@ -161,23 +156,26 @@ function PaymentMethodOption({
 // ============================================================================
 
 function CardDetailsForm() {
+  const {t} = useTranslation('common');
   return (
     <div className="border-t border-border pt-6">
       <h4 className="mb-4 text-base font-semibold text-[#1f2937]">
-        Card Details
+        {t('checkout.payment.cardDetails.title')}
       </h4>
 
       <div className="flex flex-col gap-4">
         {/* Card Number */}
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-[#374151]">
-            Card Number
+            {t('checkout.payment.cardDetails.cardNumber')}
           </label>
           <input
             type="text"
             inputMode="numeric"
             maxLength={19}
-            placeholder="1234 5678 9012 3456"
+            placeholder={t(
+              'checkout.payment.cardDetails.cardNumberPlaceholder',
+            )}
             className="h-[44px] w-full rounded-[8px] border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
           />
         </div>
@@ -186,23 +184,27 @@ function CardDetailsForm() {
         <div className="flex gap-4">
           <div className="flex flex-1 flex-col gap-2">
             <label className="text-sm font-medium text-[#374151]">
-              Expiration Date
+              {t('checkout.payment.cardDetails.expirationDate')}
             </label>
             <input
               type="text"
               inputMode="numeric"
               maxLength={7}
-              placeholder="MM / YY"
+              placeholder={t(
+                'checkout.payment.cardDetails.expirationPlaceholder',
+              )}
               className="h-[44px] w-full rounded-[8px] border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
             />
           </div>
           <div className="flex flex-1 flex-col gap-2">
-            <label className="text-sm font-medium text-[#374151]">CVC</label>
+            <label className="text-sm font-medium text-[#374151]">
+              {t('checkout.payment.cardDetails.cvc')}
+            </label>
             <input
               type="text"
               inputMode="numeric"
               maxLength={4}
-              placeholder="123"
+              placeholder={t('checkout.payment.cardDetails.cvcPlaceholder')}
               className="h-[44px] w-full rounded-[8px] border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
             />
           </div>
@@ -211,11 +213,13 @@ function CardDetailsForm() {
         {/* Name on Card */}
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-[#374151]">
-            Name on Card
+            {t('checkout.payment.cardDetails.nameOnCard')}
           </label>
           <input
             type="text"
-            placeholder="John Doe"
+            placeholder={t(
+              'checkout.payment.cardDetails.nameOnCardPlaceholder',
+            )}
             className="h-[44px] w-full rounded-[8px] border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
           />
         </div>
@@ -230,11 +234,14 @@ function CardDetailsForm() {
 
 function BillingAddressCard() {
   const [sameAsShipping, setSameAsShipping] = useState(true);
+  const {t} = useTranslation('common');
 
   return (
     <Card className="gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
       <div className="border-b border-border px-6 py-5">
-        <h2 className="text-lg font-bold text-[#111827]">Billing Address</h2>
+        <h2 className="text-lg font-bold text-[#111827]">
+          {t('checkout.payment.billing.title')}
+        </h2>
       </div>
       <div className="px-6 pt-6 pb-[41px]">
         <label className="flex cursor-pointer items-center gap-3">
@@ -262,7 +269,7 @@ function BillingAddressCard() {
             )}
           </div>
           <span className="text-[15px] text-[#1f2937]">
-            Same as shipping address
+            {t('checkout.payment.billing.sameAsShipping')}
           </span>
         </label>
       </div>
@@ -271,103 +278,27 @@ function BillingAddressCard() {
 }
 
 // ============================================================================
-// OrderSummary — Sticky sidebar
+// OrderSummary wrapper — passes translated CTA/back labels to shared component
 // ============================================================================
 
-interface OrderSummaryProps {
+function PaymentOrderSummary({
+  cart,
+}: {
   cart: Awaited<ReturnType<typeof loader>>['cart'];
-}
-
-function OrderSummary({cart}: OrderSummaryProps) {
-  const subtotal = cart.cost?.subtotalAmount;
-  const total = cart.cost?.totalAmount;
-
-  const taxAmount = cart.cost?.totalTaxAmount;
-
+}) {
+  const {t} = useTranslation('common');
   return (
-    <div className="sticky top-4">
-      <Card className="gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
-        {/* Header */}
-        <div className="border-b border-border px-6 pb-[17px] pt-6">
-          <h3 className="text-lg font-bold text-[#1f2937]">Order Summary</h3>
-        </div>
-
-        <div className="px-6 pt-[22px]">
-          {/* Summary rows */}
-          <div className="flex flex-col gap-[17px]">
-            <div className="flex items-center justify-between">
-              <span className="text-[15px] text-[#4b5563]">Subtotal</span>
-              <span className="text-[15px] text-[#4b5563]">
-                {subtotal ? formatMoney(subtotal) : '—'}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-[15px] text-[#4b5563]">Shipping</span>
-              <span className="text-[15px] text-[#9ca3af]">
-                Calculated at next step
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-[15px] text-[#4b5563]">Tax</span>
-              <span
-                className={
-                  taxAmount
-                    ? 'text-[15px] text-[#4b5563]'
-                    : 'text-[15px] text-[#9ca3af]'
-                }
-              >
-                {taxAmount ? formatMoney(taxAmount) : 'Calculated at next step'}
-              </span>
-            </div>
-          </div>
-
-          {/* 2px separator + Total */}
-          <div className="my-[22px] border-t-2 border-border" />
-          <div className="flex items-center justify-between">
-            <span className="text-lg font-bold text-[#111827]">Total</span>
-            <span className="text-lg font-bold text-[#111827]">
-              {total ? formatMoney(total) : '—'}
-            </span>
-          </div>
-
-          {/* Continue to Shipping CTA */}
-          <div className="mt-[22px]">
-            <button
-              type="submit"
-              className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-primary/90"
-            >
-              Continue to Shipping
-              <ArrowRight size={16} />
-            </button>
-          </div>
-
-          {/* Return to Cart */}
-          <div className="mt-1">
-            <Link
-              to="/cart"
-              className="flex w-full items-center justify-center gap-2 rounded-lg p-2 text-[15px] font-medium text-secondary transition-colors hover:bg-secondary/5"
-            >
-              <ArrowLeft size={15} />
-              Return to Cart
-            </Link>
-          </div>
-
-          {/* Trust badges */}
-          <div className="mt-[22px] flex flex-col gap-3 border-t border-border pt-[25px] pb-6">
-            <div className="flex items-center gap-2">
-              <Lock size={13} className="shrink-0 text-primary" />
-              <span className="text-[13px] text-[#4b5563]">
-                256-bit SSL Encryption
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <ShieldCheck size={13} className="shrink-0 text-primary" />
-              <span className="text-[13px] text-[#4b5563]">PCI Compliant</span>
-            </div>
-          </div>
-        </div>
-      </Card>
-    </div>
+    <OrderSummary
+      cart={cart as any}
+      cta={{
+        label: t('checkout.payment.continueToShipping'),
+        href: '#',
+        isSubmit: true,
+        icon: 'arrow',
+      }}
+      back={{label: t('checkout.payment.returnToCart'), href: '/cart'}}
+      trustBadges="ssl-pci"
+    />
   );
 }
 
@@ -382,12 +313,15 @@ function PaymentMethodCard({
 }) {
   const [selectedMethod, setSelectedMethod] =
     useState<PaymentMethodType>(defaultMethod);
+  const {t} = useTranslation('common');
 
   return (
     <Card className="gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
       {/* Header */}
       <div className="border-b border-border px-6 py-5">
-        <h2 className="text-lg font-bold text-[#111827]">Payment Method</h2>
+        <h2 className="text-lg font-bold text-[#111827]">
+          {t('checkout.payment.method.title')}
+        </h2>
       </div>
 
       {/* Options */}
@@ -403,7 +337,7 @@ function PaymentMethodCard({
               <CreditCard size={14} className="text-[#4b5563]" />
             </div>
           }
-          label="Credit / Debit Card"
+          label={t('checkout.payment.method.creditDebit')}
           trailing={
             <div className="flex items-center gap-1">
               <CreditCardBrandBadge
@@ -428,7 +362,7 @@ function PaymentMethodCard({
               <span className="text-xs font-bold text-white">S</span>
             </div>
           }
-          label="Shop Pay"
+          label={t('checkout.payment.method.shopPay')}
         />
 
         {/* Apple Pay */}
@@ -447,7 +381,7 @@ function PaymentMethodCard({
               </svg>
             </div>
           }
-          label="Apple Pay"
+          label={t('checkout.payment.method.applePay')}
         />
 
         {/* Google Pay */}
@@ -460,7 +394,7 @@ function PaymentMethodCard({
               <span className="text-xs font-bold text-white">G</span>
             </div>
           }
-          label="Google Pay"
+          label={t('checkout.payment.method.googlePay')}
         />
 
         {/* Card details (shown only for credit card) */}
@@ -494,7 +428,7 @@ export default function CheckoutPaymentPage() {
           </div>
 
           {/* ── Right: Order Summary ── */}
-          <OrderSummary cart={cart as any} />
+          <PaymentOrderSummary cart={cart} />
         </div>
       </Form>
     </div>
