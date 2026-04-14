@@ -190,6 +190,15 @@
   scrollbar-color: var(--color-border) transparent;
 }
 
+/* Utility: hide scrollbar while keeping element scrollable */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* === Responsive Typography === */
 @media (max-width: 768px) {
   :root {
