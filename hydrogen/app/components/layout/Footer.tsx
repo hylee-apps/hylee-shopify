@@ -4,6 +4,7 @@ import type {FooterQuery} from 'storefrontapi.generated';
 import {cn} from '~/lib/utils';
 import {PillInput} from '~/components/ui/pill-input';
 import {Button} from '~/components/ui/button';
+import {useTranslation} from 'react-i18next';
 
 // ============================================================================
 // Types
@@ -32,12 +33,13 @@ export interface FooterProps {
 // Constants
 // ============================================================================
 
-const DEFAULT_LINKS = [
-  {title: 'About', url: '/pages/about'},
-  {title: 'Terms of Use', url: '/policies/terms-of-service'},
-  {title: 'Privacy Policy', url: '/policies/privacy-policy'},
-  {title: 'Help', url: '/pages/help'},
-  {title: 'Become a Supplier', url: '/pages/become-a-supplier'},
+const DEFAULT_LINK_KEYS = [
+  {key: 'footer.links.about', url: '/pages/about'},
+  {key: 'footer.links.faq', url: '/pages/faq'},
+  {key: 'footer.links.termsOfUse', url: '/policies/terms-of-service'},
+  {key: 'footer.links.privacyPolicy', url: '/policies/privacy-policy'},
+  {key: 'footer.links.returnPolicy', url: '/pages/return-policy'},
+  {key: 'footer.links.becomeSupplier', url: '/pages/become-a-supplier'},
 ];
 
 // Figma: X, Instagram, YouTube, LinkedIn — 24×24px bare SVG icons, gap-[10px]
@@ -96,6 +98,7 @@ interface NewsletterSignupProps {
 function NewsletterSignup({colored = false}: NewsletterSignupProps) {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const {t} = useTranslation();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,21 +111,20 @@ function NewsletterSignup({colored = false}: NewsletterSignupProps) {
 
   return (
     <div className="flex flex-col gap-[13px] items-center w-[560px] max-w-full">
-      {/* Figma: 20px Roboto Regular (400), text-black, leading-[1.2], centered — all variants */}
       <h3
         className={cn(
           'text-[20px] font-normal leading-[1.2] text-center',
           colored ? 'text-white' : 'text-black',
         )}
       >
-        Sign up for Hylee news &amp; updates!
+        {t('footer.newsletter.heading')}
       </h3>
       <form onSubmit={handleSubmit} className="flex items-center gap-2">
         <PillInput
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"
+          placeholder={t('footer.newsletter.placeholder')}
           required
           hideIcon
           className="min-w-68.75"
@@ -131,7 +133,9 @@ function NewsletterSignup({colored = false}: NewsletterSignupProps) {
           type="submit"
           className="h-10 rounded-[25px] px-6.5 text-[14px] font-medium whitespace-nowrap bg-white text-dark hover:bg-white/90"
         >
-          {submitted ? 'Sent!' : 'Submit'}
+          {submitted
+            ? t('footer.newsletter.sent')
+            : t('footer.newsletter.submit')}
         </Button>
       </form>
     </div>
@@ -150,14 +154,19 @@ export function Footer({
   links,
   variant = 'primary',
 }: FooterProps) {
-  const displayLinks = links && links.length > 0 ? links : DEFAULT_LINKS;
+  const {t} = useTranslation();
+  const defaultLinks = DEFAULT_LINK_KEYS.map(({key, url}) => ({
+    title: t(key),
+    url,
+  }));
+  const displayLinks = links && links.length > 0 ? links : defaultLinks;
   const colored = variant !== 'default';
 
   const logoSrc = colored ? '/logo-white.png' : '/logo-full.png';
 
   return (
     <footer className={BG_CLASSES[variant]}>
-      <div className="max-w-300 mx-auto px-4 sm:px-6 py-12 lg:py-14.75">
+      <div className="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 lg:py-14.75">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-[78px] items-start">
           {/* Left column — Logo + social */}
           <div className="flex flex-col gap-3 items-start shrink-0 lg:w-60">
@@ -176,7 +185,7 @@ export function Footer({
                 colored ? 'text-white' : 'text-black',
               )}
             >
-              Follow us on social media
+              {t('footer.followUs')}
             </p>
             {/* Figma: 24×24px bare icons, gap-[10px], text-black — ALL variants */}
             <div className="flex items-center gap-[10px]">
@@ -242,7 +251,10 @@ export function Footer({
               : 'border-border text-text-muted',
           )}
         >
-          &copy; {new Date().getFullYear()} {shopName}. All rights reserved.
+          {t('footer.copyright', {
+            year: new Date().getFullYear(),
+            name: shopName,
+          })}
         </p>
       </div>
     </footer>

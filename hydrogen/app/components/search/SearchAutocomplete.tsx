@@ -7,6 +7,7 @@ import {
   useCallback,
   type KeyboardEvent,
 } from 'react';
+import {useTranslation} from 'react-i18next';
 import {Form, Link, useNavigate} from 'react-router';
 import {Search} from 'lucide-react';
 import {PillInput} from '~/components/ui/pill-input';
@@ -50,8 +51,10 @@ function useDebounce<T>(value: T, delay: number): T {
 
 export function SearchAutocomplete({
   className = '',
-  placeholder = 'Search products...',
+  placeholder,
 }: SearchAutocompleteProps) {
+  const {t} = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t('search.placeholder');
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
@@ -169,7 +172,7 @@ export function SearchAutocomplete({
             }
           }}
           onKeyDown={handleKeyDown}
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           autoComplete="off"
           aria-autocomplete="list"
           aria-expanded={open}

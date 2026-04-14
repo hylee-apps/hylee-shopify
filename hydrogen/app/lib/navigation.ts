@@ -42,11 +42,21 @@ export function prioritizeCategories<T extends Category>(
   withPriority.sort((a, b) => a.priority! - b.priority!);
   withoutPriority.sort((a, b) => a.title.localeCompare(b.title));
 
-  const result = [...withPriority, ...withoutPriority];
+  const sorted = [...withPriority, ...withoutPriority];
 
   if (config.maxVisible > 0) {
-    return result.slice(0, config.maxVisible);
+    sorted.splice(config.maxVisible);
   }
 
-  return result;
+  // Append pinned handles not already present
+  if (config.pinned?.length) {
+    const existingHandles = new Set(sorted.map((c) => c.handle));
+    for (const p of config.pinned) {
+      if (!existingHandles.has(p.handle)) {
+        sorted.push({id: p.handle, title: p.title, handle: p.handle} as T);
+      }
+    }
+  }
+
+  return sorted;
 }
