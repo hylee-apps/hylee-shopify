@@ -20,34 +20,29 @@ export interface CollectionHeroProps {
 }
 
 /**
- * CollectionHero — PLP hero matching Figma node 5024:284 (file LXJLDI1fRXble63hVJcg7A).
+ * CollectionHero — PLP hero matching Figma node 5024:284.
  *
- * Layout: 280×200px collection image (rounded-[12px], shadow-md) on the left,
- * title (42px font-light) + description (16px, #4b5563) on the right with 40px gap.
+ * Layout: collection image on the left, bold title vertically centered on the
+ * right. Description is intentionally not rendered — title only.
  *
- * Mobile: stacks image above content.
+ * Mobile: image stacks above title.
  */
-export function CollectionHero({
-  title,
-  description,
-  image,
-  className,
-}: CollectionHeroProps) {
+export function CollectionHero({title, image, className}: CollectionHeroProps) {
   return (
     <section
-      className={`max-w-350 mx-auto w-full px-6 py-6 ${className ?? ''}`}
+      className={`max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 ${className ?? ''}`}
     >
       {/* ------------------------------------------------------------------ */}
-      {/* Desktop — image left + content right                                */}
+      {/* Desktop — image left + title vertically centered right              */}
       {/* ------------------------------------------------------------------ */}
       <div className="hidden lg:flex items-center gap-10">
-        {/* Hero Image — 280×200px, rounded-[12px], shadow-md */}
-        <div className="shrink-0 w-70 h-50 rounded-[12px] overflow-hidden shadow-md bg-[#f3f4f6]">
+        {/* Hero Image — larger, rounded, subtle shadow */}
+        <div className="shrink-0 w-[400px] h-[280px] rounded-[12px] overflow-hidden shadow-md bg-[#f3f4f6]">
           {image ? (
             <Image
               data={image}
-              aspectRatio="280/200"
-              sizes="280px"
+              aspectRatio="400/280"
+              sizes="400px"
               className="w-full h-full object-cover"
               loading="eager"
             />
@@ -56,27 +51,20 @@ export function CollectionHero({
           )}
         </div>
 
-        {/* Hero Content */}
-        <div className="flex-1 min-w-0 flex flex-col gap-3">
-          <h1
-            id="collection-title"
-            className="font-light text-[42px] leading-normal text-[#111827]"
-          >
-            {title}
-          </h1>
-          {description && (
-            <p className="text-[16px] font-normal text-[#4b5563] leading-6 max-w-125 line-clamp-3">
-              {description}
-            </p>
-          )}
-        </div>
+        {/* Title only — vertically centered by parent items-center */}
+        <h1
+          id="collection-title"
+          className="font-bold text-[42px] leading-tight text-[#111827]"
+        >
+          {title}
+        </h1>
       </div>
 
       {/* ------------------------------------------------------------------ */}
-      {/* Mobile — image stacked above content                                */}
+      {/* Mobile — image stacked above title                                  */}
       {/* ------------------------------------------------------------------ */}
       <div className="lg:hidden flex flex-col gap-4">
-        <div className="w-full h-45 rounded-[12px] overflow-hidden shadow-md bg-[#f3f4f6]">
+        <div className="w-full h-48 rounded-[12px] overflow-hidden shadow-md bg-[#f3f4f6]">
           {image ? (
             <Image
               data={image}
@@ -89,16 +77,9 @@ export function CollectionHero({
             <div className="w-full h-full bg-[#f3f4f6]" />
           )}
         </div>
-        <div className="flex flex-col gap-2">
-          <h1 className="font-light text-[32px] leading-tight text-[#111827]">
-            {title}
-          </h1>
-          {description && (
-            <p className="text-[15px] font-normal text-[#4b5563] leading-6 line-clamp-3">
-              {description}
-            </p>
-          )}
-        </div>
+        <h1 className="font-bold text-[28px] leading-tight text-[#111827]">
+          {title}
+        </h1>
       </div>
     </section>
   );

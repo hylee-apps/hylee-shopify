@@ -1,4 +1,5 @@
 import {useState, useMemo} from 'react';
+import {useTranslation} from 'react-i18next';
 import {useLocation, useNavigation, useRouteLoaderData} from 'react-router';
 import type {Route} from './+types/collections.$handle';
 import type {RootLoader} from '~/root';
@@ -248,9 +249,6 @@ export function meta({data}: Route.MetaArgs) {
 // Shared Breadcrumbs
 // ============================================================================
 
-const HOME_CRUMB = {url: '/', title: 'Home'};
-const CATEGORIES_CRUMB = {url: '/collections', title: 'Categories'};
-
 function CollectionBreadcrumbs({
   navPath,
   title,
@@ -258,20 +256,16 @@ function CollectionBreadcrumbs({
   navPath: Array<{url: string; title: string}> | null;
   title: string;
 }) {
-  // Always build: Home > Categories > [nav hierarchy] > Current Collection
-  // Filter navPath items that are already covered by Home or Categories crumbs.
+  // Build: [nav hierarchy] > Current Collection
+  // Filter out root and /collections — neither should appear.
   const navItems = navPath
     ? navPath.filter((n) => n.url !== '/' && n.url !== '/collections')
     : [{url: null, title}];
 
-  const crumbs: Array<{url: string | null; title: string}> = [
-    HOME_CRUMB,
-    CATEGORIES_CRUMB,
-    ...navItems,
-  ];
+  const crumbs: Array<{url: string | null; title: string}> = [...navItems];
 
   return (
-    <Breadcrumb className="max-w-350 mx-auto px-6 py-4">
+    <Breadcrumb className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
       <BreadcrumbList className="text-[14px] font-medium text-[#4b5563]">
         {crumbs.map((node, i) => {
           const isLast = i === crumbs.length - 1;
@@ -392,6 +386,7 @@ function EndNodeResultsHeader({
 
 export default function CollectionPage({loaderData}: Route.ComponentProps) {
   const {collection, searchParamsString} = loaderData;
+  const {t} = useTranslation();
   const {pathname} = useLocation();
   const navigation = useNavigation();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -446,7 +441,7 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
         <SubcategoryScrollSection subcollections={subcollections} />
 
         {/* Products section */}
-        <div className="max-w-350 mx-auto px-6 py-8">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Pagination key={paginationKey} connection={products}>
             {({
               nodes,
@@ -507,7 +502,7 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
                                   Loading...
                                 </>
                               ) : (
-                                'Load More Products'
+                                t('collection.loadMore')
                               )}
                             </NextLink>
                           </Button>
@@ -550,7 +545,7 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
       <CollectionBreadcrumbs navPath={navPath} title={collection.title} />
 
       {/* Listing layout: sidebar (240px) + main (flex-1) */}
-      <div className="max-w-[1400px] mx-auto px-[24px] py-[24px]">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-[24px]">
         <Pagination key={paginationKey} connection={products}>
           {({
             nodes,
@@ -629,7 +624,7 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
                                   Loading...
                                 </>
                               ) : (
-                                'Load More Products'
+                                t('collection.loadMore')
                               )}
                             </NextLink>
                           </Button>

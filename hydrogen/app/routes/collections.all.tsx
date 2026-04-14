@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import {useTranslation} from 'react-i18next';
 import {useLocation} from 'react-router';
 import type {Route} from './+types/collections.all';
 import {
@@ -173,6 +174,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function AllProductsPage({loaderData}: Route.ComponentProps) {
   const {products, searchParamsString} = loaderData;
+  const {t} = useTranslation();
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const searchParams = new URLSearchParams(searchParamsString);
@@ -193,7 +195,10 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
       />
 
       {/* Main content */}
-      <div id="products" className="mx-auto max-w-300 px-4 sm:px-6">
+      <div
+        id="products"
+        className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8"
+      >
         {/* Toolbar */}
         <CollectionToolbar
           productCount={products.nodes.length}
@@ -250,7 +255,7 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
                                 Loading...
                               </>
                             ) : (
-                              'Load More Products'
+                              t('collection.loadMore')
                             )}
                           </NextLink>
                         </Button>

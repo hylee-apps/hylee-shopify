@@ -2,6 +2,7 @@
 
 import {useCallback} from 'react';
 import {useSearchParams} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import {Columns2} from 'lucide-react';
 
 // ============================================================================
@@ -38,6 +39,7 @@ export function CompareButton({
   className = '',
 }: CompareButtonProps) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const {t} = useTranslation();
 
   // Get current compare list from URL params
   const compareParam = searchParams.get('compare') || '';
@@ -104,13 +106,15 @@ export function CompareButton({
             ? 'border-primary bg-primary/10 text-primary'
             : 'border-border bg-white text-text-muted hover:border-primary hover:text-primary'
         } ${isDisabled ? 'cursor-not-allowed opacity-50' : ''} ${className}`}
-        aria-label={isComparing ? 'Remove from compare' : 'Add to compare'}
+        aria-label={
+          isComparing ? t('compare.removeAriaLabel') : t('compare.addAriaLabel')
+        }
         title={
           isDisabled
-            ? `Maximum ${maxCompare} products can be compared`
+            ? t('compare.maxTitle', {max: maxCompare})
             : isComparing
-              ? 'Remove from compare'
-              : 'Add to compare'
+              ? t('compare.removeAriaLabel')
+              : t('compare.addAriaLabel')
         }
       >
         <Columns2 size={sizes.icon} />
@@ -127,10 +131,14 @@ export function CompareButton({
         className={`inline-flex items-center gap-1 ${sizes.text} font-medium transition-colors ${
           isComparing ? 'text-primary' : 'text-text-muted hover:text-primary'
         } ${isDisabled ? 'cursor-not-allowed opacity-50' : ''} ${className}`}
-        aria-label={isComparing ? 'Remove from compare' : 'Add to compare'}
+        aria-label={
+          isComparing ? t('compare.removeAriaLabel') : t('compare.addAriaLabel')
+        }
       >
         <Columns2 size={sizes.icon} />
-        <span>{isComparing ? 'Comparing' : 'Compare'}</span>
+        <span>
+          {isComparing ? t('compare.comparing') : t('compare.compare')}
+        </span>
       </button>
     );
   }
@@ -146,10 +154,16 @@ export function CompareButton({
           ? 'border-primary bg-primary/10 text-primary'
           : 'border-border bg-white text-text hover:border-primary hover:text-primary'
       } ${isDisabled ? 'cursor-not-allowed opacity-50' : ''} ${className}`}
-      aria-label={isComparing ? 'Remove from compare' : 'Add to compare'}
+      aria-label={
+        isComparing ? t('compare.removeAriaLabel') : t('compare.addAriaLabel')
+      }
     >
       <Columns2 size={sizes.icon} />
-      <span>{isComparing ? 'Remove from Compare' : 'Add to Compare'}</span>
+      <span>
+        {isComparing
+          ? t('compare.removeFromCompare')
+          : t('compare.addToCompare')}
+      </span>
     </button>
   );
 }

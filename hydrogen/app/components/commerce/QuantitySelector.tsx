@@ -1,6 +1,7 @@
 'use client';
 
 import {useCallback} from 'react';
+import {useTranslation} from 'react-i18next';
 import {Minus, Plus} from 'lucide-react';
 
 // ============================================================================
@@ -86,6 +87,7 @@ export function QuantitySelector({
     },
   };
 
+  const {t} = useTranslation();
   const sizes = sizeClasses[size];
   const isDecrementDisabled = disabled || quantity <= min;
   const isIncrementDisabled = disabled || quantity >= max;
@@ -100,7 +102,7 @@ export function QuantitySelector({
         onClick={handleDecrement}
         disabled={isDecrementDisabled}
         className={`flex items-center justify-center ${sizes.button} rounded-l-full border-r border-border text-text transition-colors hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent`}
-        aria-label="Decrease quantity"
+        aria-label={t('quantity.decrease')}
       >
         <Minus size={sizes.icon} />
       </button>
@@ -114,7 +116,7 @@ export function QuantitySelector({
         min={min}
         max={max}
         className={`${sizes.input} ${sizes.container} border-0 bg-transparent text-center font-medium text-dark focus:outline-none focus:ring-0 disabled:cursor-not-allowed disabled:opacity-50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
-        aria-label="Quantity"
+        aria-label={t('quantity.ariaLabel')}
       />
 
       {/* Increment button */}
@@ -123,7 +125,7 @@ export function QuantitySelector({
         onClick={handleIncrement}
         disabled={isIncrementDisabled}
         className={`flex items-center justify-center ${sizes.button} rounded-r-full border-l border-border text-text transition-colors hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent`}
-        aria-label="Increase quantity"
+        aria-label={t('quantity.increase')}
       >
         <Plus size={sizes.icon} />
       </button>

@@ -1,4 +1,5 @@
 import {SlidersHorizontal, LayoutGrid, List} from 'lucide-react';
+import {useTranslation} from 'react-i18next';
 import {SortSelect} from './SortSelect';
 import {Button} from '~/components/ui/button';
 import {cn} from '~/lib/utils';
@@ -27,18 +28,21 @@ export function CollectionToolbar({
   onOpenMobileFilters,
   className,
 }: CollectionToolbarProps) {
+  const {t} = useTranslation();
   return (
     <div
       className={`flex flex-wrap items-center justify-between gap-3 py-5 ${className ?? ''}`}
     >
       {/* Result count */}
       <p className="text-sm font-medium text-dark">
-        Showing <span className="font-semibold">{productCount}</span>{' '}
-        {productCount === 1 ? 'Result' : 'Results'}
+        {t('toolbar.showing')}{' '}
+        <span className="font-semibold">{productCount}</span>{' '}
+        {productCount === 1 ? t('toolbar.result') : t('toolbar.results')}
         {totalCount !== undefined && (
           <>
             {' '}
-            from total <span className="font-semibold">{totalCount}</span>
+            {t('toolbar.fromTotal')}{' '}
+            <span className="font-semibold">{totalCount}</span>
           </>
         )}
       </p>
@@ -51,10 +55,10 @@ export function CollectionToolbar({
             variant="outline"
             onClick={onOpenMobileFilters}
             className="lg:hidden rounded-full px-4 py-2.5 shadow-none border-border text-dark hover:border-text-muted hover:bg-transparent"
-            aria-label="Open filters"
+            aria-label={t('toolbar.openFilters')}
           >
             <SlidersHorizontal size={16} />
-            <span>Filters</span>
+            <span>{t('toolbar.filters')}</span>
           </Button>
         )}
 
@@ -74,7 +78,7 @@ export function CollectionToolbar({
                   ? 'bg-primary text-white hover:bg-primary/90 hover:text-white'
                   : 'text-text-muted hover:text-dark hover:bg-transparent',
               )}
-              aria-label="Grid view"
+              aria-label={t('toolbar.gridView')}
               aria-pressed={viewMode === 'grid'}
             >
               <LayoutGrid size={16} />
@@ -89,7 +93,7 @@ export function CollectionToolbar({
                   ? 'bg-primary text-white hover:bg-primary/90 hover:text-white'
                   : 'text-text-muted hover:text-dark hover:bg-transparent',
               )}
-              aria-label="List view"
+              aria-label={t('toolbar.listView')}
               aria-pressed={viewMode === 'list'}
             >
               <List size={16} />

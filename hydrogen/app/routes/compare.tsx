@@ -151,7 +151,7 @@ export default function ComparePage({loaderData}: Route.ComponentProps) {
   };
 
   return (
-    <div className="mx-auto max-w-300 px-4 py-8 sm:px-6">
+    <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Breadcrumb */}
       <Breadcrumb className="mb-6">
         <BreadcrumbList>

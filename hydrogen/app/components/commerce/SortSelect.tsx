@@ -1,4 +1,5 @@
 import {useNavigate, useLocation} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import {
   SORT_OPTIONS,
   getCurrentSort,
@@ -25,6 +26,7 @@ export interface SortSelectProps {
 export function SortSelect({searchParams, className}: SortSelectProps) {
   const navigate = useNavigate();
   const {pathname} = useLocation();
+  const {t} = useTranslation();
   const currentSort = getCurrentSort(searchParams);
 
   return (
@@ -37,17 +39,17 @@ export function SortSelect({searchParams, className}: SortSelectProps) {
     >
       <SelectTrigger
         className={`cursor-pointer rounded-full border border-border bg-white px-4 py-2.5 text-sm font-medium text-dark transition-colors hover:border-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary h-auto w-auto ${className ?? ''}`}
-        aria-label="Sort products"
+        aria-label={t('sort.ariaLabel')}
       >
         <span className="flex items-center gap-1 whitespace-nowrap">
-          <span>Sort by:</span>
+          <span>{t('sort.label')}</span>
           <SelectValue />
         </span>
       </SelectTrigger>
       <SelectContent>
         {SORT_OPTIONS.map((option) => (
           <SelectItem key={option.value} value={option.value}>
-            {option.label}
+            {t(option.labelKey)}
           </SelectItem>
         ))}
       </SelectContent>
