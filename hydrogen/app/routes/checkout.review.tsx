@@ -1,5 +1,6 @@
 import {getSeoMeta, Image} from '@shopify/hydrogen';
 import {Link, redirect, useLoaderData, Form} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import {CreditCard, ImageIcon, Lock, Check} from 'lucide-react';
 import {Card} from '~/components/ui/card';
 import {CheckoutProgress} from '~/components/checkout/CheckoutProgress';
@@ -101,15 +102,18 @@ function ShippingAddressSection({
   address: ShippingAddress;
   recipientLabel?: string | null;
 }) {
+  const {t} = useTranslation('common');
   return (
     <div className="rounded-lg border border-border p-5">
       <div className="flex items-start justify-between">
         <div className="flex flex-col gap-1">
           <h4 className="flex items-center gap-2 text-base font-semibold text-[#111827]">
-            Shipping Address
+            {t('checkout.review.shippingAddress.title')}
             {recipientLabel && (
               <span className="rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-medium text-secondary">
-                For {recipientLabel}
+                {t('checkout.review.shippingAddress.for', {
+                  label: recipientLabel,
+                })}
               </span>
             )}
           </h4>
@@ -131,7 +135,7 @@ function ShippingAddressSection({
           to="/checkout/shipping"
           className="text-sm font-medium text-secondary hover:underline"
         >
-          Edit
+          {t('checkout.review.shippingAddress.edit')}
         </Link>
       </div>
     </div>
@@ -139,15 +143,16 @@ function ShippingAddressSection({
 }
 
 function ShippingMethodSection({method}: {method: ShippingMethod | null}) {
+  const {t} = useTranslation('common');
   return (
     <div className="rounded-lg border border-border p-5">
       <h4 className="text-base font-semibold text-[#111827]">
-        Shipping Method
+        {t('checkout.review.shippingMethod.title')}
       </h4>
       <p className="mt-2 text-[15px] text-[#4b5563]">
         {method
           ? `${method.label} (${method.description}) - $${method.price.toFixed(2)}`
-          : 'Standard Shipping (5-7 business days) - $5.99'}
+          : t('checkout.review.shippingMethod.fallback')}
       </p>
     </div>
   );
@@ -158,16 +163,17 @@ function PaymentMethodSection({
 }: {
   paymentMethod: PaymentMethodType | null;
 }) {
+  const {t} = useTranslation('common');
   const label = paymentMethod
     ? PAYMENT_METHOD_LABELS[paymentMethod]
-    : 'Credit / Debit Card';
+    : t('checkout.review.paymentMethod.defaultLabel');
 
   return (
     <div className="rounded-lg border border-border p-5">
       <div className="flex items-start justify-between">
         <div className="flex flex-col gap-2">
           <h4 className="text-base font-semibold text-[#111827]">
-            Payment Method
+            {t('checkout.review.paymentMethod.title')}
           </h4>
           <div className="flex items-center gap-2 text-[15px] text-[#4b5563]">
             <CreditCard size={18} className="text-[#4b5563]" />
@@ -178,7 +184,7 @@ function PaymentMethodSection({
           to="/checkout/payment"
           className="text-sm font-medium text-secondary hover:underline"
         >
-          Edit
+          {t('checkout.review.paymentMethod.edit')}
         </Link>
       </div>
     </div>
@@ -190,12 +196,13 @@ function PaymentMethodSection({
 // ============================================================================
 
 function OrderItems({cart}: {cart: any}) {
+  const {t} = useTranslation('common');
   const lines = cart.lines?.nodes ?? [];
 
   return (
     <div className="mt-6">
       <h4 className="mb-4 text-base font-semibold text-[#111827]">
-        Items in Order
+        {t('checkout.review.items.title')}
       </h4>
       <div className="flex flex-col divide-y divide-[#f3f4f6]">
         {lines.map((line: any) => {
@@ -237,7 +244,9 @@ function OrderItems({cart}: {cart: any}) {
                     {opt.name}: {opt.value}
                   </span>
                 ))}
-                <span className="text-sm text-[#6b7280]">Qty: {quantity}</span>
+                <span className="text-sm text-[#6b7280]">
+                  {t('checkout.review.items.qty', {quantity})}
+                </span>
               </div>
 
               {/* Price */}
@@ -257,6 +266,7 @@ function OrderItems({cart}: {cart: any}) {
 // ============================================================================
 
 export default function CheckoutReviewPage() {
+  const {t} = useTranslation('common');
   const {
     cart,
     checkoutUrl,
@@ -282,27 +292,28 @@ export default function CheckoutReviewPage() {
             <Card className="gap-0 overflow-hidden bg-white p-0 shadow-sm">
               <div className="border-b border-border px-6 py-5">
                 <h2 className="text-lg font-bold text-[#111827]">
-                  Review Your Order
+                  {t('checkout.review.title')}
                 </h2>
               </div>
 
               <div className="flex flex-col gap-6 px-6 py-6">
                 {/* Disclaimer */}
                 <p className="text-[15px] leading-relaxed text-[#4b5563]">
-                  Please review your order details before placing your order. By
-                  clicking &ldquo;Place Order&rdquo;, you agree to our{' '}
+                  {t('checkout.review.disclaimerPart1')} &ldquo;
+                  {t('checkout.review.placeOrder')}&rdquo;,{' '}
+                  {t('checkout.review.disclaimerPart2')}{' '}
                   <Link
                     to="/policies/terms-of-service"
                     className="text-secondary hover:underline"
                   >
-                    Terms of Service
+                    {t('checkout.review.termsOfService')}
                   </Link>{' '}
-                  and{' '}
+                  {t('checkout.review.disclaimerAnd')}{' '}
                   <Link
                     to="/policies/privacy-policy"
                     className="text-secondary hover:underline"
                   >
-                    Privacy Policy
+                    {t('checkout.review.privacyPolicy')}
                   </Link>
                   .
                 </p>
@@ -327,12 +338,12 @@ export default function CheckoutReviewPage() {
           <Form method="post" className="contents">
             <OrderSummary
               cart={cart as any}
-              title="Order Total"
-              subtotalLabel="Subtotal"
+              title={t('checkout.review.summary.title')}
+              subtotalLabel={t('checkout.review.summary.subtotal')}
               shippingDisplay={shippingDisplay}
-              totalLabel="Total"
+              totalLabel={t('checkout.review.summary.total')}
               cta={{
-                label: 'Place Order',
+                label: t('checkout.review.placeOrder'),
                 href: '#',
                 isSubmit: true,
                 icon: 'check',

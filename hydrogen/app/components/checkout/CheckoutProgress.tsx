@@ -1,21 +1,37 @@
 import {Link} from 'react-router';
 import {Check} from 'lucide-react';
+import {useTranslation} from 'react-i18next';
 import {cn} from '~/lib/utils';
 
 export type CheckoutStep = 'cart' | 'payment' | 'shipping' | 'review';
 
 interface Step {
   id: CheckoutStep;
-  label: string;
+  labelKey: string;
   number: number;
   href: string;
 }
 
 const STEPS: Step[] = [
-  {id: 'cart', label: 'Cart', number: 1, href: '/cart'},
-  {id: 'payment', label: 'Payment', number: 2, href: '/checkout/payment'},
-  {id: 'shipping', label: 'Shipping', number: 3, href: '/checkout/shipping'},
-  {id: 'review', label: 'Review', number: 4, href: '/checkout/review'},
+  {id: 'cart', labelKey: 'checkout.steps.cart', number: 1, href: '/cart'},
+  {
+    id: 'payment',
+    labelKey: 'checkout.steps.payment',
+    number: 2,
+    href: '/checkout/payment',
+  },
+  {
+    id: 'shipping',
+    labelKey: 'checkout.steps.shipping',
+    number: 3,
+    href: '/checkout/shipping',
+  },
+  {
+    id: 'review',
+    labelKey: 'checkout.steps.review',
+    number: 4,
+    href: '/checkout/review',
+  },
 ];
 
 interface CheckoutProgressProps {
@@ -23,6 +39,7 @@ interface CheckoutProgressProps {
 }
 
 export function CheckoutProgress({currentStep}: CheckoutProgressProps) {
+  const {t} = useTranslation();
   const currentIndex = STEPS.findIndex((s) => s.id === currentStep);
 
   return (
@@ -58,7 +75,7 @@ export function CheckoutProgress({currentStep}: CheckoutProgressProps) {
                     : 'text-[#9ca3af]',
               )}
             >
-              {step.label}
+              {t(step.labelKey)}
             </span>
           );
 

@@ -1,5 +1,6 @@
 import {Image} from '@shopify/hydrogen';
 import {Link} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import {
   ArrowRight,
   ArrowLeft,
@@ -75,31 +76,40 @@ interface OrderSummaryProps {
 
 export function OrderSummary({
   cart,
-  title = 'Order Summary',
+  title,
   subtotalLabel,
   shippingDisplay,
   taxDisplay,
-  totalLabel = 'Total',
+  totalLabel,
   showProductItems = false,
   cta,
   back,
   trustBadges = 'ssl-pci',
 }: OrderSummaryProps) {
+  const {t} = useTranslation('common');
   const subtotal = cart.cost?.subtotalAmount;
   const total = cart.cost?.totalAmount;
   const taxAmount = cart.cost?.totalTaxAmount;
   const lines = cart.lines?.nodes ?? [];
 
+  const resolvedTitle = title ?? t('orderSummary.defaultTitle');
+  const resolvedTotalLabel = totalLabel ?? t('orderSummary.defaultTotal');
   const defaultSubtotalLabel = cart.totalQuantity
-    ? `Subtotal (${cart.totalQuantity} ${cart.totalQuantity === 1 ? 'item' : 'items'})`
-    : 'Subtotal';
+    ? t('orderSummary.subtotalWithCount', {
+        count: cart.totalQuantity,
+        label:
+          cart.totalQuantity === 1
+            ? t('orderSummary.subtotalItem')
+            : t('orderSummary.subtotalItems'),
+      })
+    : t('orderSummary.defaultSubtotal');
 
   return (
     <div className="sticky top-4">
       <Card className="gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
         {/* Header */}
         <div className="border-b border-border px-6 pb-[17px] pt-6">
-          <h3 className="text-lg font-bold text-[#1f2937]">{title}</h3>
+          <h3 className="text-lg font-bold text-[#1f2937]">{resolvedTitle}</h3>
         </div>
 
         <div className="px-6 pt-[22px]">
@@ -123,24 +133,28 @@ export function OrderSummary({
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-[15px] text-[#4b5563]">Shipping</span>
+              <span className="text-[15px] text-[#4b5563]">
+                {t('orderSummary.shipping')}
+              </span>
               <span className="text-[15px] text-[#4b5563]">
                 {shippingDisplay ?? (
                   <span className="text-text-light">
-                    Calculated at next step
+                    {t('orderSummary.shippingCalculated')}
                   </span>
                 )}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-[15px] text-[#4b5563]">Tax</span>
+              <span className="text-[15px] text-[#4b5563]">
+                {t('orderSummary.tax')}
+              </span>
               <span className="text-[15px] text-[#4b5563]">
                 {taxDisplay ??
                   (taxAmount ? (
                     formatMoney(taxAmount)
                   ) : (
                     <span className="text-text-light">
-                      Calculated at next step
+                      {t('orderSummary.taxCalculated')}
                     </span>
                   ))}
               </span>
@@ -151,7 +165,7 @@ export function OrderSummary({
           <div className="my-[22px] border-t-2 border-border" />
           <div className="flex items-center justify-between">
             <span className="text-lg font-bold text-[#111827]">
-              {totalLabel}
+              {resolvedTotalLabel}
             </span>
             <span className="text-lg font-bold text-[#111827]">
               {total ? formatMoney(total) : '—'}
@@ -204,13 +218,13 @@ export function OrderSummary({
                   <div className="flex items-center gap-2">
                     <Lock size={13} className="shrink-0 text-primary" />
                     <span className="text-[13px] text-[#4b5563]">
-                      256-bit SSL Encryption
+                      {t('orderSummary.trust.ssl')}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <ShieldCheck size={13} className="shrink-0 text-primary" />
                     <span className="text-[13px] text-[#4b5563]">
-                      PCI Compliant
+                      {t('orderSummary.trust.pci')}
                     </span>
                   </div>
                 </>
@@ -218,7 +232,7 @@ export function OrderSummary({
                 <div className="flex items-center justify-center gap-2">
                   <Lock size={13} className="shrink-0 text-primary" />
                   <span className="text-[13px] text-[#4b5563]">
-                    Secure SSL Encrypted Transaction
+                    {t('orderSummary.trust.secure')}
                   </span>
                 </div>
               )}
@@ -233,6 +247,7 @@ export function OrderSummary({
 // ── Product item row for order summary ────────────────────────────────────
 
 function ProductItemRow({line}: {line: CartLine}) {
+  const {t} = useTranslation('common');
   const {merchandise, quantity, cost} = line;
   const {product, image} = merchandise;
 
@@ -260,7 +275,9 @@ function ProductItemRow({line}: {line: CartLine}) {
         <span className="text-sm font-medium leading-snug text-[#111827]">
           {product.title}
         </span>
-        <span className="text-xs text-[#6b7280]">Qty: {quantity}</span>
+        <span className="text-xs text-[#6b7280]">
+          {t('orderSummary.qty', {quantity})}
+        </span>
       </div>
 
       {/* Price */}
