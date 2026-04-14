@@ -1,7 +1,15 @@
 import {useState, useCallback, useEffect} from 'react';
-import {Link, useLocation} from 'react-router';
+import {Link, Form, useLocation} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import {SearchAutocomplete} from '~/components/search/SearchAutocomplete';
-import {Menu, ChevronDown, User, Search, ShoppingCart} from 'lucide-react';
+import {
+  Menu,
+  ChevronDown,
+  Globe,
+  User,
+  Search,
+  ShoppingCart,
+} from 'lucide-react';
 import {
   Sheet,
   SheetContent,
@@ -30,6 +38,7 @@ export interface HeaderProps {
   cart?: CartLike | null | Promise<unknown>;
   announcement?: string;
   variant?: HeaderVariant;
+  currentLanguage?: string;
   categories?: Array<{
     id: string;
     title: string;
@@ -37,6 +46,12 @@ export interface HeaderProps {
     subcategories?: Array<{id: string; title: string; handle: string}>;
   }>;
 }
+
+const LANGUAGES = [
+  {code: 'EN', label: 'English'},
+  {code: 'ES', label: 'Español'},
+  {code: 'FR', label: 'Français'},
+] as const;
 
 interface CartLike {
   totalQuantity?: number;
@@ -76,7 +91,7 @@ function formatCartTotal(amount?: string, currencyCode?: string): string {
 
 // Shared trigger class for nav link/button items
 const NAV_TRIGGER_CLASS =
-  'flex items-center gap-1 h-[40px] px-4 py-2.5 text-[14px] font-medium text-text-muted hover:text-primary transition-colors focus:outline-none';
+  'flex items-center gap-1 h-[40px] px-4 py-2.5 text-[16px] font-semibold text-[#111827] hover:text-primary transition-colors focus:outline-none';
 
 // ============================================================================
 // NavDropdown — shadcn DropdownMenu
@@ -87,7 +102,7 @@ function NavDropdown({
   items,
 }: {
   label: string;
-  items: Array<{title: string; url: string}>;
+  items: Array<{title: string; url: string; method?: 'post'}>;
 }) {
   return (
     <DropdownMenu>
@@ -98,13 +113,26 @@ function NavDropdown({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="min-w-48">
-        {items.map((item) => (
-          <DropdownMenuItem key={item.url} asChild>
-            <Link to={item.url} className="cursor-pointer text-[14px]">
-              {item.title}
-            </Link>
-          </DropdownMenuItem>
-        ))}
+        {items.map((item) =>
+          item.method === 'post' ? (
+            <DropdownMenuItem key={item.url} asChild>
+              <Form method="post" action={item.url}>
+                <button
+                  type="submit"
+                  className="cursor-pointer text-[14px] w-full text-left"
+                >
+                  {item.title}
+                </button>
+              </Form>
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem key={item.url} asChild>
+              <Link to={item.url} className="cursor-pointer text-[14px]">
+                {item.title}
+              </Link>
+            </DropdownMenuItem>
+          ),
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -119,6 +147,7 @@ function CategoryBar({
 }: {
   categories: NonNullable<HeaderProps['categories']>;
 }) {
+  const {t} = useTranslation();
   return (
     <nav className="hidden lg:block absolute left-0 right-0 border-t border-border bg-white shadow-md z-50">
       <ul className="flex items-center justify-center">
@@ -128,7 +157,9 @@ function CategoryBar({
               to={`/collections/${category.handle}`}
               className="block py-2.5 text-[14px] font-medium text-text-muted hover:text-primary transition-colors whitespace-nowrap"
             >
-              {category.title}
+              {t(`nav.categoryTitles.${category.handle}`, {
+                defaultValue: category.title,
+              })}
             </Link>
           </li>
         ))}
@@ -149,6 +180,7 @@ function MobileMenu({
   categories,
 }: MobileMenuProps) {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const {t} = useTranslation();
 
   const toggleSection = useCallback((section: string) => {
     setExpandedSection((prev) => (prev === section ? null : section));
@@ -162,7 +194,7 @@ function MobileMenu({
       >
         <SheetHeader className="px-4 py-3 border-b border-border shrink-0">
           <SheetTitle className="text-lg font-semibold text-dark text-left">
-            Menu
+            {t('header.mobileMenuTitle')}
           </SheetTitle>
         </SheetHeader>
 
@@ -173,7 +205,7 @@ function MobileMenu({
                 className="flex items-center justify-between w-full px-4 py-3 text-text font-medium"
                 onClick={() => toggleSection('categories')}
               >
-                <span>Categories</span>
+                <span>{t('nav.categories')}</span>
                 <ChevronDown
                   size={16}
                   className={`transition-transform ${
@@ -190,7 +222,9 @@ function MobileMenu({
                       className="block px-6 py-2 text-sm text-text hover:text-primary"
                       onClick={onClose}
                     >
-                      {cat.title}
+                      {t(`nav.categoryTitles.${cat.handle}`, {
+                        defaultValue: cat.title,
+                      })}
                     </Link>
                   ))}
                 </div>
@@ -204,14 +238,28 @@ function MobileMenu({
             className="block px-4 py-3 text-text font-medium border-b border-border hover:text-primary"
             onClick={onClose}
           >
-            What&apos;s New
+            {t('nav.whatsNew')}
+          </Link>
+          <Link
+            to="/collections/discounts"
+            className="block px-4 py-3 text-text font-medium border-b border-border hover:text-primary"
+            onClick={onClose}
+          >
+            {t('nav.discounts')}
+          </Link>
+          <Link
+            to="/pages/promotions"
+            className="block px-4 py-3 text-text font-medium border-b border-border hover:text-primary"
+            onClick={onClose}
+          >
+            {t('nav.promotionsDeals')}
           </Link>
           <Link
             to="/blogs/news"
             className="block px-4 py-3 text-text font-medium border-b border-border hover:text-primary"
             onClick={onClose}
           >
-            Blog &amp; Media
+            {t('nav.blogMedia')}
           </Link>
 
           <div className="mt-4 px-4 py-3 border-t border-border">
@@ -222,7 +270,7 @@ function MobileMenu({
                 onClick={onClose}
               >
                 <User size={20} />
-                <span>Account</span>
+                <span>{t('nav.account')}</span>
               </Link>
             ) : (
               <div className="space-y-3">
@@ -232,7 +280,7 @@ function MobileMenu({
                   onClick={onClose}
                 >
                   <User size={20} />
-                  <span>Sign In</span>
+                  <span>{t('nav.signIn')}</span>
                 </Link>
                 <Button
                   variant="outline"
@@ -240,7 +288,7 @@ function MobileMenu({
                   className="w-full border-primary text-primary hover:bg-primary hover:text-white"
                 >
                   <Link to="/account/register" onClick={onClose}>
-                    Register
+                    {t('nav.register')}
                   </Link>
                 </Button>
               </div>
@@ -249,6 +297,47 @@ function MobileMenu({
         </nav>
       </SheetContent>
     </Sheet>
+  );
+}
+
+// ============================================================================
+// LanguageSelector — Globe icon + dropdown, submits POST to /api/language
+// ============================================================================
+
+function LanguageSelector({currentLanguage}: {currentLanguage: string}) {
+  const {t} = useTranslation();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          className={`${NAV_TRIGGER_CLASS} gap-1.5`}
+          aria-label={t('header.selectLanguage')}
+        >
+          <Globe size={16} />
+          {currentLanguage}
+          <ChevronDown size={14} />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-36">
+        {LANGUAGES.map((lang) => (
+          <DropdownMenuItem key={lang.code} asChild>
+            <Form method="post" action="/api/language">
+              <input type="hidden" name="language" value={lang.code} />
+              <button
+                type="submit"
+                className={`cursor-pointer text-[14px] w-full text-left flex items-center gap-2 ${
+                  currentLanguage === lang.code
+                    ? 'font-semibold text-secondary'
+                    : ''
+                }`}
+              >
+                {lang.label}
+              </button>
+            </Form>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -263,6 +352,7 @@ export function Header({
   cart,
   announcement,
   variant = 'default',
+  currentLanguage = 'EN',
   categories = [],
 }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -271,6 +361,7 @@ export function Header({
   const [cartCount, setCartCount] = useState(0);
   const location = useLocation();
   const isHome = variant === 'home';
+  const {t} = useTranslation();
 
   useEffect(() => {
     if (typeof isLoggedIn === 'boolean') {
@@ -300,13 +391,17 @@ export function Header({
 
   const accountItems = resolvedIsLoggedIn
     ? [
-        {title: 'My Account', url: '/account'},
-        {title: 'My Orders', url: '/account/orders'},
-        {title: 'Sign Out', url: '/account/logout'},
+        {title: t('nav.myAccount'), url: '/account'},
+        {title: t('nav.myOrders'), url: '/account/orders'},
+        {
+          title: t('nav.signOut'),
+          url: '/account/logout',
+          method: 'post' as const,
+        },
       ]
     : [
-        {title: 'Sign In', url: '/account/login'},
-        {title: 'Register', url: '/account/register'},
+        {title: t('nav.signIn'), url: '/account/login'},
+        {title: t('nav.register'), url: '/account/register'},
       ];
 
   return (
@@ -322,14 +417,16 @@ export function Header({
           </div>
         )}
 
-        <div className="mx-auto max-w-300 py-2.5">
-          {isHome ? (
-            /* ── HOMEPAGE HEADER (Main variant) ── */
-            <div className="flex items-center">
+        {isHome ? (
+          /* ── HOMEPAGE HEADER (Main variant) ── */
+          /* Full-width 3-column layout: logo far-left | nav centered | account/cart far-right */
+          <div className="max-w-screen-2xl mx-auto w-full flex items-center px-4 sm:px-6 lg:px-8 py-2.5">
+            {/* Left column — logo + mobile hamburger */}
+            <div className="flex items-center gap-2 flex-1">
               <button
                 className="lg:hidden p-2 -ml-2 text-text hover:text-primary transition-colors"
                 onClick={() => setMobileMenuOpen(true)}
-                aria-label="Open menu"
+                aria-label={t('header.openMenu')}
               >
                 <Menu size={24} />
               </button>
@@ -342,39 +439,53 @@ export function Header({
                   loading="eager"
                 />
               </Link>
+            </div>
 
-              <nav className="hidden lg:flex items-center justify-center flex-1 gap-2.5">
-                {categories.length > 0 && (
-                  <button
-                    className={NAV_TRIGGER_CLASS}
-                    onClick={() => setCategoryBarOpen((prev) => !prev)}
-                  >
-                    Categories
-                    <ChevronDown
-                      size={16}
-                      className={`transition-transform ${categoryBarOpen ? 'rotate-180' : ''}`}
-                    />
-                  </button>
-                )}
-
-                <Link
-                  to="/collections/new-arrivals"
+            {/* Center column — nav links (desktop only) */}
+            <nav className="hidden lg:flex items-center gap-2.5">
+              {categories.length > 0 && (
+                <button
                   className={NAV_TRIGGER_CLASS}
+                  onClick={() => setCategoryBarOpen((prev) => !prev)}
                 >
-                  What&apos;s New
-                </Link>
+                  {t('nav.categories')}
+                  <ChevronDown
+                    size={16}
+                    className={`transition-transform ${categoryBarOpen ? 'rotate-180' : ''}`}
+                  />
+                </button>
+              )}
 
-                <Link to="/blogs/news" className={NAV_TRIGGER_CLASS}>
-                  Blog &amp; Media
-                </Link>
-              </nav>
+              <Link
+                to="/collections/new-arrivals"
+                className={NAV_TRIGGER_CLASS}
+              >
+                {t('nav.whatsNew')}
+              </Link>
 
-              <div className="hidden lg:flex items-center gap-1 shrink-0">
-                <NavDropdown label="Account" items={accountItems} />
+              <Link to="/collections/discounts" className={NAV_TRIGGER_CLASS}>
+                {t('nav.discounts')}
+              </Link>
+
+              <Link to="/pages/promotions" className={NAV_TRIGGER_CLASS}>
+                {t('nav.promotionsDeals')}
+              </Link>
+
+              <Link to="/blogs/news" className={NAV_TRIGGER_CLASS}>
+                {t('nav.blogMedia')}
+              </Link>
+            </nav>
+
+            {/* Right column — account/cart (desktop) + mobile icons */}
+            <div className="flex items-center gap-1 flex-1 justify-end">
+              {/* Desktop */}
+              <div className="hidden lg:flex items-center gap-1">
+                <LanguageSelector currentLanguage={currentLanguage} />
+                <NavDropdown label={t('nav.account')} items={accountItems} />
                 <Link
                   to="/cart"
                   className="relative p-2 text-secondary hover:text-primary transition-colors shrink-0"
-                  aria-label={`Cart (${cartCount} items)`}
+                  aria-label={t('header.cartCount', {count: cartCount})}
                 >
                   <ShoppingCart size={24} />
                   {cartCount > 0 && (
@@ -385,25 +496,26 @@ export function Header({
                 </Link>
               </div>
 
-              <div className="lg:hidden flex items-center gap-1 ml-auto">
+              {/* Mobile */}
+              <div className="lg:hidden flex items-center gap-1">
                 <Link
                   to="/search"
                   className="p-2 text-text-muted hover:text-primary transition-colors"
-                  aria-label="Search"
+                  aria-label={t('header.search')}
                 >
                   <Search size={20} />
                 </Link>
                 <Link
                   to={resolvedIsLoggedIn ? '/account' : '/account/login'}
                   className="p-2 text-text-muted hover:text-primary transition-colors"
-                  aria-label="Account"
+                  aria-label={t('nav.account')}
                 >
                   <User size={20} />
                 </Link>
                 <Link
                   to="/cart"
                   className="relative p-2 text-text-muted hover:text-primary transition-colors"
-                  aria-label={`Cart (${cartCount} items)`}
+                  aria-label={t('header.cartCount', {count: cartCount})}
                 >
                   <ShoppingCart size={24} />
                   {cartCount > 0 && (
@@ -414,45 +526,23 @@ export function Header({
                 </Link>
               </div>
             </div>
-          ) : (
-            /* ── ALTERNATE HEADER (non-homepage) ── */
-            /* Figma node 2766:311: condensed logo + hamburger + search + DropdownMenu nav + cart */
-            <div className="flex items-center gap-4 lg:gap-[26px]">
-              {/* Mobile: hamburger */}
-              <button
-                className="lg:hidden p-2 -ml-2 text-text hover:text-primary transition-colors"
-                onClick={() => setMobileMenuOpen(true)}
-                aria-label="Open menu"
-              >
-                <Menu size={24} />
-              </button>
+          </div>
+        ) : (
+          /* ── ALTERNATE HEADER (non-homepage) ── */
+          /* Figma node 2766:311: condensed logo + hamburger + search + DropdownMenu nav + cart */
+          <div className="max-w-screen-2xl mx-auto w-full flex items-center gap-4 lg:gap-[26px] px-4 sm:px-6 lg:px-8 py-2.5">
+            {/* Mobile: hamburger */}
+            <button
+              className="lg:hidden p-2 -ml-2 text-text hover:text-primary transition-colors"
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label={t('header.openMenu')}
+            >
+              <Menu size={24} />
+            </button>
 
-              {/* Desktop left group: logo + categories button + search bar */}
-              <div className="hidden lg:flex items-center gap-[15px] flex-1">
-                <Link to="/" className="shrink-0">
-                  <img
-                    src="/logo-condensed.png"
-                    alt={shop.name}
-                    className="h-[50px] w-[65px] object-contain"
-                    loading="eager"
-                  />
-                </Link>
-
-                {/* Categories hamburger → opens Sheet */}
-                <button
-                  className="p-2 text-secondary hover:text-primary transition-colors shrink-0"
-                  onClick={() => setMobileMenuOpen(true)}
-                  aria-label="Open categories menu"
-                >
-                  <Menu size={24} />
-                </button>
-
-                {/* Search bar with Searchanise autocomplete */}
-                <SearchAutocomplete className="flex-1" />
-              </div>
-
-              {/* Mobile: logo */}
-              <Link to="/" className="shrink-0 lg:hidden">
+            {/* Desktop left group: logo + categories button + search bar */}
+            <div className="hidden lg:flex items-center gap-[15px] flex-1">
+              <Link to="/" className="shrink-0">
                 <img
                   src="/logo-condensed.png"
                   alt={shop.name}
@@ -461,49 +551,72 @@ export function Header({
                 />
               </Link>
 
-              {/* Desktop right: DropdownMenu nav links + cart */}
-              <div className="hidden lg:flex items-center gap-1 shrink-0">
-                <NavDropdown label="Account" items={accountItems} />
+              {/* Categories hamburger → opens Sheet */}
+              <button
+                className="p-2 text-secondary hover:text-primary transition-colors shrink-0"
+                onClick={() => setMobileMenuOpen(true)}
+                aria-label={t('header.openCategoriesMenu')}
+              >
+                <Menu size={24} />
+              </button>
 
-                <Link
-                  to="/cart"
-                  className="relative p-2 text-secondary hover:text-primary transition-colors shrink-0"
-                  aria-label={`Cart (${cartCount} items)`}
-                >
-                  <ShoppingCart size={24} />
-                  {cartCount > 0 && (
-                    <span className="absolute top-0 right-0 flex items-center justify-center min-w-4.5 h-4.5 px-1 text-[10px] font-medium text-white bg-primary rounded-full">
-                      {cartCount > 99 ? '99+' : cartCount}
-                    </span>
-                  )}
-                </Link>
-              </div>
-
-              {/* Mobile: search + cart */}
-              <div className="lg:hidden flex items-center gap-1 ml-auto">
-                <Link
-                  to="/search"
-                  className="p-2 text-text-muted hover:text-primary transition-colors"
-                  aria-label="Search"
-                >
-                  <Search size={20} />
-                </Link>
-                <Link
-                  to="/cart"
-                  className="relative p-2 text-text-muted hover:text-primary transition-colors"
-                  aria-label={`Cart (${cartCount} items)`}
-                >
-                  <ShoppingCart size={24} />
-                  {cartCount > 0 && (
-                    <span className="absolute top-0 right-0 flex items-center justify-center min-w-4.5 h-4.5 px-1 text-[10px] font-medium text-white bg-primary rounded-full">
-                      {cartCount > 99 ? '99+' : cartCount}
-                    </span>
-                  )}
-                </Link>
-              </div>
+              {/* Search bar with Searchanise autocomplete */}
+              <SearchAutocomplete className="flex-1" />
             </div>
-          )}
-        </div>
+
+            {/* Mobile: logo */}
+            <Link to="/" className="shrink-0 lg:hidden">
+              <img
+                src="/logo-condensed.png"
+                alt={shop.name}
+                className="h-[50px] w-[65px] object-contain"
+                loading="eager"
+              />
+            </Link>
+
+            {/* Desktop right: language + account + cart */}
+            <div className="hidden lg:flex items-center gap-1 shrink-0">
+              <LanguageSelector currentLanguage={currentLanguage} />
+              <NavDropdown label={t('nav.account')} items={accountItems} />
+
+              <Link
+                to="/cart"
+                className="relative p-2 text-secondary hover:text-primary transition-colors shrink-0"
+                aria-label={t('header.cartCount', {count: cartCount})}
+              >
+                <ShoppingCart size={24} />
+                {cartCount > 0 && (
+                  <span className="absolute top-0 right-0 flex items-center justify-center min-w-4.5 h-4.5 px-1 text-[10px] font-medium text-white bg-primary rounded-full">
+                    {cartCount > 99 ? '99+' : cartCount}
+                  </span>
+                )}
+              </Link>
+            </div>
+
+            {/* Mobile: search + cart */}
+            <div className="lg:hidden flex items-center gap-1 ml-auto">
+              <Link
+                to="/search"
+                className="p-2 text-text-muted hover:text-primary transition-colors"
+                aria-label={t('header.search')}
+              >
+                <Search size={20} />
+              </Link>
+              <Link
+                to="/cart"
+                className="relative p-2 text-text-muted hover:text-primary transition-colors"
+                aria-label={t('header.cartCount', {count: cartCount})}
+              >
+                <ShoppingCart size={24} />
+                {cartCount > 0 && (
+                  <span className="absolute top-0 right-0 flex items-center justify-center min-w-4.5 h-4.5 px-1 text-[10px] font-medium text-white bg-primary rounded-full">
+                    {cartCount > 99 ? '99+' : cartCount}
+                  </span>
+                )}
+              </Link>
+            </div>
+          </div>
+        )}
 
         {categoryBarOpen && categories.length > 0 && (
           <CategoryBar categories={categories} />

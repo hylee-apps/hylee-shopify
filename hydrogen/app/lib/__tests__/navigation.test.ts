@@ -9,6 +9,7 @@ function makeCategory(handle: string, title: string, priority?: number | null) {
 const defaultConfig: CategoryNavConfig = {
   excluded: [],
   maxVisible: 0,
+  pinned: [],
 };
 
 describe('prioritizeCategories', () => {
@@ -111,6 +112,7 @@ describe('prioritizeCategories', () => {
     const config: CategoryNavConfig = {
       excluded: ['hidden'],
       maxVisible: 4,
+      pinned: [],
     };
 
     const result = prioritizeCategories(collections, config);
