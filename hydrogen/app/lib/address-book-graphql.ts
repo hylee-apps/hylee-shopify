@@ -228,7 +228,20 @@ export async function readAddressBook(
   // Step 2: read metafield values via Admin API.
   // Because we write metafields through the Admin API, reading through the same
   // API is immediately consistent — no cross-API propagation delay.
-  const metafields = await getCustomerMetafields(env, customerId);
+  // Graceful fallback: if Admin API credentials are missing or the request fails,
+  // return an empty book so the page still renders rather than crashing.
+  let metafields: {
+    addressBook: {value: string} | null;
+    surveyCompleted: {value: string} | null;
+  } = {addressBook: null, surveyCompleted: null};
+  try {
+    metafields = await getCustomerMetafields(env, customerId);
+  } catch (err) {
+    console.error(
+      '[address-book] Admin API metafield read failed — rendering empty book:',
+      err,
+    );
+  }
 
   return {
     book: parseAddressBook(metafields.addressBook?.value ?? null),
