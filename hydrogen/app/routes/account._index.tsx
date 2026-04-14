@@ -1,6 +1,7 @@
 import type {Route} from './+types/account._index';
 import {redirect, Link} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
+import {useTranslation} from 'react-i18next';
 import {readAddressBook} from '~/lib/address-book-graphql';
 import {
   getAuthenticatedCustomer,
@@ -119,6 +120,7 @@ export async function loader({context}: Route.LoaderArgs) {
 // ============================================================================
 
 export default function AccountDashboard({loaderData}: Route.ComponentProps) {
+  const {t} = useTranslation();
   const {customer, recentOrders, totalOrders, activeOrders, addressCount} =
     loaderData;
   const firstName = customer?.firstName ?? 'there';
@@ -135,38 +137,49 @@ export default function AccountDashboard({loaderData}: Route.ComponentProps) {
       >
         <div className="flex flex-col gap-2">
           <h2 className="text-[24px] font-light leading-9 text-white">
-            Welcome back, {firstName}!
+            {t('account.dashboard.welcomeBack', {name: firstName})}
           </h2>
           <p className="text-[16px] leading-6 text-white/90">
-            Here&apos;s what&apos;s happening with your account today.
+            {t('account.dashboard.subtitle')}
           </p>
         </div>
       </div>
 
       {/* Stats Row */}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-        <StatCard value={totalOrders} label="Total Orders" />
-        <StatCard value={activeOrders} label="Active Orders" />
-        <StatCard value={addressCount} label="Saved Addresses" />
+        <StatCard
+          value={totalOrders}
+          label={t('account.dashboard.totalOrders')}
+        />
+        <StatCard
+          value={activeOrders}
+          label={t('account.dashboard.activeOrders')}
+        />
+        <StatCard
+          value={addressCount}
+          label={t('account.dashboard.savedAddresses')}
+        />
       </div>
 
       {/* Recent Orders */}
       <div className="overflow-hidden rounded-xl border border-border bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-border px-6 py-5">
-          <h2 className="text-lg font-bold text-gray-900">Recent Orders</h2>
+          <h2 className="text-lg font-bold text-gray-900">
+            {t('account.dashboard.recentOrders')}
+          </h2>
           <Link
             to="/account/orders"
             className="text-[15px] font-medium text-secondary hover:underline"
           >
-            View All
+            {t('account.dashboard.viewAll')}
           </Link>
         </div>
         <div className="p-6">
           {recentOrders.length === 0 ? (
             <p className="py-8 text-center text-sm text-text-muted">
-              No orders yet.{' '}
+              {t('account.dashboard.noOrders')}{' '}
               <Link to="/" className="text-secondary hover:underline">
-                Start shopping
+                {t('account.dashboard.startShopping')}
               </Link>
             </p>
           ) : (
@@ -182,9 +195,11 @@ export default function AccountDashboard({loaderData}: Route.ComponentProps) {
       {/* Saved for Later / Wishlist (placeholder) */}
       <div className="overflow-hidden rounded-xl border border-border bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-border px-6 py-5">
-          <h2 className="text-lg font-bold text-gray-900">Saved for Later</h2>
+          <h2 className="text-lg font-bold text-gray-900">
+            {t('account.dashboard.savedForLater')}
+          </h2>
           <span className="text-[15px] font-medium text-secondary">
-            View Wishlist
+            {t('account.dashboard.viewWishlist')}
           </span>
         </div>
         <div className="grid grid-cols-1 gap-4 p-6 sm:grid-cols-3">
@@ -217,6 +232,7 @@ function StatCard({value, label}: {value: number; label: string}) {
 }
 
 function OrderRow({order}: {order: OrderSummary}) {
+  const {t} = useTranslation();
   const colors = statusColor(order.status);
 
   return (
@@ -231,7 +247,8 @@ function OrderRow({order}: {order: OrderSummary}) {
         <div className="flex flex-col gap-1">
           <h4 className="text-base font-medium text-gray-800">{order.name}</h4>
           <p className="text-sm text-text-muted">
-            Placed on {order.date} &middot; {order.total}
+            {t('account.dashboard.placedOn', {date: order.date})} &middot;{' '}
+            {order.total}
           </p>
         </div>
       </div>

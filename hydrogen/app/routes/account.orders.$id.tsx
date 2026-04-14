@@ -5,6 +5,8 @@ import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {Truck, ExternalLink, ImageIcon, ArrowLeft, Undo2} from 'lucide-react';
 import {RecipientBadge} from '~/components/account/RecipientBadge';
 import {CHECKOUT_ATTR} from '~/lib/checkout';
+import {useTranslation} from 'react-i18next';
+import type {TFunction} from 'i18next';
 
 // ============================================================================
 // Route Meta
@@ -198,20 +200,26 @@ function formatDate(dateString: string): string {
   });
 }
 
-function getFulfillmentBadge(status: string | null): {
+function getFulfillmentBadge(
+  status: string | null,
+  t: TFunction,
+): {
   label: string;
   variant: 'success' | 'warning' | 'info' | 'default';
 } {
   switch (status) {
     case 'FULFILLED':
-      return {label: 'Delivered', variant: 'success'};
+      return {label: t('orderDetail.status.delivered'), variant: 'success'};
     case 'PARTIALLY_FULFILLED':
-      return {label: 'Partially Shipped', variant: 'warning'};
+      return {
+        label: t('orderDetail.status.partiallyShipped'),
+        variant: 'warning',
+      };
     case 'IN_PROGRESS':
-      return {label: 'In Progress', variant: 'info'};
+      return {label: t('orderDetail.status.inProgress'), variant: 'info'};
     case 'UNFULFILLED':
     default:
-      return {label: 'Processing', variant: 'default'};
+      return {label: t('orderDetail.status.processing'), variant: 'default'};
   }
 }
 
@@ -244,9 +252,11 @@ function StatusBadge({
 
 export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
   const {order, shippingCategory, shippingRecipientLabel} = loaderData;
+  const {t} = useTranslation('common');
 
   const {label: statusLabel, variant: statusVariant} = getFulfillmentBadge(
     order.fulfillmentStatus,
+    t,
   );
 
   return (
@@ -257,7 +267,7 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
         className="mb-4 inline-flex items-center gap-1 text-sm text-text-muted hover:text-secondary"
       >
         <ArrowLeft size={14} />
-        Back to Orders
+        {t('orderDetail.backToOrders')}
       </Link>
 
       {/* Page Header */}
@@ -265,7 +275,7 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
         <div>
           <h1 className="text-3xl font-bold text-dark">{order.name}</h1>
           <p className="mt-1 text-text-muted">
-            Placed {formatDate(order.processedAt)}
+            {t('orderDetail.placed', {date: formatDate(order.processedAt)})}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -276,7 +286,7 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
               className="inline-flex items-center gap-2 rounded-lg border border-[#d1d5db] bg-white px-4 py-2 text-sm font-medium text-[#374151] transition-colors hover:bg-[#f9fafb]"
             >
               <Undo2 size={14} />
-              Return or Replace Items
+              {t('orderDetail.returnOrReplace')}
             </Link>
           )}
           <StatusBadge variant={statusVariant}>{statusLabel}</StatusBadge>
@@ -286,7 +296,9 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
       {order.canceledAt && (
         <div className="mb-6 rounded-md border border-red-200 bg-red-50 p-4">
           <p className="text-sm font-medium text-red-800">
-            This order was cancelled on {formatDate(order.canceledAt)}
+            {t('orderDetail.cancelledNotice', {
+              date: formatDate(order.canceledAt),
+            })}
             {order.cancelReason && ` — ${order.cancelReason}`}
           </p>
         </div>
@@ -299,7 +311,7 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
           {(order.successfulFulfillments?.length ?? 0) > 0 && (
             <div className="rounded-lg border border-border p-5">
               <h2 className="mb-4 text-lg font-semibold text-dark">
-                Delivery Status
+                {t('orderDetail.deliveryStatus.title')}
               </h2>
               {order.successfulFulfillments!.map(
                 (fulfillment: any, idx: number) => (
@@ -314,10 +326,13 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
                             <Truck size={20} className="text-primary" />
                             <div>
                               <p className="text-sm font-medium text-dark">
-                                {fulfillment.trackingCompany || 'Carrier'}
+                                {fulfillment.trackingCompany ||
+                                  t('orderDetail.deliveryStatus.carrier')}
                               </p>
                               <p className="text-xs text-text-muted">
-                                Tracking: {tracking.number}
+                                {t('orderDetail.deliveryStatus.tracking', {
+                                  number: tracking.number,
+                                })}
                               </p>
                             </div>
                           </div>
@@ -328,7 +343,7 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
                             >
-                              Track
+                              {t('orderDetail.deliveryStatus.trackLink')}
                               <ExternalLink size={14} />
                             </a>
                           )}
@@ -344,7 +359,7 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
           {/* Line Items */}
           <div className="rounded-lg border border-border">
             <h2 className="border-b border-border px-5 py-4 text-lg font-semibold text-dark">
-              Items
+              {t('orderDetail.items.title')}
             </h2>
             <div className="divide-y divide-border">
               {order.lineItems.nodes.map((item: any, idx: number) => {
@@ -375,7 +390,7 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
                         </p>
                       )}
                       <p className="text-xs text-text-muted">
-                        Qty: {item.quantity}
+                        {t('orderDetail.items.qty', {quantity: item.quantity})}
                       </p>
                       {item.discountAllocations?.length > 0 &&
                         item.discountAllocations.map(
@@ -406,12 +421,14 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
           {/* Order Summary */}
           <div className="rounded-lg border border-border p-5">
             <h2 className="mb-4 text-lg font-semibold text-dark">
-              Order Summary
+              {t('orderDetail.summary.title')}
             </h2>
             <div className="space-y-2 text-sm">
               {order.subtotalPrice && (
                 <div className="flex justify-between">
-                  <span className="text-text">Subtotal</span>
+                  <span className="text-text">
+                    {t('orderDetail.summary.subtotal')}
+                  </span>
                   <span className="font-medium text-dark">
                     {formatMoney(order.subtotalPrice)}
                   </span>
@@ -419,24 +436,30 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
               )}
               {order.totalShippingPrice && (
                 <div className="flex justify-between">
-                  <span className="text-text">Shipping</span>
+                  <span className="text-text">
+                    {t('orderDetail.summary.shipping')}
+                  </span>
                   <span className="font-medium text-dark">
                     {parseFloat(order.totalShippingPrice.amount) === 0
-                      ? 'Free'
+                      ? t('orderDetail.summary.shippingFree')
                       : formatMoney(order.totalShippingPrice)}
                   </span>
                 </div>
               )}
               {order.totalTax && parseFloat(order.totalTax.amount) > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-text">Tax</span>
+                  <span className="text-text">
+                    {t('orderDetail.summary.tax')}
+                  </span>
                   <span className="font-medium text-dark">
                     {formatMoney(order.totalTax)}
                   </span>
                 </div>
               )}
               <div className="flex justify-between border-t border-border pt-2 text-base">
-                <span className="font-semibold text-dark">Total</span>
+                <span className="font-semibold text-dark">
+                  {t('orderDetail.summary.total')}
+                </span>
                 <span className="font-bold text-dark">
                   {formatMoney(order.totalPrice)}
                 </span>
@@ -448,7 +471,7 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
           {order.shippingAddress && (
             <div className="rounded-lg border border-border p-5">
               <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-dark">
-                Shipping Address
+                {t('orderDetail.shippingAddress.title')}
                 {shippingRecipientLabel && shippingCategory && (
                   <RecipientBadge
                     category={shippingCategory}
@@ -473,7 +496,7 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
           {order.billingAddress && (
             <div className="rounded-lg border border-border p-5">
               <h2 className="mb-3 text-lg font-semibold text-dark">
-                Billing Address
+                {t('orderDetail.billingAddress.title')}
               </h2>
               <div className="text-sm text-text">
                 <p className="font-medium text-dark">
@@ -497,7 +520,7 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
           className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
         >
           <ArrowLeft size={14} />
-          Back to Orders
+          {t('orderDetail.backToOrders')}
         </Link>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import {ShoppingBag, RotateCcw, Truck} from 'lucide-react';
+import {useTranslation} from 'react-i18next';
 
 export type OrderTab = 'orders' | 'buy-again' | 'on-the-way-out';
 
@@ -7,13 +8,14 @@ interface OrderTabBarProps {
   onTabChange: (tab: OrderTab) => void;
 }
 
-const TABS: {key: OrderTab; label: string; icon: typeof ShoppingBag}[] = [
-  {key: 'orders', label: 'Orders', icon: ShoppingBag},
-  {key: 'buy-again', label: 'Buy Again', icon: RotateCcw},
-  {key: 'on-the-way-out', label: 'On the Way Out', icon: Truck},
+const TABS: {key: OrderTab; labelKey: string; icon: typeof ShoppingBag}[] = [
+  {key: 'orders', labelKey: 'orders.tabs.orders', icon: ShoppingBag},
+  {key: 'buy-again', labelKey: 'orders.tabs.buyAgain', icon: RotateCcw},
+  {key: 'on-the-way-out', labelKey: 'orders.tabs.onTheWayOut', icon: Truck},
 ];
 
 export function OrderTabBar({activeTab, onTabChange}: OrderTabBarProps) {
+  const {t} = useTranslation();
   return (
     <div className="flex w-full items-start overflow-x-auto border-b border-[#e5e7eb] bg-white">
       {TABS.map((tab) => {
@@ -34,7 +36,7 @@ export function OrderTabBar({activeTab, onTabChange}: OrderTabBarProps) {
               className={isActive ? 'text-[#40283c]' : 'text-[#4b5563]'}
             />
             <span className="whitespace-nowrap text-[15px] leading-[22.5px]">
-              {tab.label}
+              {t(tab.labelKey)}
             </span>
           </button>
         );

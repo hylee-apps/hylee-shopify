@@ -1,5 +1,6 @@
 import {Image} from '@shopify/hydrogen';
 import {Check, ImageIcon} from 'lucide-react';
+import {useTranslation} from 'react-i18next';
 
 // ============================================================================
 // Types
@@ -38,34 +39,6 @@ function formatMoney(money: {amount: string; currencyCode: string}): string {
   }).format(parseFloat(money.amount));
 }
 
-function getEligibilityBadge(reason: string | undefined): {
-  text: string;
-  textColor: string;
-  bgColor: string;
-} {
-  switch (reason) {
-    case 'final-sale':
-      return {
-        text: 'FINAL SALE',
-        textColor: 'text-red-600',
-        bgColor: 'bg-red-600/10',
-      };
-    case 'window-closed':
-      return {
-        text: 'RETURN WINDOW CLOSED',
-        textColor: 'text-[#6b7280]',
-        bgColor: 'bg-[#6b7280]/10',
-      };
-    case 'eligible':
-    default:
-      return {
-        text: 'RETURN ELIGIBLE',
-        textColor: 'text-primary',
-        bgColor: 'bg-primary/10',
-      };
-  }
-}
-
 // ============================================================================
 // Component
 // ============================================================================
@@ -75,6 +48,32 @@ export function ReturnItemCard({
   selected,
   onToggle,
 }: ReturnItemCardProps) {
+  const {t} = useTranslation('common');
+
+  function getEligibilityBadge(reason: string | undefined) {
+    switch (reason) {
+      case 'final-sale':
+        return {
+          text: t('returnItemCard.badgeFinalSale'),
+          textColor: 'text-red-600',
+          bgColor: 'bg-red-600/10',
+        };
+      case 'window-closed':
+        return {
+          text: t('returnItemCard.badgeWindowClosed'),
+          textColor: 'text-[#6b7280]',
+          bgColor: 'bg-[#6b7280]/10',
+        };
+      case 'eligible':
+      default:
+        return {
+          text: t('returnItemCard.badgeEligible'),
+          textColor: 'text-primary',
+          bgColor: 'bg-primary/10',
+        };
+    }
+  }
+
   const badge = getEligibilityBadge(item.eligibilityReason);
 
   return (
@@ -130,8 +129,8 @@ export function ReturnItemCard({
           {item.title}
         </h4>
         <p className="text-[14px] leading-[21px] text-[#6b7280]">
-          {item.variantTitle ? `${item.variantTitle} • ` : ''}Qty:{' '}
-          {item.quantity}
+          {item.variantTitle ? `${item.variantTitle} • ` : ''}
+          {t('returnItemCard.qty', {quantity: item.quantity})}
         </p>
         <p className="pt-1 text-[16px] font-semibold leading-6 text-return-accent">
           {formatMoney(item.price)}

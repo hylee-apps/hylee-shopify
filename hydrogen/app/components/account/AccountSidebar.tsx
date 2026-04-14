@@ -1,5 +1,6 @@
 import {Link, Form, useLocation} from 'react-router';
 import {useState} from 'react';
+import {useTranslation} from 'react-i18next';
 import {
   LayoutDashboard,
   Package,
@@ -22,20 +23,25 @@ import {
 } from '~/components/ui/sheet';
 
 interface NavItem {
-  label: string;
+  labelKey: string;
   to: string;
   icon: ComponentType<LucideProps>;
   disabled?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  {label: 'Dashboard', to: '/account', icon: LayoutDashboard},
-  {label: 'My Orders', to: '/account/orders', icon: Package},
-  {label: 'Wishlist', to: '#', icon: Heart, disabled: true},
-  {label: 'Addresses', to: '/account/addresses', icon: MapPin},
-  {label: 'Payment Methods', to: '#', icon: CreditCard, disabled: true},
-  {label: 'Notifications', to: '#', icon: Bell, disabled: true},
-  {label: 'Settings', to: '/account/settings', icon: Settings},
+  {labelKey: 'account.nav.dashboard', to: '/account', icon: LayoutDashboard},
+  {labelKey: 'account.nav.myOrders', to: '/account/orders', icon: Package},
+  {labelKey: 'account.nav.wishlist', to: '#', icon: Heart, disabled: true},
+  {labelKey: 'account.nav.addresses', to: '/account/addresses', icon: MapPin},
+  {
+    labelKey: 'account.nav.paymentMethods',
+    to: '#',
+    icon: CreditCard,
+    disabled: true,
+  },
+  {labelKey: 'account.nav.notifications', to: '#', icon: Bell, disabled: true},
+  {labelKey: 'account.nav.settings', to: '/account/settings', icon: Settings},
 ];
 
 interface AccountSidebarProps {
@@ -50,6 +56,7 @@ export function AccountSidebar({
   email,
 }: AccountSidebarProps) {
   const [open, setOpen] = useState(false);
+  const {t} = useTranslation();
 
   return (
     <>
@@ -71,11 +78,13 @@ export function AccountSidebar({
               className="flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm"
             >
               <Menu size={18} />
-              Account Menu
+              {t('account.sidebar.menuButton')}
             </button>
           </SheetTrigger>
           <SheetContent side="left" className="w-[300px] p-6">
-            <SheetTitle className="sr-only">Account Navigation</SheetTitle>
+            <SheetTitle className="sr-only">
+              {t('account.sidebar.sheetTitle')}
+            </SheetTitle>
             <SidebarContent
               firstName={firstName}
               lastName={lastName}
@@ -96,8 +105,11 @@ function SidebarContent({
   onNavigate,
 }: AccountSidebarProps & {onNavigate?: () => void}) {
   const location = useLocation();
+  const {t} = useTranslation();
   const initials = getInitials(firstName, lastName);
-  const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Account';
+  const fullName =
+    [firstName, lastName].filter(Boolean).join(' ') ||
+    t('account.sidebar.fallbackName');
 
   return (
     <>
@@ -121,22 +133,23 @@ function SidebarContent({
         {NAV_ITEMS.map((item) => {
           const isActive = isNavActive(item.to, location.pathname);
           const Icon = item.icon;
+          const label = t(item.labelKey);
 
           if (item.disabled) {
             return (
               <span
-                key={item.label}
+                key={item.labelKey}
                 className="flex cursor-not-allowed items-center gap-3 rounded-lg px-4 py-3 text-[15px] font-medium text-gray-400"
               >
                 <Icon size={20} />
-                {item.label}
+                {label}
               </span>
             );
           }
 
           return (
             <Link
-              key={item.label}
+              key={item.labelKey}
               to={item.to}
               onClick={onNavigate}
               className={`flex items-center gap-3 rounded-lg px-4 py-3 text-[15px] font-medium transition-colors ${
@@ -146,7 +159,7 @@ function SidebarContent({
               }`}
             >
               <Icon size={20} />
-              {item.label}
+              {label}
             </Link>
           );
         })}
@@ -159,7 +172,7 @@ function SidebarContent({
               className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-[15px] font-medium text-red-600 transition-colors hover:bg-red-50"
             >
               <LogOut size={20} />
-              Sign Out
+              {t('account.nav.signOut')}
             </button>
           </Form>
         </div>

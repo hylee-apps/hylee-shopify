@@ -1,3 +1,5 @@
+import {useTranslation} from 'react-i18next';
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -32,6 +34,8 @@ export function ReturnShippingSummary({
   totalRefund,
   currencyCode = 'USD',
 }: ReturnShippingSummaryProps) {
+  const {t} = useTranslation('common');
+
   return (
     <div
       className="flex flex-col gap-[12px] rounded-[12px] bg-[#f9fafb] px-[20px] pb-[32px] pt-[20px]"
@@ -40,7 +44,7 @@ export function ReturnShippingSummary({
       {/* Row 1: Items being returned */}
       <div className="flex items-center justify-between">
         <span className="text-[14px] font-normal leading-[21px] text-[#4b5563]">
-          Items being returned
+          {t('returnShippingSummary.itemsBeingReturned')}
         </span>
         <span className="text-[14px] font-medium leading-[21px] text-[#1f2937]">
           {itemCount}
@@ -50,7 +54,7 @@ export function ReturnShippingSummary({
       {/* Row 2: Return shipping */}
       <div className="flex items-center justify-between">
         <span className="text-[14px] font-normal leading-[21px] text-[#4b5563]">
-          Return shipping
+          {t('returnShippingSummary.returnShipping')}
         </span>
         <span
           className={`text-[14px] font-medium leading-[21px] ${
@@ -64,7 +68,7 @@ export function ReturnShippingSummary({
       {/* Divider + Total */}
       <div className="flex items-center justify-between border-t-2 border-[#e5e7eb] pt-[14px]">
         <span className="text-[16px] font-bold leading-[24px] text-[#111827]">
-          Total Refund Amount
+          {t('returnShippingSummary.totalRefundAmount')}
         </span>
         <span
           className="text-[16px] font-bold leading-[24px] text-return-accent"

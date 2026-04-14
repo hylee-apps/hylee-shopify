@@ -1,12 +1,15 @@
 'use client';
 
 import {Plus} from 'lucide-react';
+import {useTranslation} from 'react-i18next';
 
 interface AddContactCardProps {
   onAdd: () => void;
 }
 
 export function AddContactCard({onAdd}: AddContactCardProps) {
+  const {t} = useTranslation('common');
+
   return (
     <button
       type="button"
@@ -17,10 +20,10 @@ export function AddContactCard({onAdd}: AddContactCardProps) {
         <Plus size={24} className="text-[#4fd1a8]" />
       </div>
       <h3 className="mb-1 text-[16px] font-medium leading-6 text-gray-700">
-        Add New Contact
+        {t('addContactCard.heading')}
       </h3>
       <p className="text-sm leading-[21px] text-gray-500">
-        Add a new address to this category
+        {t('addContactCard.body')}
       </p>
     </button>
   );

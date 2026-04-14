@@ -1,4 +1,5 @@
 import {Link} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import {Image, CartForm} from '@shopify/hydrogen';
 import {ImageIcon, ShoppingCart, Eye, Check, Loader2} from 'lucide-react';
 import type {BuyAgainProduct} from '~/lib/buy-again-data';
@@ -12,6 +13,7 @@ interface BuyAgainCardProps {
 }
 
 export function BuyAgainCard({product}: BuyAgainCardProps) {
+  const {t} = useTranslation();
   return (
     <div
       className="flex w-full flex-col overflow-clip rounded-[12px] bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]"
@@ -97,10 +99,10 @@ export function BuyAgainCard({product}: BuyAgainCardProps) {
                     )}
                     <span className="text-center">
                       {isAdding
-                        ? 'Adding...'
+                        ? t('addToCart.adding')
                         : isAdded
-                          ? 'Added!'
-                          : 'Add to Cart'}
+                          ? t('addToCart.added')
+                          : t('addToCart.idle')}
                     </span>
                   </button>
                 );

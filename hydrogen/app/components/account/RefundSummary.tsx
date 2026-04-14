@@ -1,3 +1,5 @@
+import {useTranslation} from 'react-i18next';
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -30,6 +32,7 @@ export function RefundSummary({
   shippingFree = true,
   currencyCode = 'USD',
 }: RefundSummaryProps) {
+  const {t} = useTranslation('common');
   const taxRefund = itemSubtotal * taxRate;
   const estimatedTotal = itemSubtotal + taxRefund;
 
@@ -40,14 +43,14 @@ export function RefundSummary({
     >
       {/* Title */}
       <h3 className="text-[18px] font-semibold leading-[27px] text-[#1f2937]">
-        Refund Summary
+        {t('refundSummary.title')}
       </h3>
 
       {/* Line Items */}
       <div className="flex flex-col gap-[11px]">
         <div className="flex items-center justify-between">
           <span className="text-[15px] font-normal leading-[22.5px] text-[#1f2937]">
-            Item Subtotal
+            {t('refundSummary.itemSubtotal')}
           </span>
           <span className="text-[15px] font-normal leading-[22.5px] text-[#1f2937]">
             {formatMoney(itemSubtotal, currencyCode)}
@@ -56,7 +59,7 @@ export function RefundSummary({
 
         <div className="flex items-center justify-between">
           <span className="text-[15px] font-normal leading-[22.5px] text-[#1f2937]">
-            Tax Refund
+            {t('refundSummary.taxRefund')}
           </span>
           <span className="text-[15px] font-normal leading-[22.5px] text-[#1f2937]">
             {formatMoney(taxRefund, currencyCode)}
@@ -65,10 +68,12 @@ export function RefundSummary({
 
         <div className="flex items-center justify-between">
           <span className="text-[15px] font-normal leading-[22.5px] text-[#1f2937]">
-            Return Shipping
+            {t('refundSummary.returnShipping')}
           </span>
           <span className="text-[15px] font-normal leading-[22.5px] text-primary">
-            {shippingFree ? 'Free' : formatMoney(0, currencyCode)}
+            {shippingFree
+              ? t('refundSummary.returnShippingFree')
+              : formatMoney(0, currencyCode)}
           </span>
         </div>
       </div>
@@ -76,7 +81,7 @@ export function RefundSummary({
       {/* Divider + Total */}
       <div className="flex items-center justify-between border-t-2 border-[#e5e7eb] pt-[14px]">
         <span className="text-[18px] font-bold leading-[27px] text-[#111827]">
-          Estimated Refund
+          {t('refundSummary.estimatedRefund')}
         </span>
         <span
           className="text-[18px] font-bold leading-[27px] text-return-accent"
@@ -88,8 +93,7 @@ export function RefundSummary({
 
       {/* Disclaimer */}
       <p className="text-[13px] font-normal leading-[19.5px] text-[#6b7280]">
-        Refund will be processed to original payment method within 5-7 business
-        days after we receive the item.
+        {t('refundSummary.disclaimer')}
       </p>
     </div>
   );

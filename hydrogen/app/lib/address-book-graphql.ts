@@ -2,24 +2,20 @@
 // Address Book — GraphQL queries, mutations, and Storefront API helpers
 // ============================================================================
 
+import {CacheNone} from '@shopify/hydrogen';
 import {parseAddressBook, serializeAddressBook} from './address-book';
 import type {AddressBook} from './address-book';
 import {getCustomerAccessToken} from './customer-auth';
-import {setCustomerMetafields} from './admin-api';
+import {setCustomerMetafields, getCustomerMetafields} from './admin-api';
 
 // ── GraphQL Queries (Storefront API) ─────────────────────────────────────────
 
-export const ADDRESS_BOOK_QUERY = `#graphql
-  query CustomerAddressBook($customerAccessToken: String!) {
+// Lightweight query — only used to resolve the customer's GID so the Admin API
+// can read metafields directly (avoiding cross-API propagation delay).
+export const CUSTOMER_ID_QUERY = `#graphql
+  query CustomerID($customerAccessToken: String!) {
     customer(customerAccessToken: $customerAccessToken) {
       id
-      addressBook: metafield(namespace: "custom", key: "address_book") {
-        id
-        value
-      }
-      surveyCompleted: metafield(namespace: "custom", key: "survey_completed") {
-        value
-      }
     }
   }
 ` as const;
@@ -150,14 +146,6 @@ type AnyContext =
   | LegacyContext
   | (StorefrontContext & LegacyContext);
 
-interface AddressBookQueryData {
-  customer: {
-    id: string;
-    addressBook: {id: string; value: string} | null;
-    surveyCompleted: {value: string} | null;
-  };
-}
-
 export interface CustomerAddressNode {
   id: string;
   firstName?: string | null;
@@ -218,14 +206,18 @@ export async function readAddressBook(
   context: AnyContext,
 ): Promise<{book: AddressBook; customerId: string; surveyCompleted: boolean}> {
   const storefront = getStorefront(context);
+  const env = getEnv(context);
   const token = getToken(context);
 
-  const data = await storefront.query(ADDRESS_BOOK_QUERY, {
+  // Step 1: resolve customer GID via Storefront API (ID never changes — no
+  // propagation issue here).
+  const idData = await storefront.query(CUSTOMER_ID_QUERY, {
     variables: {customerAccessToken: token},
+    cache: CacheNone(),
   });
-  const customer = (data as AddressBookQueryData).customer;
+  const customerId = (idData as {customer?: {id: string}})?.customer?.id;
 
-  if (!customer) {
+  if (!customerId) {
     return {
       book: parseAddressBook(null),
       customerId: '',
@@ -233,10 +225,15 @@ export async function readAddressBook(
     };
   }
 
+  // Step 2: read metafield values via Admin API.
+  // Because we write metafields through the Admin API, reading through the same
+  // API is immediately consistent — no cross-API propagation delay.
+  const metafields = await getCustomerMetafields(env, customerId);
+
   return {
-    book: parseAddressBook(customer.addressBook?.value ?? null),
-    customerId: customer.id,
-    surveyCompleted: customer.surveyCompleted?.value === 'true',
+    book: parseAddressBook(metafields.addressBook?.value ?? null),
+    customerId,
+    surveyCompleted: metafields.surveyCompleted?.value === 'true',
   };
 }
 
@@ -295,6 +292,7 @@ export async function readCustomerAddresses(context: AnyContext): Promise<{
 
   const data = await storefront.query(CUSTOMER_ADDRESSES_QUERY, {
     variables: {customerAccessToken: token},
+    cache: CacheNone(),
   });
   const typed = data as CustomerAddressesData;
 

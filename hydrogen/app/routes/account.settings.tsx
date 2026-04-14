@@ -16,6 +16,7 @@ import {getInitials} from '~/lib/account-helpers';
 import {setCustomerMetafields, type AdminEnv} from '~/lib/admin-api';
 import {Camera} from 'lucide-react';
 import {useEffect, useRef} from 'react';
+import {useTranslation} from 'react-i18next';
 
 // ============================================================================
 // Route Meta
@@ -156,7 +157,11 @@ export async function action({request, context}: Route.ActionArgs) {
         }
       }
 
-      return {success: true, intent, message: 'Profile updated successfully.'};
+      return {
+        success: true,
+        intent,
+        message: 'settings.success.profileUpdated',
+      };
     }
 
     case 'updatePassword': {
@@ -167,7 +172,7 @@ export async function action({request, context}: Route.ActionArgs) {
       if (!currentPassword || !newPassword || !confirmPassword) {
         return {
           errors: [
-            {field: 'password', message: 'All password fields are required.'},
+            {field: 'password', message: 'settings.error.allFieldsRequired'},
           ] as ActionError[],
           intent,
         };
@@ -176,7 +181,10 @@ export async function action({request, context}: Route.ActionArgs) {
       if (newPassword !== confirmPassword) {
         return {
           errors: [
-            {field: 'confirmPassword', message: 'Passwords do not match.'},
+            {
+              field: 'confirmPassword',
+              message: 'settings.error.passwordsDoNotMatch',
+            },
           ] as ActionError[],
           intent,
         };
@@ -187,7 +195,7 @@ export async function action({request, context}: Route.ActionArgs) {
           errors: [
             {
               field: 'newPassword',
-              message: 'Password must be at least 8 characters.',
+              message: 'settings.error.passwordTooShort',
             },
           ] as ActionError[],
           intent,
@@ -203,7 +211,7 @@ export async function action({request, context}: Route.ActionArgs) {
       if (!email) {
         return {
           errors: [
-            {field: 'password', message: 'Unable to verify identity.'},
+            {field: 'password', message: 'settings.error.unableToVerify'},
           ] as ActionError[],
           intent,
         };
@@ -219,7 +227,7 @@ export async function action({request, context}: Route.ActionArgs) {
           errors: [
             {
               field: 'currentPassword',
-              message: 'Current password is incorrect.',
+              message: 'settings.error.currentPasswordIncorrect',
             },
           ] as ActionError[],
           intent,
@@ -240,13 +248,15 @@ export async function action({request, context}: Route.ActionArgs) {
       return {
         success: true,
         intent,
-        message: 'Password updated successfully.',
+        message: 'settings.success.passwordUpdated',
       };
     }
 
     default:
       return {
-        errors: [{field: 'intent', message: 'Unknown action'}] as ActionError[],
+        errors: [
+          {field: 'intent', message: 'settings.error.unknownAction'},
+        ] as ActionError[],
       };
   }
 }
@@ -271,6 +281,7 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
   const {customer, dateOfBirth} = loaderData;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
+  const {t} = useTranslation('common');
   const isSubmitting = navigation.state === 'submitting';
   const submittingIntent =
     isSubmitting && navigation.formData
@@ -294,7 +305,7 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
     <div className="flex flex-col gap-6">
       {/* Page Title */}
       <h1 className="text-2xl font-light text-gray-800 leading-[42px] sm:text-[28px]">
-        Profile Information
+        {t('settings.pageTitle')}
       </h1>
 
       {/* ================================================================ */}
@@ -304,7 +315,7 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
         {/* Card Header */}
         <div className="border-b border-border px-6 py-5">
           <h2 className="text-lg font-bold text-gray-900">
-            Personal Information
+            {t('settings.personalInfo.cardTitle')}
           </h2>
         </div>
 
@@ -328,10 +339,10 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
                 className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-[25px] py-[13px] text-[15px] font-medium text-gray-700 opacity-50 cursor-not-allowed"
               >
                 <Camera size={15} />
-                Change Photo
+                {t('settings.personalInfo.changePhoto')}
               </button>
               <p className="text-[13px] text-gray-500 leading-[19.5px]">
-                JPG, GIF or PNG. Max size 2MB
+                {t('settings.personalInfo.photoHint')}
               </p>
             </div>
           </div>
@@ -343,13 +354,13 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
             {/* Success/Error for profile */}
             {actionData?.intent === 'updateProfile' && actionData?.success && (
               <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-                {actionData.message}
+                {t(actionData.message as string)}
               </div>
             )}
             {actionData?.intent === 'updateProfile' && actionData?.errors && (
               <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
                 {(actionData.errors as ActionError[]).map((e, i) => (
-                  <p key={i}>{e.message}</p>
+                  <p key={i}>{t(e.message)}</p>
                 ))}
               </div>
             )}
@@ -358,7 +369,7 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
             <div className="flex flex-col gap-4 pb-5 sm:flex-row">
               <div className="flex flex-1 flex-col gap-2">
                 <label htmlFor="firstName" className={LABEL_CLASS}>
-                  First Name
+                  {t('settings.personalInfo.firstName')}
                 </label>
                 <input
                   id="firstName"
@@ -369,7 +380,7 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
               </div>
               <div className="flex flex-1 flex-col gap-2">
                 <label htmlFor="lastName" className={LABEL_CLASS}>
-                  Last Name
+                  {t('settings.personalInfo.lastName')}
                 </label>
                 <input
                   id="lastName"
@@ -383,7 +394,7 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
             {/* Email Address (read-only) */}
             <div className="flex flex-col gap-2">
               <label htmlFor="email" className={LABEL_CLASS}>
-                Email Address
+                {t('settings.personalInfo.emailAddress')}
               </label>
               <input
                 id="email"
@@ -393,21 +404,21 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
                 className={`${INPUT_CLASS} cursor-not-allowed bg-gray-50 text-gray-500`}
               />
               <p className="text-xs text-gray-500">
-                Contact support to change your email address
+                {t('settings.personalInfo.emailReadonlyHint')}
               </p>
             </div>
 
             {/* Phone Number */}
             <div className="flex flex-col gap-2 pt-5">
               <label htmlFor="phone" className={LABEL_CLASS}>
-                Phone Number
+                {t('settings.personalInfo.phoneNumber')}
               </label>
               <input
                 id="phone"
                 name="phone"
                 type="tel"
                 defaultValue={customer?.phone ?? ''}
-                placeholder="(555) 123-4567"
+                placeholder={t('settings.personalInfo.phonePlaceholder')}
                 className={INPUT_CLASS}
               />
             </div>
@@ -415,7 +426,7 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
             {/* Date of Birth */}
             <div className="flex flex-col gap-2 py-5">
               <label htmlFor="dateOfBirth" className={LABEL_CLASS}>
-                Date of Birth
+                {t('settings.personalInfo.dateOfBirth')}
               </label>
               <input
                 id="dateOfBirth"
@@ -434,8 +445,8 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
               style={{width: 'fit-content'}}
             >
               {submittingIntent === 'updateProfile'
-                ? 'Saving...'
-                : 'Save Changes'}
+                ? t('settings.personalInfo.saving')
+                : t('settings.personalInfo.saveChanges')}
             </button>
           </Form>
         </div>
@@ -447,7 +458,9 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
       <div className="overflow-hidden rounded-xl border border-border bg-white shadow-sm">
         {/* Card Header */}
         <div className="border-b border-border px-6 py-5">
-          <h2 className="text-lg font-bold text-gray-900">Change Password</h2>
+          <h2 className="text-lg font-bold text-gray-900">
+            {t('settings.password.cardTitle')}
+          </h2>
         </div>
 
         {/* Card Body */}
@@ -458,13 +471,13 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
             {/* Success/Error for password */}
             {actionData?.intent === 'updatePassword' && actionData?.success && (
               <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-                {actionData.message}
+                {t(actionData.message as string)}
               </div>
             )}
             {actionData?.intent === 'updatePassword' && actionData?.errors && (
               <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
                 {(actionData.errors as ActionError[]).map((e, i) => (
-                  <p key={i}>{e.message}</p>
+                  <p key={i}>{t(e.message)}</p>
                 ))}
               </div>
             )}
@@ -472,13 +485,13 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
             {/* Current Password */}
             <div className="flex flex-col gap-2">
               <label htmlFor="currentPassword" className={LABEL_CLASS}>
-                Current Password
+                {t('settings.password.currentPassword')}
               </label>
               <input
                 id="currentPassword"
                 name="currentPassword"
                 type="password"
-                placeholder="Enter current password"
+                placeholder={t('settings.password.currentPasswordPlaceholder')}
                 className={INPUT_CLASS}
               />
             </div>
@@ -487,25 +500,27 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
             <div className="flex flex-col gap-4 py-5 sm:flex-row">
               <div className="flex flex-1 flex-col gap-2">
                 <label htmlFor="newPassword" className={LABEL_CLASS}>
-                  New Password
+                  {t('settings.password.newPassword')}
                 </label>
                 <input
                   id="newPassword"
                   name="newPassword"
                   type="password"
-                  placeholder="Enter new password"
+                  placeholder={t('settings.password.newPasswordPlaceholder')}
                   className={INPUT_CLASS}
                 />
               </div>
               <div className="flex flex-1 flex-col gap-2">
                 <label htmlFor="confirmPassword" className={LABEL_CLASS}>
-                  Confirm New Password
+                  {t('settings.password.confirmPassword')}
                 </label>
                 <input
                   id="confirmPassword"
                   name="confirmPassword"
                   type="password"
-                  placeholder="Confirm new password"
+                  placeholder={t(
+                    'settings.password.confirmPasswordPlaceholder',
+                  )}
                   className={INPUT_CLASS}
                 />
               </div>
@@ -519,8 +534,8 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
               style={{width: 'fit-content'}}
             >
               {submittingIntent === 'updatePassword'
-                ? 'Updating...'
-                : 'Update Password'}
+                ? t('settings.password.updating')
+                : t('settings.password.update')}
             </button>
           </Form>
         </div>

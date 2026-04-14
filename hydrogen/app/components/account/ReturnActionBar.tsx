@@ -1,5 +1,6 @@
 import {Link} from 'react-router';
 import {ArrowLeft, ArrowRight} from 'lucide-react';
+import {useTranslation} from 'react-i18next';
 
 // ============================================================================
 // Types
@@ -20,12 +21,17 @@ interface ReturnActionBarProps {
 
 export function ReturnActionBar({
   backHref,
-  backLabel = 'Back to Orders',
-  continueLabel = 'Continue to Reason',
+  backLabel,
+  continueLabel,
   onContinue,
   continueHref,
   disabled = false,
 }: ReturnActionBarProps) {
+  const {t} = useTranslation('common');
+  const resolvedBackLabel = backLabel ?? t('returnActionBar.backDefault');
+  const resolvedContinueLabel =
+    continueLabel ?? t('returnActionBar.continueDefault');
+
   return (
     <div className="sticky bottom-0 z-[1020] border-t border-[#e5e7eb] bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
       <div className="flex items-center justify-between px-6 py-4">
@@ -36,7 +42,7 @@ export function ReturnActionBar({
           data-testid="return-back-btn"
         >
           <ArrowLeft size={15} />
-          <span className="pl-2">{backLabel}</span>
+          <span className="pl-2">{resolvedBackLabel}</span>
         </Link>
 
         {/* Continue Button */}
@@ -46,7 +52,7 @@ export function ReturnActionBar({
             className="inline-flex items-center gap-2 rounded-lg bg-return-accent px-6 py-3 text-[15px] font-medium text-white transition-opacity hover:opacity-90"
             data-testid="return-continue-btn"
           >
-            <span>{continueLabel}</span>
+            <span>{resolvedContinueLabel}</span>
             <ArrowRight size={15} className="ml-2" />
           </Link>
         ) : (
@@ -59,7 +65,7 @@ export function ReturnActionBar({
             }`}
             data-testid="return-continue-btn"
           >
-            <span>{continueLabel}</span>
+            <span>{resolvedContinueLabel}</span>
             <ArrowRight size={15} className="ml-2" />
           </button>
         )}

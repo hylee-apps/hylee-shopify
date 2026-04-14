@@ -1,5 +1,6 @@
 import type {Route} from './+types/account.welcome';
 import {redirect, Form, useNavigation} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {useState} from 'react';
 import {isCustomerLoggedIn} from '~/lib/customer-auth';
@@ -117,37 +118,34 @@ export async function action({request, context}: Route.ActionArgs) {
 }
 
 // ============================================================================
-// Social Media Platforms
-// ============================================================================
-
-const SOCIAL_PLATFORMS = [
-  {value: 'instagram', label: 'Instagram'},
-  {value: 'tiktok', label: 'TikTok'},
-  {value: 'facebook', label: 'Facebook'},
-  {value: 'x', label: 'X (Twitter)'},
-  {value: 'youtube', label: 'YouTube'},
-  {value: 'linkedin', label: 'LinkedIn'},
-  {value: 'other', label: 'Other'},
-];
-
-// ============================================================================
 // Component
 // ============================================================================
 
 export default function AccountWelcome({actionData}: Route.ComponentProps) {
   const navigation = useNavigation();
+  const {t} = useTranslation('common');
   const isSubmitting = navigation.state === 'submitting';
   const [source, setSource] = useState<string>('');
+
+  const socialPlatforms = [
+    {value: 'instagram', label: t('welcome.platform.instagram')},
+    {value: 'tiktok', label: t('welcome.platform.tiktok')},
+    {value: 'facebook', label: t('welcome.platform.facebook')},
+    {value: 'x', label: t('welcome.platform.x')},
+    {value: 'youtube', label: t('welcome.platform.youtube')},
+    {value: 'linkedin', label: t('welcome.platform.linkedin')},
+    {value: 'other', label: t('welcome.platform.other')},
+  ];
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-4 py-12">
       <Card className="w-full max-w-lg">
         <CardHeader>
           <CardTitle className="text-center text-2xl">
-            Welcome to Hy-lee!
+            {t('welcome.heading')}
           </CardTitle>
           <p className="text-center text-sm text-text-muted">
-            Quick question — how did you hear about us?
+            {t('welcome.question')}
           </p>
         </CardHeader>
 
@@ -170,25 +168,25 @@ export default function AccountWelcome({actionData}: Route.ComponentProps) {
               <div className="flex items-center gap-3">
                 <RadioGroupItem value="social_media" id="social_media" />
                 <Label htmlFor="social_media" className="cursor-pointer">
-                  Social Media
+                  {t('welcome.source.socialMedia')}
                 </Label>
               </div>
               <div className="flex items-center gap-3">
                 <RadioGroupItem value="search" id="search" />
                 <Label htmlFor="search" className="cursor-pointer">
-                  Google / Bing Search
+                  {t('welcome.source.search')}
                 </Label>
               </div>
               <div className="flex items-center gap-3">
                 <RadioGroupItem value="referral" id="referral" />
                 <Label htmlFor="referral" className="cursor-pointer">
-                  Referred by a Friend
+                  {t('welcome.source.referral')}
                 </Label>
               </div>
               <div className="flex items-center gap-3">
                 <RadioGroupItem value="other" id="other" />
                 <Label htmlFor="other" className="cursor-pointer">
-                  Other
+                  {t('welcome.source.other')}
                 </Label>
               </div>
             </RadioGroup>
@@ -196,13 +194,15 @@ export default function AccountWelcome({actionData}: Route.ComponentProps) {
             {/* Conditional: Social Media → Platform Select */}
             {source === 'social_media' && (
               <div className="mt-4">
-                <Label htmlFor="platform">Which platform?</Label>
+                <Label htmlFor="platform">{t('welcome.platform.label')}</Label>
                 <Select name="platform">
                   <SelectTrigger className="mt-1.5 w-full">
-                    <SelectValue placeholder="Select a platform" />
+                    <SelectValue
+                      placeholder={t('welcome.platform.placeholder')}
+                    />
                   </SelectTrigger>
                   <SelectContent>
-                    {SOCIAL_PLATFORMS.map((p) => (
+                    {socialPlatforms.map((p) => (
                       <SelectItem key={p.value} value={p.value}>
                         {p.label}
                       </SelectItem>
@@ -216,24 +216,24 @@ export default function AccountWelcome({actionData}: Route.ComponentProps) {
             {source === 'referral' && (
               <div className="mt-4">
                 <Label htmlFor="referrerPhone">
-                  Your friend&apos;s phone number
+                  {t('welcome.referrer.label')}
                 </Label>
                 <Input
                   id="referrerPhone"
                   name="referrerPhone"
                   type="tel"
-                  placeholder="(555) 000-0000"
+                  placeholder={t('welcome.referrer.placeholder')}
                   className="mt-1.5"
                 />
                 <p className="mt-1 text-xs text-primary">
-                  Your friend gets 20% off!
+                  {t('welcome.referrer.discount')}
                 </p>
               </div>
             )}
 
             <div className="mt-8 flex flex-col gap-3">
               <Button type="submit" disabled={isSubmitting} className="w-full">
-                {isSubmitting ? 'Saving...' : 'Continue to Your Account'}
+                {isSubmitting ? t('welcome.submitting') : t('welcome.submit')}
               </Button>
             </div>
           </Form>
@@ -246,7 +246,7 @@ export default function AccountWelcome({actionData}: Route.ComponentProps) {
               disabled={isSubmitting}
               className="w-full text-center text-sm text-text-muted transition-colors hover:text-primary"
             >
-              Skip
+              {t('welcome.skip')}
             </button>
           </Form>
         </CardContent>

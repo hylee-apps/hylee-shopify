@@ -1,6 +1,7 @@
 import {Check, ClipboardList, HelpCircle, Truck, SmilePlus} from 'lucide-react';
 import type {LucideProps} from 'lucide-react';
 import type {ComponentType} from 'react';
+import {useTranslation} from 'react-i18next';
 
 // ============================================================================
 // Types
@@ -27,14 +28,14 @@ interface ReturnStepProgressProps {
 }
 
 // ============================================================================
-// Constants
+// Step icons (stable, no i18n needed)
 // ============================================================================
 
-const STEP_DEFINITIONS: {label: string; icon: ComponentType<LucideProps>}[] = [
-  {label: 'Select Items', icon: ClipboardList},
-  {label: 'Reason', icon: HelpCircle},
-  {label: 'Ship', icon: Truck},
-  {label: 'Make It Right', icon: SmilePlus},
+const STEP_ICONS: ComponentType<LucideProps>[] = [
+  ClipboardList,
+  HelpCircle,
+  Truck,
+  SmilePlus,
 ];
 
 // ============================================================================
@@ -45,13 +46,22 @@ export function ReturnStepProgress({
   currentStep,
   stepUrls,
 }: ReturnStepProgressProps) {
-  const steps: Step[] = STEP_DEFINITIONS.map((def, idx) => {
+  const {t} = useTranslation('common');
+
+  const stepLabels = [
+    t('returnStep.selectItems'),
+    t('returnStep.reason'),
+    t('returnStep.ship'),
+    t('returnStep.makeItRight'),
+  ];
+
+  const steps: Step[] = STEP_ICONS.map((icon, idx) => {
     const stepNum = idx + 1;
     let status: StepStatus = 'pending';
     if (stepNum < currentStep) status = 'completed';
     else if (stepNum === currentStep) status = 'active';
     const href = status !== 'pending' ? stepUrls?.[idx] : undefined;
-    return {...def, status, href};
+    return {label: stepLabels[idx], icon, status, href};
   });
 
   return (
