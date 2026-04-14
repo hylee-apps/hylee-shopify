@@ -149,73 +149,73 @@ h2: text-lg font-bold text-gray-900
 **Prerequisites**: Logged in as a customer with a name, email, and at least 1 order.
 
 #### Page Structure
-- [ ] Navigate to `/account/settings` → page renders with sidebar on left ("Settings" highlighted in teal) and main content on right
-- [ ] Page title shows "Profile Information" in light (300) weight, 28px, gray-800
-- [ ] Two cards visible: "Personal Information" and "Change Password", separated by 24px gap
-- [ ] No remnants of old design (no icon-header SettingCards, no "Account Activity" section, no "Sign Out" button in main content)
+- [x] Navigate to `/account/settings` → page renders with sidebar on left ("Settings" highlighted in teal) and main content on right
+- [x] Page title shows "Profile Information" in light (300) weight, 28px, gray-800
+- [x] Two cards visible: "Personal Information" and "Change Password", separated by 24px gap
+- [x] No remnants of old design (no icon-header SettingCards, no "Account Activity" section, no "Sign Out" button in main content)
 
 #### Card 1: Personal Information — Visual Fidelity
-- [ ] Card has white background, 1px gray-200 border, 12px border-radius, subtle shadow
-- [ ] Card header: "Personal Information" in bold 18px gray-900, separated from body by 1px bottom border
-- [ ] Header padding: ~24px horizontal, ~20px vertical (visually matches Figma)
-- [ ] Avatar: 100px circle with teal-to-green gradient (secondary → brand-accent), correct initials in 40px white text
-- [ ] "Change Photo" button: white background, gray-300 border, 8px radius, camera icon + "Change Photo" text in gray-700
-- [ ] Hint text below button: "JPG, GIF or PNG. Max size 2MB" in 13px gray-500
-- [ ] Avatar and button are horizontally aligned with 24px gap between them
+- [x] Card has white background, 1px gray-200 border, 12px border-radius, subtle shadow
+- [x] Card header: "Personal Information" in bold 18px gray-900, separated from body by 1px bottom border
+- [x] Header padding: ~24px horizontal, ~20px vertical (visually matches Figma)
+- [x] Avatar: 100px circle with teal-to-green gradient (secondary → brand-accent), correct initials in 40px white text
+- [x] "Change Photo" button: white background, gray-300 border, 8px radius, camera icon + "Change Photo" text in gray-700
+- [x] Hint text below button: "JPG, GIF or PNG. Max size 2MB" in 13px gray-500
+- [x] Avatar and button are horizontally aligned with 24px gap between them
 
 #### Card 1: Form Fields
-- [ ] First Name + Last Name: side-by-side in equal widths with 16px gap
-- [ ] Email Address: full width, below the name row
-- [ ] Phone Number: full width, with 20px top spacing from email
-- [ ] Date of Birth: full width, with 20px vertical spacing
-- [ ] ALL input fields have: white bg, gray-300 border, 8px radius, 17px horizontal padding, 13px vertical padding, 15px font size
-- [ ] ALL labels: medium weight, 14px, gray-700
-- [ ] Input values show customer's actual data (firstName, lastName, email, phone)
-- [ ] Email field is visually read-only (grayed out or with helper text)
-- [ ] "Save Changes" button: teal (secondary) background, white text, 15px medium, 8px radius, 24px horizontal / 12px vertical padding
-- [ ] Button is left-aligned (not full-width, not centered)
+- [x] First Name + Last Name: side-by-side in equal widths with 16px gap
+- [x] Email Address: full width, below the name row
+- [x] Phone Number: full width, with 20px top spacing from email
+- [x] Date of Birth: full width, with 20px vertical spacing
+- [x] ALL input fields have: white bg, gray-300 border, 8px radius, 17px horizontal padding, 13px vertical padding, 15px font size
+- [x] ALL labels: medium weight, 14px, gray-700
+- [x] Input values show customer's actual data (firstName, lastName, email, phone)
+- [x] Email field is visually read-only (grayed out or with helper text)
+- [x] "Save Changes" button: teal (secondary) background, white text, 15px medium, 8px radius, 24px horizontal / 12px vertical padding
+- [x] Button is left-aligned (not full-width, not centered)
 
 #### Card 2: Change Password — Visual Fidelity
-- [ ] Same card styling as Card 1 (border, radius, shadow)
-- [ ] Card header: "Change Password" in bold 18px gray-900 with bottom border
-- [ ] Current Password: full width, placeholder "Enter current password" in gray-500
-- [ ] New Password + Confirm New Password: side-by-side in equal widths with 16px gap
-- [ ] Placeholders: "Enter new password" and "Confirm new password"
-- [ ] "Update Password" button: same teal styling as "Save Changes", left-aligned
-- [ ] All password inputs have same styling as personal info inputs
+- [x] Same card styling as Card 1 (border, radius, shadow)
+- [x] Card header: "Change Password" in bold 18px gray-900 with bottom border
+- [x] Current Password: full width, placeholder "Enter current password" in gray-500
+- [x] New Password + Confirm New Password: side-by-side in equal widths with 16px gap
+- [x] Placeholders: "Enter new password" and "Confirm new password"
+- [x] "Update Password" button: same teal styling as "Save Changes", left-aligned
+- [x] All password inputs have same styling as personal info inputs
 
 #### Pixel-Precision Checks
-- [ ] Input border color is gray-300 (`#d1d5db`), NOT gray-200 (`#e5e7eb`) — these are different
-- [ ] Card border color is gray-200 (`#e5e7eb` / `border-border`) — matches design token
-- [ ] Button background is exactly `#2699a6` (secondary) — NOT primary green
-- [ ] Avatar gradient goes from `#2699a6` (teal) to `#2bd9a8` (bright teal-green), 135deg angle
-- [ ] Page title is font-light (300), NOT font-normal (400) or font-bold (700)
-- [ ] Card title is font-bold (700), NOT font-semibold (600)
-- [ ] Form spacing matches Figma: 20px gaps between field groups, 8px gap between label and input
+- [x] Input border color is gray-300 (`#d1d5db`), NOT gray-200 (`#e5e7eb`) — these are different
+- [x] Card border color is gray-200 (`#e5e7eb` / `border-border`) — matches design token
+- [x] Button background is exactly `#2699a6` (secondary) — NOT primary green
+- [x] Avatar gradient goes from `#2699a6` (teal) to `#2bd9a8` (bright teal-green), 135deg angle
+- [x] Page title is font-light (300), NOT font-normal (400) or font-bold (700)
+- [x] Card title is font-bold (700), NOT font-semibold (600)
+- [x] Form spacing matches Figma: 20px gaps between field groups, 8px gap between label and input
 
 ---
 
 ### Phase 3 Manual Testing — Backend Functionality
 
 #### Profile Update (Save Changes)
-- [ ] Edit First Name → click "Save Changes" → button shows "Saving..." while submitting
-- [ ] After save, page refreshes with updated name; sidebar avatar initials update to match
-- [ ] Edit Last Name → save → name updates everywhere (sidebar, page)
-- [ ] Edit Phone Number → save → phone updates on reload
-- [ ] Leave a required field empty → appropriate error message appears
-- [ ] Success message appears after successful save (inline banner or toast)
+- [x] Edit First Name → click "Save Changes" → button shows "Saving..." while submitting
+- [x] After save, page refreshes with updated name; sidebar avatar initials update to match
+- [x] Edit Last Name → save → name updates everywhere (sidebar, page)
+- [x] Edit Phone Number → save → phone updates on reload
+- [x] Leave a required field empty → appropriate error message appears
+- [x] Success message appears after successful save (inline banner or toast)
 
 #### Password Change (Update Password)
-- [ ] Enter wrong current password → error "Current password is incorrect" or similar
-- [ ] Enter mismatched new passwords → client-side validation "Passwords do not match"
-- [ ] Enter short new password → validation error for minimum length
-- [ ] Enter correct current password + matching new passwords → success message
-- [ ] After password change, session remains valid (no forced logout)
+- [x] Enter wrong current password → error "Current password is incorrect" or similar
+- [x] Enter mismatched new passwords → client-side validation "Passwords do not match"
+- [x] Enter short new password → validation error for minimum length
+- [x] Enter correct current password + matching new passwords → success message
+- [x] After password change, session remains valid (no forced logout)
 
 #### Read-Only / Placeholder Fields
-- [ ] Email field: cannot be edited; shows helper text about contacting support
-- [ ] Date of Birth: either functional (if metafield implemented) or shows as disabled with note
-- [ ] "Change Photo" button: disabled state or shows "Coming soon" tooltip
+- [x] Email field: cannot be edited; shows helper text about contacting support
+- [x] Date of Birth: either functional (if metafield implemented) or shows as disabled with note
+- [x] "Change Photo" button: disabled state or shows "Coming soon" tooltip
 
 ---
 
@@ -237,9 +237,9 @@ h2: text-lg font-bold text-gray-900
 ### Phase 5 Manual Testing — Polish
 
 - [ ] Loading skeleton: navigate to `/account/settings` with slow network → skeleton placeholders visible
-- [ ] Form validation: submit empty password form → no submission, validation errors shown
-- [ ] Form validation: password mismatch → "Passwords do not match" error
-- [ ] Visual comparison: Playwright screenshot at 1440px matches Figma design
+- [x] Form validation: submit empty password form → no submission, validation errors shown
+- [x] Form validation: password mismatch → "Passwords do not match" error
+- [X] Visual comparison: Playwright screenshot at 1440px matches Figma design
 
 ---
 
