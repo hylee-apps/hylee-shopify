@@ -2,6 +2,7 @@
 
 import {useState} from 'react';
 import {Link} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import {Image, CartForm} from '@shopify/hydrogen';
 import type {
   Product,
@@ -11,6 +12,12 @@ import {ImageIcon, Heart, Plus} from 'lucide-react';
 import {AddToCart} from './AddToCart';
 import {Button} from '~/components/ui/button';
 import {FaceIcon, toFaceRating} from './FaceRating';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '~/components/ui/tooltip';
 
 // ============================================================================
 // Types
@@ -133,6 +140,7 @@ export function ProductCardPlaceholder({
   customBadge,
   className = '',
 }: ProductCardPlaceholderProps) {
+  const {t} = useTranslation();
   return (
     <article className={`group flex flex-col ${className}`}>
       {/* Image */}
@@ -148,7 +156,7 @@ export function ProductCardPlaceholder({
         <button
           type="button"
           className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-text-muted hover:text-primary transition-colors"
-          aria-label="Add to wishlist"
+          aria-label={t('productCard.addToWishlist')}
         >
           <Heart size={18} />
         </button>
@@ -182,7 +190,10 @@ export function ProductCard({
   lazyLoad = true,
   className = '',
   collectionHandle,
+  customBadge,
+  customBadgeColor,
 }: ProductCardProps) {
+  const {t} = useTranslation();
   const [isHovered, setIsHovered] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
 
@@ -224,7 +235,7 @@ export function ProductCard({
       compareAtPrice &&
       parseFloat(compareAtPrice.amount) > parseFloat(price?.amount ?? '0');
 
-    // Badge logic: Sale/discount > New > Best Seller
+    // Badge priority: Sale/discount > tag:new > tag:best-seller > customBadge
     // Colors: discount=orange #f2b05e, new=primary green, best-seller=secondary teal
     let badgeText: string | null = null;
     let badgeBg = 'bg-[#f2b05e]'; // default: orange for sale/discount
@@ -241,6 +252,9 @@ export function ProductCard({
     } else if (product.tags?.includes('best-seller')) {
       badgeText = 'Best Seller';
       badgeBg = 'bg-secondary';
+    } else if (customBadge) {
+      badgeText = customBadge;
+      badgeBg = customBadgeColor ?? 'bg-primary';
     }
 
     const ratingMeta = product.metafields?.find((m) => m?.key === 'rating');
@@ -287,7 +301,11 @@ export function ProductCard({
           <button
             type="button"
             onClick={() => setWishlisted(!wishlisted)}
-            aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            aria-label={
+              wishlisted
+                ? t('productCard.removeFromWishlist')
+                : t('productCard.addToWishlist')
+            }
             className="absolute right-3 top-3 flex items-center justify-center size-8 rounded-full bg-white/90 transition-colors hover:bg-white"
           >
             <Heart
@@ -299,12 +317,7 @@ export function ProductCard({
         </div>
 
         {/* Product info */}
-        <div className="p-4 flex flex-col gap-1">
-          {/* Brand */}
-          <p className="text-[12px] font-semibold text-[#6b7280] tracking-[0.5px] uppercase leading-[18px] truncate">
-            {product.vendor}
-          </p>
-
+        <div className="p-4 flex flex-col gap-1 flex-1">
           {/* Name */}
           <h3 className="text-[15px] font-medium text-[#111827] leading-[21px] line-clamp-2">
             <Link
@@ -318,7 +331,6 @@ export function ProductCard({
           {/* Stars + count */}
           {starRating !== null && (
             <div className="flex items-center gap-1 pt-1">
-              {/* Render 5 stars: filled up to rounded rating, empty beyond */}
               <span className="text-[#f2b05e] text-[12px] leading-none tracking-[1px]">
                 {'★'.repeat(Math.round(starRating))}
                 {'☆'.repeat(5 - Math.round(starRating))}
@@ -347,6 +359,49 @@ export function ProductCard({
               )}
             </div>
           )}
+
+          {/* CTAs — pinned to card bottom */}
+          <div className="mt-auto pt-3 flex flex-col gap-2">
+            {isSoldOut ? (
+              <button
+                disabled
+                className="w-full rounded-[8px] bg-[#f3f4f6] py-2 text-[13px] font-medium text-[#9ca3af] cursor-not-allowed"
+              >
+                {t('addToCart.soldOut')}
+              </button>
+            ) : (
+              <CartForm
+                route="/cart"
+                action={CartForm.ACTIONS.LinesAdd}
+                inputs={{
+                  lines: [{merchandiseId: firstVariant?.id ?? '', quantity: 1}],
+                }}
+              >
+                {() => (
+                  <button
+                    type="submit"
+                    className="w-full rounded-[8px] bg-secondary py-2 text-[13px] font-semibold text-white transition-colors hover:bg-secondary/90"
+                  >
+                    {t('addToCart.idle')}
+                  </button>
+                )}
+              </CartForm>
+            )}
+            <button
+              type="button"
+              onClick={() => setWishlisted(!wishlisted)}
+              className="flex items-center justify-center gap-1.5 py-1 text-[12px] font-medium text-[#6b7280] transition-colors hover:text-primary"
+            >
+              <Heart
+                size={13}
+                fill={wishlisted ? 'currentColor' : 'none'}
+                className={wishlisted ? 'text-primary' : ''}
+              />
+              {wishlisted
+                ? t('productCard.wishlisted')
+                : t('productCard.addToWishlist')}
+            </button>
+          </div>
         </div>
       </article>
     );
@@ -394,11 +449,13 @@ export function ProductCard({
               className="bg-secondary hover:bg-secondary/90 rounded-[25px] h-10 px-5 has-[>svg]:px-5 text-white gap-2.5 [&_svg:not([class*='size-'])]:size-6.25"
             >
               {isSoldOut ? (
-                'Sold Out'
+                t('addToCart.soldOut')
               ) : (
                 <>
                   <Plus className="text-white" />
-                  <span className="text-[14px] font-medium">Add</span>
+                  <span className="text-[14px] font-medium">
+                    {t('productCard.add')}
+                  </span>
                 </>
               )}
             </Button>
@@ -473,7 +530,11 @@ export function ProductCard({
           type="button"
           onClick={() => setWishlisted(!wishlisted)}
           className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-text-muted hover:text-primary transition-colors"
-          aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+          aria-label={
+            wishlisted
+              ? t('productCard.removeFromWishlist')
+              : t('productCard.addToWishlist')
+          }
         >
           <Heart
             size={18}
@@ -484,40 +545,32 @@ export function ProductCard({
       </div>
 
       {/* Product Info */}
-      <div className="mt-3 space-y-1">
-        {/* Title + Price row */}
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="text-sm font-semibold text-dark line-clamp-1">
-            <Link to={productUrl} className="hover:text-primary">
+      <div className="mt-3 flex flex-col gap-2">
+        {/* Title — full width, 2-line clamp, tooltip reveals full text on hover */}
+        <TooltipProvider>
+          <Tooltip>
+            <h3 className="w-full text-sm font-semibold text-dark line-clamp-2">
+              <TooltipTrigger asChild>
+                <Link to={productUrl} className="hover:text-primary">
+                  {product.title}
+                </Link>
+              </TooltipTrigger>
+            </h3>
+            <TooltipContent side="top" className="max-w-[220px] text-center">
               {product.title}
-            </Link>
-          </h3>
-          {price && (
-            <span className="shrink-0 text-sm font-bold text-dark">
-              {formatPrice(price.amount, price.currencyCode)}
-            </span>
-          )}
-        </div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
-        {/* Variant subtitle */}
-        {variantCount > 1 && (
-          <p className="text-xs text-text-muted">
-            {variantCount} types available
+        {/* Price — centered */}
+        {price && (
+          <p className="text-center text-sm font-bold text-dark">
+            {formatPrice(price.amount, price.currencyCode)}
           </p>
-        )}
-
-        {/* Rating */}
-        {showRating && rating !== null && (
-          <div className="flex items-center gap-1">
-            <FaceIcon value={toFaceRating(rating)} size={14} showLabel />
-            {reviewCount !== undefined && (
-              <span className="text-xs text-text-muted">({reviewCount})</span>
-            )}
-          </div>
         )}
       </div>
 
-      {/* Actions: Add To Cart + Add Shortlist */}
+      {/* CTAs */}
       {showQuickAdd && (
         <div className="mt-3 flex items-center gap-3">
           {isSoldOut ? (
@@ -525,7 +578,7 @@ export function ProductCard({
               disabled
               className="rounded-md bg-surface px-4 py-2 text-xs font-medium text-text-muted"
             >
-              Sold Out
+              {t('addToCart.soldOut')}
             </button>
           ) : (
             <AddToCart
@@ -534,7 +587,7 @@ export function ProductCard({
               size="sm"
               className="!rounded-md !px-4 !py-2 !text-xs"
             >
-              Add To Cart
+              {t('addToCart.idle')}
             </AddToCart>
           )}
           <button
@@ -542,7 +595,7 @@ export function ProductCard({
             className="text-xs font-medium text-text-muted hover:text-primary transition-colors"
             onClick={() => setWishlisted(!wishlisted)}
           >
-            Add Shortlist
+            {t('productCard.addShortlist')}
           </button>
         </div>
       )}

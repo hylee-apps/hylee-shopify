@@ -415,7 +415,7 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
   );
 
   return (
-    <div className="mx-auto max-w-300 px-4 py-6 sm:px-6">
+    <div className="mx-auto max-w-screen-2xl px-4 py-6 sm:px-6 lg:px-8">
       {/* ── Breadcrumb ── */}
       <div className="mb-5">
         <Breadcrumb>

@@ -1,6 +1,7 @@
 import type {Route} from './+types/search';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {useLoaderData, useSearchParams, Form, Link} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import {Search} from 'lucide-react';
 import {Button} from '~/components/ui/button';
 import {Input} from '~/components/ui/input';
@@ -87,6 +88,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
 // ============================================================================
 
 export default function SearchPage() {
+  const {t} = useTranslation();
   const {searchTerm, products, totalCount, page, pageSize} =
     useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
@@ -94,17 +96,17 @@ export default function SearchPage() {
   const totalPages = pageSize > 0 ? Math.ceil(totalCount / pageSize) : 1;
 
   return (
-    <div className="mx-auto max-w-300 px-4 py-8 sm:px-6">
+    <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
       <Breadcrumb className="mb-6">
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
+              <Link to="/">{t('search.breadcrumb.home')}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Search</BreadcrumbPage>
+            <BreadcrumbPage>{t('search.breadcrumb.search')}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -114,8 +116,8 @@ export default function SearchPage() {
         <>
           <p className="mb-6 text-text-muted">
             {totalCount > 0
-              ? `${totalCount} result${totalCount !== 1 ? 's' : ''} for "${searchTerm}"`
-              : `No results for "${searchTerm}"`}
+              ? t('search.results_other', {count: totalCount, term: searchTerm})
+              : t('search.noResults', {term: searchTerm})}
           </p>
 
           {products && products.length > 0 ? (
@@ -136,9 +138,7 @@ export default function SearchPage() {
       ) : (
         <div className="py-12 text-center">
           <Search size={64} className="mx-auto mb-4 text-text-muted" />
-          <p className="text-lg text-text-muted">
-            Enter a search term to find products
-          </p>
+          <p className="text-lg text-text-muted">{t('search.enterTerm')}</p>
         </div>
       )}
     </div>
@@ -150,6 +150,7 @@ export default function SearchPage() {
 // ============================================================================
 
 function SearchForm({defaultValue = ''}: {defaultValue?: string}) {
+  const {t} = useTranslation();
   return (
     <Form method="get" action="/search" className="flex max-w-2xl gap-2">
       <div className="relative flex-1">
@@ -161,14 +162,14 @@ function SearchForm({defaultValue = ''}: {defaultValue?: string}) {
           type="search"
           name="q"
           defaultValue={defaultValue}
-          placeholder="Search products..."
+          placeholder={t('search.placeholder')}
           autoComplete="off"
           className="pl-10"
           data-testid="search-input"
         />
       </div>
       <Button type="submit" data-testid="search-submit">
-        Search
+        {t('search.submit')}
       </Button>
     </Form>
   );
@@ -256,25 +257,26 @@ function SearchPagination({
   totalPages: number;
   searchTerm: string;
 }) {
+  const {t} = useTranslation();
   const buildUrl = (pg: number) =>
     `/search?q=${encodeURIComponent(searchTerm)}&pg=${pg}`;
 
   return (
     <nav
       className="mt-8 flex items-center justify-center gap-2"
-      aria-label="Search result pages"
+      aria-label={t('search.resultPages')}
     >
       {page > 1 && (
         <Button variant="outline" asChild size="sm">
-          <Link to={buildUrl(page - 1)}>Previous</Link>
+          <Link to={buildUrl(page - 1)}>{t('search.pagination.previous')}</Link>
         </Button>
       )}
       <span className="text-sm text-text-muted">
-        Page {page} of {totalPages}
+        {t('search.pagination.page', {page, total: totalPages})}
       </span>
       {page < totalPages && (
         <Button variant="outline" asChild size="sm">
-          <Link to={buildUrl(page + 1)}>Next</Link>
+          <Link to={buildUrl(page + 1)}>{t('search.pagination.next')}</Link>
         </Button>
       )}
     </nav>
@@ -286,19 +288,21 @@ function SearchPagination({
 // ============================================================================
 
 function EmptySearchResults({searchTerm}: {searchTerm: string}) {
+  const {t} = useTranslation();
   return (
     <div
       className="flex flex-col items-center py-16 text-center"
       data-testid="search-empty"
     >
       <Search size={64} className="mb-4 text-text-muted" />
-      <h2 className="mb-2 text-xl font-semibold text-dark">No results found</h2>
+      <h2 className="mb-2 text-xl font-semibold text-dark">
+        {t('search.noResultsHeading')}
+      </h2>
       <p className="mb-6 max-w-md text-text-muted">
-        We couldn&apos;t find anything for &ldquo;{searchTerm}&rdquo;. Try
-        checking your spelling or using different search terms.
+        {t('search.noResultsBody', {term: searchTerm})}
       </p>
       <Button variant="secondary" asChild>
-        <Link to="/collections">Browse Collections</Link>
+        <Link to="/collections">{t('search.browseCollections')}</Link>
       </Button>
     </div>
   );

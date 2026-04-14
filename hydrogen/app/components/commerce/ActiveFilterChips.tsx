@@ -1,6 +1,7 @@
 'use client';
 
 import {useLocation} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import type {Filter} from '@shopify/hydrogen/storefront-api-types';
 import {X} from 'lucide-react';
 import {Link} from 'react-router';
@@ -36,6 +37,7 @@ export function ActiveFilterChips({
   searchParams,
   className = '',
 }: ActiveFilterChipsProps) {
+  const {t} = useTranslation();
   const {pathname} = useLocation();
 
   const activeInputs = searchParams.getAll('filter');
@@ -80,7 +82,7 @@ export function ActiveFilterChips({
           to={chip.removeUrl}
           preventScrollReset
           className="bg-secondary/10 px-[12px] py-[8px] rounded-[20px] flex gap-[8px] items-center hover:bg-secondary/20 transition-colors no-underline"
-          aria-label={`Remove filter: ${chip.label}`}
+          aria-label={t('filter.removeFilter', {label: chip.label})}
         >
           <span className="text-[13px] text-secondary leading-[19.5px]">
             {chip.label}
@@ -95,7 +97,7 @@ export function ActiveFilterChips({
         preventScrollReset
         className="px-[8px] py-[10px] rounded-[8px] font-medium text-[13px] text-secondary hover:text-secondary/80 transition-colors no-underline"
       >
-        Clear all
+        {t('filter.clearAll')}
       </Link>
     </div>
   );

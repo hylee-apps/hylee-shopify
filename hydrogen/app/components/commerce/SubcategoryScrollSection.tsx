@@ -20,15 +20,14 @@ interface SubcategoryScrollSectionProps {
   subcollections: SubcollectionNode[];
 }
 
-const SCROLL_AMOUNT = 140; // 120px tile + 20px gap
+const TILE_SIZE = 180;
+const SCROLL_AMOUNT = TILE_SIZE * 3 + 20 * 3; // 3 tiles + gaps per scroll step
 
 /**
  * SubcategoryScrollSection — horizontal scroll row of subcategory tiles.
  *
- * Figma: file LXJLDI1fRXble63hVJcg7A, node 5006:698
- * - "Categories" heading (20px medium #111827) + prev/next circular arrow buttons
- * - Horizontal overflow scroll, scrollbar hidden
- * - Each tile: 120×120px square rounded-[8px] image + 13px label below
+ * Tiles are 180×180px with object-contain so the entire image is always
+ * visible without cropping.
  */
 export function SubcategoryScrollSection({
   subcollections,
@@ -38,18 +37,18 @@ export function SubcategoryScrollSection({
   if (!subcollections.length) return null;
 
   function scrollLeft() {
-    scrollRef.current?.scrollBy({left: -SCROLL_AMOUNT * 3, behavior: 'smooth'});
+    scrollRef.current?.scrollBy({left: -SCROLL_AMOUNT, behavior: 'smooth'});
   }
 
   function scrollRight() {
-    scrollRef.current?.scrollBy({left: SCROLL_AMOUNT * 3, behavior: 'smooth'});
+    scrollRef.current?.scrollBy({left: SCROLL_AMOUNT, behavior: 'smooth'});
   }
 
   return (
-    <section className="max-w-350 mx-auto w-full px-6 pb-8">
+    <section className="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-8">
       {/* Section header */}
       <div className="flex items-center justify-between mb-5">
-        <h2 className="font-medium text-[20px] text-[#111827] leading-[30px]">
+        <h2 className="font-semibold text-[20px] text-[#111827] leading-[30px]">
           Categories
         </h2>
         {/* Scroll controls */}
@@ -82,26 +81,32 @@ export function SubcategoryScrollSection({
           <Link
             key={sub.handle}
             to={`/collections/${sub.handle}`}
-            className="flex flex-col items-center gap-[11px] shrink-0 group"
+            className="flex flex-col items-center gap-3 shrink-0 group"
           >
-            {/* Square image tile — 120×120px, rounded-[8px] */}
-            <div className="size-[120px] rounded-[8px] bg-[#f3f4f6] shadow-sm overflow-hidden">
+            {/* Square image tile — 180×180px, object-contain so full image shows */}
+            <div
+              className="flex items-center justify-center"
+              style={{width: TILE_SIZE, height: TILE_SIZE}}
+            >
               {sub.image ? (
                 <Image
                   data={sub.image}
                   aspectRatio="1/1"
-                  sizes="120px"
-                  className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                  sizes={`${TILE_SIZE}px`}
+                  className="w-full h-full object-contain rounded-[12px] transition-transform duration-200 group-hover:scale-105"
                 />
               ) : (
-                <div className="flex w-full h-full items-center justify-center text-[#9ca3af] text-xs font-medium">
+                <div className="flex w-full h-full items-center justify-center rounded-[12px] bg-[#f3f4f6] text-[#9ca3af] text-sm font-medium">
                   {sub.title.slice(0, 2).toUpperCase()}
                 </div>
               )}
             </div>
 
             {/* Label */}
-            <span className="font-medium text-[13px] text-[#374151] text-center leading-[1.3] max-w-[120px] group-hover:text-[#111827] transition-colors">
+            <span
+              className="font-medium text-[14px] text-[#374151] text-center leading-[1.3] group-hover:text-[#111827] transition-colors"
+              style={{maxWidth: TILE_SIZE}}
+            >
               {sub.title}
             </span>
           </Link>

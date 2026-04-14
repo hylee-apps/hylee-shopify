@@ -15,7 +15,7 @@ export interface AppliedFilter {
 }
 
 export interface SortOption {
-  label: string;
+  labelKey: string;
   value: string;
   sortKey: ProductCollectionSortKeys;
   reverse: boolean;
@@ -26,27 +26,32 @@ export interface SortOption {
 // ============================================================================
 
 export const SORT_OPTIONS: SortOption[] = [
-  {label: 'Relevance', value: 'manual', sortKey: 'MANUAL', reverse: false},
   {
-    label: 'Most Popular',
+    labelKey: 'sort.relevance',
+    value: 'manual',
+    sortKey: 'MANUAL',
+    reverse: false,
+  },
+  {
+    labelKey: 'sort.mostPopular',
     value: 'best-selling',
     sortKey: 'BEST_SELLING',
     reverse: false,
   },
   {
-    label: 'Price: Low to High',
+    labelKey: 'sort.priceLowToHigh',
     value: 'price-asc',
     sortKey: 'PRICE',
     reverse: false,
   },
   {
-    label: 'Price: High to Low',
+    labelKey: 'sort.priceHighToLow',
     value: 'price-desc',
     sortKey: 'PRICE',
     reverse: true,
   },
-  {label: 'Newest', value: 'newest', sortKey: 'CREATED', reverse: true},
-  {label: 'A-Z', value: 'title-asc', sortKey: 'TITLE', reverse: false},
+  {labelKey: 'sort.newest', value: 'newest', sortKey: 'CREATED', reverse: true},
+  {labelKey: 'sort.aZ', value: 'title-asc', sortKey: 'TITLE', reverse: false},
 ];
 
 const DEFAULT_SORT = SORT_OPTIONS[0];

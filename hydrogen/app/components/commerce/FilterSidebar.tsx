@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import {useTranslation} from 'react-i18next';
 import {Link, useLocation, useNavigate} from 'react-router';
 import type {Filter} from '@shopify/hydrogen/storefront-api-types';
 import {
@@ -128,6 +129,7 @@ interface PriceRangeFilterProps {
 function PriceRangeFilter({presetValues, searchParams}: PriceRangeFilterProps) {
   const {pathname} = useLocation();
   const navigate = useNavigate();
+  const {t} = useTranslation();
 
   // Parse current custom price filter from URL
   let initialMin = '';
@@ -169,7 +171,7 @@ function PriceRangeFilter({presetValues, searchParams}: PriceRangeFilterProps) {
           type="number"
           value={minVal}
           onChange={(e) => setMinVal(e.target.value)}
-          placeholder="Min"
+          placeholder={t('filter.min')}
           min={0}
           className="w-[80px] h-[34px] border-[#d1d5db] rounded-[8px] text-[14px] text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
@@ -178,7 +180,7 @@ function PriceRangeFilter({presetValues, searchParams}: PriceRangeFilterProps) {
           type="number"
           value={maxVal}
           onChange={(e) => setMaxVal(e.target.value)}
-          placeholder="Max"
+          placeholder={t('filter.max')}
           min={0}
           className="w-[80px] h-[34px] border-[#d1d5db] rounded-[8px] text-[14px] text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
@@ -190,7 +192,7 @@ function PriceRangeFilter({presetValues, searchParams}: PriceRangeFilterProps) {
         onClick={handleApply}
         className="w-full bg-[#2699a6] hover:bg-[#2699a6]/90 transition-colors rounded-[8px] px-[16px] py-[8px] font-medium text-[13px] text-white text-center"
       >
-        Apply
+        {t('filter.apply')}
       </button>
 
       {/* Preset price range checkboxes (rendered only if Shopify returns values) */}
@@ -245,6 +247,7 @@ function ExpandableList({
   filterLabel,
 }: ExpandableListProps) {
   const [showAll, setShowAll] = useState(false);
+  const {t} = useTranslation();
   const activeFilters = searchParams.getAll('filter');
 
   const displayed = showAll ? items : items.slice(0, initialShow);
@@ -286,10 +289,10 @@ function ExpandableList({
           className="mt-2 h-auto px-0 text-secondary"
         >
           {showAll
-            ? 'Show less'
+            ? t('filter.showLess')
             : filterLabel
-              ? `Show more ${filterLabel}s`
-              : `Show ${items.length - initialShow} more`}
+              ? t('filter.showMore', {label: filterLabel})
+              : t('filter.showMoreCount', {count: items.length - initialShow})}
         </Button>
       )}
     </div>
@@ -430,6 +433,7 @@ export function FilterSidebar({
   onClose,
   className = '',
 }: FilterSidebarProps) {
+  const {t} = useTranslation();
   const {pathname, search} = useLocation();
   const searchParams = new URLSearchParams(search);
   const hasActiveFilters = searchParams.getAll('filter').length > 0;
@@ -451,14 +455,14 @@ export function FilterSidebar({
           {/* Sidebar header — "Filters" + × clear */}
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-[16px] text-[#1f2937] leading-[24px]">
-              Filters
+              {t('toolbar.filters')}
             </h2>
             {hasActiveFilters && (
               <Link
                 to={clearAllLink}
                 preventScrollReset
                 className="p-[4px] rounded-[8px] hover:bg-[#f3f4f6] transition-colors"
-                aria-label="Clear all filters"
+                aria-label={t('filter.clearAll')}
               >
                 <X size={13} className="text-secondary" />
               </Link>
@@ -479,11 +483,11 @@ export function FilterSidebar({
       {/* ------------------------------------------------------------------ */}
       <Sheet open={isOpen} onOpenChange={(open) => !open && onClose?.()}>
         <SheetContent side="left" className="w-80 overflow-y-auto pt-10">
-          <SheetTitle className="sr-only">Filters</SheetTitle>
+          <SheetTitle className="sr-only">{t('toolbar.filters')}</SheetTitle>
           {/* Mobile sheet header */}
           <div className="flex items-center justify-between border-b border-[#e5e7eb] pb-4 mb-2">
             <h2 className="font-semibold text-[16px] text-[#1f2937] leading-[24px]">
-              Filters
+              {t('toolbar.filters')}
             </h2>
             {hasActiveFilters && (
               <Link
@@ -491,7 +495,7 @@ export function FilterSidebar({
                 preventScrollReset
                 onClick={onClose}
                 className="p-[4px] rounded-[8px] hover:bg-[#f3f4f6] transition-colors"
-                aria-label="Clear all filters"
+                aria-label={t('filter.clearAll')}
               >
                 <X size={13} className="text-secondary" />
               </Link>

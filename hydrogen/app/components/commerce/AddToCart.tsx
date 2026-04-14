@@ -4,6 +4,7 @@ import {useState, useCallback, useEffect} from 'react';
 import {useFetcher} from 'react-router';
 import {CartForm} from '@shopify/hydrogen';
 import {Loader2, Check, X} from 'lucide-react';
+import {useTranslation} from 'react-i18next';
 import {Button} from '~/components/ui/button';
 
 // ============================================================================
@@ -58,7 +59,7 @@ export function AddToCart({
   variantId,
   quantity = 1,
   available = true,
-  children = 'Add to Cart',
+  children,
   size = 'md',
   variant = 'primary',
   fullWidth = false,
@@ -66,6 +67,7 @@ export function AddToCart({
   onSuccess,
   analytics,
 }: AddToCartProps) {
+  const {t} = useTranslation();
   const fetcher = useFetcher();
   const [buttonState, setButtonState] = useState<ButtonState>('idle');
 
@@ -119,30 +121,30 @@ export function AddToCart({
               size={size === 'sm' ? 14 : size === 'lg' ? 20 : 16}
               className="animate-spin"
             />
-            <span>Adding...</span>
+            <span>{t('addToCart.adding')}</span>
           </>
         );
       case 'success':
         return (
           <>
             <Check size={size === 'sm' ? 14 : size === 'lg' ? 20 : 16} />
-            <span>Added!</span>
+            <span>{t('addToCart.added')}</span>
           </>
         );
       case 'error':
         return (
           <>
             <X size={size === 'sm' ? 14 : size === 'lg' ? 20 : 16} />
-            <span>Error</span>
+            <span>{t('addToCart.error')}</span>
           </>
         );
       default:
         if (!available) {
-          return <span>Sold Out</span>;
+          return <span>{t('addToCart.soldOut')}</span>;
         }
-        return <span>{children}</span>;
+        return <span>{children ?? t('addToCart.idle')}</span>;
     }
-  }, [buttonState, available, children, size]);
+  }, [buttonState, available, children, size, t]);
 
   const lines = [{merchandiseId: variantId, quantity}];
 
@@ -164,7 +166,9 @@ export function AddToCart({
             type="submit"
             disabled={isDisabled}
             className={`rounded-md ${sizeClasses[size]} ${variantClasses[variant]} ${fullWidth ? 'w-full' : ''} ${className}`}
-            aria-label={available ? 'Add to cart' : 'Sold out'}
+            aria-label={
+              available ? t('addToCart.ariaLabel') : t('addToCart.soldOutAria')
+            }
           >
             {buttonContent()}
           </Button>
