@@ -11,6 +11,7 @@ import {
   type MoneyLike,
 } from '~/components/commerce/PriceDisplay';
 import {Star, ShoppingCart, ImageIcon, Plus, Smile, Frown} from 'lucide-react';
+import {ProductCard} from '~/components/commerce/ProductCard';
 import {
   FaceIcon,
   FaceRatingSummary,
@@ -220,18 +221,47 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
       id
       title
       handle
+      vendor
+      availableForSale
+      tags
       priceRange {
         minVariantPrice {
           amount
           currencyCode
         }
       }
-      featuredImage {
-        id
-        url
-        altText
-        width
-        height
+      compareAtPriceRange {
+        minVariantPrice {
+          amount
+          currencyCode
+        }
+      }
+      images(first: 2) {
+        nodes {
+          id
+          url
+          altText
+          width
+          height
+        }
+      }
+      variants(first: 1) {
+        nodes {
+          id
+          availableForSale
+          price {
+            amount
+            currencyCode
+          }
+          compareAtPrice {
+            amount
+            currencyCode
+          }
+          selectedOptions {
+            name
+            value
+          }
+        }
       }
     }
   }
@@ -917,61 +947,16 @@ function ReviewsSection({
 // Recommended Products
 // ============================================================================
 
-interface RecommendedProduct {
-  id: string;
-  title: string;
-  handle: string;
-  priceRange: {
-    minVariantPrice: {
-      amount: string;
-      currencyCode: string;
-    };
-  };
-  featuredImage?: {
-    id?: string | null;
-    url: string;
-    altText?: string | null;
-    width?: number | null;
-    height?: number | null;
-  } | null;
-}
-
-function RecommendedProducts({products}: {products: RecommendedProduct[]}) {
+function RecommendedProducts({
+  products,
+}: {
+  products: Parameters<typeof ProductCard>[0]['product'][];
+}) {
   if (!products.length) return null;
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
-      {products.slice(0, 4).map((product) => (
-        <a
-          key={product.id}
-          href={`/products/${product.handle}`}
-          className="group block"
-        >
-          <div className="aspect-square overflow-hidden rounded-lg bg-surface mb-3">
-            {product.featuredImage ? (
-              <Image
-                data={product.featuredImage}
-                aspectRatio="1/1"
-                sizes="(min-width: 768px) 25vw, 50vw"
-                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <ImageIcon size={32} className="text-text-muted" />
-              </div>
-            )}
-          </div>
-          <h3 className="text-sm font-medium text-text group-hover:text-primary transition-colors line-clamp-2">
-            {product.title}
-          </h3>
-          <PriceDisplay
-            price={{
-              amount: product.priceRange.minVariantPrice.amount,
-              currencyCode: product.priceRange.minVariantPrice.currencyCode,
-            }}
-            size="sm"
-            className="mt-1"
-          />
-        </a>
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6">
+      {products.slice(0, 5).map((product) => (
+        <ProductCard key={product.id} product={product} size="end-node" />
       ))}
     </div>
   );
@@ -979,12 +964,18 @@ function RecommendedProducts({products}: {products: RecommendedProduct[]}) {
 
 function RecommendedProductsSkeleton() {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
-      {Array.from({length: 4}).map((_, i) => (
-        <div key={i}>
-          <Skeleton className="aspect-square rounded-lg mb-3" />
-          <Skeleton className="h-4 w-3/4 mb-2" />
-          <Skeleton className="h-4 w-1/2" />
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6">
+      {Array.from({length: 5}).map((_, i) => (
+        <div
+          key={i}
+          className="flex flex-col rounded-[12px] border border-[#e5e7eb] overflow-hidden"
+        >
+          <Skeleton className="h-[250px] w-full rounded-none" />
+          <div className="p-4 flex flex-col gap-2">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-8 w-full mt-2" />
+          </div>
         </div>
       ))}
     </div>
