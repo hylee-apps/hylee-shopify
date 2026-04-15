@@ -55,7 +55,7 @@ export default function AccountLayout({loaderData}: Route.ComponentProps) {
   }
 
   return (
-    <div className="mx-auto flex max-w-[1200px] flex-col gap-6 px-4 py-6 lg:flex-row lg:gap-8 lg:px-6 lg:py-8">
+    <div className="mx-auto flex max-w-screen-2xl flex-col gap-6 px-4 py-6 lg:flex-row lg:gap-8 lg:px-6 lg:py-8">
       <AccountSidebar
         firstName={customer.firstName}
         lastName={customer.lastName}

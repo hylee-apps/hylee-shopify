@@ -312,6 +312,66 @@
       "savedForLater": "Sauvegardé pour plus tard",
       "viewWishlist": "Voir la liste de souhaits",
       "placedOn": "Passée le {{date}}"
+    },
+    "wishlist": {
+      "pageTitle": "Liste de Souhaits",
+      "cardTitle": "Articles Sauvegardés",
+      "emptyHeading": "Votre liste de souhaits est vide",
+      "emptyBody": "Sauvegardez les articles que vous aimez en cliquant sur l'icône cœur de n'importe quel produit.",
+      "startShopping": "Commencer à Acheter",
+      "remove": "Supprimer",
+      "addToCart": "Ajouter au Panier",
+      "outOfStock": "Rupture de Stock",
+      "itemCount_one": "{{count}} article",
+      "itemCount_other": "{{count}} articles"
+    },
+    "paymentMethods": {
+      "pageTitle": "Moyens de Paiement",
+      "acceptedTitle": "Moyens de Paiement Acceptés",
+      "acceptedBody": "Nous acceptons toutes les principales cartes de crédit et de débit, ainsi que les portefeuilles numériques rapides à la caisse.",
+      "cards": "Cartes de Crédit et de Débit",
+      "digitalWallets": "Portefeuilles Numériques",
+      "shopPayDesc": "Paiement en un clic. Shopify conserve votre carte en toute sécurité pour des commandes futures plus rapides.",
+      "applePayDesc": "Payez avec Face ID ou Touch ID — aucune saisie de carte requise.",
+      "googlePayDesc": "Paiement instantané via vos informations de paiement enregistrées sur Google.",
+      "howItWorksTitle": "Comment votre paiement est protégé",
+      "point1Heading": "Chiffré en transit",
+      "point1Body": "Toutes les données de paiement sont transmises via TLS. Votre numéro de carte ne passe jamais par nos serveurs.",
+      "point2Heading": "PCI DSS Niveau 1",
+      "point2Body": "Shopify est un fournisseur de services PCI Niveau 1 certifié — la norme la plus élevée du secteur.",
+      "point3Heading": "Enregistré à la caisse",
+      "point3Body": "Lorsque vous payez avec Shop Pay, votre moyen de paiement est stocké en toute sécurité pour des achats futurs plus rapides.",
+      "point4Heading": "Jamais stocké par nous",
+      "point4Body": "Hy-lee ne voit ni ne stocke jamais votre numéro de carte, CVV ou informations de paiement complètes.",
+      "shopNow": "Acheter Maintenant"
+    },
+    "notifications": {
+      "pageTitle": "Notifications",
+      "emailCard": {
+        "title": "Notifications par E-mail",
+        "description": "Gérez les e-mails que vous recevez de Hy-lee.",
+        "orderUpdates": {
+          "label": "Mises à Jour des Commandes",
+          "subtext": "Confirmations d'expédition, mises à jour de livraison et changements de statut",
+          "requiredBadge": "Obligatoire"
+        },
+        "marketingEmails": {
+          "label": "E-mails Marketing",
+          "subtext": "Ventes, promotions et nouveautés"
+        },
+        "productRecommendations": {
+          "label": "Recommandations de Produits",
+          "subtext": "Suggestions personnalisées basées sur votre historique d'achats"
+        },
+        "promotionalOffers": {
+          "label": "Offres Promotionnelles",
+          "subtext": "Codes de réduction exclusifs et offres spéciales pour les membres"
+        },
+        "savePreferences": "Enregistrer les Préférences",
+        "saving": "Enregistrement...",
+        "successMessage": "Préférences de notification enregistrées.",
+        "errorMessage": "Échec de l'enregistrement des préférences. Veuillez réessayer."
+      }
     }
   },
   "addresses": {

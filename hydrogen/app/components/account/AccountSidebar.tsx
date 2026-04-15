@@ -32,15 +32,18 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   {labelKey: 'account.nav.dashboard', to: '/account', icon: LayoutDashboard},
   {labelKey: 'account.nav.myOrders', to: '/account/orders', icon: Package},
-  {labelKey: 'account.nav.wishlist', to: '#', icon: Heart, disabled: true},
+  {labelKey: 'account.nav.wishlist', to: '/account/wishlist', icon: Heart},
   {labelKey: 'account.nav.addresses', to: '/account/addresses', icon: MapPin},
   {
     labelKey: 'account.nav.paymentMethods',
-    to: '#',
+    to: '/account/payment-methods',
     icon: CreditCard,
-    disabled: true,
   },
-  {labelKey: 'account.nav.notifications', to: '#', icon: Bell, disabled: true},
+  {
+    labelKey: 'account.nav.notifications',
+    to: '/account/notifications',
+    icon: Bell,
+  },
   {labelKey: 'account.nav.settings', to: '/account/settings', icon: Settings},
 ];
 
