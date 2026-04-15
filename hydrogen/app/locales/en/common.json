@@ -12,7 +12,16 @@
     "register": "Register",
     "signOut": "Sign Out",
     "categoryTitles": {
-      "seasonal": "Seasonal"
+      "seasonal": "Seasonal",
+      "kitchen-dining": "Kitchen & Dining",
+      "furniture": "Furniture",
+      "appliances": "Appliances",
+      "home-appliances": "Home Appliances",
+      "electronics": "Electronics",
+      "bedroom": "Bedroom",
+      "home-garden": "Home & Garden",
+      "outdoor-garden": "Outdoor & Garden",
+      "living-room": "Living Room"
     }
   },
   "header": {

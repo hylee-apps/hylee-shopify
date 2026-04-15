@@ -12,7 +12,16 @@
     "register": "Registrarse",
     "signOut": "Cerrar Sesión",
     "categoryTitles": {
-      "seasonal": "Temporada"
+      "seasonal": "Temporada",
+      "kitchen-dining": "Cocina y Comedor",
+      "furniture": "Muebles",
+      "appliances": "Electrodomésticos",
+      "home-appliances": "Electrodomésticos del Hogar",
+      "electronics": "Electrónica",
+      "bedroom": "Dormitorio",
+      "home-garden": "Hogar y Jardín",
+      "outdoor-garden": "Exterior y Jardín",
+      "living-room": "Sala de Estar"
     }
   },
   "header": {

@@ -12,7 +12,16 @@
     "register": "S'inscrire",
     "signOut": "Se Déconnecter",
     "categoryTitles": {
-      "seasonal": "Saisonnier"
+      "seasonal": "Saisonnier",
+      "kitchen-dining": "Cuisine & Salle à Manger",
+      "furniture": "Mobilier",
+      "appliances": "Électroménager",
+      "home-appliances": "Électroménager Maison",
+      "electronics": "Électronique",
+      "bedroom": "Chambre",
+      "home-garden": "Maison & Jardin",
+      "outdoor-garden": "Extérieur & Jardin",
+      "living-room": "Salon"
     }
   },
   "header": {
