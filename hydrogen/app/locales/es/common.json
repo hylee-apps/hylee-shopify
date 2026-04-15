@@ -11,23 +11,7 @@
     "signIn": "Iniciar Sesión",
     "register": "Registrarse",
     "signOut": "Cerrar Sesión",
-    "categoryTitles": {
-      "seasonal": "Temporada",
-      "kitchen-dining": "Cocina y Comedor",
-      "furniture": "Muebles",
-      "appliances": "Electrodomésticos",
-      "home-appliances": "Electrodomésticos del Hogar",
-      "electronics": "Electrónica",
-      "bedroom": "Dormitorio",
-      "home-garden": "Hogar y Jardín",
-      "outdoor-garden": "Exterior y Jardín",
-      "living-room": "Sala de Estar",
-      "household-appliances": "Electrodomésticos del Hogar",
-      "accent-tables": "Mesas de Acento",
-      "air-fryers": "Freidoras de Aire",
-      "beds-accessories": "Camas y Accesorios",
-      "bridges-routers": "Puentes y Routers"
-    }
+    "categoryTitles": {}
   },
   "header": {
     "openMenu": "Abrir menú",
