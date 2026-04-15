@@ -233,8 +233,6 @@ export function ProductCard({
   // ============================================================================
 
   if (size === 'category' || size === 'end-node') {
-    // end-node is identical to category except image height: 250px vs 203px
-    const imageHeight = size === 'end-node' ? 'h-[250px]' : 'h-[203px]';
     const compareAtPrice = firstVariant?.compareAtPrice;
     const hasDiscount =
       compareAtPrice &&
@@ -276,14 +274,13 @@ export function ProductCard({
         className={`flex flex-col bg-white border border-[#e5e7eb] rounded-[12px] overflow-hidden ${className}`}
       >
         {/* Image area */}
-        <div className={`relative ${imageHeight} w-full bg-[#f3f4f6]`}>
-          <Link to={productUrl} className="block w-full h-full">
+        <div className="relative aspect-square w-full overflow-hidden bg-[#f3f4f6]">
+          <Link to={productUrl} className="absolute inset-0">
             {primaryImage ? (
               <Image
                 data={primaryImage}
-                aspectRatio="1/1"
                 sizes="(min-width: 1280px) 17vw, (min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
                 loading={lazyLoad ? 'lazy' : 'eager'}
               />
             ) : (
@@ -423,14 +420,14 @@ export function ProductCard({
   if (size === 'small') {
     return (
       <article className={`flex flex-col gap-[10px] p-[10px] ${className}`}>
-        {/* Image — aspect ratio from Figma 173×191, fluid width */}
-        <div className="relative aspect-173/191 w-full bg-surface overflow-hidden">
-          <Link to={productUrl}>
+        {/* Image */}
+        <div className="relative aspect-square w-full overflow-hidden bg-surface">
+          <Link to={productUrl} className="absolute inset-0">
             {primaryImage ? (
               <Image
                 data={primaryImage}
                 sizes="(min-width: 768px) 220px, (min-width: 640px) 30vw, 45vw"
-                className="h-full w-full object-cover"
+                className="w-full h-full object-contain"
                 loading={lazyLoad ? 'lazy' : 'eager'}
               />
             ) : (
@@ -503,12 +500,12 @@ export function ProductCard({
     >
       {/* Image Container */}
       <div className="relative aspect-square overflow-hidden rounded-lg bg-surface">
-        <Link to={productUrl}>
+        <Link to={productUrl} className="absolute inset-0">
           {primaryImage ? (
             <>
               <Image
                 data={primaryImage}
-                className={`h-full w-full object-cover transition-opacity duration-300 ${
+                className={`w-full h-full object-contain transition-opacity duration-300 ${
                   hasSecondaryImage && isHovered ? 'opacity-0' : 'opacity-100'
                 }`}
                 loading={lazyLoad ? 'lazy' : 'eager'}
@@ -517,7 +514,7 @@ export function ProductCard({
               {hasSecondaryImage && (
                 <Image
                   data={secondaryImage}
-                  className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+                  className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-300 ${
                     isHovered ? 'opacity-100' : 'opacity-0'
                   }`}
                   loading="lazy"

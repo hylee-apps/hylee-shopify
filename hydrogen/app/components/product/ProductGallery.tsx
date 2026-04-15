@@ -4,7 +4,6 @@ import {useState, useCallback, useRef} from 'react';
 import {Image} from '@shopify/hydrogen';
 import type {ProductVariant} from '@shopify/hydrogen/storefront-api-types';
 import {ImageIcon, ChevronLeft, ChevronRight} from 'lucide-react';
-import {ScrollArea} from '~/components/ui/scroll-area';
 
 // ============================================================================
 // Types
@@ -106,30 +105,28 @@ export function ProductGallery({
       <div className={`flex flex-row gap-3 ${className}`}>
         {/* Vertical Thumbnail Strip */}
         {hasMultipleImages && (
-          <ScrollArea className="max-h-99.25">
-            <div className="flex flex-col gap-2.5 pr-1">
-              {images.map((image, index) => (
-                <button
-                  key={image.id}
-                  onClick={() => goToImage(index)}
-                  className={`relative shrink-0 w-15.75 h-18 rounded-[11px] overflow-hidden border-2 transition-colors ${
-                    index === currentIndex
-                      ? 'border-secondary'
-                      : 'border-transparent hover:border-secondary/50'
-                  }`}
-                  aria-label={`View image ${index + 1}`}
-                  aria-current={index === currentIndex}
-                >
-                  <Image
-                    data={image}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    sizes="63px"
-                  />
-                </button>
-              ))}
-            </div>
-          </ScrollArea>
+          <div className="flex max-h-120.5 flex-col gap-2.5 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {images.map((image, index) => (
+              <button
+                key={image.id}
+                onClick={() => goToImage(index)}
+                className={`relative shrink-0 w-15.75 h-18 rounded-[11px] overflow-hidden border-2 transition-colors ${
+                  index === currentIndex
+                    ? 'border-secondary'
+                    : 'border-transparent hover:border-secondary/50'
+                }`}
+                aria-label={`View image ${index + 1}`}
+                aria-current={index === currentIndex}
+              >
+                <Image
+                  data={image}
+                  className="w-full h-full object-contain"
+                  loading="lazy"
+                  sizes="63px"
+                />
+              </button>
+            ))}
+          </div>
         )}
 
         {/* Main Image */}
@@ -140,16 +137,16 @@ export function ProductGallery({
           tabIndex={0}
           onKeyDown={handleKeyDown}
         >
-          <div className="relative aspect-[345/397] rounded-[13px] overflow-hidden border border-[#edf0f8] bg-surface">
+          <div className="rounded-[13px] overflow-hidden border border-[#edf0f8] bg-surface">
             {currentImage ? (
               <Image
                 data={currentImage}
-                className="w-full h-full object-cover"
+                className="w-full h-auto"
                 loading="eager"
                 sizes="(min-width: 1024px) 33vw, 100vw"
               />
             ) : (
-              <div className="flex items-center justify-center h-full text-text-muted">
+              <div className="flex items-center justify-center min-h-[300px] text-text-muted">
                 <ImageIcon size={64} />
               </div>
             )}
@@ -169,16 +166,16 @@ export function ProductGallery({
         tabIndex={0}
         onKeyDown={handleKeyDown}
       >
-        <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-surface">
+        <div className="rounded-lg overflow-hidden bg-surface">
           {currentImage ? (
             <Image
               data={currentImage}
-              className="w-full h-full object-cover"
+              className="w-full h-auto"
               loading="eager"
               sizes="(min-width: 1024px) 50vw, 100vw"
             />
           ) : (
-            <div className="flex items-center justify-center h-full text-text-muted">
+            <div className="flex items-center justify-center min-h-75 text-text-muted">
               <ImageIcon size={64} />
             </div>
           )}
@@ -213,7 +210,7 @@ export function ProductGallery({
               >
                 <Image
                   data={image}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                   loading="lazy"
                   sizes="88px"
                 />
