@@ -18,6 +18,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '~/components/ui/tooltip';
+import {useWishlist} from '~/hooks/useWishlist';
 
 // ============================================================================
 // Types
@@ -195,7 +196,11 @@ export function ProductCard({
 }: ProductCardProps) {
   const {t} = useTranslation();
   const [isHovered, setIsHovered] = useState(false);
-  const [wishlisted, setWishlisted] = useState(false);
+  const {
+    isWishlisted,
+    isPending,
+    toggle: toggleWishlist,
+  } = useWishlist(product.id);
 
   const productUrl = collectionHandle
     ? `/products/${product.handle}?collection=${collectionHandle}`
@@ -300,18 +305,19 @@ export function ProductCard({
           {/* Wishlist — top-right */}
           <button
             type="button"
-            onClick={() => setWishlisted(!wishlisted)}
+            onClick={toggleWishlist}
+            disabled={isPending}
             aria-label={
-              wishlisted
+              isWishlisted
                 ? t('productCard.removeFromWishlist')
                 : t('productCard.addToWishlist')
             }
-            className="absolute right-3 top-3 flex items-center justify-center size-8 rounded-full bg-white/90 transition-colors hover:bg-white"
+            className="absolute right-3 top-3 flex items-center justify-center size-8 rounded-full bg-white/90 transition-colors hover:bg-white disabled:opacity-70"
           >
             <Heart
               size={14}
-              className={wishlisted ? 'text-primary' : 'text-[#9ca3af]'}
-              fill={wishlisted ? 'currentColor' : 'none'}
+              className={isWishlisted ? 'text-primary' : 'text-[#9ca3af]'}
+              fill={isWishlisted ? 'currentColor' : 'none'}
             />
           </button>
         </div>
@@ -389,15 +395,16 @@ export function ProductCard({
             )}
             <button
               type="button"
-              onClick={() => setWishlisted(!wishlisted)}
-              className="flex items-center justify-center gap-1.5 py-1 text-[12px] font-medium text-[#6b7280] transition-colors hover:text-primary"
+              onClick={toggleWishlist}
+              disabled={isPending}
+              className="flex items-center justify-center gap-1.5 py-1 text-[12px] font-medium text-[#6b7280] transition-colors hover:text-primary disabled:opacity-70"
             >
               <Heart
                 size={13}
-                fill={wishlisted ? 'currentColor' : 'none'}
-                className={wishlisted ? 'text-primary' : ''}
+                fill={isWishlisted ? 'currentColor' : 'none'}
+                className={isWishlisted ? 'text-primary' : ''}
               />
-              {wishlisted
+              {isWishlisted
                 ? t('productCard.wishlisted')
                 : t('productCard.addToWishlist')}
             </button>
@@ -528,18 +535,19 @@ export function ProductCard({
         {/* Wishlist heart icon */}
         <button
           type="button"
-          onClick={() => setWishlisted(!wishlisted)}
-          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-text-muted hover:text-primary transition-colors"
+          onClick={toggleWishlist}
+          disabled={isPending}
+          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-text-muted hover:text-primary transition-colors disabled:opacity-70"
           aria-label={
-            wishlisted
+            isWishlisted
               ? t('productCard.removeFromWishlist')
               : t('productCard.addToWishlist')
           }
         >
           <Heart
             size={18}
-            fill={wishlisted ? 'currentColor' : 'none'}
-            className={wishlisted ? 'text-primary' : ''}
+            fill={isWishlisted ? 'currentColor' : 'none'}
+            className={isWishlisted ? 'text-primary' : ''}
           />
         </button>
       </div>
@@ -592,10 +600,13 @@ export function ProductCard({
           )}
           <button
             type="button"
-            className="text-xs font-medium text-text-muted hover:text-primary transition-colors"
-            onClick={() => setWishlisted(!wishlisted)}
+            disabled={isPending}
+            className="text-xs font-medium text-text-muted hover:text-primary transition-colors disabled:opacity-70"
+            onClick={toggleWishlist}
           >
-            {t('productCard.addShortlist')}
+            {isWishlisted
+              ? t('productCard.wishlisted')
+              : t('productCard.addShortlist')}
           </button>
         </div>
       )}

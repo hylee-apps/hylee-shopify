@@ -19,9 +19,10 @@ import {I18nextProvider} from 'react-i18next';
 import {resources, i18nConfig} from '~/i18n';
 import {PageLayout} from '~/components/layout';
 import appStyles from '~/styles/app.css?url';
-import {isCustomerLoggedIn} from '~/lib/customer-auth';
+import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {categoryNavConfig} from '~/config/navigation';
 import {prioritizeCategories} from '~/lib/navigation';
+import {readWishlistIds, type AdminEnv} from '~/lib/wishlist';
 
 export type RootLoader = typeof loader;
 
@@ -120,7 +121,22 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
   const categories = prioritizeCategories(rawCategories, categoryNavConfig);
 
   const locale = currentLanguage.toLowerCase() as 'en' | 'es' | 'fr';
-  return {header, categories, currentLanguage, locale};
+
+  // Fetch wishlist IDs for logged-in users so all product cards start with
+  // the correct wishlisted state without a client-side roundtrip.
+  let wishlistIds: string[] = [];
+  if (isCustomerLoggedIn(context.session)) {
+    const token = getCustomerAccessToken(context.session);
+    if (token) {
+      wishlistIds = await readWishlistIds(
+        storefront,
+        context.env as unknown as AdminEnv,
+        token,
+      ).catch(() => []);
+    }
+  }
+
+  return {header, categories, currentLanguage, locale, wishlistIds};
 }
 
 function loadDeferredData({context}: Route.LoaderArgs) {

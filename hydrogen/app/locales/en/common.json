@@ -312,6 +312,66 @@
       "savedForLater": "Saved for Later",
       "viewWishlist": "View Wishlist",
       "placedOn": "Placed on {{date}}"
+    },
+    "wishlist": {
+      "pageTitle": "Wishlist",
+      "cardTitle": "Saved Items",
+      "emptyHeading": "Your wishlist is empty",
+      "emptyBody": "Save items you love by clicking the heart icon on any product.",
+      "startShopping": "Start Shopping",
+      "remove": "Remove",
+      "addToCart": "Add to Cart",
+      "outOfStock": "Out of Stock",
+      "itemCount_one": "{{count}} item",
+      "itemCount_other": "{{count}} items"
+    },
+    "paymentMethods": {
+      "pageTitle": "Payment Methods",
+      "acceptedTitle": "Accepted Payment Methods",
+      "acceptedBody": "We accept all major credit and debit cards, plus fast digital wallets at checkout.",
+      "cards": "Credit & Debit Cards",
+      "digitalWallets": "Digital Wallets",
+      "shopPayDesc": "One-tap checkout. Shopify securely vaults your card for faster future orders.",
+      "applePayDesc": "Pay with Face ID or Touch ID — no card entry needed.",
+      "googlePayDesc": "Instant checkout using your saved Google account payment info.",
+      "howItWorksTitle": "How your payment is protected",
+      "point1Heading": "Encrypted in transit",
+      "point1Body": "All payment data is transmitted over TLS. Your card number never passes through our servers.",
+      "point2Heading": "PCI DSS Level 1",
+      "point2Body": "Shopify is a certified PCI Level 1 Service Provider — the highest standard in the industry.",
+      "point3Heading": "Vaulted at checkout",
+      "point3Body": "When you check out with Shop Pay, your payment method is securely stored for faster future purchases.",
+      "point4Heading": "Never stored by us",
+      "point4Body": "Hy-lee never sees or stores your card number, CVV, or full payment details.",
+      "shopNow": "Shop Now"
+    },
+    "notifications": {
+      "pageTitle": "Notifications",
+      "emailCard": {
+        "title": "Email Notifications",
+        "description": "Manage which emails you receive from Hy-lee.",
+        "orderUpdates": {
+          "label": "Order Updates",
+          "subtext": "Shipping confirmations, delivery updates, and order status changes",
+          "requiredBadge": "Required"
+        },
+        "marketingEmails": {
+          "label": "Marketing Emails",
+          "subtext": "Sales, promotions, and new arrivals"
+        },
+        "productRecommendations": {
+          "label": "Product Recommendations",
+          "subtext": "Personalized suggestions based on your browsing and purchase history"
+        },
+        "promotionalOffers": {
+          "label": "Promotional Offers",
+          "subtext": "Exclusive discount codes and special member offers"
+        },
+        "savePreferences": "Save Preferences",
+        "saving": "Saving...",
+        "successMessage": "Notification preferences saved.",
+        "errorMessage": "Failed to save preferences. Please try again."
+      }
     }
   },
   "addresses": {

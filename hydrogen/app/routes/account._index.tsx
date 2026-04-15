@@ -198,9 +198,12 @@ export default function AccountDashboard({loaderData}: Route.ComponentProps) {
           <h2 className="text-lg font-bold text-gray-900">
             {t('account.dashboard.savedForLater')}
           </h2>
-          <span className="text-[15px] font-medium text-secondary">
+          <Link
+            to="/account/wishlist"
+            className="text-[15px] font-medium text-secondary hover:underline"
+          >
             {t('account.dashboard.viewWishlist')}
-          </span>
+          </Link>
         </div>
         <div className="grid grid-cols-1 gap-4 p-6 sm:grid-cols-3">
           {['Wireless Mouse Pro', 'USB-C Hub', 'Monitor Stand'].map(
