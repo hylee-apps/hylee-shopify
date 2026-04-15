@@ -21,7 +21,12 @@
       "bedroom": "Chambre",
       "home-garden": "Maison & Jardin",
       "outdoor-garden": "Extérieur & Jardin",
-      "living-room": "Salon"
+      "living-room": "Salon",
+      "household-appliances": "Appareils Ménagers",
+      "accent-tables": "Tables d'Appoint",
+      "air-fryers": "Friteuses à Air",
+      "beds-accessories": "Lits & Accessoires",
+      "bridges-routers": "Ponts & Routeurs"
     }
   },
   "header": {

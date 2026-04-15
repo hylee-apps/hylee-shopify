@@ -21,7 +21,12 @@
       "bedroom": "Bedroom",
       "home-garden": "Home & Garden",
       "outdoor-garden": "Outdoor & Garden",
-      "living-room": "Living Room"
+      "living-room": "Living Room",
+      "household-appliances": "Household Appliances",
+      "accent-tables": "Accent Tables",
+      "air-fryers": "Air Fryers",
+      "beds-accessories": "Beds & Accessories",
+      "bridges-routers": "Bridges & Routers"
     }
   },
   "header": {
