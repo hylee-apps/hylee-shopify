@@ -1,4 +1,4 @@
-import {useMemo, useState} from 'react';
+import {useMemo, useState, useEffect} from 'react';
 import type {Route} from './+types/account.orders._index';
 import {redirect, Link, useSearchParams} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
@@ -145,6 +145,22 @@ export default function OrdersPage({loaderData}: Route.ComponentProps) {
   const {orders} = loaderData;
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<OrderTab>('orders');
+
+  // Scroll to and briefly highlight a specific order when arriving from the dashboard
+  const highlightId = searchParams.get('highlight');
+  useEffect(() => {
+    if (!highlightId) return;
+    const el = document.querySelector<HTMLElement>(
+      `[data-order-id="${highlightId}"]`,
+    );
+    if (!el) return;
+    el.scrollIntoView({behavior: 'smooth', block: 'center'});
+    el.classList.add('ring-2', 'ring-secondary', 'ring-offset-2');
+    const timer = setTimeout(() => {
+      el.classList.remove('ring-2', 'ring-secondary', 'ring-offset-2');
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, [highlightId]);
 
   // Time filter
   const timeFilter =
@@ -358,9 +374,19 @@ export default function OrdersPage({loaderData}: Route.ComponentProps) {
 
           {/* Order Cards */}
           <div className="flex flex-col gap-[24px]">
-            {pageOrders.map((order: any) => (
-              <OrderCard key={order.id} order={order} />
-            ))}
+            {pageOrders.map((order: any) => {
+              const numericId =
+                order.id.split('/').pop()?.split('?')[0] ?? order.id;
+              return (
+                <div
+                  key={order.id}
+                  data-order-id={numericId}
+                  className="rounded-[12px] transition-[box-shadow] duration-500"
+                >
+                  <OrderCard order={order} />
+                </div>
+              );
+            })}
           </div>
 
           {/* Pagination */}
