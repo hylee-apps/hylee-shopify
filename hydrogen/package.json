@@ -19,7 +19,8 @@
     "test:e2e": "playwright test --config=playwright.config.ts",
     "test:e2e:ui": "playwright test --config=playwright.config.ts --ui",
     "visual:header": "playwright test --config=playwright.config.ts --project=chromium tests/e2e/visual/header.visual.spec.ts",
-    "compare:header": "npx tsx scripts/compare-design.ts header"
+    "compare:header": "npx tsx scripts/compare-design.ts header",
+    "translate": "npx tsx scripts/translate.ts"
   },
   "prettier": "@shopify/prettier-config",
   "dependencies": {

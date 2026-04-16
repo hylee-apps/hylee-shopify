@@ -2,6 +2,7 @@
 
 import {useMemo} from 'react';
 import {useNavigate, useSearchParams} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import type {
   ProductOption,
   ProductVariant,
@@ -112,6 +113,7 @@ function ColorSwatch({
   isAvailable,
   onClick,
 }: ColorSwatchProps) {
+  const {t} = useTranslation();
   // Map common color names to CSS colors
   const colorMap: Record<string, string> = {
     white: '#ffffff',
@@ -150,7 +152,9 @@ function ColorSwatch({
           : 'border-transparent hover:border-primary/30'
       } ${!isAvailable ? 'opacity-40 cursor-not-allowed' : ''}`}
       style={{backgroundColor}}
-      aria-label={`${value}${!isAvailable ? ' (Out of stock)' : ''}`}
+      aria-label={
+        !isAvailable ? t('variantSelector.outOfStock', {value}) : value
+      }
       title={value}
     >
       {isSelected && (
@@ -191,6 +195,7 @@ function SizeButton({
   isAvailable,
   onClick,
 }: SizeButtonProps) {
+  const {t} = useTranslation();
   return (
     <button
       type="button"
@@ -201,7 +206,9 @@ function SizeButton({
           ? 'border-[#3a4980] text-[#3a4980]'
           : 'border-border text-text-muted hover:border-primary/50'
       } ${!isAvailable ? 'opacity-40 cursor-not-allowed' : ''}`}
-      aria-label={`${value}${!isAvailable ? ' (Out of stock)' : ''}`}
+      aria-label={
+        !isAvailable ? t('variantSelector.outOfStock', {value}) : value
+      }
     >
       {/* Radio circle */}
       <span
@@ -236,6 +243,7 @@ export function VariantSelector({
   productHandle,
   className = '',
 }: VariantSelectorProps) {
+  const {t} = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -299,7 +307,7 @@ export function VariantSelector({
             {/* Option Label */}
             <div className="mb-3">
               <span className="text-sm text-text-muted">
-                Choose a {option.name}
+                {t('variantSelector.chooseOption', {optionName: option.name})}
               </span>
             </div>
 

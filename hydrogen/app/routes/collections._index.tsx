@@ -1,4 +1,5 @@
 import type {Route} from './+types/collections._index';
+import {useTranslation} from 'react-i18next';
 import {getSeoMeta, Image} from '@shopify/hydrogen';
 import {Link} from 'react-router';
 
@@ -86,6 +87,7 @@ export default function CollectionsIndexPage({
   loaderData,
 }: Route.ComponentProps) {
   const {collections} = loaderData;
+  const {t} = useTranslation();
 
   return (
     <div className="pb-12">
@@ -98,7 +100,7 @@ export default function CollectionsIndexPage({
         }}
       >
         <h1 className="text-2xl font-bold text-dark md:text-[34px]">
-          Collections
+          {t('collectionsPage.title')}
         </h1>
       </div>
 
@@ -141,7 +143,9 @@ export default function CollectionsIndexPage({
 
         {collections.length === 0 && (
           <div className="py-16 text-center">
-            <p className="text-sm text-text-muted">No collections available.</p>
+            <p className="text-sm text-text-muted">
+              {t('collectionsPage.empty')}
+            </p>
           </div>
         )}
       </div>

@@ -2,19 +2,19 @@
 
 import type {ComponentType} from 'react';
 import {Home, Users, Heart, Briefcase, MapPin} from 'lucide-react';
+import {useTranslation} from 'react-i18next';
 import type {AddressCategory} from '~/lib/address-book';
 import type {LucideProps} from 'lucide-react';
 
 const CATEGORY_TABS: {
   value: AddressCategory;
-  label: string;
   icon: ComponentType<LucideProps>;
 }[] = [
-  {value: 'home', label: 'Home', icon: Home},
-  {value: 'family', label: 'Family', icon: Users},
-  {value: 'friends', label: 'Friends', icon: Heart},
-  {value: 'work', label: 'Work', icon: Briefcase},
-  {value: 'other', label: 'Other', icon: MapPin},
+  {value: 'home', icon: Home},
+  {value: 'family', icon: Users},
+  {value: 'friends', icon: Heart},
+  {value: 'work', icon: Briefcase},
+  {value: 'other', icon: MapPin},
 ];
 
 interface CategoryBarProps {
@@ -26,9 +26,10 @@ export function CategoryBar({
   activeCategory,
   onCategoryChange,
 }: CategoryBarProps) {
+  const {t} = useTranslation();
   return (
     <div className="flex items-center overflow-x-auto rounded-lg border-2 border-[#a8d5a0] bg-white px-4.5 py-2.5">
-      {CATEGORY_TABS.map(({value, label, icon: Icon}) => {
+      {CATEGORY_TABS.map(({value, icon: Icon}) => {
         const isActive = activeCategory === value;
         return (
           <button
@@ -43,7 +44,7 @@ export function CategoryBar({
           >
             <Icon size={18} />
             <span className="whitespace-nowrap text-[16px] font-medium leading-6">
-              {label}
+              {t(`addressBook.categories.${value}`)}
             </span>
           </button>
         );

@@ -237,10 +237,12 @@ function StatCard({value, label}: {value: number; label: string}) {
 function OrderRow({order}: {order: OrderSummary}) {
   const {t} = useTranslation();
   const colors = statusColor(order.status);
+  // Extract numeric order ID from GID (e.g. "gid://shopify/Order/12345" → "12345")
+  const numericId = order.id.split('/').pop()?.split('?')[0] ?? '';
 
   return (
     <Link
-      to={`/account/orders/${encodeURIComponent(order.id)}`}
+      to={`/account/orders?highlight=${numericId}`}
       className="flex flex-col gap-3 py-4 transition-colors hover:bg-gray-50 sm:flex-row sm:items-center sm:justify-between"
     >
       <div className="flex items-center gap-4">

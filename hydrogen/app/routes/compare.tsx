@@ -1,5 +1,6 @@
 import type {Route} from './+types/compare';
 import {Link, useSearchParams} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {
   CompareTable,
@@ -141,6 +142,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
 export default function ComparePage({loaderData}: Route.ComponentProps) {
   const {products} = loaderData;
+  const {t} = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const hasProducts = products.length > 0;
 
@@ -157,12 +159,12 @@ export default function ComparePage({loaderData}: Route.ComponentProps) {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
+              <Link to="/">{t('search.breadcrumb.home')}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Compare Products</BreadcrumbPage>
+            <BreadcrumbPage>{t('compare.page.heading')}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -171,12 +173,11 @@ export default function ComparePage({loaderData}: Route.ComponentProps) {
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
-            Compare Products
+            {t('compare.page.heading')}
           </h1>
           {hasProducts && (
             <p className="mt-1 text-sm text-slate-600">
-              Comparing {products.length} product
-              {products.length !== 1 ? 's' : ''} side by side
+              {t('compare.page.subheading', {count: products.length})}
             </p>
           )}
         </div>
@@ -188,14 +189,14 @@ export default function ComparePage({loaderData}: Route.ComponentProps) {
               className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-slate-300 hover:text-slate-900"
             >
               <X size={16} />
-              Clear All
+              {t('compare.page.clearAll')}
             </button>
             <Link
               to="/collections/all"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90"
             >
               <Plus size={16} />
-              Add More
+              {t('compare.page.addMore')}
             </Link>
           </div>
         )}
@@ -212,23 +213,23 @@ export default function ComparePage({loaderData}: Route.ComponentProps) {
 // ============================================================================
 
 function EmptyState() {
+  const {t} = useTranslation();
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 py-16 text-center">
       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-slate-400">
         <Columns2 size={28} />
       </div>
       <h2 className="mb-2 text-lg font-semibold text-slate-900">
-        No products to compare
+        {t('compare.page.empty.heading')}
       </h2>
       <p className="mb-6 max-w-sm text-sm text-slate-600">
-        Browse our collections and click the compare button on products you'd
-        like to compare side by side.
+        {t('compare.page.empty.body')}
       </p>
       <Link
         to="/collections/all"
         className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-primary/90"
       >
-        Browse Products
+        {t('compare.page.empty.cta')}
       </Link>
     </div>
   );

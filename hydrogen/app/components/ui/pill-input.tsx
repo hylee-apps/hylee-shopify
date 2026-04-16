@@ -1,5 +1,6 @@
 import {type ReactNode, forwardRef} from 'react';
 import {Search} from 'lucide-react';
+import {useTranslation} from 'react-i18next';
 import {cn} from '~/lib/utils';
 
 export interface PillInputProps extends Omit<
@@ -21,6 +22,7 @@ export const PillInput = forwardRef<HTMLInputElement, PillInputProps>(
     {className, icon, hideIcon = false, loading = false, ...inputProps},
     ref,
   ) => {
+    const {t} = useTranslation();
     return (
       <div
         className={cn(
@@ -37,7 +39,7 @@ export const PillInput = forwardRef<HTMLInputElement, PillInputProps>(
         {!hideIcon && (
           <button
             type="submit"
-            aria-label="Search"
+            aria-label={t('pillInput.search')}
             className="shrink-0 flex items-center pl-2 focus:outline-none"
           >
             {icon ?? (

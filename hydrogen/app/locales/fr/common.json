@@ -11,9 +11,7 @@
     "signIn": "Se Connecter",
     "register": "S'inscrire",
     "signOut": "Se Déconnecter",
-    "categoryTitles": {
-      "seasonal": "Saisonnier"
-    }
+    "categoryTitles": {}
   },
   "header": {
     "openMenu": "Ouvrir le menu",
@@ -1022,6 +1020,10 @@
     "previousPage": "Page précédente",
     "nextPage": "Page suivante"
   },
+  "buyAgainCard": {
+    "lastOrdered": "Dernière commande : {{date}}",
+    "unavailable": "Indisponible"
+  },
   "returnStep": {
     "selectItems": "Sélectionner les articles",
     "reason": "Motif",
@@ -1144,5 +1146,51 @@
   "heroCarousel": {
     "ariaLabel": "Promotions en vedette",
     "slideAriaLabel": "Diapositive {{current}} sur {{total}}"
+  },
+  "collectionsPage": {
+    "title": "Collections",
+    "empty": "Aucune collection disponible."
+  },
+  "collectionsAll": {
+    "title": "Tous les produits",
+    "description": "Parcourez notre catalogue complet de produits.",
+    "promoHeadline": "Profitez de jusqu'à 50 % de réduction sur une sélection de produits",
+    "loadPrevious": "Charger la page précédente",
+    "loading": "Chargement en cours...",
+    "emptyHeading": "Aucun produit trouvé",
+    "emptySubtitle": "Revenez bientôt pour découvrir nos nouveaux produits."
+  },
+  "return": {
+    "pageTitle": "Lancer un retour",
+    "subtitle": "{{orderName}} • Disponible sur {{date}}",
+    "orderItems": "Articles de la commande",
+    "selectHint": "Appuyez pour sélectionner les articles à retourner",
+    "cancel": "Annuler",
+    "continue": "Continuer"
+  },
+  "subcategoryScroll": {
+    "heading": "Catégories",
+    "scrollLeft": "Faire défiler les catégories vers la gauche",
+    "scrollRight": "Faire défiler les catégories vers la droite"
+  },
+  "socialLogin": {
+    "comingSoon": "À venir",
+    "signInWithGoogle": "Se connecter avec Google",
+    "signUpWithGoogle": "Se connecter avec Google",
+    "signInWithApple": "Se connecter avec Apple",
+    "signUpWithApple": "Inscrivez-vous avec Apple"
+  },
+  "breadcrumb": {
+    "more": "En savoir plus"
+  },
+  "pagination": {
+    "goPrevious": "Retour à la page précédente",
+    "previous": "Précédent",
+    "goNext": "Aller à la page suivante",
+    "next": "Suivant",
+    "morePages": "Plus de pages"
+  },
+  "pillInput": {
+    "search": "Rechercher"
   }
 }

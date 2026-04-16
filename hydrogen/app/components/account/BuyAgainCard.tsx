@@ -61,7 +61,9 @@ export function BuyAgainCard({product}: BuyAgainCardProps) {
 
         {/* Last Ordered */}
         <div className="mt-[8px] text-[13px] leading-[19.5px] text-[#6b7280]">
-          Last ordered: {formatDate(product.lastPurchasedDate)}
+          {t('buyAgainCard.lastOrdered', {
+            date: formatDate(product.lastPurchasedDate),
+          })}
         </div>
 
         {/* Action Buttons */}
@@ -115,7 +117,9 @@ export function BuyAgainCard({product}: BuyAgainCardProps) {
               className="flex h-full flex-1 cursor-not-allowed items-center justify-center gap-[8px] border border-[#d1d5db] bg-[#f3f4f6] px-[17px] py-[13px] text-[14px] font-medium leading-[21px] text-[#9ca3af]"
             >
               <ShoppingCart size={14} className="text-[#9ca3af]" />
-              <span className="text-center">Unavailable</span>
+              <span className="text-center">
+                {t('buyAgainCard.unavailable')}
+              </span>
             </button>
           )}
 

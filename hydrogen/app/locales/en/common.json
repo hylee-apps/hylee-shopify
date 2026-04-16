@@ -11,9 +11,7 @@
     "signIn": "Sign In",
     "register": "Register",
     "signOut": "Sign Out",
-    "categoryTitles": {
-      "seasonal": "Seasonal"
-    }
+    "categoryTitles": {}
   },
   "header": {
     "openMenu": "Open menu",
@@ -1036,6 +1034,10 @@
     "previousPage": "Previous page",
     "nextPage": "Next page"
   },
+  "buyAgainCard": {
+    "lastOrdered": "Last ordered: {{date}}",
+    "unavailable": "Unavailable"
+  },
   "returnStep": {
     "selectItems": "Select Items",
     "reason": "Reason",
@@ -1144,5 +1146,51 @@
   "heroCarousel": {
     "ariaLabel": "Featured promotions",
     "slideAriaLabel": "Slide {{current}} of {{total}}"
+  },
+  "collectionsPage": {
+    "title": "Collections",
+    "empty": "No collections available."
+  },
+  "collectionsAll": {
+    "title": "All Products",
+    "description": "Browse our full catalog of products.",
+    "promoHeadline": "Grab Upto 50% Off On Selected Products",
+    "loadPrevious": "Load Previous",
+    "loading": "Loading...",
+    "emptyHeading": "No products found",
+    "emptySubtitle": "Check back soon for new products."
+  },
+  "return": {
+    "pageTitle": "Start a Return",
+    "subtitle": "{{orderName}} • Delivered on {{date}}",
+    "orderItems": "Order Items",
+    "selectHint": "Tap to select items to return",
+    "cancel": "Cancel",
+    "continue": "Continue"
+  },
+  "subcategoryScroll": {
+    "heading": "Categories",
+    "scrollLeft": "Scroll categories left",
+    "scrollRight": "Scroll categories right"
+  },
+  "socialLogin": {
+    "comingSoon": "Coming soon",
+    "signInWithGoogle": "Sign in with Google",
+    "signUpWithGoogle": "Sign up with Google",
+    "signInWithApple": "Sign in with Apple",
+    "signUpWithApple": "Sign up with Apple"
+  },
+  "breadcrumb": {
+    "more": "More"
+  },
+  "pagination": {
+    "goPrevious": "Go to previous page",
+    "previous": "Previous",
+    "goNext": "Go to next page",
+    "next": "Next",
+    "morePages": "More pages"
+  },
+  "pillInput": {
+    "search": "Search"
   }
 }

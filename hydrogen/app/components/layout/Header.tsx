@@ -102,8 +102,9 @@ function NavDropdown({
   items,
 }: {
   label: string;
-  items: Array<{title: string; url: string; method?: 'post'}>;
+  items: Array<{key: string; url: string; method?: 'post'}>;
 }) {
+  const {t} = useTranslation();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -121,14 +122,14 @@ function NavDropdown({
                   type="submit"
                   className="cursor-pointer text-[14px] w-full text-left"
                 >
-                  {item.title}
+                  {t(item.key)}
                 </button>
               </Form>
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem key={item.url} asChild>
               <Link to={item.url} className="cursor-pointer text-[14px]">
-                {item.title}
+                {t(item.key)}
               </Link>
             </DropdownMenuItem>
           ),
@@ -391,17 +392,17 @@ export function Header({
 
   const accountItems = resolvedIsLoggedIn
     ? [
-        {title: t('nav.myAccount'), url: '/account'},
-        {title: t('nav.myOrders'), url: '/account/orders'},
+        {key: 'nav.myAccount', url: '/account'},
+        {key: 'nav.myOrders', url: '/account/orders'},
         {
-          title: t('nav.signOut'),
+          key: 'nav.signOut',
           url: '/account/logout',
           method: 'post' as const,
         },
       ]
     : [
-        {title: t('nav.signIn'), url: '/account/login'},
-        {title: t('nav.register'), url: '/account/register'},
+        {key: 'nav.signIn', url: '/account/login'},
+        {key: 'nav.register', url: '/account/register'},
       ];
 
   return (
