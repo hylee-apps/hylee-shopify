@@ -2,6 +2,8 @@
 // Types
 // ============================================================================
 
+import {useTranslation} from 'react-i18next';
+
 interface SocialLoginButtonsProps {
   mode: 'signin' | 'signup';
 }
@@ -51,7 +53,8 @@ function AppleIcon() {
 // ============================================================================
 
 export function SocialLoginButtons({mode}: SocialLoginButtonsProps) {
-  const label = mode === 'signin' ? 'Sign in' : 'Sign up';
+  const {t} = useTranslation();
+  const isSignIn = mode === 'signin';
 
   return (
     <div className="flex flex-col gap-3">
@@ -59,19 +62,23 @@ export function SocialLoginButtons({mode}: SocialLoginButtonsProps) {
         type="button"
         disabled
         className="flex h-[48px] w-full items-center justify-center gap-3 rounded-[8px] border border-[#d1d5db] bg-white text-[15px] font-medium text-[#374151] opacity-50 cursor-not-allowed"
-        title="Coming soon"
+        title={t('socialLogin.comingSoon')}
       >
         <GoogleIcon />
-        {label} with Google
+        {isSignIn
+          ? t('socialLogin.signInWithGoogle')
+          : t('socialLogin.signUpWithGoogle')}
       </button>
       <button
         type="button"
         disabled
         className="flex h-[48px] w-full items-center justify-center gap-3 rounded-[8px] border border-[#d1d5db] bg-white text-[15px] font-medium text-[#374151] opacity-50 cursor-not-allowed"
-        title="Coming soon"
+        title={t('socialLogin.comingSoon')}
       >
         <AppleIcon />
-        {label} with Apple
+        {isSignIn
+          ? t('socialLogin.signInWithApple')
+          : t('socialLogin.signUpWithApple')}
       </button>
     </div>
   );

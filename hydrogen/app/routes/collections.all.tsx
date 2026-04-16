@@ -187,10 +187,10 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
     <div className="pb-12">
       {/* Gradient Promotional Banner */}
       <CollectionHero
-        title="All Products"
-        description="Browse our full catalog"
-        promoHeadline="Grab Upto 50% Off On Selected Products"
-        promoCta="Shop Now"
+        title={t('collectionsAll.title')}
+        description={t('collectionsAll.description')}
+        promoHeadline={t('collectionsAll.promoHeadline')}
+        promoCta={t('collection.shopNow')}
         promoCtaUrl="#products"
       />
 
@@ -234,7 +234,7 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
                         <Button variant="outline" asChild>
                           <PreviousLink className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-dark transition-colors hover:border-text-muted hover:bg-surface">
                             <ChevronUp size={16} />
-                            Load Previous
+                            {t('collectionsAll.loadPrevious')}
                           </PreviousLink>
                         </Button>
                       </div>
@@ -252,7 +252,7 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
                             {isLoading ? (
                               <>
                                 <Loader2 size={16} className="animate-spin" />
-                                Loading...
+                                {t('collectionsAll.loading')}
                               </>
                             ) : (
                               t('collection.loadMore')
@@ -269,10 +269,10 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
               <div className="flex flex-col items-center justify-center py-16 text-center">
                 <Search size={48} className="mb-4 text-text-muted" />
                 <h2 className="mb-2 text-lg font-medium text-dark">
-                  No products found
+                  {t('collectionsAll.emptyHeading')}
                 </h2>
                 <p className="mb-6 text-sm text-text-muted">
-                  Check back soon for new products.
+                  {t('collectionsAll.emptySubtitle')}
                 </p>
               </div>
             )}

@@ -2,6 +2,7 @@
 
 import {useState, useCallback, useRef} from 'react';
 import {Image} from '@shopify/hydrogen';
+import {useTranslation} from 'react-i18next';
 import type {ProductVariant} from '@shopify/hydrogen/storefront-api-types';
 import {ImageIcon, ChevronLeft, ChevronRight} from 'lucide-react';
 
@@ -51,6 +52,7 @@ export function ProductGallery({
   className = '',
   layout = 'horizontal',
 }: ProductGalleryProps) {
+  const {t} = useTranslation();
   // Start with variant image index if available
   const initialIndex = selectedVariant?.image
     ? images.findIndex((img) => img.id === selectedVariant.image?.id)
@@ -115,7 +117,9 @@ export function ProductGallery({
                     ? 'border-secondary'
                     : 'border-transparent hover:border-secondary/50'
                 }`}
-                aria-label={`View image ${index + 1}`}
+                aria-label={t('productGallery.thumbnailAriaLabel', {
+                  number: index + 1,
+                })}
                 aria-current={index === currentIndex}
               >
                 <Image
@@ -133,7 +137,7 @@ export function ProductGallery({
         <div
           className="relative flex-1"
           role="region"
-          aria-label="Product gallery"
+          aria-label={t('productGallery.ariaLabel')}
           tabIndex={0}
           onKeyDown={handleKeyDown}
         >
@@ -162,7 +166,7 @@ export function ProductGallery({
       <div
         className="relative"
         role="region"
-        aria-label="Product gallery"
+        aria-label={t('productGallery.ariaLabel')}
         tabIndex={0}
         onKeyDown={handleKeyDown}
       >
@@ -189,7 +193,7 @@ export function ProductGallery({
           <button
             onClick={() => scrollThumbnails('left')}
             className="flex shrink-0 items-center justify-center w-8 h-8 rounded-full border border-border text-text-muted hover:text-text hover:border-primary transition-colors"
-            aria-label="Scroll thumbnails left"
+            aria-label={t('productGallery.scrollLeft')}
           >
             <ChevronLeft size={16} />
           </button>
@@ -205,7 +209,9 @@ export function ProductGallery({
                     ? 'border-primary'
                     : 'border-transparent hover:border-primary/50'
                 }`}
-                aria-label={`View image ${index + 1}`}
+                aria-label={t('productGallery.thumbnailAriaLabel', {
+                  number: index + 1,
+                })}
                 aria-current={index === currentIndex}
               >
                 <Image
@@ -222,7 +228,7 @@ export function ProductGallery({
           <button
             onClick={() => scrollThumbnails('right')}
             className="flex shrink-0 items-center justify-center w-8 h-8 rounded-full border border-border text-text-muted hover:text-text hover:border-primary transition-colors"
-            aria-label="Scroll thumbnails right"
+            aria-label={t('productGallery.scrollRight')}
           >
             <ChevronRight size={16} />
           </button>

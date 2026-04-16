@@ -1,6 +1,7 @@
 import {useState, useCallback, useMemo} from 'react';
 import type {Route} from './+types/account.orders.$id_.return';
 import {redirect, Link} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {ReturnStepProgress} from '~/components/account/ReturnStepProgress';
@@ -165,6 +166,7 @@ function formatMoney(amount: number, currencyCode: string = 'USD'): string {
 export default function ReturnSelectItemsPage({
   loaderData,
 }: Route.ComponentProps) {
+  const {t} = useTranslation();
   const {
     orderId,
     orderName,
@@ -249,12 +251,12 @@ export default function ReturnSelectItemsPage({
       <div className="mx-auto flex w-full max-w-[900px] flex-1 flex-col gap-2 px-6 pb-16 pt-8">
         {/* Title */}
         <h1 className="text-center text-[32px] font-light leading-[48px] text-[#1f2937]">
-          Start a Return
+          {t('return.pageTitle')}
         </h1>
 
         {/* Subtitle */}
         <p className="text-center text-[16px] leading-6 text-[#4b5563]">
-          {orderName} &bull; Delivered on {formatDate(deliveredDate)}
+          {t('return.subtitle', {orderName, date: formatDate(deliveredDate)})}
         </p>
 
         {/* Step Progress */}
@@ -279,10 +281,10 @@ export default function ReturnSelectItemsPage({
           {/* Card Header */}
           <div className="flex items-center justify-between border-b border-[#e5e7eb] px-6 py-5">
             <h2 className="text-[18px] font-bold leading-[27px] text-[#111827]">
-              Order Items
+              {t('return.orderItems')}
             </h2>
             <span className="text-[14px] leading-[21px] text-[#6b7280]">
-              Tap to select items to return
+              {t('return.selectHint')}
             </span>
           </div>
 
@@ -310,7 +312,7 @@ export default function ReturnSelectItemsPage({
             className="flex flex-[35] items-center justify-center rounded-[8px] border border-[#d1d5db] bg-white px-[25px] py-[13px] text-[15px] font-medium leading-normal text-[#374151] transition-colors hover:bg-[#f9fafb]"
             data-testid="return-cancel-btn"
           >
-            Cancel
+            {t('return.cancel')}
           </Link>
           <button
             type="button"
@@ -323,7 +325,7 @@ export default function ReturnSelectItemsPage({
             }`}
             data-testid="return-continue-btn"
           >
-            Continue
+            {t('return.continue')}
           </button>
         </div>
       </div>

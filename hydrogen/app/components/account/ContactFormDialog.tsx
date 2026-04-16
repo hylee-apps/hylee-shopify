@@ -2,6 +2,7 @@
 
 import {Form} from 'react-router';
 import {useState} from 'react';
+import {useTranslation} from 'react-i18next';
 import {Plus, Trash2} from 'lucide-react';
 import {
   Dialog,
@@ -109,6 +110,7 @@ export function ContactFormDialog({
   isSubmitting,
   errors,
 }: ContactFormDialogProps) {
+  const {t} = useTranslation();
   const isEdit = !!contact;
   const intent = isEdit ? 'updateContact' : 'createContact';
 
@@ -151,7 +153,9 @@ export function ContactFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Edit Contact' : 'Add Contact'}</DialogTitle>
+          <DialogTitle>
+            {isEdit ? t('contactForm.titleEdit') : t('contactForm.titleAdd')}
+          </DialogTitle>
         </DialogHeader>
 
         <Form method="post" className="space-y-5">
@@ -170,7 +174,7 @@ export function ContactFormDialog({
 
           {/* Category */}
           <div>
-            <Label>Category</Label>
+            <Label>{t('contactForm.category')}</Label>
             <Select
               name="category"
               value={category}
@@ -197,7 +201,9 @@ export function ContactFormDialog({
           {showSubcategory && (
             <div>
               <Label>
-                {category === 'family' ? 'Relationship Type' : 'Type'}
+                {category === 'family'
+                  ? t('contactForm.subcategoryFamily')
+                  : t('contactForm.subcategoryOther')}
               </Label>
               <Select
                 name="subcategory"
@@ -208,7 +214,9 @@ export function ContactFormDialog({
                 }}
               >
                 <SelectTrigger className="mt-1.5 w-full">
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue
+                    placeholder={t('contactForm.subcategoryPlaceholder')}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {(category === 'family'
@@ -227,7 +235,7 @@ export function ContactFormDialog({
           {/* Relationship (Family only) */}
           {showRelationship && familySub && (
             <div>
-              <Label>Relationship</Label>
+              <Label>{t('contactForm.relationship')}</Label>
               <RadioGroup
                 name="relationship"
                 value={relationship}
@@ -252,7 +260,7 @@ export function ContactFormDialog({
           {/* Name */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="cf-firstName">First Name</Label>
+              <Label htmlFor="cf-firstName">{t('contactForm.firstName')}</Label>
               <Input
                 id="cf-firstName"
                 name="firstName"
@@ -262,7 +270,7 @@ export function ContactFormDialog({
               />
             </div>
             <div>
-              <Label htmlFor="cf-lastName">Last Name</Label>
+              <Label htmlFor="cf-lastName">{t('contactForm.lastName')}</Label>
               <Input
                 id="cf-lastName"
                 name="lastName"
@@ -275,7 +283,9 @@ export function ContactFormDialog({
 
           {/* Addresses */}
           <fieldset className="space-y-3">
-            <legend className="text-sm font-medium text-dark">Addresses</legend>
+            <legend className="text-sm font-medium text-dark">
+              {t('contactForm.addresses.legend')}
+            </legend>
             {addresses.map((addr, idx) => (
               <div
                 key={addr.id}
@@ -300,7 +310,11 @@ export function ContactFormDialog({
                 )}
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-text-muted">
-                    {addr.primary ? 'Primary Address' : `Address ${idx + 1}`}
+                    {addr.primary
+                      ? t('contactForm.addresses.primaryLabel')
+                      : t('contactForm.addresses.indexLabel', {
+                          number: idx + 1,
+                        })}
                   </span>
                   {addresses.length > 1 && (
                     <Button
@@ -319,7 +333,9 @@ export function ContactFormDialog({
                   )}
                 </div>
                 <div>
-                  <Label htmlFor={`addr1-${addr.id}`}>Street Address</Label>
+                  <Label htmlFor={`addr1-${addr.id}`}>
+                    {t('contactForm.addresses.streetAddress')}
+                  </Label>
                   <Input
                     id={`addr1-${addr.id}`}
                     name={`addresses[${idx}].address1`}
@@ -330,7 +346,7 @@ export function ContactFormDialog({
                 </div>
                 <div>
                   <Label htmlFor={`addr2-${addr.id}`}>
-                    Apt, suite, etc. (Optional)
+                    {t('contactForm.addresses.apt')}
                   </Label>
                   <Input
                     id={`addr2-${addr.id}`}
@@ -341,7 +357,9 @@ export function ContactFormDialog({
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label htmlFor={`city-${addr.id}`}>City</Label>
+                    <Label htmlFor={`city-${addr.id}`}>
+                      {t('contactForm.addresses.city')}
+                    </Label>
                     <Input
                       id={`city-${addr.id}`}
                       name={`addresses[${idx}].city`}
@@ -351,7 +369,9 @@ export function ContactFormDialog({
                     />
                   </div>
                   <div>
-                    <Label htmlFor={`state-${addr.id}`}>State</Label>
+                    <Label htmlFor={`state-${addr.id}`}>
+                      {t('contactForm.addresses.state')}
+                    </Label>
                     <Select
                       name={`addresses[${idx}].state`}
                       defaultValue={addr.state || undefined}
@@ -360,7 +380,11 @@ export function ContactFormDialog({
                         id={`state-${addr.id}`}
                         className="mt-1 w-full"
                       >
-                        <SelectValue placeholder="Select" />
+                        <SelectValue
+                          placeholder={t(
+                            'contactForm.addresses.statePlaceholder',
+                          )}
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         {US_STATES.map((st) => (
@@ -374,7 +398,9 @@ export function ContactFormDialog({
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label htmlFor={`zip-${addr.id}`}>ZIP Code</Label>
+                    <Label htmlFor={`zip-${addr.id}`}>
+                      {t('contactForm.addresses.zip')}
+                    </Label>
                     <Input
                       id={`zip-${addr.id}`}
                       name={`addresses[${idx}].zip`}
@@ -384,7 +410,9 @@ export function ContactFormDialog({
                     />
                   </div>
                   <div>
-                    <Label htmlFor={`country-${addr.id}`}>Country</Label>
+                    <Label htmlFor={`country-${addr.id}`}>
+                      {t('contactForm.addresses.country')}
+                    </Label>
                     <Select
                       name={`addresses[${idx}].country`}
                       defaultValue={addr.country || 'US'}
@@ -396,10 +424,18 @@ export function ContactFormDialog({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="US">United States</SelectItem>
-                        <SelectItem value="CA">Canada</SelectItem>
-                        <SelectItem value="GB">United Kingdom</SelectItem>
-                        <SelectItem value="AU">Australia</SelectItem>
+                        <SelectItem value="US">
+                          {t('contactForm.addresses.countryUS')}
+                        </SelectItem>
+                        <SelectItem value="CA">
+                          {t('contactForm.addresses.countryCA')}
+                        </SelectItem>
+                        <SelectItem value="GB">
+                          {t('contactForm.addresses.countryGB')}
+                        </SelectItem>
+                        <SelectItem value="AU">
+                          {t('contactForm.addresses.countryAU')}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -426,14 +462,14 @@ export function ContactFormDialog({
               }
             >
               <Plus size={14} className="mr-1" />
-              Add another address
+              {t('contactForm.addresses.addAnother')}
             </Button>
           </fieldset>
 
           {/* Phones */}
           <fieldset className="space-y-3">
             <legend className="text-sm font-medium text-dark">
-              Phone Numbers
+              {t('contactForm.phones.legend')}
             </legend>
             {phones.map((phone, idx) => (
               <div key={phone.id} className="flex items-end gap-2">
@@ -449,14 +485,16 @@ export function ContactFormDialog({
                 />
                 <div className="flex-1">
                   <Label htmlFor={`phone-${phone.id}`}>
-                    Phone{phone.primary ? ' (Primary)' : ''}
+                    {phone.primary
+                      ? t('contactForm.phones.labelPrimary')
+                      : t('contactForm.phones.label')}
                   </Label>
                   <Input
                     id={`phone-${phone.id}`}
                     name={`phones[${idx}].number`}
                     type="tel"
                     defaultValue={phone.number}
-                    placeholder="(555) 000-0000"
+                    placeholder={t('contactForm.phones.placeholder')}
                     className="mt-1"
                   />
                 </div>
@@ -489,14 +527,14 @@ export function ContactFormDialog({
               }
             >
               <Plus size={14} className="mr-1" />
-              Add phone
+              {t('contactForm.phones.add')}
             </Button>
           </fieldset>
 
           {/* Emails */}
           <fieldset className="space-y-3">
             <legend className="text-sm font-medium text-dark">
-              Email Addresses
+              {t('contactForm.emails.legend')}
             </legend>
             {emails.map((email, idx) => (
               <div key={email.id} className="flex items-end gap-2">
@@ -512,14 +550,16 @@ export function ContactFormDialog({
                 />
                 <div className="flex-1">
                   <Label htmlFor={`email-${email.id}`}>
-                    Email{email.primary ? ' (Primary)' : ''}
+                    {email.primary
+                      ? t('contactForm.emails.labelPrimary')
+                      : t('contactForm.emails.label')}
                   </Label>
                   <Input
                     id={`email-${email.id}`}
                     name={`emails[${idx}].email`}
                     type="email"
                     defaultValue={email.email}
-                    placeholder="name@example.com"
+                    placeholder={t('contactForm.emails.placeholder')}
                     className="mt-1"
                   />
                 </div>
@@ -552,7 +592,7 @@ export function ContactFormDialog({
               }
             >
               <Plus size={14} className="mr-1" />
-              Add email
+              {t('contactForm.emails.add')}
             </Button>
           </fieldset>
 
@@ -563,14 +603,14 @@ export function ContactFormDialog({
               type="button"
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              {t('contactForm.cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting
-                ? 'Saving...'
+                ? t('contactForm.submitting')
                 : isEdit
-                  ? 'Save Changes'
-                  : 'Add Contact'}
+                  ? t('contactForm.submitEdit')
+                  : t('contactForm.submitAdd')}
             </Button>
           </div>
         </Form>

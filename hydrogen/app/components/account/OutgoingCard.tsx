@@ -1,4 +1,5 @@
 import {Link} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import {Image} from '@shopify/hydrogen';
 import type {ComponentType} from 'react';
 import {
@@ -56,98 +57,191 @@ export interface OutgoingItem {
 }
 
 // ============================================================================
-// Status Configuration
+// Status Configuration (uses translation keys throughout)
 // ============================================================================
 
 interface StatusBadgeConfig {
-  label: string;
+  labelKey: string;
   bg: string;
   color: string;
   icon: ComponentType<LucideProps>;
 }
 
 interface ActionConfig {
-  label: string;
+  labelKey: string;
   icon?: ComponentType<LucideProps>;
   primary?: boolean;
 }
 
+interface ProgressStepConfig {
+  labelKey: string;
+  status: ProgressStep['status'];
+  icon: ComponentType<LucideProps>;
+}
+
 interface StatusConfig {
   badge: StatusBadgeConfig;
-  links: string[];
+  linkKeys: string[];
   inlineActions: ActionConfig[];
   panelActions: ActionConfig[];
-  progressSteps: ProgressStep[];
+  progressSteps: ProgressStepConfig[];
 }
 
 const STATUS_CONFIG: Record<OutgoingStatus, StatusConfig> = {
   'return-shipped': {
     badge: {
-      label: 'Return Shipped',
+      labelKey: 'outgoingCard.status.returnShipped',
       bg: 'bg-[rgba(42,200,100,0.1)]',
       color: 'text-[#2ac864]',
       icon: PackageCheck,
     },
-    links: ['View return details', 'View refund status'],
+    linkKeys: [
+      'outgoingCard.link.viewReturnDetails',
+      'outgoingCard.link.viewRefundStatus',
+    ],
     inlineActions: [
-      {label: 'Print return label', icon: Printer},
-      {label: 'Contact seller'},
+      {labelKey: 'outgoingCard.action.printReturnLabel', icon: Printer},
+      {labelKey: 'outgoingCard.action.contactSeller'},
     ],
     panelActions: [
-      {label: 'Track return package', icon: Package, primary: true},
-      {label: 'View refund status', icon: DollarSign},
+      {
+        labelKey: 'outgoingCard.action.trackReturnPackage',
+        icon: Package,
+        primary: true,
+      },
+      {labelKey: 'outgoingCard.action.viewRefundStatus', icon: DollarSign},
     ],
     progressSteps: [
-      {label: 'Return Requested', status: 'completed', icon: Check},
-      {label: 'Label Generated', status: 'completed', icon: Tag},
-      {label: 'Package Shipped', status: 'completed', icon: Package},
-      {label: 'In Transit', status: 'active', icon: Truck},
-      {label: 'Refund Processed', status: 'pending', icon: DollarSign},
+      {
+        labelKey: 'outgoingCard.progress.returnRequested',
+        status: 'completed',
+        icon: Check,
+      },
+      {
+        labelKey: 'outgoingCard.progress.labelGenerated',
+        status: 'completed',
+        icon: Tag,
+      },
+      {
+        labelKey: 'outgoingCard.progress.packageShipped',
+        status: 'completed',
+        icon: Package,
+      },
+      {
+        labelKey: 'outgoingCard.progress.inTransit',
+        status: 'active',
+        icon: Truck,
+      },
+      {
+        labelKey: 'outgoingCard.progress.refundProcessed',
+        status: 'pending',
+        icon: DollarSign,
+      },
     ],
   },
   'awaiting-pickup': {
     badge: {
-      label: 'Awaiting Pickup',
+      labelKey: 'outgoingCard.status.awaitingPickup',
       bg: 'bg-[rgba(242,176,94,0.1)]',
       color: 'text-[#f2b05e]',
       icon: Clock,
     },
-    links: ['View return details', 'Cancel return'],
+    linkKeys: [
+      'outgoingCard.link.viewReturnDetails',
+      'outgoingCard.link.cancelReturn',
+    ],
     inlineActions: [
-      {label: 'Print return label', icon: Printer},
-      {label: 'Reschedule pickup'},
+      {labelKey: 'outgoingCard.action.printReturnLabel', icon: Printer},
+      {labelKey: 'outgoingCard.action.reschedulePickup'},
     ],
     panelActions: [
-      {label: 'View pickup details', icon: MapPin, primary: true},
-      {label: 'Prepare package', icon: Package},
+      {
+        labelKey: 'outgoingCard.action.viewPickupDetails',
+        icon: MapPin,
+        primary: true,
+      },
+      {labelKey: 'outgoingCard.action.preparePackage', icon: Package},
     ],
     progressSteps: [
-      {label: 'Return Requested', status: 'completed', icon: Check},
-      {label: 'Label Generated', status: 'completed', icon: Tag},
-      {label: 'Awaiting Pickup', status: 'active', icon: Clock},
-      {label: 'In Transit', status: 'pending', icon: Truck},
-      {label: 'Refund Processed', status: 'pending', icon: DollarSign},
+      {
+        labelKey: 'outgoingCard.progress.returnRequested',
+        status: 'completed',
+        icon: Check,
+      },
+      {
+        labelKey: 'outgoingCard.progress.labelGenerated',
+        status: 'completed',
+        icon: Tag,
+      },
+      {
+        labelKey: 'outgoingCard.progress.awaitingPickup',
+        status: 'active',
+        icon: Clock,
+      },
+      {
+        labelKey: 'outgoingCard.progress.inTransit',
+        status: 'pending',
+        icon: Truck,
+      },
+      {
+        labelKey: 'outgoingCard.progress.refundProcessed',
+        status: 'pending',
+        icon: DollarSign,
+      },
     ],
   },
   'exchange-out-for-delivery': {
     badge: {
-      label: 'Out for Delivery',
+      labelKey: 'outgoingCard.status.outForDelivery',
       bg: 'bg-[rgba(38,153,166,0.1)]',
       color: 'text-[#2699a6]',
       icon: Truck,
     },
-    links: ['View exchange details', 'Track new item'],
-    inlineActions: [{label: 'View tracking'}, {label: 'Contact support'}],
+    linkKeys: [
+      'outgoingCard.link.viewExchangeDetails',
+      'outgoingCard.link.trackNewItem',
+    ],
+    inlineActions: [
+      {labelKey: 'outgoingCard.action.viewTracking'},
+      {labelKey: 'outgoingCard.action.contactSupport'},
+    ],
     panelActions: [
-      {label: 'Track delivery', icon: MapPin, primary: true},
-      {label: 'View exchange details', icon: ArrowLeftRight},
+      {
+        labelKey: 'outgoingCard.action.trackDelivery',
+        icon: MapPin,
+        primary: true,
+      },
+      {
+        labelKey: 'outgoingCard.action.viewExchangeDetails',
+        icon: ArrowLeftRight,
+      },
     ],
     progressSteps: [
-      {label: 'Exchange Requested', status: 'completed', icon: Check},
-      {label: 'Return Shipped', status: 'completed', icon: Check},
-      {label: 'New Item Shipped', status: 'completed', icon: Check},
-      {label: 'Out for Delivery', status: 'active', icon: Truck},
-      {label: 'Exchange Complete', status: 'pending', icon: CheckCircle},
+      {
+        labelKey: 'outgoingCard.progress.exchangeRequested',
+        status: 'completed',
+        icon: Check,
+      },
+      {
+        labelKey: 'outgoingCard.progress.returnShipped',
+        status: 'completed',
+        icon: Check,
+      },
+      {
+        labelKey: 'outgoingCard.progress.newItemShipped',
+        status: 'completed',
+        icon: Check,
+      },
+      {
+        labelKey: 'outgoingCard.progress.outForDelivery',
+        status: 'active',
+        icon: Truck,
+      },
+      {
+        labelKey: 'outgoingCard.progress.exchangeComplete',
+        status: 'pending',
+        icon: CheckCircle,
+      },
     ],
   },
 };
@@ -176,8 +270,16 @@ function formatDate(dateString: string): string {
 // ============================================================================
 
 export function OutgoingCard({item}: {item: OutgoingItem}) {
+  const {t} = useTranslation();
   const config = STATUS_CONFIG[item.status];
   const orderId = item.originalOrderId.split('/').pop();
+
+  // Build translated progress steps to pass into ReturnProgressTracker
+  const progressSteps: ProgressStep[] = config.progressSteps.map((step) => ({
+    label: t(step.labelKey),
+    status: step.status,
+    icon: step.icon,
+  }));
 
   return (
     <div className="w-full overflow-clip rounded-[12px] bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
@@ -188,24 +290,27 @@ export function OutgoingCard({item}: {item: OutgoingItem}) {
           <MetaItem
             label={
               item.type === 'exchange'
-                ? 'Exchange Requested'
-                : 'Return Initiated'
+                ? t('outgoingCard.meta.exchangeRequested')
+                : t('outgoingCard.meta.returnInitiated')
             }
             value={formatDate(item.initiatedDate)}
           />
           {item.type === 'exchange' && item.exchangeFor ? (
-            <MetaItem label="Exchange For" value={item.exchangeFor} />
+            <MetaItem
+              label={t('outgoingCard.meta.exchangeFor')}
+              value={item.exchangeFor}
+            />
           ) : (
             item.refundAmount && (
               <MetaItem
-                label="Refund Amount"
+                label={t('outgoingCard.meta.refundAmount')}
                 value={formatMoney(item.refundAmount)}
               />
             )
           )}
           <div className="flex flex-col gap-[2px]">
             <span className="text-[12px] font-medium uppercase leading-[18px] tracking-[0.5px] text-[#6b7280]">
-              Original Order #
+              {t('outgoingCard.meta.originalOrderNumber')}
             </span>
             <Link
               to={`/account/orders/${orderId}`}
@@ -226,13 +331,13 @@ export function OutgoingCard({item}: {item: OutgoingItem}) {
             <span
               className={`text-[13px] font-semibold leading-[19.5px] ${config.badge.color}`}
             >
-              {config.badge.label}
+              {t(config.badge.labelKey)}
             </span>
           </div>
           {/* Links */}
           <div className="flex items-start gap-[16px] pt-[8px]">
-            {config.links.map((linkText, idx) => (
-              <span key={linkText} className="flex items-start gap-[16px]">
+            {config.linkKeys.map((linkKey, idx) => (
+              <span key={linkKey} className="flex items-start gap-[16px]">
                 {idx > 0 && (
                   <span className="text-[14px] leading-[21px] text-[#d1d5db]">
                     |
@@ -242,7 +347,7 @@ export function OutgoingCard({item}: {item: OutgoingItem}) {
                   type="button"
                   className="cursor-pointer text-[14px] leading-[21px] text-secondary hover:underline"
                 >
-                  {linkText}
+                  {t(linkKey)}
                 </button>
               </span>
             ))}
@@ -307,14 +412,14 @@ export function OutgoingCard({item}: {item: OutgoingItem}) {
             <div className="flex flex-wrap gap-[8px] pt-[8px]">
               {config.inlineActions.map((action) => (
                 <button
-                  key={action.label}
+                  key={action.labelKey}
                   type="button"
                   className="flex items-center gap-[8px] border border-[#d1d5db] bg-white px-[17px] py-[9px] text-[14px] font-medium leading-[21px] text-[#374151] transition-colors hover:border-[#9ca3af]"
                 >
                   {action.icon && (
                     <action.icon size={14} className="text-[#374151]" />
                   )}
-                  {action.label}
+                  {t(action.labelKey)}
                 </button>
               ))}
             </div>
@@ -324,7 +429,7 @@ export function OutgoingCard({item}: {item: OutgoingItem}) {
           <div className="hidden w-[200px] min-w-[200px] flex-col gap-[8px] lg:flex">
             {config.panelActions.map((action) => (
               <button
-                key={action.label}
+                key={action.labelKey}
                 type="button"
                 className={`flex w-full items-center justify-center gap-[8px] px-[17px] py-[13px] text-center text-[14px] font-medium leading-[21px] transition-colors ${
                   action.primary
@@ -338,14 +443,14 @@ export function OutgoingCard({item}: {item: OutgoingItem}) {
                     className={action.primary ? 'text-white' : 'text-[#374151]'}
                   />
                 )}
-                {action.label}
+                {t(action.labelKey)}
               </button>
             ))}
           </div>
         </div>
 
         {/* Progress Tracker */}
-        <ReturnProgressTracker steps={config.progressSteps} />
+        <ReturnProgressTracker steps={progressSteps} />
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import {Link} from 'react-router';
+import {useTranslation} from 'react-i18next';
 import {Image} from '@shopify/hydrogen';
 import {
   ChevronDown,
@@ -48,6 +49,13 @@ interface OrderCardProps {
   };
 }
 
+type ActionButton = {
+  key: string;
+  labelKey: string;
+  icon: typeof Package;
+  primary?: boolean;
+};
+
 // ============================================================================
 // Helpers
 // ============================================================================
@@ -77,37 +85,110 @@ function isDeliveredToday(processedAt: string, status: string): boolean {
   return diffDays === 0;
 }
 
-function getDeliveryDisplay(
+function getDeliveryKeys(
   processedAt: string,
   status: string,
-): {text: string; isToday: boolean; message: string} {
+): {
+  textKey: string;
+  textParams?: Record<string, string>;
+  isToday: boolean;
+  messageKey: string;
+} {
   switch (status) {
     case 'FULFILLED': {
       const today = isDeliveredToday(processedAt, status);
       return {
-        text: today
-          ? 'Delivered today'
-          : `Delivered ${formatDate(processedAt)}`,
+        textKey: today
+          ? 'orderCard.delivery.deliveredToday'
+          : 'orderCard.delivery.delivered',
+        textParams: today ? undefined : {date: formatDate(processedAt)},
         isToday: today,
-        message: today
-          ? 'Your package was delivered.'
-          : 'Your package has been delivered.',
+        messageKey: today
+          ? 'orderCard.delivery.messages.deliveredToday'
+          : 'orderCard.delivery.messages.delivered',
       };
     }
     case 'IN_PROGRESS':
     case 'PARTIALLY_FULFILLED':
       return {
-        text: 'In Transit',
+        textKey: 'orderCard.delivery.inTransit',
         isToday: false,
-        message: 'Your package is on the way.',
+        messageKey: 'orderCard.delivery.messages.inTransit',
       };
     case 'UNFULFILLED':
     default:
       return {
-        text: 'Processing',
+        textKey: 'orderCard.delivery.processing',
         isToday: false,
-        message: 'Your order is being prepared.',
+        messageKey: 'orderCard.delivery.messages.processing',
       };
+  }
+}
+
+function getActionButtons(status: string): ActionButton[] {
+  switch (status) {
+    case 'FULFILLED':
+      return [
+        {
+          key: 'trackPackage',
+          labelKey: 'orderCard.action.trackPackage',
+          icon: Package,
+        },
+        {
+          key: 'returnOrReplace',
+          labelKey: 'orderCard.action.returnOrReplace',
+          icon: Undo2,
+        },
+        {
+          key: 'shareGiftReceipt',
+          labelKey: 'orderCard.action.shareGiftReceipt',
+          icon: Gift,
+        },
+        {
+          key: 'askProductQuestion',
+          labelKey: 'orderCard.action.askProductQuestion',
+          icon: HelpCircle,
+        },
+        {
+          key: 'writeReview',
+          labelKey: 'orderCard.action.writeReview',
+          icon: Star,
+        },
+      ];
+    case 'IN_PROGRESS':
+    case 'PARTIALLY_FULFILLED':
+      return [
+        {
+          key: 'trackPackage',
+          labelKey: 'orderCard.action.trackPackage',
+          icon: Package,
+          primary: true,
+        },
+        {
+          key: 'returnOrReplace',
+          labelKey: 'orderCard.action.returnOrReplace',
+          icon: Undo2,
+        },
+        {
+          key: 'shareGiftReceipt',
+          labelKey: 'orderCard.action.shareGiftReceipt',
+          icon: Gift,
+        },
+      ];
+    default:
+      return [
+        {
+          key: 'getProductSupport',
+          labelKey: 'orderCard.action.getProductSupport',
+          icon: Headphones,
+          primary: true,
+        },
+        {
+          key: 'leaveSellerFeedback',
+          labelKey: 'orderCard.action.leaveSellerFeedback',
+          icon: MessageSquare,
+        },
+      ];
   }
 }
 
@@ -121,45 +202,22 @@ function getReturnEligibilityDate(processedAt: string): string {
   });
 }
 
-function getActionButtons(status: string): {
-  label: string;
-  icon: typeof Package;
-  primary?: boolean;
-}[] {
-  switch (status) {
-    case 'FULFILLED':
-      return [
-        {label: 'Track package', icon: Package},
-        {label: 'Return or replace items', icon: Undo2},
-        {label: 'Share gift receipt', icon: Gift},
-        {label: 'Ask Product Question', icon: HelpCircle},
-        {label: 'Write a product review', icon: Star},
-      ];
-    case 'IN_PROGRESS':
-    case 'PARTIALLY_FULFILLED':
-      return [
-        {label: 'Track package', icon: Package, primary: true},
-        {label: 'Return or replace items', icon: Undo2},
-        {label: 'Share gift receipt', icon: Gift},
-      ];
-    default:
-      return [
-        {label: 'Get product support', icon: Headphones, primary: true},
-        {label: 'Leave seller feedback', icon: MessageSquare},
-      ];
-  }
-}
-
 // ============================================================================
 // OrderCard Component
 // ============================================================================
 
 export function OrderCard({order}: OrderCardProps) {
+  const {t} = useTranslation();
   const orderId = order.id.split('/').pop()?.split('?')[0];
-  const delivery = getDeliveryDisplay(
+  const deliveryKeys = getDeliveryKeys(
     order.processedAt,
     order.fulfillmentStatus,
   );
+  const delivery = {
+    text: t(deliveryKeys.textKey, deliveryKeys.textParams),
+    isToday: deliveryKeys.isToday,
+    message: t(deliveryKeys.messageKey),
+  };
   const shipToName = order.shippingAddress
     ? `${order.shippingAddress.firstName ?? ''} ${order.shippingAddress.lastName ?? ''}`.trim()
     : null;
@@ -172,14 +230,17 @@ export function OrderCard({order}: OrderCardProps) {
         {/* Left: Order Placed, Total, Ship To */}
         <div className="flex flex-wrap gap-x-[24px] gap-y-[8px]">
           <MetaItem
-            label="Order Placed"
+            label={t('orderCard.meta.orderPlaced')}
             value={formatDate(order.processedAt)}
           />
-          <MetaItem label="Total" value={formatMoney(order.totalPrice)} />
+          <MetaItem
+            label={t('orderCard.meta.total')}
+            value={formatMoney(order.totalPrice)}
+          />
           {shipToName && (
             <div className="flex flex-col gap-[2px]">
               <span className="text-[12px] font-normal uppercase leading-[18px] tracking-[0.5px] text-[#6b7280]">
-                Ship To
+                {t('orderCard.meta.shipTo')}
               </span>
               <div className="flex items-center gap-[4px] rounded-[4px] border border-[#d1d5db] bg-white px-[9px] py-[5px]">
                 <span className="text-[14px] leading-[21px] text-[#374151]">
@@ -193,7 +254,7 @@ export function OrderCard({order}: OrderCardProps) {
         {/* Right: Order # + links */}
         <div className="flex flex-col gap-[2px]">
           <span className="text-[12px] font-normal uppercase leading-[18px] tracking-[0.5px] text-[#6b7280]">
-            Order #
+            {t('orderCard.meta.orderNumber')}
           </span>
           <span className="text-[15px] leading-[22.5px] text-[#111827]">
             {order.name}
@@ -203,14 +264,14 @@ export function OrderCard({order}: OrderCardProps) {
               to={`/account/orders/${orderId}`}
               className="text-[14px] leading-[21px] text-secondary hover:underline"
             >
-              View order details
+              {t('orderCard.link.viewOrderDetails')}
             </Link>
             <span className="text-[14px] leading-[21px] text-[#d1d5db]">|</span>
             <Link
               to={`/account/orders/${orderId}`}
               className="text-[14px] leading-[21px] text-secondary hover:underline"
             >
-              View invoice
+              {t('orderCard.link.viewInvoice')}
             </Link>
           </div>
         </div>
@@ -278,10 +339,11 @@ function ProductRow({
 }: {
   item: LineItem;
   processedAt: string;
-  actionButtons?: ReturnType<typeof getActionButtons>;
+  actionButtons?: ActionButton[];
   orderId?: string;
   hasBorder: boolean;
 }) {
+  const {t} = useTranslation();
   const image = item.variant?.image;
   const productHandle = item.variant?.product?.handle;
 
@@ -326,8 +388,9 @@ function ProductRow({
           </span>
         )}
         <span className="text-[13px] leading-[19.5px] text-[#4b5563]">
-          Return or replace items: Eligible through{' '}
-          {getReturnEligibilityDate(processedAt)}
+          {t('orderCard.returnEligibility', {
+            date: getReturnEligibilityDate(processedAt),
+          })}
         </span>
         {/* Inline Action Buttons */}
         <div className="flex flex-wrap gap-[8px] pt-[8px]">
@@ -337,7 +400,7 @@ function ProductRow({
               className="flex items-center gap-[8px] border border-[#14b8a6] bg-[#14b8a6] px-[17px] py-[9px] text-[14px] leading-[21px] text-white transition-colors hover:bg-[#0d9488]"
             >
               <RotateCcw size={14} className="text-white" />
-              Buy it again
+              {t('orderCard.buyItAgain')}
             </Link>
           )}
           {productHandle && (
@@ -345,7 +408,7 @@ function ProductRow({
               to={`/products/${productHandle}`}
               className="border border-[#d1d5db] bg-white px-[17px] py-[9px] text-[14px] leading-[21px] text-[#374151] transition-colors hover:border-[#9ca3af]"
             >
-              View your item
+              {t('orderCard.viewYourItem')}
             </Link>
           )}
         </div>
@@ -356,21 +419,21 @@ function ProductRow({
         <div className="hidden w-[200px] min-w-[200px] flex-col gap-[8px] lg:flex">
           {actionButtons.map((action) => {
             // Wire "Return or replace items" to the return flow
-            if (action.label === 'Return or replace items') {
+            if (action.key === 'returnOrReplace') {
               return (
                 <Link
-                  key={action.label}
+                  key={action.key}
                   to={`/account/orders/${orderId}/return`}
                   reloadDocument
                   className="w-full border border-[#d1d5db] bg-white px-[17px] py-[13px] text-center text-[14px] leading-[21px] text-[#374151] transition-colors hover:border-[#9ca3af]"
                 >
-                  {action.label}
+                  {t(action.labelKey)}
                 </Link>
               );
             }
             return (
               <button
-                key={action.label}
+                key={action.key}
                 type="button"
                 className={`w-full px-[17px] py-[13px] text-center text-[14px] leading-[21px] transition-colors ${
                   action.primary
@@ -378,7 +441,7 @@ function ProductRow({
                     : 'border border-[#d1d5db] bg-white text-[#374151] hover:border-[#9ca3af]'
                 }`}
               >
-                {action.label}
+                {t(action.labelKey)}
               </button>
             );
           })}

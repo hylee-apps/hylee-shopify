@@ -4,6 +4,7 @@ import {useRef} from 'react';
 import {Link} from 'react-router';
 import {Image} from '@shopify/hydrogen';
 import {ChevronLeft, ChevronRight} from 'lucide-react';
+import {useTranslation} from 'react-i18next';
 
 export type SubcollectionNode = {
   handle: string;
@@ -32,6 +33,7 @@ const SCROLL_AMOUNT = TILE_SIZE * 3 + 20 * 3; // 3 tiles + gaps per scroll step
 export function SubcategoryScrollSection({
   subcollections,
 }: SubcategoryScrollSectionProps) {
+  const {t} = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   if (!subcollections.length) return null;
@@ -49,14 +51,14 @@ export function SubcategoryScrollSection({
       {/* Section header */}
       <div className="flex items-center justify-between mb-5">
         <h2 className="font-semibold text-[20px] text-[#111827] leading-[30px]">
-          Categories
+          {t('subcategoryScroll.heading')}
         </h2>
         {/* Scroll controls */}
         <div className="flex gap-2">
           <button
             type="button"
             onClick={scrollLeft}
-            aria-label="Scroll categories left"
+            aria-label={t('subcategoryScroll.scrollLeft')}
             className="flex items-center justify-center size-9 rounded-full bg-white border border-[#d1d5db] text-[#4b5563] hover:bg-gray-50 transition-colors shrink-0"
           >
             <ChevronLeft size={13} />
@@ -64,7 +66,7 @@ export function SubcategoryScrollSection({
           <button
             type="button"
             onClick={scrollRight}
-            aria-label="Scroll categories right"
+            aria-label={t('subcategoryScroll.scrollRight')}
             className="flex items-center justify-center size-9 rounded-full bg-white border border-[#d1d5db] text-[#4b5563] hover:bg-gray-50 transition-colors shrink-0"
           >
             <ChevronRight size={13} />
