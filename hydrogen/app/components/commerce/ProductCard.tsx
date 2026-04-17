@@ -248,12 +248,12 @@ export function ProductCard({
           parseFloat(compareAtPrice.amount)) *
           100,
       );
-      badgeText = pct >= 10 ? `-${pct}%` : 'Sale';
+      badgeText = pct >= 10 ? `-${pct}%` : t('productCard.saleBadge');
     } else if (product.tags?.includes('new')) {
-      badgeText = 'New';
+      badgeText = t('productCard.newBadge');
       badgeBg = 'bg-primary';
     } else if (product.tags?.includes('best-seller')) {
-      badgeText = 'Best Seller';
+      badgeText = t('productCard.bestSellerBadge');
       badgeBg = 'bg-secondary';
     } else if (customBadge) {
       badgeText = customBadge;

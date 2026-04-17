@@ -12,7 +12,7 @@ import {
   useRouteLoaderData,
 } from 'react-router';
 import type {Route} from './+types/root';
-import {useMemo} from 'react';
+import {useMemo, useEffect} from 'react';
 import i18next from 'i18next';
 import {initReactI18next} from 'react-i18next';
 import {I18nextProvider} from 'react-i18next';
@@ -95,11 +95,16 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
       cache: storefront.CacheLong(),
       variables: {
         headerMenuHandle: 'main-menu',
+        language: currentLanguage as LanguageCode,
+        country: storefront.i18n.country,
       },
     }),
     storefront.query(HEADER_COLLECTIONS_QUERY, {
       cache: storefront.CacheLong(),
-      variables: {language: currentLanguage as LanguageCode},
+      variables: {
+        language: currentLanguage as LanguageCode,
+        country: storefront.i18n.country,
+      },
     }),
   ]);
 
@@ -163,9 +168,11 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 
 export function Layout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce();
+  const data = useRouteLoaderData<RootLoader>('root');
+  const locale = (data?.locale ?? 'en') as string;
 
   return (
-    <html lang="en">
+    <html lang={locale} data-locale={locale}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -196,6 +203,15 @@ export default function App() {
       resources,
     });
     return instance;
+  }, [locale]);
+
+  // Keep the global i18next instance in sync so any component that falls
+  // back to the global instance (e.g. outside the provider during hydration)
+  // still gets the correct language.
+  useEffect(() => {
+    if (i18next.language !== locale) {
+      void i18next.changeLanguage(locale);
+    }
   }, [locale]);
 
   if (!data) {

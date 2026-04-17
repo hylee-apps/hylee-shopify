@@ -322,7 +322,7 @@ function LanguageSelector({currentLanguage}: {currentLanguage: string}) {
       <DropdownMenuContent align="end" className="min-w-36">
         {LANGUAGES.map((lang) => (
           <DropdownMenuItem key={lang.code} asChild>
-            <Form method="post" action="/api/language">
+            <Form method="post" action="/api/language" reloadDocument>
               <input type="hidden" name="language" value={lang.code} />
               <button
                 type="submit"

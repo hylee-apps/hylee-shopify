@@ -672,7 +672,10 @@
     "removeFromWishlist": "Quitar de Lista de Deseos",
     "wishlisted": "En Lista de Deseos",
     "addShortlist": "Agregar a Favoritos",
-    "add": "Agregar"
+    "add": "Agregar",
+    "saleBadge": "Rebajas",
+    "newBadge": "Nuevo",
+    "bestSellerBadge": "Éxito de ventas"
   },
   "compare": {
     "addToCompare": "Agregar para Comparar",
@@ -727,7 +730,15 @@
   "collection": {
     "loadMore": "Cargar Más Productos",
     "shopNow": "Comprar Ahora",
-    "seeAll": "Ver todo"
+    "seeAll": "Ver todo",
+    "productResults": "{{total}}{{suffix}} Resultados de productos",
+    "showingResults": "Mostrando resultados del 1 al {{total}}{{suffix}}",
+    "loadPrevious": "Cargar anterior",
+    "loading": "Cargando...",
+    "noProductsFound": "No se han encontrado productos",
+    "browseSubcategoriesHint": "Explora las subcategorías de arriba o borra los filtros.",
+    "adjustFiltersHint": "Prueba a ajustar los filtros o echa un vistazo a todos los productos de esta colección.",
+    "clearAllFilters": "Borrar todos los filtros"
   },
   "home": {
     "searchPlaceholder": "Buscar Nuestros Productos",
@@ -1181,7 +1192,9 @@
     "signUpWithApple": "Regístrate con Apple"
   },
   "breadcrumb": {
-    "more": "Más"
+    "more": "Más",
+    "home": "Inicio",
+    "nav": "Navegación por el sitio"
   },
   "pagination": {
     "goPrevious": "Ir a la página anterior",
@@ -1192,5 +1205,74 @@
   },
   "pillInput": {
     "search": "Buscar"
+  },
+  "collectionHero": {
+    "imageAlt": "{{title}} colección"
+  },
+  "returnShippingPage": {
+    "title": "Gastos de envío de devolución",
+    "subtitle": "Elige cómo quieres devolver tus artículos",
+    "shippingMethodHeading": "Método de envío",
+    "cancel": "Cancelar",
+    "continue": "Continuar",
+    "free": "Gratis",
+    "options": {
+      "drop-off": {
+        "title": "Punto de entrega de UPS",
+        "description": "Deja tu paquete en cualquier oficina de UPS o en una tienda UPS Store. Imprime la etiqueta en casa o muestra el código QR en la tienda.",
+        "feature1": "Etiqueta prepagada",
+        "feature2": "Más de 10 000 establecimientos",
+        "feature3": "No hace falta embalaje"
+      },
+      "pickup": {
+        "title": "Recogida por UPS",
+        "description": "Solicita una recogida gratuita en tu domicilio o en tu oficina. UPS se presentará en tu puerta para recoger tu paquete.",
+        "feature1": "Recogida cómoda",
+        "feature2": "El siguiente día laborable",
+        "feature3": "No hace falta desplazarse"
+      },
+      "instant": {
+        "title": "Devolución inmediata",
+        "description": "Consigue crédito en la tienda al instante al escanear tu devolución, antes incluso de que la recibamos. Ideal para volver a hacer pedidos rápidamente.",
+        "feature1": "Crédito inmediato",
+        "feature2": "Tramitación en el mismo día",
+        "feature3": "+4,99 $ de comisión"
+      }
+    }
+  },
+  "returnResolvePage": {
+    "title": "Hazlo bien",
+    "subtitle": "¿Cómo te gustaría que resolviéramos esto?",
+    "chooseResolutionHeading": "Elige la resolución",
+    "cancel": "Cancelar",
+    "submitReturn": "Enviar devolución",
+    "free": "Gratis",
+    "options": {
+      "exchange": {
+        "title": "Intercambio",
+        "description": "Cambia por otro color, talla o modelo"
+      },
+      "replace": {
+        "title": "Sustituir",
+        "description": "Pide que te envíen exactamente el mismo artículo"
+      },
+      "store-credit": {
+        "title": "Crédito de la tienda",
+        "description": "Crédito inmediato en tu cuenta de Hylee"
+      },
+      "refund": {
+        "title": "Reembolso",
+        "description": "Reembolso a través del mismo método de pago utilizado"
+      }
+    },
+    "confirmation": {
+      "title": "Solicitud de devolución enviada",
+      "subtitle": "Hemos recibido tu solicitud y la revisaremos en breve",
+      "orderLabel": "Pedir «{{name}}»",
+      "itemCount_one": "{{count}} artículo",
+      "itemCount_other": "{{count}} artículos",
+      "emailNotice": "Te enviaremos un correo electrónico en cuanto hayamos revisado tu devolución. Puedes consultar el estado de tu devolución en cualquier momento desde la página de pedidos.",
+      "backToOrders": "Volver a mis pedidos"
+    }
   }
 }

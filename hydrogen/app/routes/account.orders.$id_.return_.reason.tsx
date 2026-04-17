@@ -308,7 +308,7 @@ export default function ReturnReasonPage({loaderData}: Route.ComponentProps) {
   return (
     <div className="flex min-h-[calc(100vh-200px)] flex-col">
       {/* Scrollable Content */}
-      <div className="mx-auto flex w-full max-w-[900px] flex-1 flex-col gap-[8px] px-[24px] pb-16 pt-[32px]">
+      <div className="mx-auto flex w-full max-w-screen-2xl flex-1 flex-col gap-[8px] px-4 pb-16 pt-6 lg:px-6 lg:pt-8">
         {/* Title */}
         <h1 className="text-center text-[32px] font-light leading-[48px] text-[#1f2937]">
           Return Items
@@ -431,7 +431,7 @@ export default function ReturnReasonPage({loaderData}: Route.ComponentProps) {
 
 export function HydrateFallback() {
   return (
-    <div className="mx-auto flex w-full max-w-[900px] flex-col gap-4 px-6 py-8">
+    <div className="mx-auto flex w-full max-w-screen-2xl flex-col gap-4 px-4 py-6 lg:px-6 lg:py-8">
       {/* Title skeleton */}
       <div className="mx-auto h-[48px] w-[300px] animate-pulse rounded bg-gray-200" />
       <div className="mx-auto h-[24px] w-[400px] animate-pulse rounded bg-gray-200" />

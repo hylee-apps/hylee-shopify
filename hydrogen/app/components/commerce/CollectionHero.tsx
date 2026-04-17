@@ -1,4 +1,5 @@
 import {Image} from '@shopify/hydrogen';
+import {useTranslation} from 'react-i18next';
 
 export interface CollectionHeroProps {
   title: string;
@@ -28,6 +29,7 @@ export interface CollectionHeroProps {
  * Mobile: image stacks above title.
  */
 export function CollectionHero({title, image, className}: CollectionHeroProps) {
+  const {t} = useTranslation();
   return (
     <section
       className={`max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 ${className ?? ''}`}
@@ -45,6 +47,7 @@ export function CollectionHero({title, image, className}: CollectionHeroProps) {
               sizes="400px"
               className="w-full h-full object-cover"
               loading="eager"
+              alt={image.altText ?? t('collectionHero.imageAlt', {title})}
             />
           ) : (
             <div className="w-full h-full bg-[#f3f4f6]" />
@@ -72,6 +75,7 @@ export function CollectionHero({title, image, className}: CollectionHeroProps) {
               sizes="100vw"
               className="w-full h-full object-cover"
               loading="eager"
+              alt={image.altText ?? t('collectionHero.imageAlt', {title})}
             />
           ) : (
             <div className="w-full h-full bg-[#f3f4f6]" />
