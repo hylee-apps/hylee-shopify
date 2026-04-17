@@ -1275,6 +1275,77 @@
       "backToOrders": "Retour à Mes commandes"
     }
   },
+  "about": {
+    "metaTitle": "À Propos — Hy-lee",
+    "metaDescription": "Découvrez Hy-lee — un marché moderne conçu pour les petits espaces de vie, mettant en relation des acheteurs avec des produits de qualité pour les tiny homes et micro-appartements.",
+    "breadcrumb": {
+      "home": "Accueil",
+      "about": "À Propos"
+    },
+    "hero": {
+      "eyebrow": "Notre Histoire",
+      "heading": "Conçu pour votre Façon de Vivre",
+      "body": "Hy-lee est un marché moderne qui sélectionne des produits de qualité pour vivre dans de petits espaces — des tiny homes aux micro-appartements. Nous croyons qu'un espace réduit ne devrait jamais signifier un style de vie limité."
+    },
+    "mission": {
+      "eyebrow": "Notre Mission",
+      "heading": "Des Produits Intelligents pour les Petits Espaces",
+      "body": "Nous avons créé Hy-lee parce que nous avons remarqué un vide : les grandes enseignes n'étaient pas conçues pour les personnes qui vivent intentionnellement dans de petits espaces. Tout sur Hy-lee est sélectionné avec une question en tête — est-ce que cela transforme un petit espace en vrai foyer ?",
+      "body2": "Des meubles multifonctionnels aux essentiels de cuisine gain de place, chaque produit sur notre plateforme est validé par notre équipe avant d'arriver à votre porte."
+    },
+    "values": {
+      "eyebrow": "Ce en Quoi Nous Croyons",
+      "heading": "Nos Valeurs",
+      "curation": {
+        "title": "Qualité Sélectionnée",
+        "body": "Chaque produit est examiné par notre équipe. S'il ne répond pas à nos normes de qualité et de design, il n'est pas retenu."
+      },
+      "community": {
+        "title": "La Communauté en Premier",
+        "body": "Nos acheteurs sont nos partenaires. Nous écoutons les avis, agissons sur les retours et améliorons continuellement la sélection."
+      },
+      "simplicity": {
+        "title": "La Simplicité par le Design",
+        "body": "Faire ses achats doit être aussi épuré que les espaces que vous créez. Hy-lee est rapide, intuitif et exempt du bruit des grandes plateformes."
+      },
+      "trust": {
+        "title": "Confiance Transparente",
+        "body": "Pas de pratiques trompeuses. Pas de faux avis. Pas de frais cachés. Ce que vous voyez est ce que vous obtenez — jusqu'au moindre détail sur chaque page produit."
+      }
+    },
+    "stats": {
+      "heading": "Hy-lee en Chiffres",
+      "products": {
+        "value": "2 000+",
+        "label": "Produits"
+      },
+      "suppliers": {
+        "value": "150+",
+        "label": "Fournisseurs Vérifiés"
+      },
+      "customers": {
+        "value": "10 000+",
+        "label": "Clients Satisfaits"
+      },
+      "returns": {
+        "value": "<1%",
+        "label": "Taux de Retour"
+      }
+    },
+    "cta": {
+      "heading": "Prêt à trouver votre prochaine pièce préférée ?",
+      "shop": {
+        "title": "Commencer à Acheter",
+        "body": "Parcourez des milliers de produits sélectionnés pour les petits espaces de vie.",
+        "button": "Acheter Maintenant"
+      },
+      "supplier": {
+        "title": "Devenir Fournisseur",
+        "body": "Vendez vos produits à une communauté croissante d'acheteurs intentionnels.",
+        "button": "Postuler Maintenant"
+      }
+    }
+  },
   "faq": {
     "metaTitle": "FAQ — Hy-lee",
     "metaDescription": "Trouvez des réponses aux questions fréquentes sur les achats, la livraison, les retours et votre compte chez Hy-lee.",

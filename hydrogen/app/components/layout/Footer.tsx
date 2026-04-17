@@ -34,7 +34,7 @@ export interface FooterProps {
 // ============================================================================
 
 const DEFAULT_LINK_KEYS = [
-  {key: 'footer.links.about', url: '/pages/about'},
+  {key: 'footer.links.about', url: '/about'},
   {key: 'footer.links.faq', url: '/faq'},
   {key: 'footer.links.termsOfUse', url: '/policies/terms-of-service'},
   {key: 'footer.links.privacyPolicy', url: '/policies/privacy-policy'},

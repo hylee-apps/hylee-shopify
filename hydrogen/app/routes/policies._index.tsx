@@ -90,7 +90,7 @@ export default function PoliciesIndex({loaderData}: Route.ComponentProps) {
   const {policies} = loaderData;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:py-12">
+    <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
