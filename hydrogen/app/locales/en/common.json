@@ -1367,6 +1367,13 @@
       "refund": {"value": "5–7", "label": "Day Refund Processing"},
       "exchange": {"value": "Easy", "label": "Exchanges Available"}
     },
+    "eligibilitySectionEyebrow": "Eligibility",
+    "eligibilitySectionHeading": "What's Covered?",
+    "howToEyebrow": "Return Process",
+    "quickFacts": {
+      "eyebrow": "Good to Know",
+      "heading": "Refunds, Exchanges & More"
+    },
     "sections": {
       "eligibility": {
         "title": "What Can I Return?",

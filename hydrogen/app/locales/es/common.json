@@ -1367,6 +1367,13 @@
       "refund": {"value": "5–7", "label": "Días para el Reembolso"},
       "exchange": {"value": "Fácil", "label": "Cambios Disponibles"}
     },
+    "eligibilitySectionEyebrow": "Elegibilidad",
+    "eligibilitySectionHeading": "¿Qué está cubierto?",
+    "howToEyebrow": "Proceso de devolución",
+    "quickFacts": {
+      "eyebrow": "Bueno saber",
+      "heading": "Reembolsos, cambios y más"
+    },
     "sections": {
       "eligibility": {
         "title": "¿Qué puedo devolver?",
