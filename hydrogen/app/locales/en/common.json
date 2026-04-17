@@ -1274,5 +1274,114 @@
       "emailNotice": "We'll send you an email once your return has been reviewed. You can track the status of your return from your orders page at any time.",
       "backToOrders": "Back to My Orders"
     }
+  },
+  "faq": {
+    "metaTitle": "FAQ — Hy-lee",
+    "metaDescription": "Find answers to frequently asked questions about shopping, shipping, returns, and your account at Hy-lee.",
+    "breadcrumb": {
+      "home": "Home",
+      "faq": "FAQ"
+    },
+    "heading": "Frequently Asked Questions",
+    "subtitle": "Find quick answers to common questions about shopping, shipping, returns, and your account.",
+    "searchPlaceholder": "Search questions...",
+    "noResults": "No questions match your search. Try different keywords or browse by category below.",
+    "contact": {
+      "heading": "Still have questions?",
+      "body": "Our support team is ready to help you with anything you need.",
+      "cta": "Contact Support"
+    },
+    "categories": {
+      "ordersShipping": "Orders & Shipping",
+      "returnsExchanges": "Returns & Exchanges",
+      "accountPayments": "Account & Payments",
+      "productsInventory": "Products & Inventory"
+    },
+    "items": {
+      "ordersShipping": [
+        {
+          "q": "How do I track my order?",
+          "a": "Once your order ships, you'll receive a confirmation email with a tracking number. You can also track your order from the My Orders page in your account dashboard."
+        },
+        {
+          "q": "How long does standard shipping take?",
+          "a": "Standard shipping takes 5–7 business days. We partner with UPS to deliver to all 50 states."
+        },
+        {
+          "q": "Do you offer free shipping?",
+          "a": "We offer free standard shipping on orders over $75. Orders under $75 are subject to a flat $5.99 shipping fee."
+        },
+        {
+          "q": "Can I change my shipping address after placing an order?",
+          "a": "Address changes can be made within 1 hour of placing your order. Contact our support team immediately and we'll do our best to update the delivery details before the order ships."
+        },
+        {
+          "q": "Do you ship internationally?",
+          "a": "Currently we ship within the United States only. International shipping options are on our roadmap and will be announced on our blog."
+        }
+      ],
+      "returnsExchanges": [
+        {
+          "q": "What is your return policy?",
+          "a": "We accept returns within 30 days of delivery. Items must be in their original packaging and unused condition. Final sale items are not eligible for return."
+        },
+        {
+          "q": "How do I start a return?",
+          "a": "Go to My Orders in your account, find the order, and click 'Return or Replace Items'. Our guided return flow will walk you through selecting items, choosing a reason, and scheduling a pickup or drop-off."
+        },
+        {
+          "q": "How long does a refund take?",
+          "a": "Refunds are processed within 5–7 business days after we receive your return. You'll receive an email confirmation once the refund is issued to your original payment method."
+        },
+        {
+          "q": "Can I exchange an item instead of returning it?",
+          "a": "Yes! During the return flow, select 'Exchange' as your resolution option. You can swap for a different color, size, or variant of the same product."
+        },
+        {
+          "q": "Is return shipping free?",
+          "a": "Standard return shipping via UPS drop-off is always free. We also offer a scheduled pickup option and an Instant Return option (small fee applies) for added convenience."
+        }
+      ],
+      "accountPayments": [
+        {
+          "q": "What payment methods do you accept?",
+          "a": "We accept all major credit and debit cards (Visa, Mastercard, AmEx, Discover), Shop Pay, Apple Pay, and Google Pay."
+        },
+        {
+          "q": "Is my payment information secure?",
+          "a": "Yes. All transactions are processed through Shopify's PCI DSS Level 1 certified infrastructure with 256-bit SSL encryption. Hy-lee never stores your card number or CVV."
+        },
+        {
+          "q": "How do I create an account?",
+          "a": "Click 'Register' in the top navigation. You'll need your name, email address, and a password. Creating an account gives you access to order history, wishlist, address book, and faster checkout."
+        },
+        {
+          "q": "I forgot my password. How do I reset it?",
+          "a": "Click 'Sign In', then 'Forgot password?' Enter your email address and we'll send you a reset link within a few minutes."
+        },
+        {
+          "q": "Can I use promo codes at checkout?",
+          "a": "Yes. Enter your promo code in the 'Promo Code' field in your cart before proceeding to checkout. Codes cannot be applied retroactively after an order is placed."
+        }
+      ],
+      "productsInventory": [
+        {
+          "q": "How do I know if a product is in stock?",
+          "a": "Product pages show real-time availability. If an item is out of stock, the 'Add to Cart' button will be replaced with a 'Sold Out' indicator."
+        },
+        {
+          "q": "Can I save a product to buy later?",
+          "a": "Yes. Click the heart icon on any product card or product page to add it to your Wishlist. You can find your saved items under My Account → Wishlist."
+        },
+        {
+          "q": "Do you offer price matching?",
+          "a": "We do not currently offer a formal price-match policy. However, we regularly run promotions and discounts — sign up for our newsletter to stay informed."
+        },
+        {
+          "q": "How can I compare products?",
+          "a": "Click the compare icon on any product card to add it to your comparison list (up to 4 products). Then click 'Compare Now' to see a side-by-side breakdown of specs and features."
+        }
+      ]
+    }
   }
 }
