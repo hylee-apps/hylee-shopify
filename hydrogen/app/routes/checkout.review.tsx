@@ -11,7 +11,6 @@ import {
   PAYMENT_METHOD_LABELS,
   CART_BUYER_IDENTITY_UPDATE,
   type ShippingAddress,
-  type ShippingMethod,
   type PaymentMethodType,
 } from '~/lib/checkout';
 import {getCustomerAccessToken} from '~/lib/customer-auth';
@@ -41,7 +40,6 @@ export async function loader({context}: Route.LoaderArgs) {
 
   const checkoutData = getCheckoutAttributes(cart);
 
-  // If no shipping address has been entered, redirect back
   if (!checkoutData.shippingAddress) {
     throw redirect('/checkout/shipping');
   }
@@ -60,10 +58,16 @@ export async function loader({context}: Route.LoaderArgs) {
 }
 
 // ============================================================================
-// Action — Place Order (redirect to Shopify checkout)
+// Action — Place Order
+//
+// Passes the collected shipping address to Shopify's cart as
+// `deliveryAddressPreferences` (Storefront API 2023-10+) so that
+// Shopify's hosted checkout skips the address form and lands the customer
+// directly on the payment step. Shopify collects all payment PII —
+// card data never touches this application.
 // ============================================================================
 
-export async function action({context}: Route.ActionArgs) {
+export async function action({request, context}: Route.ActionArgs) {
   const cart = await context.cart.get();
   if (!cart?.id || !cart.checkoutUrl) throw redirect('/cart');
 
@@ -71,20 +75,38 @@ export async function action({context}: Route.ActionArgs) {
   const customerAccessToken =
     getCustomerAccessToken(context.session) ?? undefined;
 
-  // Final buyer identity update to ensure Shopify checkout is pre-populated.
-  // For logged-in users, passing customerAccessToken lets Shopify's checkout
-  // recognise the account and pre-fill their saved shipping address.
   if (checkoutData.shippingAddress) {
-    await context.storefront.mutate(CART_BUYER_IDENTITY_UPDATE, {
-      variables: {
-        cartId: cart.id,
-        buyerIdentity: {
-          email: checkoutData.shippingAddress.email,
-          phone: checkoutData.shippingAddress.phone || undefined,
-          countryCode: 'US',
-          customerAccessToken,
+    const addr = checkoutData.shippingAddress;
+
+    // Build the buyer identity payload. `deliveryAddressPreferences` is a
+    // Storefront API 2023-10+ field that tells Shopify's checkout to
+    // pre-fill the shipping address, so customers only see the payment step.
+    // The field isn't in the bundled codegen schema (which is older), so we
+    // cast to `any` to satisfy TypeScript while still sending it at runtime.
+    const buyerIdentity: any = {
+      email: addr.email,
+      phone: addr.phone || undefined,
+      countryCode: 'US',
+      customerAccessToken,
+      deliveryAddressPreferences: [
+        {
+          deliveryAddress: {
+            firstName: addr.firstName,
+            lastName: addr.lastName,
+            address1: addr.address1,
+            address2: addr.address2 || undefined,
+            city: addr.city,
+            province: addr.state,
+            zip: addr.zip,
+            country: 'US',
+            phone: addr.phone || undefined,
+          },
         },
-      },
+      ],
+    };
+
+    await context.storefront.mutate(CART_BUYER_IDENTITY_UPDATE, {
+      variables: {cartId: cart.id, buyerIdentity},
     });
   }
 
@@ -138,22 +160,6 @@ function ShippingAddressSection({
           {t('checkout.review.shippingAddress.edit')}
         </Link>
       </div>
-    </div>
-  );
-}
-
-function ShippingMethodSection({method}: {method: ShippingMethod | null}) {
-  const {t} = useTranslation('common');
-  return (
-    <div className="rounded-lg border border-border p-5">
-      <h4 className="text-base font-semibold text-[#111827]">
-        {t('checkout.review.shippingMethod.title')}
-      </h4>
-      <p className="mt-2 text-[15px] text-[#4b5563]">
-        {method
-          ? `${method.label} (${method.description}) - $${method.price.toFixed(2)}`
-          : t('checkout.review.shippingMethod.fallback')}
-      </p>
     </div>
   );
 }
@@ -269,9 +275,7 @@ export default function CheckoutReviewPage() {
   const {t} = useTranslation('common');
   const {
     cart,
-    checkoutUrl,
     shippingAddress,
-    shippingMethod,
     shippingCost,
     paymentMethod,
     shippingRecipientLabel,
@@ -318,20 +322,25 @@ export default function CheckoutReviewPage() {
                   .
                 </p>
 
-                {/* Shipping sections */}
+                {/* Shipping address */}
                 <ShippingAddressSection
                   address={shippingAddress}
                   recipientLabel={shippingRecipientLabel}
                 />
-                {/* <ShippingMethodSection method={shippingMethod} /> */}
 
-                {/* Payment section */}
+                {/* Payment method */}
                 <PaymentMethodSection paymentMethod={paymentMethod} />
 
                 {/* Items */}
                 <OrderItems cart={cart} />
               </div>
             </Card>
+
+            {/* Payment notice */}
+            <div className="flex items-center gap-3 rounded-lg border border-border bg-white px-5 py-4 text-[14px] text-[#4b5563] shadow-sm">
+              <Lock size={16} className="shrink-0 text-secondary" />
+              <span>{t('checkout.review.paymentNotice')}</span>
+            </div>
           </div>
 
           {/* Right: Order Total sidebar */}

@@ -42,7 +42,6 @@ export async function loader({context}: Route.LoaderArgs) {
 
   return {
     cart,
-    checkoutUrl: cart.checkoutUrl,
     savedPaymentMethod: checkoutData.paymentMethod ?? 'credit',
   };
 }
@@ -148,83 +147,6 @@ function PaymentMethodOption({
       {/* Trailing (e.g. card brand badges) */}
       {trailing}
     </button>
-  );
-}
-
-// ============================================================================
-// CardDetailsForm
-// ============================================================================
-
-function CardDetailsForm() {
-  const {t} = useTranslation('common');
-  return (
-    <div className="border-t border-border pt-6">
-      <h4 className="mb-4 text-base font-semibold text-[#1f2937]">
-        {t('checkout.payment.cardDetails.title')}
-      </h4>
-
-      <div className="flex flex-col gap-4">
-        {/* Card Number */}
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-[#374151]">
-            {t('checkout.payment.cardDetails.cardNumber')}
-          </label>
-          <input
-            type="text"
-            inputMode="numeric"
-            maxLength={19}
-            placeholder={t(
-              'checkout.payment.cardDetails.cardNumberPlaceholder',
-            )}
-            className="h-[44px] w-full rounded-[8px] border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
-          />
-        </div>
-
-        {/* Expiry + CVC */}
-        <div className="flex gap-4">
-          <div className="flex flex-1 flex-col gap-2">
-            <label className="text-sm font-medium text-[#374151]">
-              {t('checkout.payment.cardDetails.expirationDate')}
-            </label>
-            <input
-              type="text"
-              inputMode="numeric"
-              maxLength={7}
-              placeholder={t(
-                'checkout.payment.cardDetails.expirationPlaceholder',
-              )}
-              className="h-[44px] w-full rounded-[8px] border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
-            />
-          </div>
-          <div className="flex flex-1 flex-col gap-2">
-            <label className="text-sm font-medium text-[#374151]">
-              {t('checkout.payment.cardDetails.cvc')}
-            </label>
-            <input
-              type="text"
-              inputMode="numeric"
-              maxLength={4}
-              placeholder={t('checkout.payment.cardDetails.cvcPlaceholder')}
-              className="h-[44px] w-full rounded-[8px] border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
-            />
-          </div>
-        </div>
-
-        {/* Name on Card */}
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-[#374151]">
-            {t('checkout.payment.cardDetails.nameOnCard')}
-          </label>
-          <input
-            type="text"
-            placeholder={t(
-              'checkout.payment.cardDetails.nameOnCardPlaceholder',
-            )}
-            className="h-[44px] w-full rounded-[8px] border border-[#d1d5db] bg-white px-[17px] text-[15px] placeholder:text-[#757575] focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
-          />
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -396,9 +318,6 @@ function PaymentMethodCard({
           }
           label={t('checkout.payment.method.googlePay')}
         />
-
-        {/* Card details (shown only for credit card) */}
-        {selectedMethod === 'credit' && <CardDetailsForm />}
       </div>
     </Card>
   );
@@ -409,8 +328,7 @@ function PaymentMethodCard({
 // ============================================================================
 
 export default function CheckoutPaymentPage() {
-  const {cart, checkoutUrl, savedPaymentMethod} =
-    useLoaderData<typeof loader>();
+  const {cart, savedPaymentMethod} = useLoaderData<typeof loader>();
 
   return (
     <div className="min-h-screen bg-[#f9fafb]">

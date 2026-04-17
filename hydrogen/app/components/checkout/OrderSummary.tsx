@@ -64,6 +64,8 @@ interface OrderSummaryProps {
     /** If true, renders as a form submit button instead of a link */
     isSubmit?: boolean;
     icon?: 'arrow' | 'check';
+    /** Disable the button (e.g. while processing payment) */
+    disabled?: boolean;
   };
   /** Secondary back link */
   back?: {
@@ -178,7 +180,8 @@ export function OrderSummary({
               {cta.isSubmit ? (
                 <button
                   type="submit"
-                  className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-primary/90"
+                  disabled={cta.disabled}
+                  className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {cta.label}
                   {cta.icon === 'arrow' && <ArrowRight size={16} />}
