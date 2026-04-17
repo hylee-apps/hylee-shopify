@@ -1,6 +1,11 @@
 import {useState, useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useLocation, useNavigation, useRouteLoaderData} from 'react-router';
+import {
+  redirect,
+  useLocation,
+  useNavigation,
+  useRouteLoaderData,
+} from 'react-router';
 import {ComingSoonPage} from '~/components/display/ComingSoonPage';
 import type {Route} from './+types/collections.$handle';
 import type {RootLoader} from '~/root';
@@ -191,12 +196,37 @@ const COLLECTION_QUERY = `#graphql
 // Loader
 // ============================================================================
 
+// ============================================================================
+// Virtual collection redirects
+//
+// These handles don't map to real Shopify collections — they are filtered
+// views of /collections/all. When a user navigates to one of these URLs
+// (e.g. bookmarked or via the header nav) they are redirected to
+// /collections/all with the appropriate filter or sort pre-applied.
+// ============================================================================
+
+const sale = encodeURIComponent(JSON.stringify({tag: 'sale'}));
+const promotion = encodeURIComponent(JSON.stringify({tag: 'promotion'}));
+
+const VIRTUAL_REDIRECTS: Record<string, string> = {
+  'new-arrivals': '/collections/all?sort=newest',
+  'what-s-new': '/collections/all?sort=newest',
+  discounts: `/collections/all?filter=${sale}`,
+  promotions: `/collections/all?filter=${promotion}`,
+  'promotions-deals': `/collections/all?filter=${promotion}`,
+};
+
 export async function loader({params, request, context}: Route.LoaderArgs) {
   const {storefront} = context;
   const {handle} = params;
 
   if (!handle) {
     throw new Response('Collection handle is required', {status: 400});
+  }
+
+  // Redirect virtual collection handles to filtered /collections/all
+  if (VIRTUAL_REDIRECTS[handle]) {
+    throw redirect(VIRTUAL_REDIRECTS[handle], {status: 302});
   }
 
   const url = new URL(request.url);
