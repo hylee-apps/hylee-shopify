@@ -1174,6 +1174,13 @@
     "emptyHeading": "No se han encontrado productos",
     "emptySubtitle": "Vuelve pronto para ver los nuevos productos."
   },
+  "comingSoon": {
+    "eyebrow": "Próximamente",
+    "defaultTitle": "Estamos trabajando en ello",
+    "body": "Estamos dando los últimos toques a esta sección. Vuelve pronto para descubrir contenido nuevo y emocionante.",
+    "ctaShop": "Ver todos los productos",
+    "ctaHome": "Volver al inicio"
+  },
   "return": {
     "pageTitle": "Iniciar una devolución",
     "subtitle": "{{orderName}} • Publicado en {{date}}",

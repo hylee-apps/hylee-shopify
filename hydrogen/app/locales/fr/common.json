@@ -1174,6 +1174,13 @@
     "emptyHeading": "Aucun produit trouvé",
     "emptySubtitle": "Revenez bientôt pour découvrir nos nouveaux produits."
   },
+  "comingSoon": {
+    "eyebrow": "Bientôt disponible",
+    "defaultTitle": "Nous y travaillons",
+    "body": "Nous mettons la dernière main à cette section. Revenez bientôt pour découvrir du nouveau contenu passionnant.",
+    "ctaShop": "Parcourir tous les produits",
+    "ctaHome": "Retour à l'accueil"
+  },
   "return": {
     "pageTitle": "Lancer un retour",
     "subtitle": "{{orderName}} • Disponible sur {{date}}",
