@@ -8,11 +8,13 @@ import {
   getSeoMeta,
   Image,
 } from '@shopify/hydrogen';
-import type {ProductCardProps} from '~/components/commerce/ProductCard';
+import {
+  ProductCard,
+  type ProductCardProps,
+} from '~/components/commerce/ProductCard';
 import {ChevronUp, Loader2, Search} from 'lucide-react';
 import {Button} from '~/components/ui/button';
 import {CollectionToolbar} from '~/components/commerce/CollectionToolbar';
-import {ProductGrid} from '~/components/commerce/ProductGrid';
 import {FilterSidebar} from '~/components/commerce/FilterSidebar';
 import {ActiveFilterChips} from '~/components/commerce/ActiveFilterChips';
 import {
@@ -275,13 +277,13 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
         <div className="relative mx-auto flex max-w-screen-2xl items-center gap-8 px-4 py-10 sm:px-6 lg:gap-16 lg:px-8 lg:py-14">
           {/* Text block */}
           <div className="flex-1">
-            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-secondary">
+            <p className="mb-3 text-sm font-bold uppercase tracking-widest text-secondary">
               {t('collectionsAll.promoHeadline')}
             </p>
-            <h1 className="text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
+            <h1 className="text-5xl font-black leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl">
               {t('collectionsAll.title')}
             </h1>
-            <p className="mt-3 max-w-md text-base leading-relaxed text-white/65">
+            <p className="mt-4 max-w-md text-lg leading-relaxed text-white/65">
               {t('collectionsAll.description')}
             </p>
             <Link
@@ -390,10 +392,16 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
                       </div>
                     )}
 
-                    <ProductGrid
-                      products={nodes as CollectionProduct[]}
-                      size="small"
-                    />
+                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                      {(nodes as CollectionProduct[]).map((product) => (
+                        <ProductCard
+                          key={product.id}
+                          product={product}
+                          size="end-node"
+                          collectionHandle="all"
+                        />
+                      ))}
+                    </div>
 
                     {hasNextPage && (
                       <div className="mt-10 flex justify-center">
