@@ -1274,5 +1274,114 @@
       "emailNotice": "Te enviaremos un correo electrónico en cuanto hayamos revisado tu devolución. Puedes consultar el estado de tu devolución en cualquier momento desde la página de pedidos.",
       "backToOrders": "Volver a mis pedidos"
     }
+  },
+  "faq": {
+    "metaTitle": "Preguntas Frecuentes — Hy-lee",
+    "metaDescription": "Encuentra respuestas a las preguntas más frecuentes sobre compras, envíos, devoluciones y tu cuenta en Hy-lee.",
+    "breadcrumb": {
+      "home": "Inicio",
+      "faq": "Preguntas Frecuentes"
+    },
+    "heading": "Preguntas Frecuentes",
+    "subtitle": "Encuentra respuestas rápidas a preguntas comunes sobre compras, envíos, devoluciones y tu cuenta.",
+    "searchPlaceholder": "Buscar preguntas...",
+    "noResults": "Ninguna pregunta coincide con tu búsqueda. Intenta con otras palabras clave o explora por categoría.",
+    "contact": {
+      "heading": "¿Aún tienes preguntas?",
+      "body": "Nuestro equipo de soporte está listo para ayudarte con lo que necesites.",
+      "cta": "Contactar Soporte"
+    },
+    "categories": {
+      "ordersShipping": "Pedidos y Envíos",
+      "returnsExchanges": "Devoluciones y Cambios",
+      "accountPayments": "Cuenta y Pagos",
+      "productsInventory": "Productos e Inventario"
+    },
+    "items": {
+      "ordersShipping": [
+        {
+          "q": "¿Cómo puedo rastrear mi pedido?",
+          "a": "Una vez que tu pedido sea enviado, recibirás un correo de confirmación con un número de seguimiento. También puedes rastrear tu pedido desde la página Mis Pedidos en tu cuenta."
+        },
+        {
+          "q": "¿Cuánto tarda el envío estándar?",
+          "a": "El envío estándar tarda entre 5 y 7 días hábiles. Trabajamos con UPS para entregar en los 50 estados."
+        },
+        {
+          "q": "¿Ofrecen envío gratuito?",
+          "a": "Ofrecemos envío estándar gratuito en pedidos superiores a $75. Los pedidos inferiores a $75 tienen un cargo fijo de $5.99."
+        },
+        {
+          "q": "¿Puedo cambiar mi dirección de envío después de realizar un pedido?",
+          "a": "Los cambios de dirección se pueden realizar dentro de 1 hora de haber realizado el pedido. Contacta a nuestro equipo de soporte de inmediato y haremos todo lo posible por actualizar los datos antes de que el pedido sea enviado."
+        },
+        {
+          "q": "¿Hacen envíos internacionales?",
+          "a": "Actualmente solo enviamos dentro de los Estados Unidos. Las opciones de envío internacional están en nuestros planes y se anunciarán en nuestro blog."
+        }
+      ],
+      "returnsExchanges": [
+        {
+          "q": "¿Cuál es su política de devoluciones?",
+          "a": "Aceptamos devoluciones dentro de los 30 días posteriores a la entrega. Los artículos deben estar en su embalaje original y en condición sin usar. Los artículos de venta final no son elegibles para devolución."
+        },
+        {
+          "q": "¿Cómo inicio una devolución?",
+          "a": "Ve a Mis Pedidos en tu cuenta, busca el pedido y haz clic en 'Devolver o Reemplazar Artículos'. Nuestro flujo de devolución guiado te llevará paso a paso."
+        },
+        {
+          "q": "¿Cuánto tarda el reembolso?",
+          "a": "Los reembolsos se procesan dentro de 5 a 7 días hábiles después de recibir tu devolución. Recibirás un correo de confirmación cuando el reembolso sea emitido al método de pago original."
+        },
+        {
+          "q": "¿Puedo cambiar un artículo en lugar de devolverlo?",
+          "a": "¡Sí! Durante el proceso de devolución, selecciona 'Cambio' como opción de resolución. Puedes elegir un color, talla o variante diferente del mismo producto."
+        },
+        {
+          "q": "¿El envío de devolución es gratuito?",
+          "a": "El envío de devolución estándar mediante depósito en UPS siempre es gratuito. También ofrecemos una opción de recogida programada y una opción de Devolución Instantánea (aplica tarifa pequeña)."
+        }
+      ],
+      "accountPayments": [
+        {
+          "q": "¿Qué métodos de pago aceptan?",
+          "a": "Aceptamos todas las tarjetas de crédito y débito principales (Visa, Mastercard, AmEx, Discover), Shop Pay, Apple Pay y Google Pay."
+        },
+        {
+          "q": "¿Es segura mi información de pago?",
+          "a": "Sí. Todas las transacciones se procesan a través de la infraestructura certificada PCI DSS Nivel 1 de Shopify con cifrado SSL de 256 bits. Hy-lee nunca almacena tu número de tarjeta ni CVV."
+        },
+        {
+          "q": "¿Cómo creo una cuenta?",
+          "a": "Haz clic en 'Registrarse' en la navegación superior. Necesitarás tu nombre, correo electrónico y una contraseña. Crear una cuenta te da acceso al historial de pedidos, lista de deseos, libreta de direcciones y un proceso de pago más rápido."
+        },
+        {
+          "q": "Olvidé mi contraseña. ¿Cómo la restablezco?",
+          "a": "Haz clic en 'Iniciar Sesión' y luego en '¿Olvidaste tu contraseña?' Ingresa tu correo electrónico y te enviaremos un enlace de restablecimiento en pocos minutos."
+        },
+        {
+          "q": "¿Puedo usar códigos de promoción al pagar?",
+          "a": "Sí. Ingresa tu código en el campo 'Código Promocional' en tu carrito antes de continuar con el pago. Los códigos no pueden aplicarse retroactivamente después de realizar un pedido."
+        }
+      ],
+      "productsInventory": [
+        {
+          "q": "¿Cómo sé si un producto está en stock?",
+          "a": "Las páginas de producto muestran disponibilidad en tiempo real. Si un artículo está agotado, el botón 'Agregar al Carrito' será reemplazado por un indicador de 'Agotado'."
+        },
+        {
+          "q": "¿Puedo guardar un producto para comprarlo después?",
+          "a": "Sí. Haz clic en el ícono de corazón en cualquier tarjeta de producto o página de producto para agregarlo a tu Lista de Deseos. Puedes encontrar tus artículos guardados en Mi Cuenta → Lista de Deseos."
+        },
+        {
+          "q": "¿Ofrecen igualación de precios?",
+          "a": "Actualmente no ofrecemos una política formal de igualación de precios. Sin embargo, realizamos promociones y descuentos con regularidad — suscríbete a nuestro boletín para estar informado."
+        },
+        {
+          "q": "¿Cómo puedo comparar productos?",
+          "a": "Haz clic en el ícono de comparar en cualquier tarjeta de producto para agregarlo a tu lista de comparación (máximo 4 productos). Luego haz clic en 'Comparar Ahora' para ver un análisis comparativo."
+        }
+      ]
+    }
   }
 }

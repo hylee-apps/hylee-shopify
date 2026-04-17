@@ -1274,5 +1274,114 @@
       "emailNotice": "Nous vous enverrons un e-mail dès que votre retour aura été examiné. Vous pouvez suivre l'état d'avancement de votre retour à tout moment depuis la page de vos commandes.",
       "backToOrders": "Retour à Mes commandes"
     }
+  },
+  "faq": {
+    "metaTitle": "FAQ — Hy-lee",
+    "metaDescription": "Trouvez des réponses aux questions fréquentes sur les achats, la livraison, les retours et votre compte chez Hy-lee.",
+    "breadcrumb": {
+      "home": "Accueil",
+      "faq": "FAQ"
+    },
+    "heading": "Foire aux Questions",
+    "subtitle": "Trouvez rapidement des réponses aux questions courantes sur les achats, la livraison, les retours et votre compte.",
+    "searchPlaceholder": "Rechercher des questions...",
+    "noResults": "Aucune question ne correspond à votre recherche. Essayez d'autres mots-clés ou parcourez par catégorie.",
+    "contact": {
+      "heading": "Vous avez encore des questions ?",
+      "body": "Notre équipe d'assistance est prête à vous aider pour tout ce dont vous avez besoin.",
+      "cta": "Contacter le support"
+    },
+    "categories": {
+      "ordersShipping": "Commandes et Livraison",
+      "returnsExchanges": "Retours et Échanges",
+      "accountPayments": "Compte et Paiements",
+      "productsInventory": "Produits et Inventaire"
+    },
+    "items": {
+      "ordersShipping": [
+        {
+          "q": "Comment puis-je suivre ma commande ?",
+          "a": "Une fois votre commande expédiée, vous recevrez un e-mail de confirmation avec un numéro de suivi. Vous pouvez également suivre votre commande depuis la page Mes Commandes de votre tableau de bord."
+        },
+        {
+          "q": "Combien de temps prend la livraison standard ?",
+          "a": "La livraison standard prend 5 à 7 jours ouvrables. Nous travaillons avec UPS pour livrer dans les 50 États américains."
+        },
+        {
+          "q": "Proposez-vous la livraison gratuite ?",
+          "a": "Nous offrons la livraison standard gratuite pour les commandes supérieures à 75 $. Les commandes inférieures à 75 $ sont soumises à des frais fixes de 5,99 $."
+        },
+        {
+          "q": "Puis-je modifier mon adresse de livraison après avoir passé une commande ?",
+          "a": "Les modifications d'adresse peuvent être effectuées dans l'heure suivant la passation de votre commande. Contactez immédiatement notre équipe d'assistance et nous ferons notre possible pour mettre à jour les détails avant l'expédition."
+        },
+        {
+          "q": "Livrez-vous à l'international ?",
+          "a": "Nous livrons actuellement uniquement aux États-Unis. Les options de livraison internationale sont prévues et seront annoncées sur notre blog."
+        }
+      ],
+      "returnsExchanges": [
+        {
+          "q": "Quelle est votre politique de retour ?",
+          "a": "Nous acceptons les retours dans les 30 jours suivant la livraison. Les articles doivent être dans leur emballage d'origine et en état non utilisé. Les articles en vente finale ne sont pas éligibles au retour."
+        },
+        {
+          "q": "Comment initier un retour ?",
+          "a": "Accédez à Mes Commandes dans votre compte, trouvez la commande et cliquez sur 'Retourner ou Remplacer des Articles'. Notre processus de retour guidé vous accompagnera étape par étape."
+        },
+        {
+          "q": "Combien de temps prend un remboursement ?",
+          "a": "Les remboursements sont traités dans les 5 à 7 jours ouvrables suivant la réception de votre retour. Vous recevrez un e-mail de confirmation une fois le remboursement émis sur votre mode de paiement d'origine."
+        },
+        {
+          "q": "Puis-je échanger un article plutôt que de le retourner ?",
+          "a": "Oui ! Lors du processus de retour, sélectionnez 'Échange' comme option de résolution. Vous pouvez choisir une couleur, une taille ou une variante différente du même produit."
+        },
+        {
+          "q": "La livraison de retour est-elle gratuite ?",
+          "a": "La livraison de retour standard via dépôt UPS est toujours gratuite. Nous proposons également une option de collecte programmée et une option de Retour Instantané (des frais minimes s'appliquent)."
+        }
+      ],
+      "accountPayments": [
+        {
+          "q": "Quels modes de paiement acceptez-vous ?",
+          "a": "Nous acceptons toutes les principales cartes de crédit et de débit (Visa, Mastercard, AmEx, Discover), Shop Pay, Apple Pay et Google Pay."
+        },
+        {
+          "q": "Mes informations de paiement sont-elles sécurisées ?",
+          "a": "Oui. Toutes les transactions sont traitées via l'infrastructure certifiée PCI DSS Niveau 1 de Shopify avec un chiffrement SSL 256 bits. Hy-lee ne stocke jamais votre numéro de carte ni votre CVV."
+        },
+        {
+          "q": "Comment créer un compte ?",
+          "a": "Cliquez sur 'S'inscrire' dans la navigation supérieure. Vous aurez besoin de votre nom, adresse e-mail et un mot de passe. La création d'un compte vous donne accès à l'historique des commandes, à la liste de souhaits, au carnet d'adresses et à un paiement plus rapide."
+        },
+        {
+          "q": "J'ai oublié mon mot de passe. Comment le réinitialiser ?",
+          "a": "Cliquez sur 'Se Connecter', puis sur 'Mot de passe oublié ?' Entrez votre adresse e-mail et nous vous enverrons un lien de réinitialisation dans quelques minutes."
+        },
+        {
+          "q": "Puis-je utiliser des codes promo lors du paiement ?",
+          "a": "Oui. Entrez votre code dans le champ 'Code Promo' dans votre panier avant de procéder au paiement. Les codes ne peuvent pas être appliqués rétroactivement après la passation d'une commande."
+        }
+      ],
+      "productsInventory": [
+        {
+          "q": "Comment savoir si un produit est en stock ?",
+          "a": "Les pages produit affichent la disponibilité en temps réel. Si un article est en rupture de stock, le bouton 'Ajouter au Panier' sera remplacé par un indicateur 'Épuisé'."
+        },
+        {
+          "q": "Puis-je sauvegarder un produit pour l'acheter plus tard ?",
+          "a": "Oui. Cliquez sur l'icône cœur sur n'importe quelle carte produit ou page produit pour l'ajouter à votre liste de souhaits. Vous pouvez retrouver vos articles sauvegardés sous Mon Compte → Liste de Souhaits."
+        },
+        {
+          "q": "Proposez-vous la correspondance de prix ?",
+          "a": "Nous ne proposons pas actuellement de politique formelle de correspondance de prix. Cependant, nous organisons régulièrement des promotions et des remises — abonnez-vous à notre newsletter pour rester informé."
+        },
+        {
+          "q": "Comment puis-je comparer des produits ?",
+          "a": "Cliquez sur l'icône de comparaison sur n'importe quelle carte produit pour l'ajouter à votre liste de comparaison (jusqu'à 4 produits). Cliquez ensuite sur 'Comparer Maintenant' pour voir une analyse côte à côte."
+        }
+      ]
+    }
   }
 }
