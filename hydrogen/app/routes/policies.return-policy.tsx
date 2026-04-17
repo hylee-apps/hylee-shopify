@@ -13,14 +13,6 @@ import {
   ShieldCheck,
   Globe,
 } from 'lucide-react';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '~/components/ui/breadcrumb';
 
 // ============================================================================
 // Meta
@@ -157,24 +149,6 @@ export default function ReturnPolicyPage() {
           aria-hidden
         />
         <div className="relative mx-auto max-w-screen-2xl">
-          <Breadcrumb className="mb-8">
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link to="/" className="text-white/60 hover:text-white">
-                    {t('returnPolicy.breadcrumb.home')}
-                  </Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="text-white/40" />
-              <BreadcrumbItem>
-                <BreadcrumbPage className="text-white/80">
-                  {t('returnPolicy.breadcrumb.page')}
-                </BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-
           <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-secondary">
             {t('returnPolicy.hero.eyebrow')}
           </p>
