@@ -1349,6 +1349,103 @@
       }
     }
   },
+  "returnPolicy": {
+    "metaTitle": "Return Policy — Hy-lee",
+    "metaDescription": "Learn about Hy-lee's hassle-free 30-day return policy, free return shipping, and fast refunds.",
+    "breadcrumb": {
+      "home": "Home",
+      "page": "Return Policy"
+    },
+    "hero": {
+      "eyebrow": "Shop With Confidence",
+      "title": "Return Policy",
+      "subtitle": "We stand behind every product we sell. If you're not completely satisfied, we make it easy to return or exchange your purchase."
+    },
+    "highlights": {
+      "window": {"value": "30", "label": "Day Return Window"},
+      "shipping": {"value": "Free", "label": "Return Shipping"},
+      "refund": {"value": "5–7", "label": "Day Refund Processing"},
+      "exchange": {"value": "Easy", "label": "Exchanges Available"}
+    },
+    "sections": {
+      "eligibility": {
+        "title": "What Can I Return?",
+        "body": "You may return most items within 30 days of delivery, provided they meet the following conditions:",
+        "conditions": [
+          "Item is unused and in its original condition",
+          "Original packaging is intact with all tags attached",
+          "All accessories, manuals, and included components are present",
+          "Item was purchased directly through Hy-lee"
+        ]
+      },
+      "ineligible": {
+        "title": "What Can't Be Returned?",
+        "body": "The following items are not eligible for return:",
+        "items": [
+          "Items marked \"Final Sale\" or \"Non-Returnable\" at the time of purchase",
+          "Digital products, gift cards, and store credits",
+          "Personalised or custom-made items",
+          "Perishable goods and consumable products once opened",
+          "Hazardous materials",
+          "Items damaged due to misuse, improper installation, or normal wear and tear"
+        ]
+      },
+      "howTo": {
+        "title": "How Do I Start a Return?",
+        "intro": "Starting a return takes less than two minutes from your account dashboard:",
+        "steps": [
+          {
+            "step": "1",
+            "title": "Go to My Orders",
+            "body": "Sign in to your Hy-lee account and navigate to Account → Orders."
+          },
+          {
+            "step": "2",
+            "title": "Select Your Order",
+            "body": "Find the order containing the item you wish to return and click \"Return Items\"."
+          },
+          {
+            "step": "3",
+            "title": "Choose Your Items",
+            "body": "Select the item(s) you want to return and tell us the reason."
+          },
+          {
+            "step": "4",
+            "title": "Pick a Return Method",
+            "body": "Choose UPS Drop-off, UPS Pickup, or Instant Return (store credit on scan, +$4.99)."
+          },
+          {
+            "step": "5",
+            "title": "Ship It Back",
+            "body": "Print your prepaid label or show the QR code at any UPS location. We cover the cost."
+          }
+        ]
+      },
+      "refunds": {
+        "title": "When Will I Receive My Refund?",
+        "body": "Once we receive and inspect your return, refunds are issued to your original payment method within 5–7 business days. You will receive an email confirmation when your refund is processed.",
+        "note": "Instant Return credit is applied immediately to your account balance upon scan at the drop-off location."
+      },
+      "exchanges": {
+        "title": "Can I Exchange an Item?",
+        "body": "Yes. During the return flow, select \"Exchange\" as your resolution and choose the replacement colour, size, or variant. Exchanges are shipped free of charge once we receive your return."
+      },
+      "damaged": {
+        "title": "What If My Item Arrived Damaged or Defective?",
+        "body": "We are sorry to hear that. Please contact us within 7 days of delivery with photos of the damage. We will arrange a replacement or full refund at no cost to you — no need to ship the item back."
+      },
+      "international": {
+        "title": "International Returns",
+        "body": "For orders shipped outside the United States, return shipping costs are the responsibility of the customer unless the item arrived damaged or defective. Refunds exclude original shipping fees and any customs duties paid."
+      }
+    },
+    "contact": {
+      "heading": "Still Have Questions?",
+      "body": "Our support team is available Monday – Friday, 9 am – 6 pm ET.",
+      "cta": "Contact Support",
+      "faqCta": "Visit Our FAQ"
+    }
+  },
   "faq": {
     "metaTitle": "FAQ — Hy-lee",
     "metaDescription": "Find answers to frequently asked questions about shopping, shipping, returns, and your account at Hy-lee.",

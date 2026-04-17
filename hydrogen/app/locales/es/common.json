@@ -1349,6 +1349,103 @@
       }
     }
   },
+  "returnPolicy": {
+    "metaTitle": "Política de Devoluciones — Hy-lee",
+    "metaDescription": "Conoce la política de devoluciones sin complicaciones de Hy-lee: 30 días para devolver, envío gratuito y reembolsos rápidos.",
+    "breadcrumb": {
+      "home": "Inicio",
+      "page": "Política de Devoluciones"
+    },
+    "hero": {
+      "eyebrow": "Compra con Confianza",
+      "title": "Política de Devoluciones",
+      "subtitle": "Respaldamos cada producto que vendemos. Si no estás completamente satisfecho, te facilitamos la devolución o el cambio."
+    },
+    "highlights": {
+      "window": {"value": "30", "label": "Días para Devolver"},
+      "shipping": {"value": "Gratis", "label": "Envío de Devolución"},
+      "refund": {"value": "5–7", "label": "Días para el Reembolso"},
+      "exchange": {"value": "Fácil", "label": "Cambios Disponibles"}
+    },
+    "sections": {
+      "eligibility": {
+        "title": "¿Qué puedo devolver?",
+        "body": "Puedes devolver la mayoría de los artículos dentro de los 30 días posteriores a la entrega, siempre que cumplan las siguientes condiciones:",
+        "conditions": [
+          "El artículo no ha sido usado y está en su estado original",
+          "El embalaje original está intacto con todas las etiquetas",
+          "Todos los accesorios, manuales y componentes incluidos están presentes",
+          "El artículo fue comprado directamente en Hy-lee"
+        ]
+      },
+      "ineligible": {
+        "title": "¿Qué no puedo devolver?",
+        "body": "Los siguientes artículos no son elegibles para devolución:",
+        "items": [
+          "Artículos marcados como \"Venta Final\" o \"No Retornable\" en el momento de la compra",
+          "Productos digitales, tarjetas de regalo y créditos de tienda",
+          "Artículos personalizados o hechos a medida",
+          "Productos perecederos y consumibles una vez abiertos",
+          "Materiales peligrosos",
+          "Artículos dañados por mal uso, instalación incorrecta o desgaste normal"
+        ]
+      },
+      "howTo": {
+        "title": "¿Cómo inicio una devolución?",
+        "intro": "Iniciar una devolución tarda menos de dos minutos desde tu panel de cuenta:",
+        "steps": [
+          {
+            "step": "1",
+            "title": "Ve a Mis Pedidos",
+            "body": "Inicia sesión en tu cuenta de Hy-lee y ve a Cuenta → Pedidos."
+          },
+          {
+            "step": "2",
+            "title": "Selecciona tu Pedido",
+            "body": "Busca el pedido con el artículo que deseas devolver y haz clic en \"Devolver artículos\"."
+          },
+          {
+            "step": "3",
+            "title": "Elige los Artículos",
+            "body": "Selecciona los artículos a devolver e indica el motivo."
+          },
+          {
+            "step": "4",
+            "title": "Elige el Método de Envío",
+            "body": "Elige Entrega en UPS, Recogida UPS o Devolución Instantánea (crédito al escanear, +$4.99)."
+          },
+          {
+            "step": "5",
+            "title": "Envíalo de Regreso",
+            "body": "Imprime tu etiqueta prepagada o muestra el código QR en cualquier punto UPS. Nosotros cubrimos el costo."
+          }
+        ]
+      },
+      "refunds": {
+        "title": "¿Cuándo recibiré mi reembolso?",
+        "body": "Una vez que recibamos e inspeccionemos tu devolución, el reembolso se emite al método de pago original en un plazo de 5 a 7 días hábiles. Recibirás un correo de confirmación cuando se procese el reembolso.",
+        "note": "El crédito de Devolución Instantánea se aplica inmediatamente a tu saldo de cuenta al escanear en el punto de entrega."
+      },
+      "exchanges": {
+        "title": "¿Puedo cambiar un artículo?",
+        "body": "Sí. Durante el proceso de devolución, selecciona \"Cambio\" como resolución y elige el color, talla o variante de reemplazo. Los cambios se envían gratis una vez recibamos tu devolución."
+      },
+      "damaged": {
+        "title": "¿Qué pasa si mi artículo llegó dañado o defectuoso?",
+        "body": "Lo sentimos mucho. Por favor, contáctanos dentro de los 7 días posteriores a la entrega con fotos del daño. Gestionaremos un reemplazo o reembolso completo sin costo — no es necesario devolver el artículo."
+      },
+      "international": {
+        "title": "Devoluciones Internacionales",
+        "body": "Para pedidos enviados fuera de los Estados Unidos, los gastos de devolución corren a cargo del cliente, salvo que el artículo haya llegado dañado o defectuoso. Los reembolsos no incluyen los gastos de envío originales ni los derechos de aduana pagados."
+      }
+    },
+    "contact": {
+      "heading": "¿Tienes más preguntas?",
+      "body": "Nuestro equipo de soporte está disponible de lunes a viernes, de 9 a.m. a 6 p.m. ET.",
+      "cta": "Contactar Soporte",
+      "faqCta": "Visitar Preguntas Frecuentes"
+    }
+  },
   "faq": {
     "metaTitle": "Preguntas Frecuentes — Hy-lee",
     "metaDescription": "Encuentra respuestas a las preguntas más frecuentes sobre compras, envíos, devoluciones y tu cuenta en Hy-lee.",
