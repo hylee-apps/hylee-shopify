@@ -333,9 +333,7 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
         <CollectionToolbar
           productCount={products.nodes.length}
           searchParams={searchParams}
-          onOpenMobileFilters={
-            availableFilters.length > 0 ? () => setFiltersOpen(true) : undefined
-          }
+          onOpenMobileFilters={() => setFiltersOpen(true)}
         />
 
         {/* Active filter chips */}
@@ -350,14 +348,12 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
 
         {/* 2-column layout: sidebar + grid */}
         <div className="mt-5 flex gap-10">
-          {availableFilters.length > 0 && (
-            <FilterSidebar
-              filters={availableFilters}
-              searchParams={searchParams}
-              isOpen={filtersOpen}
-              onClose={() => setFiltersOpen(false)}
-            />
-          )}
+          <FilterSidebar
+            filters={availableFilters}
+            searchParams={searchParams}
+            isOpen={filtersOpen}
+            onClose={() => setFiltersOpen(false)}
+          />
 
           <div className="min-w-0 flex-1">
             {hasProducts ? (

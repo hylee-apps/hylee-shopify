@@ -715,7 +715,10 @@
     "showMore": "Ver más {{label}}s",
     "showMoreCount": "Ver {{count}} más",
     "clearAll": "Borrar todo",
-    "removeFilter": "Eliminar filtro: {{label}}"
+    "removeFilter": "Eliminar filtro: {{label}}",
+    "browseBy": "Explorar por",
+    "onSale": "En oferta",
+    "promotions": "Promociones"
   },
   "sort": {
     "label": "Ordenar por:",

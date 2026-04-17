@@ -44,8 +44,16 @@ export function ActiveFilterChips({
 
   if (activeInputs.length === 0) return null;
 
-  // Build a lookup: input string → label
-  const labelMap = new Map<string, string>();
+  // Static labels for hardcoded filters that may not appear in the Shopify
+  // filter map (e.g. when the "All Products" collection isn't published).
+  const staticLabels: Record<string, string> = {
+    [JSON.stringify({tag: 'sale'})]: t('filter.onSale'),
+    [JSON.stringify({tag: 'promotion'})]: t('filter.promotions'),
+  };
+
+  // Build a lookup: input string → label (dynamic Shopify filters take
+  // precedence over static labels so localised Shopify values win if present)
+  const labelMap = new Map<string, string>(Object.entries(staticLabels));
   for (const filter of filters) {
     for (const value of filter.values ?? []) {
       const inputStr =

@@ -729,7 +729,10 @@
     "showMore": "Show more {{label}}s",
     "showMoreCount": "Show {{count}} more",
     "clearAll": "Clear all",
-    "removeFilter": "Remove filter: {{label}}"
+    "removeFilter": "Remove filter: {{label}}",
+    "browseBy": "Browse By",
+    "onSale": "On Sale",
+    "promotions": "Promotions"
   },
   "sort": {
     "label": "Sort by:",
