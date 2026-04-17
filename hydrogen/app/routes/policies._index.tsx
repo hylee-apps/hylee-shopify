@@ -109,33 +109,52 @@ export default function PoliciesIndex({loaderData}: Route.ComponentProps) {
         Store Policies
       </h1>
 
-      {policies.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {policies.map((policy) => (
-            <Link
-              key={policy.id}
-              to={`/policies/${policy.handle}`}
-              className="group flex items-center gap-4 rounded-xl border border-border bg-white p-6 shadow-sm transition hover:shadow-md hover:border-primary/30"
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                <Info size={20} className="text-primary" />
-              </div>
-              <div>
-                <h2 className="font-semibold text-dark group-hover:text-primary">
-                  {policy.title}
-                </h2>
-                <p className="mt-1 text-sm text-text-muted">
-                  View our {policy.title.toLowerCase()}
-                </p>
-              </div>
-              <ChevronRight
-                size={20}
-                className="ml-auto text-text-muted group-hover:text-primary"
-              />
-            </Link>
-          ))}
-        </div>
-      ) : (
+      <div className="grid gap-4 sm:grid-cols-2">
+        {policies.map((policy) => (
+          <Link
+            key={policy.id}
+            to={`/policies/${policy.handle}`}
+            className="group flex items-center gap-4 rounded-xl border border-border bg-white p-6 shadow-sm transition hover:border-primary/30 hover:shadow-md"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+              <Info size={20} className="text-primary" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-dark group-hover:text-primary">
+                {policy.title}
+              </h2>
+              <p className="mt-1 text-sm text-text-muted">
+                View our {policy.title.toLowerCase()}
+              </p>
+            </div>
+            <ChevronRight
+              size={20}
+              className="ml-auto text-text-muted group-hover:text-primary"
+            />
+          </Link>
+        ))}
+        <Link
+          to="/policies/return-policy"
+          className="group flex items-center gap-4 rounded-xl border border-border bg-white p-6 shadow-sm transition hover:border-primary/30 hover:shadow-md"
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+            <Info size={20} className="text-primary" />
+          </div>
+          <div>
+            <h2 className="font-semibold text-dark group-hover:text-primary">
+              Return Policy
+            </h2>
+            <p className="mt-1 text-sm text-text-muted">
+              View our return policy
+            </p>
+          </div>
+          <ChevronRight
+            size={20}
+            className="ml-auto text-text-muted group-hover:text-primary"
+          />
+        </Link>
+      </div>
+      {policies.length === 0 && (
         <p className="text-text-muted">No policies available at this time.</p>
       )}
     </div>
