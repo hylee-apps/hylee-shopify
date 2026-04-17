@@ -245,8 +245,7 @@ export function meta({}: Route.MetaArgs) {
 // ============================================================================
 
 export default function AllProductsPage({loaderData}: Route.ComponentProps) {
-  const {products, collectionImage, hasCollectionContext, searchParamsString} =
-    loaderData;
+  const {products, collectionImage, searchParamsString} = loaderData;
   const {t} = useTranslation();
   const {pathname} = useLocation();
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -347,15 +346,6 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
               searchParams={searchParams}
             />
           </div>
-        )}
-
-        {/* No-filter notice (fallback mode only) */}
-        {!hasCollectionContext && (
-          <p className="mt-3 text-xs text-text-muted">
-            Filters are unavailable until the &ldquo;All Products&rdquo;
-            collection is published in Shopify Admin → Sales channels → Online
-            Store.
-          </p>
         )}
 
         {/* 2-column layout: sidebar + grid */}
