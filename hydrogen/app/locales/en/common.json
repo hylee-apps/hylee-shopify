@@ -1275,6 +1275,77 @@
       "backToOrders": "Back to My Orders"
     }
   },
+  "about": {
+    "metaTitle": "About Us — Hy-lee",
+    "metaDescription": "Learn about Hy-lee — a modern marketplace built for small-space living, connecting shoppers with quality products for tiny homes and micro apartments.",
+    "breadcrumb": {
+      "home": "Home",
+      "about": "About Us"
+    },
+    "hero": {
+      "eyebrow": "Our Story",
+      "heading": "Built for the Way You Live",
+      "body": "Hy-lee is a modern marketplace that curates quality products for small-space living — from tiny homes to micro apartments. We believe that limited square footage should never mean limited lifestyle."
+    },
+    "mission": {
+      "eyebrow": "Our Mission",
+      "heading": "Smart Products for Smaller Spaces",
+      "body": "We started Hy-lee because we noticed a gap: the big-box stores weren't built for people who live intentionally small. Everything on Hy-lee is selected with one question in mind — does this make a small space feel like a real home?",
+      "body2": "From multi-functional furniture to space-saving kitchen essentials, every product on our platform is vetted by our team before it reaches your doorstep."
+    },
+    "values": {
+      "eyebrow": "What We Stand For",
+      "heading": "Our Values",
+      "curation": {
+        "title": "Curated Quality",
+        "body": "Every product is reviewed by our team. If it doesn't meet our standards for build quality and design, it doesn't make the cut."
+      },
+      "community": {
+        "title": "Community First",
+        "body": "Our shoppers are our partners. We listen to reviews, act on feedback, and continuously improve the selection based on what you tell us."
+      },
+      "simplicity": {
+        "title": "Simplicity by Design",
+        "body": "Shopping should be as clean as the spaces you're building. Hy-lee is fast, intuitive, and free of the noise you find on larger platforms."
+      },
+      "trust": {
+        "title": "Transparent Trust",
+        "body": "No dark patterns. No fake reviews. No hidden fees. What you see is what you get — down to the last detail on every product page."
+      }
+    },
+    "stats": {
+      "heading": "Hy-lee by the Numbers",
+      "products": {
+        "value": "2,000+",
+        "label": "Products"
+      },
+      "suppliers": {
+        "value": "150+",
+        "label": "Verified Suppliers"
+      },
+      "customers": {
+        "value": "10,000+",
+        "label": "Happy Customers"
+      },
+      "returns": {
+        "value": "<1%",
+        "label": "Return Rate"
+      }
+    },
+    "cta": {
+      "heading": "Ready to find your next favourite thing?",
+      "shop": {
+        "title": "Start Shopping",
+        "body": "Browse thousands of products curated for small-space living.",
+        "button": "Shop Now"
+      },
+      "supplier": {
+        "title": "Become a Supplier",
+        "body": "Sell your products to a growing community of intentional shoppers.",
+        "button": "Apply Now"
+      }
+    }
+  },
   "faq": {
     "metaTitle": "FAQ — Hy-lee",
     "metaDescription": "Find answers to frequently asked questions about shopping, shipping, returns, and your account at Hy-lee.",

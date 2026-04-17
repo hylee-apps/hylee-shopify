@@ -1275,6 +1275,77 @@
       "backToOrders": "Volver a mis pedidos"
     }
   },
+  "about": {
+    "metaTitle": "Sobre Nosotros — Hy-lee",
+    "metaDescription": "Conoce Hy-lee — un mercado moderno creado para vivir en espacios pequeños, conectando compradores con productos de calidad para casas diminutas y microapartamentos.",
+    "breadcrumb": {
+      "home": "Inicio",
+      "about": "Sobre Nosotros"
+    },
+    "hero": {
+      "eyebrow": "Nuestra Historia",
+      "heading": "Diseñado para tu Forma de Vivir",
+      "body": "Hy-lee es un mercado moderno que selecciona productos de calidad para vivir en espacios pequeños — desde casas diminutas hasta microapartamentos. Creemos que los metros cuadrados limitados nunca deben significar un estilo de vida limitado."
+    },
+    "mission": {
+      "eyebrow": "Nuestra Misión",
+      "heading": "Productos Inteligentes para Espacios Pequeños",
+      "body": "Creamos Hy-lee porque notamos una brecha: las grandes tiendas no estaban construidas para personas que viven intencionalmente en espacios pequeños. Todo en Hy-lee se selecciona con una pregunta en mente: ¿esto hace que un espacio pequeño se sienta como un hogar real?",
+      "body2": "Desde muebles multifuncionales hasta esenciales de cocina que ahorran espacio, cada producto en nuestra plataforma es verificado por nuestro equipo antes de llegar a tu puerta."
+    },
+    "values": {
+      "eyebrow": "En lo que Creemos",
+      "heading": "Nuestros Valores",
+      "curation": {
+        "title": "Calidad Curada",
+        "body": "Cada producto es revisado por nuestro equipo. Si no cumple nuestros estándares de calidad y diseño, no pasa la selección."
+      },
+      "community": {
+        "title": "Comunidad Primero",
+        "body": "Nuestros compradores son nuestros socios. Escuchamos reseñas, actuamos según los comentarios y mejoramos continuamente la selección."
+      },
+      "simplicity": {
+        "title": "Simplicidad por Diseño",
+        "body": "Comprar debe ser tan limpio como los espacios que estás construyendo. Hy-lee es rápido, intuitivo y libre del ruido de las plataformas más grandes."
+      },
+      "trust": {
+        "title": "Confianza Transparente",
+        "body": "Sin patrones oscuros. Sin reseñas falsas. Sin tarifas ocultas. Lo que ves es lo que obtienes — hasta el último detalle en cada página de producto."
+      }
+    },
+    "stats": {
+      "heading": "Hy-lee en Números",
+      "products": {
+        "value": "2,000+",
+        "label": "Productos"
+      },
+      "suppliers": {
+        "value": "150+",
+        "label": "Proveedores Verificados"
+      },
+      "customers": {
+        "value": "10,000+",
+        "label": "Clientes Satisfechos"
+      },
+      "returns": {
+        "value": "<1%",
+        "label": "Tasa de Devolución"
+      }
+    },
+    "cta": {
+      "heading": "¿Listo para encontrar tu próximo favorito?",
+      "shop": {
+        "title": "Comienza a Comprar",
+        "body": "Explora miles de productos seleccionados para vivir en espacios pequeños.",
+        "button": "Comprar Ahora"
+      },
+      "supplier": {
+        "title": "Conviértete en Proveedor",
+        "body": "Vende tus productos a una comunidad creciente de compradores intencionales.",
+        "button": "Aplicar Ahora"
+      }
+    }
+  },
   "faq": {
     "metaTitle": "Preguntas Frecuentes — Hy-lee",
     "metaDescription": "Encuentra respuestas a las preguntas más frecuentes sobre compras, envíos, devoluciones y tu cuenta en Hy-lee.",
