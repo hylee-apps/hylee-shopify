@@ -1,14 +1,6 @@
 import {Link} from 'react-router';
 import {useTranslation} from 'react-i18next';
 import {ShieldCheck, Users, Sparkles, Eye, ArrowRight} from 'lucide-react';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '~/components/ui/breadcrumb';
 
 // ============================================================================
 // Meta
@@ -83,24 +75,6 @@ export default function AboutPage() {
           aria-hidden
         />
         <div className="relative mx-auto max-w-screen-2xl">
-          <Breadcrumb className="mb-8">
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link to="/" className="text-white/60 hover:text-white">
-                    {t('about.breadcrumb.home')}
-                  </Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="text-white/40" />
-              <BreadcrumbItem>
-                <BreadcrumbPage className="text-white/80">
-                  {t('about.breadcrumb.about')}
-                </BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-
           <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-secondary">
             {t('about.hero.eyebrow')}
           </p>
