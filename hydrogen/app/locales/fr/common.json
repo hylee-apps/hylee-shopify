@@ -1444,6 +1444,12 @@
       "body": "Notre équipe d'assistance est disponible du lundi au vendredi, de 9h à 18h ET.",
       "cta": "Contacter l'Assistance",
       "faqCta": "Consulter notre FAQ"
+    },
+    "readyToReturn": {
+      "heading": "Prêt à retourner ?",
+      "body": "Connectez-vous à votre compte pour initier un retour en quelques minutes.",
+      "myOrdersCta": "Mes Commandes",
+      "startReturnCta": "Démarrer un Retour"
     }
   },
   "faq": {

@@ -305,16 +305,16 @@ export default function ReturnPolicyPage() {
               {/* Start a return CTA */}
               <div className="rounded-2xl bg-primary p-6">
                 <h3 className="text-lg font-bold text-white">
-                  Ready to Return?
+                  {t('returnPolicy.readyToReturn.heading')}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-white/75">
-                  Sign in to your account to start a return in minutes.
+                  {t('returnPolicy.readyToReturn.body')}
                 </p>
                 <Link
                   to="/account/orders"
                   className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary transition hover:bg-white/90"
                 >
-                  My Orders
+                  {t('returnPolicy.readyToReturn.myOrdersCta')}
                   <ArrowRight size={14} />
                 </Link>
               </div>
@@ -362,7 +362,7 @@ export default function ReturnPolicyPage() {
                 to="/account/orders"
                 className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
               >
-                Start a Return
+                {t('returnPolicy.readyToReturn.startReturnCta')}
                 <ArrowRight size={14} />
               </Link>
               <Link

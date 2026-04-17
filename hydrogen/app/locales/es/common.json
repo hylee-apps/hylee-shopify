@@ -1444,6 +1444,12 @@
       "body": "Nuestro equipo de soporte está disponible de lunes a viernes, de 9 a.m. a 6 p.m. ET.",
       "cta": "Contactar Soporte",
       "faqCta": "Visitar Preguntas Frecuentes"
+    },
+    "readyToReturn": {
+      "heading": "¿Listo para devolver?",
+      "body": "Inicia sesión en tu cuenta para comenzar una devolución en minutos.",
+      "myOrdersCta": "Mis Pedidos",
+      "startReturnCta": "Iniciar una Devolución"
     }
   },
   "faq": {

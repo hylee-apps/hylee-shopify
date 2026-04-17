@@ -1444,6 +1444,12 @@
       "body": "Our support team is available Monday – Friday, 9 am – 6 pm ET.",
       "cta": "Contact Support",
       "faqCta": "Visit Our FAQ"
+    },
+    "readyToReturn": {
+      "heading": "Ready to Return?",
+      "body": "Sign in to your account to start a return in minutes.",
+      "myOrdersCta": "My Orders",
+      "startReturnCta": "Start a Return"
     }
   },
   "faq": {
