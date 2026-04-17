@@ -715,7 +715,10 @@
     "showMore": "Voir plus de {{label}}s",
     "showMoreCount": "Voir {{count}} de plus",
     "clearAll": "Tout effacer",
-    "removeFilter": "Supprimer le filtre : {{label}}"
+    "removeFilter": "Supprimer le filtre : {{label}}",
+    "browseBy": "Parcourir par",
+    "onSale": "En solde",
+    "promotions": "Promotions"
   },
   "sort": {
     "label": "Trier par :",
@@ -1351,6 +1354,109 @@
         "body": "Vendez vos produits à une communauté croissante d'acheteurs intentionnels.",
         "button": "Postuler Maintenant"
       }
+    }
+  },
+  "returnPolicy": {
+    "metaTitle": "Politique de Retour — Hy-lee",
+    "metaDescription": "Découvrez la politique de retour simple de Hy-lee : 30 jours pour retourner, livraison gratuite et remboursements rapides.",
+    "breadcrumb": {
+      "home": "Accueil",
+      "page": "Politique de Retour"
+    },
+    "hero": {
+      "eyebrow": "Achetez en Toute Confiance",
+      "title": "Politique de Retour",
+      "subtitle": "Nous garantissons chaque produit que nous vendons. Si vous n'êtes pas entièrement satisfait, nous facilitons les retours et les échanges."
+    },
+    "highlights": {
+      "window": {"value": "30", "label": "Jours pour Retourner"},
+      "shipping": {"value": "Gratuit", "label": "Retour Gratuit"},
+      "refund": {"value": "5–7", "label": "Jours de Traitement"},
+      "exchange": {"value": "Facile", "label": "Échanges Disponibles"}
+    },
+    "sections": {
+      "eligibility": {
+        "title": "Qu'est-ce que je peux retourner ?",
+        "body": "Vous pouvez retourner la plupart des articles dans les 30 jours suivant la livraison, sous réserve des conditions suivantes :",
+        "conditions": [
+          "L'article est inutilisé et en parfait état d'origine",
+          "L'emballage d'origine est intact avec toutes les étiquettes",
+          "Tous les accessoires, manuels et composants inclus sont présents",
+          "L'article a été acheté directement sur Hy-lee"
+        ]
+      },
+      "ineligible": {
+        "title": "Qu'est-ce que je ne peux pas retourner ?",
+        "body": "Les articles suivants ne sont pas éligibles au retour :",
+        "items": [
+          "Articles marqués « Vente Finale » ou « Non Retournable » au moment de l'achat",
+          "Produits numériques, cartes-cadeaux et crédits en boutique",
+          "Articles personnalisés ou faits sur mesure",
+          "Produits périssables et consommables une fois ouverts",
+          "Matières dangereuses",
+          "Articles endommagés par une mauvaise utilisation, une installation incorrecte ou l'usure normale"
+        ]
+      },
+      "howTo": {
+        "title": "Comment initier un retour ?",
+        "intro": "Lancer un retour prend moins de deux minutes depuis votre tableau de bord :",
+        "steps": [
+          {
+            "step": "1",
+            "title": "Accéder à Mes Commandes",
+            "body": "Connectez-vous à votre compte Hy-lee et rendez-vous dans Compte → Commandes."
+          },
+          {
+            "step": "2",
+            "title": "Sélectionner votre Commande",
+            "body": "Trouvez la commande contenant l'article à retourner et cliquez sur « Retourner des articles »."
+          },
+          {
+            "step": "3",
+            "title": "Choisir les Articles",
+            "body": "Sélectionnez les articles à retourner et indiquez le motif."
+          },
+          {
+            "step": "4",
+            "title": "Choisir le Mode d'Envoi",
+            "body": "Choisissez Dépôt UPS, Enlèvement UPS ou Retour Instantané (crédit dès le scan, +4,99 $)."
+          },
+          {
+            "step": "5",
+            "title": "Expédier le Colis",
+            "body": "Imprimez votre étiquette prépayée ou montrez le QR code dans n'importe quel point UPS. Nous prenons en charge les frais."
+          }
+        ]
+      },
+      "refunds": {
+        "title": "Quand vais-je recevoir mon remboursement ?",
+        "body": "Dès réception et vérification de votre retour, le remboursement est émis sur votre moyen de paiement d'origine dans un délai de 5 à 7 jours ouvrables. Vous recevrez un e-mail de confirmation lors du traitement.",
+        "note": "Le crédit de Retour Instantané est appliqué immédiatement à votre solde de compte dès le scan au point de dépôt."
+      },
+      "exchanges": {
+        "title": "Puis-je échanger un article ?",
+        "body": "Oui. Lors du processus de retour, sélectionnez « Échange » comme résolution et choisissez la couleur, la taille ou la variante de remplacement. Les échanges sont expédiés gratuitement dès réception de votre retour."
+      },
+      "damaged": {
+        "title": "Que faire si mon article est arrivé endommagé ou défectueux ?",
+        "body": "Nous en sommes vraiment désolés. Veuillez nous contacter dans les 7 jours suivant la livraison avec des photos des dommages. Nous organiserons un remplacement ou un remboursement complet sans frais — sans nécessité de retourner l'article."
+      },
+      "international": {
+        "title": "Retours Internationaux",
+        "body": "Pour les commandes expédiées hors des États-Unis, les frais de retour sont à la charge du client, sauf si l'article est arrivé endommagé ou défectueux. Les remboursements n'incluent pas les frais d'expédition initiaux ni les droits de douane payés."
+      }
+    },
+    "contact": {
+      "heading": "Vous avez encore des questions ?",
+      "body": "Notre équipe d'assistance est disponible du lundi au vendredi, de 9h à 18h ET.",
+      "cta": "Contacter l'Assistance",
+      "faqCta": "Consulter notre FAQ"
+    },
+    "readyToReturn": {
+      "heading": "Prêt à retourner ?",
+      "body": "Connectez-vous à votre compte pour initier un retour en quelques minutes.",
+      "myOrdersCta": "Mes Commandes",
+      "startReturnCta": "Démarrer un Retour"
     }
   },
   "faq": {

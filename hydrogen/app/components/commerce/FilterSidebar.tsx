@@ -2,6 +2,7 @@ import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Link, useLocation, useNavigate} from 'react-router';
 import type {Filter} from '@shopify/hydrogen/storefront-api-types';
+import {buildSortUrl} from '~/lib/collection/filters';
 import {
   buildFilterUrl,
   buildPriceFilterUrl,
@@ -347,20 +348,66 @@ interface FilterSectionsProps {
   className?: string;
 }
 
+// Static filter inputs — must match the encoded JSON used in URL params
+const SALE_INPUT = JSON.stringify({tag: 'sale'});
+const PROMO_INPUT = JSON.stringify({tag: 'promotion'});
+
 function FilterSections({
   filters,
   searchParams,
   pathname,
   className,
 }: FilterSectionsProps) {
-  const defaultOpen = filters.map((f) => f.id);
+  const {t} = useTranslation();
+  const activeFilters = searchParams.getAll('filter');
+  const currentSort = searchParams.get('sort');
+
+  const defaultOpen = ['browse-by', ...filters.map((f) => f.id)];
 
   const priceKey =
     searchParams.getAll('filter').find((f) => f.includes('"price"')) ??
     'no-price';
 
+  const saleHref = buildFilterUrl(pathname, searchParams, SALE_INPUT, 'toggle');
+  const promoHref = buildFilterUrl(
+    pathname,
+    searchParams,
+    PROMO_INPUT,
+    'toggle',
+  );
+  const newArrivalsHref = buildSortUrl(pathname, searchParams, 'newest');
+
   return (
     <Accordion type="multiple" defaultValue={defaultOpen} className={className}>
+      {/* ------------------------------------------------------------------ */}
+      {/* Static "Browse By" section — always visible, not dependent on       */}
+      {/* Shopify returning these as dynamic filter options.                  */}
+      {/* ------------------------------------------------------------------ */}
+      <AccordionItem value="browse-by" className="border-b border-[#e5e7eb]">
+        <AccordionTrigger className="py-[14px] text-[14px] font-bold text-[#111827] tracking-[0.5px] uppercase hover:no-underline">
+          {t('filter.browseBy')}
+        </AccordionTrigger>
+        <AccordionContent className="pb-[16px]">
+          <div className="space-y-0.5">
+            <CheckboxFilterItem
+              label={t('sort.newest')}
+              isActive={currentSort === 'newest'}
+              href={newArrivalsHref}
+            />
+            <CheckboxFilterItem
+              label={t('filter.onSale')}
+              isActive={activeFilters.includes(SALE_INPUT)}
+              href={saleHref}
+            />
+            <CheckboxFilterItem
+              label={t('filter.promotions')}
+              isActive={activeFilters.includes(PROMO_INPUT)}
+              href={promoHref}
+            />
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+
       {filters.map((filter) => {
         if (!filter.values || filter.values.length === 0) return null;
 

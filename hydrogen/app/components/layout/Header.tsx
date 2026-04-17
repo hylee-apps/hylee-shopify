@@ -94,7 +94,7 @@ const NAV_TRIGGER_CLASS =
   'flex items-center gap-1 h-[40px] px-4 py-2.5 text-[16px] font-semibold text-[#111827] hover:text-primary transition-colors focus:outline-none';
 
 // Pre-filtered /collections/all URLs for virtual nav sections.
-// Products must be tagged in Shopify Admin for tag-based filters to return results.
+// Tag-based filters require products to be tagged accordingly in Shopify Admin.
 const FILTERED_URLS = {
   newArrivals: '/collections/all?sort=newest',
   discounts: `/collections/all?filter=${encodeURIComponent(JSON.stringify({tag: 'sale'}))}`,
