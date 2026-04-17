@@ -1374,6 +1374,13 @@
       "refund": {"value": "5–7", "label": "Jours de Traitement"},
       "exchange": {"value": "Facile", "label": "Échanges Disponibles"}
     },
+    "eligibilitySectionEyebrow": "Éligibilité",
+    "eligibilitySectionHeading": "Qu'est-ce qui est couvert ?",
+    "howToEyebrow": "Processus de retour",
+    "quickFacts": {
+      "eyebrow": "Bon à savoir",
+      "heading": "Remboursements, échanges et plus"
+    },
     "sections": {
       "eligibility": {
         "title": "Qu'est-ce que je peux retourner ?",

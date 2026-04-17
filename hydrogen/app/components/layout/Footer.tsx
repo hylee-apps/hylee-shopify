@@ -38,7 +38,7 @@ const DEFAULT_LINK_KEYS = [
   {key: 'footer.links.faq', url: '/faq'},
   {key: 'footer.links.termsOfUse', url: '/policies/terms-of-service'},
   {key: 'footer.links.privacyPolicy', url: '/policies/privacy-policy'},
-  {key: 'footer.links.returnPolicy', url: '/pages/return-policy'},
+  {key: 'footer.links.returnPolicy', url: '/policies/return-policy'},
   {key: 'footer.links.becomeSupplier', url: '/pages/become-a-supplier'},
 ];
 
