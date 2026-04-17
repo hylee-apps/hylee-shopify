@@ -16,8 +16,12 @@ interface ReturnShippingSummaryProps {
 // Helpers
 // ============================================================================
 
-function formatMoney(amount: number, currencyCode: string = 'USD'): string {
-  return new Intl.NumberFormat('en-US', {
+function formatMoney(
+  amount: number,
+  currencyCode: string = 'USD',
+  locale: string = 'en',
+): string {
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: currencyCode,
   }).format(amount);
@@ -34,7 +38,7 @@ export function ReturnShippingSummary({
   totalRefund,
   currencyCode = 'USD',
 }: ReturnShippingSummaryProps) {
-  const {t} = useTranslation('common');
+  const {t, i18n} = useTranslation('common');
 
   return (
     <div
@@ -74,7 +78,7 @@ export function ReturnShippingSummary({
           className="text-[16px] font-bold leading-[24px] text-return-accent"
           data-testid="shipping-summary-total"
         >
-          {formatMoney(totalRefund, currencyCode)}
+          {formatMoney(totalRefund, currencyCode, i18n.language)}
         </span>
       </div>
     </div>

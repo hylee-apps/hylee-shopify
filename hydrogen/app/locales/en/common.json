@@ -716,7 +716,10 @@
     "removeFromWishlist": "Remove from Wishlist",
     "wishlisted": "Wishlisted",
     "addShortlist": "Add Shortlist",
-    "add": "Add"
+    "add": "Add",
+    "saleBadge": "Sale",
+    "newBadge": "New",
+    "bestSellerBadge": "Best Seller"
   },
   "filter": {
     "min": "Min",
@@ -741,7 +744,15 @@
   "collection": {
     "loadMore": "Load More Products",
     "shopNow": "Shop Now",
-    "seeAll": "See all"
+    "seeAll": "See all",
+    "productResults": "{{total}}{{suffix}} Product Results",
+    "showingResults": "Showing 1 – {{total}}{{suffix}} results",
+    "loadPrevious": "Load Previous",
+    "loading": "Loading...",
+    "noProductsFound": "No products found",
+    "browseSubcategoriesHint": "Browse the subcategories above or clear your filters.",
+    "adjustFiltersHint": "Try adjusting your filters or browse all products in this collection.",
+    "clearAllFilters": "Clear All Filters"
   },
   "home": {
     "searchPlaceholder": "Search Our Products",
@@ -1181,7 +1192,12 @@
     "signUpWithApple": "Sign up with Apple"
   },
   "breadcrumb": {
-    "more": "More"
+    "more": "More",
+    "home": "Home",
+    "nav": "Breadcrumb"
+  },
+  "collectionHero": {
+    "imageAlt": "{{title}} collection"
   },
   "pagination": {
     "goPrevious": "Go to previous page",
@@ -1192,5 +1208,71 @@
   },
   "pillInput": {
     "search": "Search"
+  },
+  "returnShippingPage": {
+    "title": "Return Shipping",
+    "subtitle": "Choose how you'd like to send your items back",
+    "shippingMethodHeading": "Shipping Method",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "free": "Free",
+    "options": {
+      "drop-off": {
+        "title": "UPS Drop-off",
+        "description": "Drop off your package at any UPS location or UPS Store. Print your label at home or show QR code at the store.",
+        "feature1": "Prepaid label",
+        "feature2": "10,000+ locations",
+        "feature3": "No packaging needed"
+      },
+      "pickup": {
+        "title": "UPS Pickup",
+        "description": "Schedule a free pickup from your home or office. UPS will come to your door and collect your package.",
+        "feature1": "Convenient pickup",
+        "feature2": "Next business day",
+        "feature3": "No trip needed"
+      },
+      "instant": {
+        "title": "Instant Return",
+        "description": "Get instant store credit upon drop-off scan, before we receive your return. Perfect for quick reorders.",
+        "feature1": "Instant credit",
+        "feature2": "Same-day processing",
+        "feature3": "+$4.99 fee"
+      }
+    }
+  },
+  "returnResolvePage": {
+    "title": "Make It Right",
+    "subtitle": "How would you like us to resolve this?",
+    "chooseResolutionHeading": "Choose Your Resolution",
+    "cancel": "Cancel",
+    "submitReturn": "Submit Return",
+    "free": "Free",
+    "options": {
+      "exchange": {
+        "title": "Exchange",
+        "description": "Swap for a different color, size, or variant"
+      },
+      "replace": {
+        "title": "Replace",
+        "description": "Get the exact same item sent again"
+      },
+      "store-credit": {
+        "title": "Store Credit",
+        "description": "Instant credit to your Hylee account"
+      },
+      "refund": {
+        "title": "Refund",
+        "description": "Money back to original payment method"
+      }
+    },
+    "confirmation": {
+      "title": "Return Request Submitted",
+      "subtitle": "We've received your request and will review it shortly",
+      "orderLabel": "Order {{name}}",
+      "itemCount_one": "{{count}} item",
+      "itemCount_other": "{{count}} items",
+      "emailNotice": "We'll send you an email once your return has been reviewed. You can track the status of your return from your orders page at any time.",
+      "backToOrders": "Back to My Orders"
+    }
   }
 }

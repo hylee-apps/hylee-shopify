@@ -60,15 +60,18 @@ type ActionButton = {
 // Helpers
 // ============================================================================
 
-function formatMoney(money: {amount: string; currencyCode: string}): string {
-  return new Intl.NumberFormat('en-US', {
+function formatMoney(
+  money: {amount: string; currencyCode: string},
+  locale: string,
+): string {
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: money.currencyCode,
   }).format(parseFloat(money.amount));
 }
 
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-US', {
+function formatDate(dateString: string, locale: string): string {
+  return new Date(dateString).toLocaleDateString(locale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -88,6 +91,7 @@ function isDeliveredToday(processedAt: string, status: string): boolean {
 function getDeliveryKeys(
   processedAt: string,
   status: string,
+  locale: string,
 ): {
   textKey: string;
   textParams?: Record<string, string>;
@@ -101,7 +105,7 @@ function getDeliveryKeys(
         textKey: today
           ? 'orderCard.delivery.deliveredToday'
           : 'orderCard.delivery.delivered',
-        textParams: today ? undefined : {date: formatDate(processedAt)},
+        textParams: today ? undefined : {date: formatDate(processedAt, locale)},
         isToday: today,
         messageKey: today
           ? 'orderCard.delivery.messages.deliveredToday'
@@ -192,10 +196,10 @@ function getActionButtons(status: string): ActionButton[] {
   }
 }
 
-function getReturnEligibilityDate(processedAt: string): string {
+function getReturnEligibilityDate(processedAt: string, locale: string): string {
   const date = new Date(processedAt);
   date.setDate(date.getDate() + 30);
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString(locale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -207,11 +211,13 @@ function getReturnEligibilityDate(processedAt: string): string {
 // ============================================================================
 
 export function OrderCard({order}: OrderCardProps) {
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
+  const locale = i18n.language;
   const orderId = order.id.split('/').pop()?.split('?')[0];
   const deliveryKeys = getDeliveryKeys(
     order.processedAt,
     order.fulfillmentStatus,
+    locale,
   );
   const delivery = {
     text: t(deliveryKeys.textKey, deliveryKeys.textParams),
@@ -231,11 +237,11 @@ export function OrderCard({order}: OrderCardProps) {
         <div className="flex flex-wrap gap-x-[24px] gap-y-[8px]">
           <MetaItem
             label={t('orderCard.meta.orderPlaced')}
-            value={formatDate(order.processedAt)}
+            value={formatDate(order.processedAt, locale)}
           />
           <MetaItem
             label={t('orderCard.meta.total')}
-            value={formatMoney(order.totalPrice)}
+            value={formatMoney(order.totalPrice, locale)}
           />
           {shipToName && (
             <div className="flex flex-col gap-[2px]">
@@ -343,7 +349,8 @@ function ProductRow({
   orderId?: string;
   hasBorder: boolean;
 }) {
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
+  const locale = i18n.language;
   const image = item.variant?.image;
   const productHandle = item.variant?.product?.handle;
 
@@ -389,7 +396,7 @@ function ProductRow({
         )}
         <span className="text-[13px] leading-[19.5px] text-[#4b5563]">
           {t('orderCard.returnEligibility', {
-            date: getReturnEligibilityDate(processedAt),
+            date: getReturnEligibilityDate(processedAt, locale),
           })}
         </span>
         {/* Inline Action Buttons */}

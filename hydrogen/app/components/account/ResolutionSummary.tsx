@@ -17,8 +17,12 @@ interface ResolutionSummaryProps {
 // Helpers
 // ============================================================================
 
-function formatMoney(amount: number, currencyCode: string = 'USD'): string {
-  return new Intl.NumberFormat('en-US', {
+function formatMoney(
+  amount: number,
+  currencyCode: string = 'USD',
+  locale: string = 'en',
+): string {
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: currencyCode,
   }).format(amount);
@@ -36,7 +40,7 @@ export function ResolutionSummary({
   totalValue,
   currencyCode = 'USD',
 }: ResolutionSummaryProps) {
-  const {t} = useTranslation('common');
+  const {t, i18n} = useTranslation('common');
 
   return (
     <div
@@ -59,7 +63,7 @@ export function ResolutionSummary({
           {t('resolutionSummary.subtotal')}
         </span>
         <span className="text-[14px] font-medium leading-[21px] text-[#1f2937]">
-          {formatMoney(subtotal, currencyCode)}
+          {formatMoney(subtotal, currencyCode, i18n.language)}
         </span>
       </div>
 
@@ -86,7 +90,7 @@ export function ResolutionSummary({
           className="text-[16px] font-bold leading-[24px] text-return-accent"
           data-testid="resolution-summary-total"
         >
-          {formatMoney(totalValue, currencyCode)}
+          {formatMoney(totalValue, currencyCode, i18n.language)}
         </span>
       </div>
     </div>

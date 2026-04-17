@@ -672,7 +672,10 @@
     "removeFromWishlist": "Retirer de la Liste de Souhaits",
     "wishlisted": "Dans la Liste de Souhaits",
     "addShortlist": "Ajouter aux Favoris",
-    "add": "Ajouter"
+    "add": "Ajouter",
+    "saleBadge": "Soldes",
+    "newBadge": "Nouveau",
+    "bestSellerBadge": "Best-seller"
   },
   "compare": {
     "addToCompare": "Ajouter pour Comparer",
@@ -727,7 +730,15 @@
   "collection": {
     "loadMore": "Charger Plus de Produits",
     "shopNow": "Acheter Maintenant",
-    "seeAll": "Voir tout"
+    "seeAll": "Voir tout",
+    "productResults": "{{total}}{{suffix}} Résultats de recherche",
+    "showingResults": "Affichage des résultats 1 à {{total}}{{suffix}}",
+    "loadPrevious": "Charger la page précédente",
+    "loading": "Chargement en cours...",
+    "noProductsFound": "Aucun produit trouvé",
+    "browseSubcategoriesHint": "Parcourez les sous-catégories ci-dessus ou effacez vos filtres.",
+    "adjustFiltersHint": "Essayez de modifier vos critères de recherche ou parcourez tous les produits de cette collection.",
+    "clearAllFilters": "Effacer tous les filtres"
   },
   "home": {
     "searchPlaceholder": "Rechercher nos Produits",
@@ -1181,7 +1192,9 @@
     "signUpWithApple": "Inscrivez-vous avec Apple"
   },
   "breadcrumb": {
-    "more": "En savoir plus"
+    "more": "En savoir plus",
+    "home": "Accueil",
+    "nav": "Fil d'Ariane"
   },
   "pagination": {
     "goPrevious": "Retour à la page précédente",
@@ -1192,5 +1205,74 @@
   },
   "pillInput": {
     "search": "Rechercher"
+  },
+  "collectionHero": {
+    "imageAlt": "{{title}} collection"
+  },
+  "returnShippingPage": {
+    "title": "Retour",
+    "subtitle": "Choisissez comment vous souhaitez renvoyer vos articles",
+    "shippingMethodHeading": "Mode de livraison",
+    "cancel": "Annuler",
+    "continue": "Continuer",
+    "free": "Gratuit",
+    "options": {
+      "drop-off": {
+        "title": "Dépôt UPS",
+        "description": "Déposez votre colis dans n'importe quel point de dépôt UPS ou magasin UPS Store. Imprimez votre étiquette chez vous ou présentez le code QR en magasin.",
+        "feature1": "Étiquette prépayée",
+        "feature2": "Plus de 10 000 sites",
+        "feature3": "Aucun emballage nécessaire"
+      },
+      "pickup": {
+        "title": "Enlèvement par UPS",
+        "description": "Prenez rendez-vous pour un enlèvement gratuit à votre domicile ou à votre bureau. UPS viendra chercher votre colis à votre porte.",
+        "feature1": "Retrait pratique",
+        "feature2": "Le jour ouvrable suivant",
+        "feature3": "Pas besoin de se déplacer"
+      },
+      "instant": {
+        "title": "Retour immédiat",
+        "description": "Recevez immédiatement un avoir en magasin dès le scan à la remise, avant même que nous ayons reçu votre retour. Idéal pour passer rapidement une nouvelle commande.",
+        "feature1": "Crédit immédiat",
+        "feature2": "Traitement le jour même",
+        "feature3": "+ 4,99 $ de frais"
+      }
+    }
+  },
+  "returnResolvePage": {
+    "title": "Fais ce qu'il faut",
+    "subtitle": "Comment souhaitez-vous que nous réglions ce problème ?",
+    "chooseResolutionHeading": "Choisissez votre résolution",
+    "cancel": "Annuler",
+    "submitReturn": "Envoyer le formulaire de retour",
+    "free": "Gratuit",
+    "options": {
+      "exchange": {
+        "title": "Échange",
+        "description": "Échanger pour une autre couleur, une autre taille ou une autre version"
+      },
+      "replace": {
+        "title": "Remplacer",
+        "description": "Demandez à ce que le même article vous soit renvoyé"
+      },
+      "store-credit": {
+        "title": "Crédit magasin",
+        "description": "Crédit immédiat sur votre compte Hylee"
+      },
+      "refund": {
+        "title": "Remboursement",
+        "description": "Remboursement sur le mode de paiement initial"
+      }
+    },
+    "confirmation": {
+      "title": "Demande de retour envoyée",
+      "subtitle": "Nous avons bien reçu votre demande et allons l'examiner sous peu",
+      "orderLabel": "Commander «{{name}}»",
+      "itemCount_one": "{{count}} article",
+      "itemCount_other": "{{count}} articles",
+      "emailNotice": "Nous vous enverrons un e-mail dès que votre retour aura été examiné. Vous pouvez suivre l'état d'avancement de votre retour à tout moment depuis la page de vos commandes.",
+      "backToOrders": "Retour à Mes commandes"
+    }
   }
 }

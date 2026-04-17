@@ -256,13 +256,17 @@ function CollectionBreadcrumbs({
   navPath: Array<{url: string; title: string}> | null;
   title: string;
 }) {
-  // Build: [nav hierarchy] > Current Collection
-  // Filter out root and /collections — neither should appear.
+  const {t} = useTranslation();
+  // Build: Home > [nav hierarchy] > Current Collection
+  // Filter out root and /collections — neither should appear as raw path entries.
   const navItems = navPath
     ? navPath.filter((n) => n.url !== '/' && n.url !== '/collections')
     : [{url: null, title}];
 
-  const crumbs: Array<{url: string | null; title: string}> = [...navItems];
+  const crumbs: Array<{url: string | null; title: string}> = [
+    {url: '/', title: t('breadcrumb.home')},
+    ...navItems,
+  ];
 
   return (
     <Breadcrumb className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -311,12 +315,15 @@ function CategoryResultsHeader({
   hasNextPage: boolean;
   searchParams: URLSearchParams;
 }) {
+  const {t} = useTranslation();
   return (
     <div className="flex items-center justify-between border-b border-[#e5e7eb] pb-4.25 w-full">
       {/* Count — Figma: Roboto Medium 18px #111827 */}
       <p className="font-medium text-[18px] text-[#111827] leading-6.75">
-        {count}
-        {hasNextPage ? '+' : ''} Product Results
+        {t('collection.productResults', {
+          total: count,
+          suffix: hasNextPage ? '+' : '',
+        })}
       </p>
 
       {/* Sort dropdown — reuse existing SortSelect (pill style) */}
@@ -342,17 +349,22 @@ function EndNodeResultsHeader({
   searchParams: URLSearchParams;
   onOpenFilters: () => void;
 }) {
+  const {t} = useTranslation();
   return (
     <div className="flex items-center justify-between border-b border-[#e5e7eb] pb-[17px] w-full">
       {/* Left: count + subtitle */}
       <div className="flex flex-col gap-[4px]">
         <h2 className="font-medium text-[18px] text-[#111827] leading-[27px]">
-          {count}
-          {hasNextPage ? '+' : ''} Product Results
+          {t('collection.productResults', {
+            total: count,
+            suffix: hasNextPage ? '+' : '',
+          })}
         </h2>
         <p className="text-[14px] text-[#6b7280] leading-[21px]">
-          Showing 1 – {count}
-          {hasNextPage ? '+' : ''} results
+          {t('collection.showingResults', {
+            total: count,
+            suffix: hasNextPage ? '+' : '',
+          })}
         </p>
       </div>
 
@@ -366,7 +378,7 @@ function EndNodeResultsHeader({
         >
           <Filter size={13} className="text-[#374151]" />
           <span className="font-medium text-[13px] text-[#374151]">
-            Filters
+            {t('toolbar.filters')}
           </span>
         </button>
 
@@ -474,7 +486,7 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
                           <Button variant="outline" asChild>
                             <PreviousLink>
                               <ChevronUp size={16} />
-                              Load Previous
+                              {t('collection.loadPrevious')}
                             </PreviousLink>
                           </Button>
                         </div>
@@ -499,7 +511,7 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
                               {isLoading ? (
                                 <>
                                   <Loader2 size={16} className="animate-spin" />
-                                  Loading...
+                                  {t('collection.loading')}
                                 </>
                               ) : (
                                 t('collection.loadMore')
@@ -513,14 +525,14 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
                     <div className="flex flex-col items-center justify-center py-16 text-center">
                       <Search size={48} className="mb-4 text-[#9ca3af]" />
                       <h2 className="mb-2 text-lg font-medium text-[#111827]">
-                        No products found
+                        {t('collection.noProductsFound')}
                       </h2>
                       <p className="mb-6 text-sm text-[#6b7280]">
-                        Browse the subcategories above or clear your filters.
+                        {t('collection.browseSubcategoriesHint')}
                       </p>
                       <Button asChild className="rounded-full px-6">
                         <Link to={clearAllFiltersUrl(pathname, searchParams)}>
-                          Clear All Filters
+                          {t('collection.clearAllFilters')}
                         </Link>
                       </Button>
                     </div>
@@ -596,7 +608,7 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
                           <Button variant="outline" asChild>
                             <PreviousLink>
                               <ChevronUp size={16} />
-                              Load Previous
+                              {t('collection.loadPrevious')}
                             </PreviousLink>
                           </Button>
                         </div>
@@ -621,7 +633,7 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
                               {isLoading ? (
                                 <>
                                   <Loader2 size={16} className="animate-spin" />
-                                  Loading...
+                                  {t('collection.loading')}
                                 </>
                               ) : (
                                 t('collection.loadMore')
@@ -635,15 +647,14 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
                     <div className="flex flex-col items-center justify-center py-16 text-center">
                       <Search size={48} className="mb-4 text-[#9ca3af]" />
                       <h2 className="mb-2 text-lg font-medium text-[#111827]">
-                        No products found
+                        {t('collection.noProductsFound')}
                       </h2>
                       <p className="mb-6 text-sm text-[#6b7280]">
-                        Try adjusting your filters or browse all products in
-                        this collection.
+                        {t('collection.adjustFiltersHint')}
                       </p>
                       <Button asChild className="rounded-full px-6">
                         <Link to={clearAllFiltersUrl(pathname, searchParams)}>
-                          Clear All Filters
+                          {t('collection.clearAllFilters')}
                         </Link>
                       </Button>
                     </div>

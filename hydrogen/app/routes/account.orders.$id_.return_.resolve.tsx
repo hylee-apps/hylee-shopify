@@ -2,6 +2,7 @@ import {useState, useMemo} from 'react';
 import type {Route} from './+types/account.orders.$id_.return_.resolve';
 import {redirect, Link} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
+import {useTranslation} from 'react-i18next';
 import {
   ArrowLeftRight,
   RefreshCw,
@@ -37,40 +38,19 @@ export function meta({data}: Route.MetaArgs) {
 // Constants
 // ============================================================================
 
-const RESOLUTION_OPTIONS: ResolutionOption[] = [
-  {
-    id: 'exchange',
-    icon: ArrowLeftRight,
-    title: 'Exchange',
-    description: 'Swap for a different color, size, or variant',
-  },
-  {
-    id: 'replace',
-    icon: RefreshCw,
-    title: 'Replace',
-    description: 'Get the exact same item sent again',
-  },
-  {
-    id: 'store-credit',
-    icon: CreditCard,
-    title: 'Store Credit',
-    description: 'Instant credit to your Hylee account',
-  },
-  {
-    id: 'refund',
-    icon: Smile,
-    title: 'Refund',
-    description: 'Money back to original payment method',
-  },
+// Static (non-translatable) parts of each resolution option.
+// Title and description are derived from i18n in the component.
+const RESOLUTION_OPTIONS_BASE = [
+  {id: 'exchange' as const, icon: ArrowLeftRight},
+  {id: 'replace' as const, icon: RefreshCw},
+  {id: 'store-credit' as const, icon: CreditCard},
+  {id: 'refund' as const, icon: Smile},
 ];
 
-const SHIPPING_COSTS: Record<
-  string,
-  {amount: number; label: string; free: boolean}
-> = {
-  'drop-off': {amount: 0, label: 'Free', free: true},
-  pickup: {amount: 0, label: 'Free', free: true},
-  instant: {amount: 4.99, label: '$4.99', free: false},
+const SHIPPING_COSTS: Record<string, {amount: number; free: boolean}> = {
+  'drop-off': {amount: 0, free: true},
+  pickup: {amount: 0, free: true},
+  instant: {amount: 4.99, free: false},
 };
 
 // ============================================================================
@@ -198,7 +178,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     lineItems,
     itemCount: lineItems.length,
     subtotal,
-    shippingPrice: shipping.label,
+    shippingAmount: shipping.amount,
     shippingFree: shipping.free,
     totalValue,
     currencyCode: lineItems[0]?.price.currencyCode ?? 'USD',
@@ -212,8 +192,12 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
 // Helpers
 // ============================================================================
 
-function formatMoney(amount: number, currencyCode: string = 'USD'): string {
-  return new Intl.NumberFormat('en-US', {
+function formatMoney(
+  amount: number,
+  currencyCode: string = 'USD',
+  locale: string = 'en',
+): string {
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: currencyCode,
   }).format(amount);
@@ -230,7 +214,7 @@ export default function ReturnResolvePage({loaderData}: Route.ComponentProps) {
     lineItems,
     itemCount,
     subtotal,
-    shippingPrice,
+    shippingAmount,
     shippingFree,
     totalValue,
     currencyCode,
@@ -238,6 +222,25 @@ export default function ReturnResolvePage({loaderData}: Route.ComponentProps) {
     reasonsParam,
     shippingParam,
   } = loaderData;
+
+  const {t, i18n} = useTranslation();
+  const locale = i18n.language;
+
+  // Build translated resolution options from base config
+  const resolutionOptions: ResolutionOption[] = useMemo(
+    () =>
+      RESOLUTION_OPTIONS_BASE.map((opt) => ({
+        ...opt,
+        title: t(`returnResolvePage.options.${opt.id}.title`),
+        description: t(`returnResolvePage.options.${opt.id}.description`),
+      })),
+    [t],
+  );
+
+  // Translated shipping price label
+  const shippingPrice = shippingFree
+    ? t('returnResolvePage.free')
+    : formatMoney(shippingAmount, currencyCode, locale);
 
   // Resolution selection state — no pre-selection
   const [selectedResolution, setSelectedResolution] = useState<string | null>(
@@ -258,7 +261,7 @@ export default function ReturnResolvePage({loaderData}: Route.ComponentProps) {
     [lineItems],
   );
 
-  const formattedTotalValue = formatMoney(subtotal, currencyCode);
+  const formattedTotalValue = formatMoney(subtotal, currencyCode, locale);
 
   // Build back URL preserving all accumulated state
   const backUrl = `/account/orders/${orderId}/return/shipping?items=${encodeURIComponent(itemsParam)}${reasonsParam ? `&reasons=${encodeURIComponent(reasonsParam)}` : ''}&shipping=${encodeURIComponent(shippingParam)}`;
@@ -271,7 +274,7 @@ export default function ReturnResolvePage({loaderData}: Route.ComponentProps) {
     `/account/orders/${orderId}/return/resolve?items=${encodeURIComponent(itemsParam)}${reasonsParam ? `&reasons=${encodeURIComponent(reasonsParam)}` : ''}${shippingParam ? `&shipping=${encodeURIComponent(shippingParam)}` : ''}`,
   ];
 
-  const selectedOption = RESOLUTION_OPTIONS.find(
+  const selectedOption = resolutionOptions.find(
     (o) => o.id === selectedResolution,
   );
 
@@ -287,17 +290,17 @@ export default function ReturnResolvePage({loaderData}: Route.ComponentProps) {
     return (
       <div className="flex min-h-[calc(100vh-200px)] flex-col">
         <div
-          className="mx-auto flex w-full max-w-[900px] flex-1 flex-col gap-[8px] px-[24px] pb-16 pt-[32px]"
+          className="mx-auto flex w-full max-w-screen-2xl flex-1 flex-col gap-[8px] px-4 pb-16 pt-6 lg:px-6 lg:pt-8"
           data-testid="return-confirmation"
         >
           {/* Title */}
           <h1 className="text-center text-[32px] font-light leading-[48px] text-[#1f2937]">
-            Return Request Submitted
+            {t('returnResolvePage.confirmation.title')}
           </h1>
 
           {/* Subtitle */}
           <p className="text-center text-[16px] font-normal leading-[24px] text-[#4b5563]">
-            We&apos;ve received your request and will review it shortly
+            {t('returnResolvePage.confirmation.subtitle')}
           </p>
 
           {/* Confirmation Card */}
@@ -311,11 +314,15 @@ export default function ReturnResolvePage({loaderData}: Route.ComponentProps) {
               {/* Order Reference */}
               <div className="text-center">
                 <p className="text-[14px] font-medium leading-[21px] text-[#4b5563]">
-                  Order {orderName}
+                  {t('returnResolvePage.confirmation.orderLabel', {
+                    name: orderName,
+                  })}
                 </p>
                 <p className="mt-[4px] text-[14px] font-normal leading-[21px] text-[#9ca3af]">
-                  {itemCount} {itemCount === 1 ? 'item' : 'items'} &bull;{' '}
-                  {formatMoney(totalValue, currencyCode)}
+                  {t('returnResolvePage.confirmation.itemCount', {
+                    count: itemCount,
+                  })}{' '}
+                  &bull; {formatMoney(totalValue, currencyCode, locale)}
                 </p>
               </div>
 
@@ -344,9 +351,7 @@ export default function ReturnResolvePage({loaderData}: Route.ComponentProps) {
                   className="mt-[2px] shrink-0 text-return-accent"
                 />
                 <p className="text-[14px] font-normal leading-[22.4px] text-[#4b5563]">
-                  We&apos;ll send you an email once your return has been
-                  reviewed. You can track the status of your return from your
-                  orders page at any time.
+                  {t('returnResolvePage.confirmation.emailNotice')}
                 </p>
               </div>
             </div>
@@ -360,7 +365,7 @@ export default function ReturnResolvePage({loaderData}: Route.ComponentProps) {
               className="flex items-center justify-center rounded-[8px] bg-return-accent px-[32px] py-[13px] text-[15px] font-medium leading-normal text-white transition-opacity hover:opacity-90"
               data-testid="return-back-to-orders-btn"
             >
-              Back to My Orders
+              {t('returnResolvePage.confirmation.backToOrders')}
             </Link>
           </div>
         </div>
@@ -372,15 +377,15 @@ export default function ReturnResolvePage({loaderData}: Route.ComponentProps) {
   return (
     <div className="flex min-h-[calc(100vh-200px)] flex-col">
       {/* Scrollable Content */}
-      <div className="mx-auto flex w-full max-w-[900px] flex-1 flex-col gap-[8px] px-[24px] pb-16 pt-[32px]">
+      <div className="mx-auto flex w-full max-w-screen-2xl flex-1 flex-col gap-[8px] px-4 pb-16 pt-6 lg:px-6 lg:pt-8">
         {/* Title */}
         <h1 className="text-center text-[32px] font-light leading-[48px] text-[#1f2937]">
-          Make It Right
+          {t('returnResolvePage.title')}
         </h1>
 
         {/* Subtitle */}
         <p className="text-center text-[16px] font-normal leading-[24px] text-[#4b5563]">
-          How would you like us to resolve this?
+          {t('returnResolvePage.subtitle')}
         </p>
 
         {/* Step Progress */}
@@ -391,7 +396,7 @@ export default function ReturnResolvePage({loaderData}: Route.ComponentProps) {
           {/* Card Header */}
           <div className="border-b border-[#e5e7eb] px-[24px] pb-[21px] pt-[20px]">
             <h2 className="text-[18px] font-bold leading-[27px] text-[#111827]">
-              Choose Your Resolution
+              {t('returnResolvePage.chooseResolutionHeading')}
             </h2>
           </div>
 
@@ -408,7 +413,7 @@ export default function ReturnResolvePage({loaderData}: Route.ComponentProps) {
               className="grid grid-cols-2 gap-[16px]"
               data-testid="resolution-grid"
             >
-              {RESOLUTION_OPTIONS.map((option) => (
+              {resolutionOptions.map((option) => (
                 <ResolutionOptionCard
                   key={option.id}
                   option={option}
@@ -441,7 +446,7 @@ export default function ReturnResolvePage({loaderData}: Route.ComponentProps) {
             className="flex flex-[35] items-center justify-center rounded-[8px] border border-[#d1d5db] bg-white px-[25px] py-[13px] text-[15px] font-medium leading-normal text-[#374151] transition-colors hover:bg-[#f9fafb]"
             data-testid="return-cancel-btn"
           >
-            Cancel
+            {t('returnResolvePage.cancel')}
           </Link>
           <button
             type="button"
@@ -452,7 +457,7 @@ export default function ReturnResolvePage({loaderData}: Route.ComponentProps) {
             }`}
             data-testid="return-submit-btn"
           >
-            Submit Return
+            {t('returnResolvePage.submitReturn')}
           </button>
         </div>
       </div>
@@ -466,7 +471,7 @@ export default function ReturnResolvePage({loaderData}: Route.ComponentProps) {
 
 export function HydrateFallback() {
   return (
-    <div className="mx-auto flex w-full max-w-[900px] flex-col gap-4 px-6 py-8">
+    <div className="mx-auto flex w-full max-w-screen-2xl flex-col gap-4 px-4 py-6 lg:px-6 lg:py-8">
       {/* Title skeleton */}
       <div className="mx-auto h-[48px] w-[300px] animate-pulse rounded bg-gray-200" />
       <div className="mx-auto h-[24px] w-[400px] animate-pulse rounded bg-gray-200" />

@@ -7,10 +7,12 @@ import {initReactI18next} from 'react-i18next';
 import {resources, i18nConfig} from '~/i18n';
 
 // Initialize global i18next instance for client-side.
-// The locale is synced at runtime via useChangeLanguage in root.tsx.
+// The locale is embedded on <html data-locale="..."> by the Layout component
+// so this instance starts with the correct language before hydration.
+const initialLocale = document.documentElement.dataset.locale ?? 'en';
 void i18next.use(initReactI18next).init({
   ...i18nConfig,
-  lng: 'en',
+  lng: initialLocale,
   resources,
 });
 

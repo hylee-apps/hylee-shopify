@@ -2,6 +2,7 @@ import {useState, useMemo} from 'react';
 import type {Route} from './+types/account.orders.$id_.return_.shipping';
 import {redirect, Link} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
+import {useTranslation} from 'react-i18next';
 import {Package, Truck, Zap} from 'lucide-react';
 import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {ReturnStepProgress} from '~/components/account/ReturnStepProgress';
@@ -31,40 +32,30 @@ export function meta({data}: Route.MetaArgs) {
 // Constants
 // ============================================================================
 
-const SHIPPING_OPTIONS: ShippingOption[] = [
+// Static (non-translatable) parts of each shipping option.
+// Title, price label, description, and features are derived from i18n in the component.
+const SHIPPING_OPTIONS_BASE = [
   {
-    id: 'drop-off',
+    id: 'drop-off' as const,
     icon: Package,
-    title: 'UPS Drop-off',
-    price: 'Free',
     priceFree: true,
     priceAmount: 0,
-    description:
-      'Drop off your package at any UPS location or UPS Store. Print your label at home or show QR code at the store.',
-    features: ['Prepaid label', '10,000+ locations', 'No packaging needed'],
+    rawPrice: '$0.00',
     showQrPreview: true,
   },
   {
-    id: 'pickup',
+    id: 'pickup' as const,
     icon: Truck,
-    title: 'UPS Pickup',
-    price: 'Free',
     priceFree: true,
     priceAmount: 0,
-    description:
-      'Schedule a free pickup from your home or office. UPS will come to your door and collect your package.',
-    features: ['Convenient pickup', 'Next business day', 'No trip needed'],
+    rawPrice: '$0.00',
   },
   {
-    id: 'instant',
+    id: 'instant' as const,
     icon: Zap,
-    title: 'Instant Return',
-    price: '$4.99',
     priceFree: false,
     priceAmount: 4.99,
-    description:
-      'Get instant store credit upon drop-off scan, before we receive your return. Perfect for quick reorders.',
-    features: ['Instant credit', 'Same-day processing', '+$4.99 fee'],
+    rawPrice: '$4.99',
   },
 ];
 
@@ -228,17 +219,39 @@ export default function ReturnShippingPage({loaderData}: Route.ComponentProps) {
     shippingParam,
   } = loaderData;
 
+  const {t} = useTranslation();
+
+  // Build translated shipping options from base config
+  const shippingOptions: ShippingOption[] = useMemo(
+    () =>
+      SHIPPING_OPTIONS_BASE.map((opt) => ({
+        ...opt,
+        title: t(`returnShippingPage.options.${opt.id}.title`),
+        price: opt.priceFree ? t('returnShippingPage.free') : opt.rawPrice,
+        description: t(`returnShippingPage.options.${opt.id}.description`),
+        features: [
+          t(`returnShippingPage.options.${opt.id}.feature1`),
+          t(`returnShippingPage.options.${opt.id}.feature2`),
+          t(`returnShippingPage.options.${opt.id}.feature3`),
+        ],
+      })),
+    [t],
+  );
+
   // Shipping method selection — restore from URL if navigating back
   const [selectedMethod, setSelectedMethod] = useState<string>(() => {
-    if (shippingParam && SHIPPING_OPTIONS.some((o) => o.id === shippingParam)) {
+    if (
+      shippingParam &&
+      SHIPPING_OPTIONS_BASE.some((o) => o.id === shippingParam)
+    ) {
       return shippingParam;
     }
     return 'drop-off';
   });
 
   const selectedOption = useMemo(
-    () => SHIPPING_OPTIONS.find((o) => o.id === selectedMethod)!,
-    [selectedMethod],
+    () => shippingOptions.find((o) => o.id === selectedMethod)!,
+    [shippingOptions, selectedMethod],
   );
 
   const shippingCost = selectedOption.priceAmount;
@@ -250,15 +263,15 @@ export default function ReturnShippingPage({loaderData}: Route.ComponentProps) {
   return (
     <div className="flex min-h-[calc(100vh-200px)] flex-col">
       {/* Scrollable Content */}
-      <div className="mx-auto flex w-full max-w-[900px] flex-1 flex-col gap-[8px] px-[24px] pb-16 pt-[32px]">
+      <div className="mx-auto flex w-full max-w-screen-2xl flex-1 flex-col gap-[8px] px-4 pb-16 pt-6 lg:px-6 lg:pt-8">
         {/* Title */}
         <h1 className="text-center text-[32px] font-light leading-[48px] text-[#1f2937]">
-          Return Shipping
+          {t('returnShippingPage.title')}
         </h1>
 
         {/* Subtitle */}
         <p className="text-center text-[16px] font-normal leading-[24px] text-[#4b5563]">
-          Choose how you&apos;d like to send your items back
+          {t('returnShippingPage.subtitle')}
         </p>
 
         {/* Step Progress */}
@@ -276,7 +289,7 @@ export default function ReturnShippingPage({loaderData}: Route.ComponentProps) {
           {/* Card Header */}
           <div className="border-b border-[#e5e7eb] px-[24px] pb-[21px] pt-[20px]">
             <h2 className="text-[18px] font-bold leading-[27px] text-[#111827]">
-              Shipping Method
+              {t('returnShippingPage.shippingMethodHeading')}
             </h2>
           </div>
 
@@ -284,7 +297,7 @@ export default function ReturnShippingPage({loaderData}: Route.ComponentProps) {
           <div className="flex flex-col gap-[24px] px-[24px] pb-[36px] pt-[24px]">
             {/* Shipping Options */}
             <div className="flex flex-col gap-[16px]">
-              {SHIPPING_OPTIONS.map((option) => (
+              {shippingOptions.map((option) => (
                 <ShippingOptionCard
                   key={option.id}
                   option={option}
@@ -322,7 +335,7 @@ export default function ReturnShippingPage({loaderData}: Route.ComponentProps) {
             className="flex flex-[35] items-center justify-center rounded-[8px] border border-[#d1d5db] bg-white px-[25px] py-[13px] text-[15px] font-medium leading-normal text-[#374151] transition-colors hover:bg-[#f9fafb]"
             data-testid="return-cancel-btn"
           >
-            Cancel
+            {t('returnShippingPage.cancel')}
           </Link>
           <button
             type="button"
@@ -332,7 +345,7 @@ export default function ReturnShippingPage({loaderData}: Route.ComponentProps) {
             className="flex flex-[65] items-center justify-center rounded-[8px] bg-return-accent px-[24px] py-[13px] text-[15px] font-medium leading-normal text-white transition-opacity hover:opacity-90"
             data-testid="return-continue-btn"
           >
-            Continue
+            {t('returnShippingPage.continue')}
           </button>
         </div>
       </div>
@@ -346,7 +359,7 @@ export default function ReturnShippingPage({loaderData}: Route.ComponentProps) {
 
 export function HydrateFallback() {
   return (
-    <div className="mx-auto flex w-full max-w-[900px] flex-col gap-4 px-6 py-8">
+    <div className="mx-auto flex w-full max-w-screen-2xl flex-col gap-4 px-4 py-6 lg:px-6 lg:py-8">
       {/* Title skeleton */}
       <div className="mx-auto h-[48px] w-[300px] animate-pulse rounded bg-gray-200" />
       <div className="mx-auto h-[24px] w-[400px] animate-pulse rounded bg-gray-200" />
