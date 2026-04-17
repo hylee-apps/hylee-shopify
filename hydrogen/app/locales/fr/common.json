@@ -182,7 +182,8 @@
       },
       "trust": {
         "ssl": "Transaction sécurisée avec chiffrement SSL"
-      }
+      },
+      "paymentNotice": "Vos informations de paiement sont collectées de manière sécurisée par Shopify — les informations de votre carte ne transitent jamais par nos serveurs."
     },
     "confirmation": {
       "metaTitle": "Commande confirmée — Hy-lee",
@@ -1369,10 +1370,22 @@
       "subtitle": "Nous garantissons chaque produit que nous vendons. Si vous n'êtes pas entièrement satisfait, nous facilitons les retours et les échanges."
     },
     "highlights": {
-      "window": {"value": "30", "label": "Jours pour Retourner"},
-      "shipping": {"value": "Gratuit", "label": "Retour Gratuit"},
-      "refund": {"value": "5–7", "label": "Jours de Traitement"},
-      "exchange": {"value": "Facile", "label": "Échanges Disponibles"}
+      "window": {
+        "value": "30",
+        "label": "Jours pour Retourner"
+      },
+      "shipping": {
+        "value": "Gratuit",
+        "label": "Retour Gratuit"
+      },
+      "refund": {
+        "value": "5–7",
+        "label": "Jours de Traitement"
+      },
+      "exchange": {
+        "value": "Facile",
+        "label": "Échanges Disponibles"
+      }
     },
     "eligibilitySectionEyebrow": "Éligibilité",
     "eligibilitySectionHeading": "Qu'est-ce qui est couvert ?",
