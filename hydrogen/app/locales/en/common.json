@@ -1171,6 +1171,13 @@
     "emptyHeading": "No products found",
     "emptySubtitle": "Check back soon for new products."
   },
+  "comingSoon": {
+    "eyebrow": "Coming Soon",
+    "defaultTitle": "We're Working on It",
+    "body": "We're putting the finishing touches on this section. Check back soon for exciting new content.",
+    "ctaShop": "Browse All Products",
+    "ctaHome": "Back to Home"
+  },
   "return": {
     "pageTitle": "Start a Return",
     "subtitle": "{{orderName}} • Delivered on {{date}}",

@@ -1,6 +1,7 @@
 import {useState, useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useLocation, useNavigation, useRouteLoaderData} from 'react-router';
+import {ComingSoonPage} from '~/components/display/ComingSoonPage';
 import type {Route} from './+types/collections.$handle';
 import type {RootLoader} from '~/root';
 import {
@@ -217,12 +218,38 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
     },
   });
 
+  // Collection doesn't exist in Shopify — show a branded coming-soon page
+  // instead of a raw 404.
   if (!collection) {
-    throw new Response('Collection not found', {status: 404});
+    return {
+      collection: null,
+      comingSoon: true as const,
+      handle,
+      searchParamsString: searchParams.toString(),
+    };
+  }
+
+  // Collection exists but has no products and no active filters — treat as
+  // "not yet ready" rather than an empty results state.
+  const hasActiveFilters = filters.length > 0;
+  const isEmpty =
+    !hasActiveFilters &&
+    collection.products.nodes.length === 0 &&
+    !collection.products.pageInfo.hasNextPage;
+
+  if (isEmpty) {
+    return {
+      collection: null,
+      comingSoon: true as const,
+      handle,
+      searchParamsString: searchParams.toString(),
+    };
   }
 
   return {
     collection,
+    comingSoon: false as const,
+    handle,
     searchParamsString: searchParams.toString(),
   };
 }
@@ -233,7 +260,13 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
 
 export function meta({data}: Route.MetaArgs) {
   if (!data?.collection) {
-    return [{title: 'Collection Not Found'}];
+    const title = data?.handle
+      ? data.handle
+          .split('-')
+          .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(' ')
+      : 'Coming Soon';
+    return [{title: `${title} | Hy-lee`}];
   }
 
   const {collection} = data;
@@ -397,12 +430,17 @@ function EndNodeResultsHeader({
 // ============================================================================
 
 export default function CollectionPage({loaderData}: Route.ComponentProps) {
-  const {collection, searchParamsString} = loaderData;
+  const {collection, comingSoon, handle, searchParamsString} = loaderData;
   const {t} = useTranslation();
   const {pathname} = useLocation();
   const navigation = useNavigation();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const root = useRouteLoaderData<RootLoader>('root');
+
+  // Collection doesn't exist or has no products yet — show branded coming soon
+  if (comingSoon || !collection) {
+    return <ComingSoonPage handle={handle} />;
+  }
 
   const paginationKey = useMemo(() => {
     const p = new URLSearchParams(searchParamsString);
@@ -420,8 +458,6 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
     metafieldPath ?? findNavPath(root?.header?.menu, collection.handle);
 
   const searchParams = new URLSearchParams(searchParamsString);
-
-  if (!collection) return null;
 
   const {products} = collection;
   const availableFilters = products.filters ?? [];

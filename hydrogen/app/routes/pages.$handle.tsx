@@ -1,5 +1,6 @@
 import type {Route} from './+types/pages.$handle';
 import {Link} from 'react-router';
+import {ComingSoonPage} from '~/components/display/ComingSoonPage';
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -55,10 +56,10 @@ export async function loader({params, context}: Route.LoaderArgs) {
   });
 
   if (!page) {
-    throw new Response('Page not found', {status: 404});
+    return {page: null, comingSoon: true as const, handle: params.handle};
   }
 
-  return {page};
+  return {page, comingSoon: false as const, handle: params.handle};
 }
 
 // ============================================================================
@@ -67,11 +68,20 @@ export async function loader({params, context}: Route.LoaderArgs) {
 
 export function meta({data}: Route.MetaArgs) {
   const page = data?.page;
+  if (!page) {
+    const title = data?.handle
+      ? data.handle
+          .split('-')
+          .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(' ')
+      : 'Coming Soon';
+    return [{title: `${title} | Hy-lee`}];
+  }
   return [
-    {title: page?.seo?.title ?? page?.title ?? 'Page'},
+    {title: page.seo?.title ?? page.title ?? 'Page'},
     {
       name: 'description',
-      content: page?.seo?.description ?? page?.bodySummary ?? '',
+      content: page.seo?.description ?? page.bodySummary ?? '',
     },
   ];
 }
@@ -81,7 +91,11 @@ export function meta({data}: Route.MetaArgs) {
 // ============================================================================
 
 export default function PageRoute({loaderData}: Route.ComponentProps) {
-  const {page} = loaderData;
+  const {page, comingSoon, handle} = loaderData;
+
+  if (comingSoon || !page) {
+    return <ComingSoonPage handle={handle} />;
+  }
 
   return (
     <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
