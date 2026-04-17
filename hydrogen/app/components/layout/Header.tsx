@@ -93,6 +93,14 @@ function formatCartTotal(amount?: string, currencyCode?: string): string {
 const NAV_TRIGGER_CLASS =
   'flex items-center gap-1 h-[40px] px-4 py-2.5 text-[16px] font-semibold text-[#111827] hover:text-primary transition-colors focus:outline-none';
 
+// Pre-filtered /collections/all URLs for virtual nav sections.
+// Tag-based filters require products to be tagged accordingly in Shopify Admin.
+const FILTERED_URLS = {
+  newArrivals: '/collections/all?sort=newest',
+  discounts: `/collections/all?filter=${encodeURIComponent(JSON.stringify({tag: 'sale'}))}`,
+  promotions: `/collections/all?filter=${encodeURIComponent(JSON.stringify({tag: 'promotion'}))}`,
+} as const;
+
 // ============================================================================
 // NavDropdown — shadcn DropdownMenu
 // ============================================================================
@@ -235,21 +243,21 @@ function MobileMenu({
 
           {/* Static navigation links */}
           <Link
-            to="/collections/new-arrivals"
+            to={FILTERED_URLS.newArrivals}
             className="block px-4 py-3 text-text font-medium border-b border-border hover:text-primary"
             onClick={onClose}
           >
             {t('nav.whatsNew')}
           </Link>
           <Link
-            to="/collections/discounts"
+            to={FILTERED_URLS.discounts}
             className="block px-4 py-3 text-text font-medium border-b border-border hover:text-primary"
             onClick={onClose}
           >
             {t('nav.discounts')}
           </Link>
           <Link
-            to="/pages/promotions"
+            to={FILTERED_URLS.promotions}
             className="block px-4 py-3 text-text font-medium border-b border-border hover:text-primary"
             onClick={onClose}
           >
@@ -458,17 +466,17 @@ export function Header({
               )}
 
               <Link
-                to="/collections/new-arrivals"
+                to={FILTERED_URLS.newArrivals}
                 className={NAV_TRIGGER_CLASS}
               >
                 {t('nav.whatsNew')}
               </Link>
 
-              <Link to="/collections/discounts" className={NAV_TRIGGER_CLASS}>
+              <Link to={FILTERED_URLS.discounts} className={NAV_TRIGGER_CLASS}>
                 {t('nav.discounts')}
               </Link>
 
-              <Link to="/pages/promotions" className={NAV_TRIGGER_CLASS}>
+              <Link to={FILTERED_URLS.promotions} className={NAV_TRIGGER_CLASS}>
                 {t('nav.promotionsDeals')}
               </Link>
 
