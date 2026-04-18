@@ -1,7 +1,13 @@
 import {type LoaderFunctionArgs, redirect} from 'react-router';
 import type {Route} from './+types/products.$handle';
-import {Suspense, useState, useRef} from 'react';
-import {Await, Link, useRouteLoaderData} from 'react-router';
+import {Suspense, useState, useRef, useEffect} from 'react';
+import {
+  Await,
+  Link,
+  useRouteLoaderData,
+  useSearchParams,
+  useFetcher,
+} from 'react-router';
 import type {RootLoader} from '~/root';
 import {Image, getSeoMeta} from '@shopify/hydrogen';
 import {ProductGallery, VariantSelector} from '~/components';
@@ -10,7 +16,18 @@ import {
   formatPriceParts,
   type MoneyLike,
 } from '~/components/commerce/PriceDisplay';
-import {Star, ShoppingCart, ImageIcon, Plus, Smile, Frown} from 'lucide-react';
+import {
+  Star,
+  ShoppingCart,
+  ImageIcon,
+  Plus,
+  Smile,
+  Frown,
+  Meh,
+  PenLine,
+} from 'lucide-react';
+import {isCustomerLoggedIn} from '~/lib/customer-auth';
+import type {ProductReview} from '~/routes/api.reviews';
 import {ProductCard} from '~/components/commerce/ProductCard';
 import {
   FaceIcon,
@@ -44,6 +61,7 @@ import {
   PARENT_CHAIN_FRAGMENT,
 } from '~/lib/breadcrumbs';
 import {richTextToHtml} from '~/lib/rich-text';
+import {adminApi, type AdminEnv} from '~/lib/admin-api';
 
 // ============================================================================
 // Constants
@@ -165,6 +183,7 @@ const PRODUCT_FRAGMENT = `#graphql
       key
       value
     }
+
     productMetafields: metafields(identifiers: [
       {namespace: "custom", key: "dimensions"},
       {namespace: "custom", key: "height"},
@@ -182,6 +201,7 @@ const PRODUCT_FRAGMENT = `#graphql
       {namespace: "custom", key: "capacity"},
       {namespace: "custom", key: "battery_life"}
     ]) {
+      namespace
       key
       value
     }
@@ -326,7 +346,39 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
   // ?collection=<handle> is appended by PLP links so we can build breadcrumbs
   const collectionHandle = searchParams.get('collection') ?? null;
 
-  return {product, selectedVariant, recommendedProducts, collectionHandle};
+  const isLoggedIn = isCustomerLoggedIn(context.session);
+
+  // Read reviews via Admin API — Storefront API has a propagation delay for
+  // metafields written through the Admin API, so reads must go through the same path.
+  let storedReviews: ProductReview[] = [];
+  try {
+    const reviewsData = await adminApi<{
+      product: {reviewsMeta: {value: string} | null} | null;
+    }>(
+      context.env as unknown as AdminEnv,
+      `query ProductReviewsLoad($productId: ID!) {
+        product(id: $productId) {
+          reviewsMeta: metafield(namespace: "custom", key: "reviews_json") {
+            value
+          }
+        }
+      }`,
+      {productId: product.id},
+    );
+    const raw = reviewsData.product?.reviewsMeta?.value;
+    if (raw) storedReviews = JSON.parse(raw) as ProductReview[];
+  } catch {
+    // No reviews yet or Admin API unavailable — show empty list
+  }
+
+  return {
+    product,
+    selectedVariant,
+    recommendedProducts,
+    collectionHandle,
+    isLoggedIn,
+    storedReviews,
+  };
 }
 
 // ============================================================================
@@ -350,8 +402,14 @@ export function meta({data}: Route.MetaArgs) {
 // ============================================================================
 
 export default function ProductPage({loaderData}: Route.ComponentProps) {
-  const {product, selectedVariant, recommendedProducts, collectionHandle} =
-    loaderData;
+  const {
+    product,
+    selectedVariant,
+    recommendedProducts,
+    collectionHandle,
+    isLoggedIn,
+    storedReviews,
+  } = loaderData;
   const root = useRouteLoaderData<RootLoader>('root');
 
   if (!product) return null;
@@ -411,7 +469,11 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
 
   const isOutOfStock = !selectedVariant?.availableForSale;
   const [quantity, setQuantity] = useState(1);
-  const [openDetailsItems, setOpenDetailsItems] = useState<string[]>([]);
+  const [searchParams] = useSearchParams();
+  const writeReviewParam = searchParams.get('write_review') === '1';
+  const [openDetailsItems, setOpenDetailsItems] = useState<string[]>(
+    writeReviewParam ? ['reviews'] : [],
+  );
   const detailsAccordionRef = useRef<HTMLDivElement>(null);
 
   function openAccordionAndScroll(section: string) {
@@ -491,14 +553,17 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
 
           {/* Aggregate Face Rating */}
           <FaceRatingSummary
-            counts={SAMPLE_REVIEWS.reduce(
-              (acc, r) => ({
+            counts={storedReviews.reduce(
+              (
+                acc: Partial<Record<FaceRatingValue, number>>,
+                r: ProductReview,
+              ) => ({
                 ...acc,
                 [r.face]: (acc[r.face as FaceRatingValue] ?? 0) + 1,
               }),
               {} as Partial<Record<FaceRatingValue, number>>,
             )}
-            totalCount={ratingCount ?? SAMPLE_REVIEWS.length}
+            totalCount={ratingCount ?? storedReviews.length}
           />
 
           {/* Accordion: Key Features / Specs / Does It Fit */}
@@ -509,7 +574,7 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
           >
             <AccordionItem
               value="key-features"
-              className="rounded-lg border border-border bg-white px-4"
+              className="overflow-hidden rounded-lg ring-1 ring-inset ring-border bg-white px-4"
             >
               <AccordionTrigger className="text-[16px] font-semibold text-text hover:no-underline">
                 Key Item Features
@@ -532,7 +597,7 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
 
             <AccordionItem
               value="specs"
-              className="rounded-lg border border-border bg-surface px-4"
+              className="overflow-hidden rounded-lg ring-1 ring-inset ring-border bg-surface px-4"
             >
               <AccordionTrigger className="text-[16px] font-semibold text-text hover:no-underline">
                 Specs
@@ -556,7 +621,7 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
             ) && (
               <AccordionItem
                 value="does-it-fit"
-                className="rounded-lg border border-border bg-surface px-4"
+                className="overflow-hidden rounded-lg ring-1 ring-inset ring-border bg-surface px-4"
               >
                 <AccordionTrigger className="text-[16px] font-semibold text-text hover:no-underline">
                   Does It Fit
@@ -700,7 +765,15 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
               </span>
             </AccordionTrigger>
             <AccordionContent className="px-4">
-              <ReviewsSection rating={rating} ratingCount={ratingCount} />
+              <ReviewsSection
+                key={product.id}
+                rating={rating}
+                ratingCount={ratingCount}
+                reviews={storedReviews}
+                productId={product.id}
+                isLoggedIn={isLoggedIn}
+                openWriteFormInitially={writeReviewParam}
+              />
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -780,23 +853,38 @@ const METAFIELD_LABELS: Record<string, string> = {
   battery_life: 'Battery Life',
 };
 
+/** Keys in the `custom` namespace that are displayed in dedicated sections (not Specs) */
+const EXCLUDED_SPEC_KEYS = new Set([
+  'short_description',
+  'warranty',
+  'specifications',
+]);
+
 function SpecsContent({
   productMetafields,
   primaryOnly,
 }: {
-  productMetafields?: Array<{key: string; value: string} | null> | null;
+  productMetafields?: Array<{
+    namespace: string;
+    key: string;
+    value: string;
+  } | null> | null;
   /** When true, show only the top 6 primary specs (ordered by PRIMARY_SPEC_KEYS) */
   primaryOnly?: boolean;
 }) {
   let entries = (productMetafields ?? []).filter(
-    (mf): mf is {key: string; value: string} => mf != null && !!mf.value,
+    (mf): mf is {namespace: string; key: string; value: string} =>
+      mf != null &&
+      !!mf.value &&
+      mf.namespace === 'custom' &&
+      !EXCLUDED_SPEC_KEYS.has(mf.key),
   );
 
   if (primaryOnly) {
     // Show primary specs first (in priority order), then fill remaining slots
     const primary = PRIMARY_SPEC_KEYS.map((key) =>
       entries.find((mf) => mf.key === key),
-    ).filter(Boolean) as Array<{key: string; value: string}>;
+    ).filter(Boolean) as Array<{namespace: string; key: string; value: string}>;
     const primaryKeySet = new Set(PRIMARY_SPEC_KEYS);
     const rest = entries.filter((mf) => !primaryKeySet.has(mf.key));
     entries = [...primary, ...rest].slice(0, 6);
@@ -809,16 +897,16 @@ function SpecsContent({
   }
 
   return (
-    <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+    <dl className="flex flex-col gap-y-2 text-sm">
       {entries.map((mf) => (
-        <div key={mf.key} className="contents">
+        <div key={mf.key} className="flex justify-between gap-4">
           <dt className="font-medium text-text">
             {METAFIELD_LABELS[mf.key] ??
               mf.key
                 .replace(/_/g, ' ')
                 .replace(/\b\w/g, (l) => l.toUpperCase())}
           </dt>
-          <dd className="text-text-muted">{mf.value}</dd>
+          <dd className="text-text-muted text-right">{mf.value}</dd>
         </div>
       ))}
     </dl>
@@ -838,101 +926,283 @@ const REVIEW_FILTERS: ReviewFilter[] = [
   'Unhappy',
 ];
 
-const SAMPLE_REVIEWS: Array<{
-  id: string;
-  initials: string;
-  name: string;
-  date: string;
-  face: FaceRatingValue;
-  body: string;
-}> = [
-  {
-    id: '1',
-    initials: 'NC',
-    name: 'Nicolas Cage',
-    date: '3 days ago',
-    face: 1,
-    body: 'There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour.',
-  },
-  {
-    id: '2',
-    initials: 'RD',
-    name: 'Sr. Robert Downey',
-    date: '1 week ago',
-    face: 2,
-    body: 'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.',
-  },
-  {
-    id: '3',
-    initials: 'AT',
-    name: 'A. Thompson',
-    date: '2 weeks ago',
-    face: 3,
-    body: 'Great product overall. Exactly as described and arrived quickly. Would definitely recommend to others.',
-  },
-];
+function formatReviewDate(isoString: string): string {
+  try {
+    const date = new Date(isoString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return '1 day ago';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 14) return '1 week ago';
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    if (diffDays < 60) return '1 month ago';
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  } catch {
+    return '';
+  }
+}
 
 function ReviewsSection({
   rating,
   ratingCount,
+  reviews,
+  productId,
+  isLoggedIn,
+  openWriteFormInitially,
 }: {
   rating: number | null;
   ratingCount: number | null;
+  reviews: ProductReview[];
+  productId: string;
+  isLoggedIn: boolean;
+  openWriteFormInitially?: boolean;
 }) {
   const [activeFilter, setActiveFilter] =
     useState<ReviewFilter>('Most Popular');
+  const [showWriteForm, setShowWriteForm] = useState(
+    openWriteFormInitially ?? false,
+  );
+  const [selectedFace, setSelectedFace] = useState<FaceRatingValue | null>(
+    null,
+  );
+  const [reviewBody, setReviewBody] = useState('');
+  const [submittedReview, setSubmittedReview] = useState<ProductReview | null>(
+    null,
+  );
 
-  const filteredReviews = SAMPLE_REVIEWS.filter((review) => {
+  const fetcher = useFetcher<{
+    success?: boolean;
+    review?: ProductReview;
+    error?: string;
+  }>();
+  const isSubmitting = fetcher.state === 'submitting';
+
+  // When the fetch settles with a successful review, reset the form and surface the new review
+  useEffect(() => {
+    if (
+      fetcher.state === 'idle' &&
+      fetcher.data?.success &&
+      fetcher.data.review
+    ) {
+      setSubmittedReview(fetcher.data.review);
+      setShowWriteForm(false);
+      setSelectedFace(null);
+      setReviewBody('');
+    }
+  }, [fetcher.state, fetcher.data]);
+
+  // Prepend the just-submitted review only until the loader revalidates and
+  // includes it — once it appears in `reviews` we stop prepending to avoid a duplicate.
+  const submittedAlreadyInList = submittedReview
+    ? reviews.some((r) => r.id === submittedReview.id)
+    : false;
+  const allReviews: ProductReview[] =
+    submittedReview && !submittedAlreadyInList
+      ? [submittedReview, ...reviews]
+      : reviews;
+
+  const filteredReviews = allReviews.filter((review) => {
     if (activeFilter === 'Happy') return review.face === 1;
     if (activeFilter === 'Unhappy') return review.face === 3;
-    // 'Most Popular' and 'Most Recent' show all reviews
     return true;
   });
 
+  const serverError =
+    fetcher.data && !fetcher.data.success ? fetcher.data.error : null;
+
   return (
     <div className="flex flex-col gap-6 py-2">
-      {/* Filter Pills */}
-      <div className="flex flex-wrap gap-[5px]">
-        {REVIEW_FILTERS.map((filter) => (
+      {/* Header row: filter pills + write review button */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-[5px]">
+          {REVIEW_FILTERS.map((filter) => (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className={`flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-medium text-white transition-opacity ${
+                activeFilter === filter
+                  ? 'bg-secondary'
+                  : 'bg-secondary/70 hover:bg-secondary/90'
+              }`}
+            >
+              {filter === 'Most Popular' && <Plus size={14} />}
+              {filter === 'Happy' && <Smile size={14} />}
+              {filter === 'Unhappy' && <Frown size={14} />}
+              {filter}
+            </button>
+          ))}
+        </div>
+
+        {isLoggedIn && !submittedReview && (
           <button
-            key={filter}
-            onClick={() => setActiveFilter(filter)}
-            className={`flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-medium text-white transition-opacity ${
-              activeFilter === filter
-                ? 'bg-secondary'
-                : 'bg-secondary/70 hover:bg-secondary/90'
-            }`}
+            onClick={() => setShowWriteForm((v) => !v)}
+            className="flex items-center gap-2 rounded-full border border-secondary px-5 py-2.5 text-sm font-medium text-secondary transition-colors hover:bg-secondary hover:text-white"
           >
-            {filter === 'Most Popular' && <Plus size={14} />}
-            {filter === 'Happy' && <Smile size={14} />}
-            {filter === 'Unhappy' && <Frown size={14} />}
-            {filter}
+            <PenLine size={14} />
+            Write a review
           </button>
-        ))}
+        )}
+        {!isLoggedIn && (
+          <Link
+            to="/account/login?redirect=/products"
+            className="flex items-center gap-2 rounded-full border border-secondary px-5 py-2.5 text-sm font-medium text-secondary transition-colors hover:bg-secondary hover:text-white"
+          >
+            <PenLine size={14} />
+            Sign in to review
+          </Link>
+        )}
       </div>
+
+      {/* Write Review Form */}
+      {showWriteForm && isLoggedIn && !submittedReview && (
+        <div className="rounded-[12px] border border-[#e5e7eb] bg-[#f9fafb] p-5">
+          <h3 className="mb-4 text-[16px] font-semibold text-text">
+            Write a review
+          </h3>
+
+          <fetcher.Form method="POST" action="/api/reviews">
+            <input type="hidden" name="productId" value={productId} />
+
+            {/* Face Rating Selector */}
+            <div className="mb-4">
+              <p className="mb-2 text-sm font-medium text-text">
+                How did you feel about this product?
+              </p>
+              <div className="flex gap-3">
+                {([1, 2, 3] as FaceRatingValue[]).map((face) => {
+                  const icons: Record<FaceRatingValue, React.ReactNode> = {
+                    1: <Smile size={28} />,
+                    2: <Meh size={28} />,
+                    3: <Frown size={28} />,
+                  };
+                  const labels: Record<FaceRatingValue, string> = {
+                    1: 'Happy',
+                    2: 'Neutral',
+                    3: 'Unhappy',
+                  };
+                  const colors: Record<FaceRatingValue, string> = {
+                    1: 'text-primary border-primary bg-primary/10',
+                    2: 'text-warning border-warning bg-warning/10',
+                    3: 'text-destructive border-destructive bg-destructive/10',
+                  };
+                  const isSelected = selectedFace === face;
+                  return (
+                    <button
+                      key={face}
+                      type="button"
+                      onClick={() => setSelectedFace(face)}
+                      aria-label={labels[face]}
+                      className={`flex flex-col items-center gap-1.5 rounded-[10px] border-2 px-5 py-3 text-xs font-medium transition-all ${
+                        isSelected
+                          ? colors[face]
+                          : 'border-[#e5e7eb] text-text-muted hover:border-[#9ca3af]'
+                      }`}
+                    >
+                      {icons[face]}
+                      <span>{labels[face]}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <input type="hidden" name="face" value={selectedFace ?? ''} />
+            </div>
+
+            {/* Review Text */}
+            <div className="mb-4">
+              <label
+                htmlFor="review-body"
+                className="mb-1.5 block text-sm font-medium text-text"
+              >
+                Your review
+              </label>
+              <textarea
+                id="review-body"
+                name="body"
+                rows={4}
+                maxLength={1000}
+                placeholder="Share your experience with this product..."
+                value={reviewBody}
+                onChange={(e) => setReviewBody(e.target.value)}
+                className="w-full resize-none rounded-[8px] border border-[#d1d5db] bg-white px-3 py-2.5 text-sm text-text placeholder:text-text-muted focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
+              />
+              <div className="mt-1 text-right text-xs text-text-muted">
+                {reviewBody.length}/1000
+              </div>
+            </div>
+
+            {/* Server error */}
+            {serverError && (
+              <p className="mb-3 text-sm text-destructive">{serverError}</p>
+            )}
+
+            {/* Actions */}
+            <div className="flex items-center gap-3">
+              <Button
+                type="submit"
+                disabled={isSubmitting || !selectedFace || !reviewBody.trim()}
+                className="rounded-full bg-secondary px-6 py-2.5 text-sm font-medium text-white hover:bg-secondary/90 disabled:opacity-50"
+              >
+                {isSubmitting ? 'Submitting…' : 'Submit review'}
+              </Button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowWriteForm(false);
+                  setSelectedFace(null);
+                  setReviewBody('');
+                }}
+                className="text-sm text-text-muted hover:text-text"
+              >
+                Cancel
+              </button>
+            </div>
+          </fetcher.Form>
+        </div>
+      )}
+
+      {/* Success message after submission */}
+      {submittedReview && (
+        <div className="flex items-center gap-3 rounded-[10px] border border-primary/30 bg-primary/5 px-4 py-3">
+          <Smile size={20} className="shrink-0 text-primary" />
+          <p className="text-sm font-medium text-primary">
+            Thank you for your review!
+          </p>
+        </div>
+      )}
 
       {/* Review List */}
       <div className="flex flex-col divide-y divide-border">
         {filteredReviews.length === 0 && (
-          <p className="py-6 text-sm text-text-muted text-center">
-            No reviews match this filter.
+          <p className="py-6 text-center text-sm text-text-muted">
+            {allReviews.length === 0
+              ? 'No reviews yet. Be the first to share your experience!'
+              : 'No reviews match this filter.'}
           </p>
         )}
         {filteredReviews.map((review) => (
           <div key={review.id} className="flex gap-4 px-4 py-3">
             <Avatar className="size-[80px] shrink-0">
-              <AvatarFallback className="bg-surface text-text-muted text-sm font-medium">
+              <AvatarFallback className="bg-surface text-sm font-medium text-text-muted">
                 {review.initials}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-1 flex-col gap-2">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-[22px] leading-[28px] text-text">
+                <span className="text-[22px] font-semibold leading-[28px] text-text">
                   {review.name}
                 </span>
                 <FaceIcon value={review.face} size={20} />
+                <span className="ml-auto text-xs text-text-muted">
+                  {formatReviewDate(review.createdAt)}
+                </span>
               </div>
-              <p className="text-sm text-text-muted line-clamp-2 leading-[20px]">
+              <p className="text-sm leading-[20px] text-text-muted">
                 {review.body}
               </p>
             </div>
