@@ -438,6 +438,18 @@ function ProductRow({
                 </Link>
               );
             }
+            // Wire "Write a product review" to the product page review form
+            if (action.key === 'writeReview' && productHandle) {
+              return (
+                <Link
+                  key={action.key}
+                  to={`/products/${productHandle}?write_review=1`}
+                  className="w-full border border-[#d1d5db] bg-white px-[17px] py-[13px] text-center text-[14px] leading-[21px] text-[#374151] transition-colors hover:border-[#9ca3af]"
+                >
+                  {t(action.labelKey)}
+                </Link>
+              );
+            }
             return (
               <button
                 key={action.key}
