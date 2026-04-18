@@ -268,7 +268,9 @@ export function buildSortUrl(
   params.delete('cursor');
   params.delete('direction');
 
-  if (sortValue === DEFAULT_SORT.value) {
+  const currentSort = searchParams.get('sort');
+  if (sortValue === DEFAULT_SORT.value || currentSort === sortValue) {
+    // Toggling off: remove sort param to return to default
     params.delete('sort');
   } else {
     params.set('sort', sortValue);

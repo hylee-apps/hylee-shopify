@@ -5,7 +5,11 @@ import {useTranslation} from 'react-i18next';
 import type {Filter} from '@shopify/hydrogen/storefront-api-types';
 import {X} from 'lucide-react';
 import {Link} from 'react-router';
-import {buildFilterUrl, clearAllFiltersUrl} from '~/lib/collection/filters';
+import {
+  buildFilterUrl,
+  buildSortUrl,
+  clearAllFiltersUrl,
+} from '~/lib/collection/filters';
 
 export interface ActiveFilterChipsProps {
   /** Full filter list from Storefront API — used to look up human-readable labels */
@@ -41,8 +45,10 @@ export function ActiveFilterChips({
   const {pathname} = useLocation();
 
   const activeInputs = searchParams.getAll('filter');
+  const currentSort = searchParams.get('sort');
+  const isNewestActive = currentSort === 'newest';
 
-  if (activeInputs.length === 0) return null;
+  if (activeInputs.length === 0 && !isNewestActive) return null;
 
   // Static labels for hardcoded filters that may not appear in the Shopify
   // filter map (e.g. when the "All Products" collection isn't published).
@@ -76,14 +82,38 @@ export function ActiveFilterChips({
     })
     .filter((c): c is ActiveChip => c !== null);
 
-  if (chips.length === 0) return null;
+  if (chips.length === 0 && !isNewestActive) return null;
 
-  const clearAllUrl = clearAllFiltersUrl(pathname, searchParams);
+  // When "Newest" is active it's shown as a filter chip, so "Clear all"
+  // must also remove the sort param — not just the filter params.
+  let clearAllUrl = clearAllFiltersUrl(pathname, searchParams);
+  if (isNewestActive) {
+    const paramsWithoutNewest = new URLSearchParams(searchParams);
+    paramsWithoutNewest.delete('filter');
+    paramsWithoutNewest.delete('sort');
+    paramsWithoutNewest.delete('cursor');
+    paramsWithoutNewest.delete('direction');
+    const qs = paramsWithoutNewest.toString();
+    clearAllUrl = qs ? `${pathname}?${qs}` : pathname;
+  }
 
   return (
     <div
       className={`flex flex-wrap gap-x-[8px] gap-y-[8px] items-center ${className}`}
     >
+      {isNewestActive && (
+        <Link
+          to={buildSortUrl(pathname, searchParams, 'newest')}
+          preventScrollReset
+          className="bg-secondary/10 px-[12px] py-[8px] rounded-[20px] flex gap-[8px] items-center hover:bg-secondary/20 transition-colors no-underline"
+          aria-label={t('filter.removeFilter', {label: t('sort.newest')})}
+        >
+          <span className="text-[13px] text-secondary leading-[19.5px]">
+            {t('sort.newest')}
+          </span>
+          <X size={13} className="text-secondary shrink-0" />
+        </Link>
+      )}
       {chips.map((chip) => (
         <Link
           key={chip.input}
