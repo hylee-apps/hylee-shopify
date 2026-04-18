@@ -53,9 +53,10 @@ export function meta() {
 
 const CATEGORY_ICON_CLASS: Record<string, string> = {
   ordersShipping: 'bg-primary/10 text-primary',
-  returnsExchanges: 'bg-secondary/10 text-secondary',
-  accountPayments: 'bg-warning/10 text-warning',
-  productsInventory: 'bg-brand-accent/10 text-brand-accent',
+  returnsRefunds: 'bg-secondary/10 text-secondary',
+  payments: 'bg-warning/10 text-warning',
+  accountPrivacy: 'bg-brand-accent/10 text-brand-accent',
+  products: 'bg-primary/10 text-primary',
 };
 
 // ============================================================================
@@ -69,9 +70,10 @@ export default function FaqPage() {
 
   const categoryKeys = [
     'ordersShipping',
-    'returnsExchanges',
-    'accountPayments',
-    'productsInventory',
+    'returnsRefunds',
+    'payments',
+    'accountPrivacy',
+    'products',
   ] as const;
 
   const categories: FaqCategory[] = categoryKeys.map((key) => ({
