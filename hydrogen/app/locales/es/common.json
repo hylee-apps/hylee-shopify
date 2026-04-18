@@ -1288,59 +1288,59 @@
   },
   "about": {
     "metaTitle": "Sobre Nosotros — Hy-lee",
-    "metaDescription": "Conoce Hy-lee — un mercado moderno creado para vivir en espacios pequeños, conectando compradores con productos de calidad para casas diminutas y microapartamentos.",
+    "metaDescription": "Conoce Hy-lee — un mercado creado para vivir en espacios pequeños, desde casas diminutas hasta vida en camioneta, ofreciendo los equipos esenciales para aprovechar cada centímetro de tu espacio.",
     "breadcrumb": {
       "home": "Inicio",
       "about": "Sobre Nosotros"
     },
     "hero": {
-      "eyebrow": "Nuestra Historia",
+      "eyebrow": "Quiénes Somos",
       "heading": "Diseñado para tu Forma de Vivir",
-      "body": "Hy-lee es un mercado moderno que selecciona productos de calidad para vivir en espacios pequeños — desde casas diminutas hasta microapartamentos. Creemos que los metros cuadrados limitados nunca deben significar un estilo de vida limitado."
+      "body": "At Hy-lee, we believe that quality of life shouldn't be limited by square footage. Whether you are navigating life in a studio apartment, customizing a tiny home, or seeking adventure in a converted van or RV, we provide the essential gear to help you thrive in every inch of your space."
     },
     "mission": {
       "eyebrow": "Nuestra Misión",
-      "heading": "Productos Inteligentes para Espacios Pequeños",
-      "body": "Creamos Hy-lee porque notamos una brecha: las grandes tiendas no estaban construidas para personas que viven intencionalmente en espacios pequeños. Todo en Hy-lee se selecciona con una pregunta en mente: ¿esto hace que un espacio pequeño se sienta como un hogar real?",
-      "body2": "Desde muebles multifuncionales hasta esenciales de cocina que ahorran espacio, cada producto en nuestra plataforma es verificado por nuestro equipo antes de llegar a tu puerta."
+      "heading": "Empoderando tu Forma de Vivir",
+      "body": "We don't just sell products; we solve the unique puzzles of compact living. Our catalog is intentionally designed to serve the diverse needs of our community.",
+      "body2": "We've built our foundation on trust and specialization. Through our supplier partnerships, we offer stylish space-saving furniture, essential compact electronics, premium small-scale culinary equipment, and cutting-edge portable energy solutions — ensuring every item we carry meets the highest standards of durability and design. Our team obsessively vets each product for its footprint, efficiency, and versatility, giving you the freedom to live large — no matter where you call home."
     },
     "values": {
-      "eyebrow": "En lo que Creemos",
-      "heading": "Nuestros Valores",
+      "eyebrow": "A Quién Servimos",
+      "heading": "Nuestra Comunidad",
       "curation": {
-        "title": "Calidad Curada",
-        "body": "Cada producto es revisado por nuestro equipo. Si no cumple nuestros estándares de calidad y diseño, no pasa la selección."
+        "title": "Minimalists & Urbanites",
+        "body": "Streamlined furniture that maximizes utility without the bulk."
       },
       "community": {
-        "title": "Comunidad Primero",
-        "body": "Nuestros compradores son nuestros socios. Escuchamos reseñas, actuamos según los comentarios y mejoramos continuamente la selección."
+        "title": "Van & RV Lifers",
+        "body": "Rugged, off-grid power solutions and compact appliances for life on the move."
       },
       "simplicity": {
-        "title": "Simplicidad por Diseño",
-        "body": "Comprar debe ser tan limpio como los espacios que estás construyendo. Hy-lee es rápido, intuitivo y libre del ruido de las plataformas más grandes."
+        "title": "Dorm & Small Apartment Dwellers",
+        "body": "Multi-functional tools that turn a single room into a sanctuary."
       },
       "trust": {
-        "title": "Confianza Transparente",
-        "body": "Sin patrones oscuros. Sin reseñas falsas. Sin tarifas ocultas. Lo que ves es lo que obtienes — hasta el último detalle en cada página de producto."
+        "title": "Boat & Mobile Residents",
+        "body": "Durable, high-efficiency essentials built for tight quarters."
       }
     },
     "stats": {
-      "heading": "Hy-lee en Números",
+      "heading": "Nuestra Promesa",
       "products": {
-        "value": "2,000+",
-        "label": "Productos"
+        "value": "Verificado",
+        "label": "Cada producto revisado por nuestro equipo"
       },
       "suppliers": {
-        "value": "150+",
-        "label": "Proveedores Verificados"
+        "value": "Espacio-Primero",
+        "label": "Diseñado para espacios pequeños"
       },
       "customers": {
-        "value": "10,000+",
-        "label": "Clientes Satisfechos"
+        "value": "Confiable",
+        "label": "Asociaciones de proveedores verificados"
       },
       "returns": {
-        "value": "<1%",
-        "label": "Tasa de Devolución"
+        "value": "Duradero",
+        "label": "Construido para durar donde sea que vivas"
       }
     },
     "cta": {
@@ -1359,7 +1359,7 @@
   },
   "returnPolicy": {
     "metaTitle": "Política de Devoluciones — Hy-lee",
-    "metaDescription": "Conoce la política de devoluciones sin complicaciones de Hy-lee: 30 días para devolver, envío gratuito y reembolsos rápidos.",
+    "metaDescription": "Conoce la política de devoluciones de Hy-lee: 15 días para devolver y reembolsos en 7-14 días hábiles.",
     "breadcrumb": {
       "home": "Inicio",
       "page": "Política de Devoluciones"
@@ -1367,24 +1367,24 @@
     "hero": {
       "eyebrow": "Compra con Confianza",
       "title": "Política de Devoluciones",
-      "subtitle": "Respaldamos cada producto que vendemos. Si no estás completamente satisfecho, te facilitamos la devolución o el cambio."
+      "subtitle": "We want you to love your purchase from Hy-lee. If you're not completely satisfied, you may request a return within 15 days of delivery."
     },
     "highlights": {
       "window": {
-        "value": "30",
+        "value": "15",
         "label": "Días para Devolver"
       },
       "shipping": {
         "value": "Gratis",
-        "label": "Envío de Devolución"
+        "label": "Devoluciones por Daños"
       },
       "refund": {
-        "value": "5–7",
+        "value": "7–14",
         "label": "Días para el Reembolso"
       },
       "exchange": {
-        "value": "Fácil",
-        "label": "Cambios Disponibles"
+        "value": "24hr",
+        "label": "Reportar Daños"
       }
     },
     "eligibilitySectionEyebrow": "Elegibilidad",
@@ -1392,83 +1392,68 @@
     "howToEyebrow": "Proceso de devolución",
     "quickFacts": {
       "eyebrow": "Bueno saber",
-      "heading": "Reembolsos, cambios y más"
+      "heading": "Reembolsos, envío y más"
     },
     "sections": {
       "eligibility": {
         "title": "¿Qué puedo devolver?",
-        "body": "Puedes devolver la mayoría de los artículos dentro de los 30 días posteriores a la entrega, siempre que cumplan las siguientes condiciones:",
+        "body": "Items must meet the following conditions to be eligible for a return:",
         "conditions": [
-          "El artículo no ha sido usado y está en su estado original",
-          "El embalaje original está intacto con todas las etiquetas",
-          "Todos los accesorios, manuales y componentes incluidos están presentes",
-          "El artículo fue comprado directamente en Hy-lee"
+          "Item is unused and in original packaging",
+          "All parts and accessories must be included"
         ]
       },
       "ineligible": {
         "title": "¿Qué no puedo devolver?",
-        "body": "Los siguientes artículos no son elegibles para devolución:",
+        "body": "Some items are non-returnable, including:",
         "items": [
-          "Artículos marcados como \"Venta Final\" o \"No Retornable\" en el momento de la compra",
-          "Productos digitales, tarjetas de regalo y créditos de tienda",
-          "Artículos personalizados o hechos a medida",
-          "Productos perecederos y consumibles una vez abiertos",
-          "Materiales peligrosos",
-          "Artículos dañados por mal uso, instalación incorrecta o desgaste normal"
+          "Assembled furniture",
+          "Opened mattresses",
+          "Final sale products"
         ]
       },
       "howTo": {
-        "title": "¿Cómo inicio una devolución?",
-        "intro": "Iniciar una devolución tarda menos de dos minutos desde tu panel de cuenta:",
+        "title": "Cómo funcionan las devoluciones",
+        "intro": "Follow these steps to start a return:",
         "steps": [
           {
             "step": "1",
-            "title": "Ve a Mis Pedidos",
-            "body": "Inicia sesión en tu cuenta de Hy-lee y ve a Cuenta → Pedidos."
+            "title": "Access Returns in Your Account",
+            "body": "Sign in and go to the Returns section in your account to start the return process. If you have questions, contact our support team."
           },
           {
             "step": "2",
-            "title": "Selecciona tu Pedido",
-            "body": "Busca el pedido con el artículo que deseas devolver y haz clic en \"Devolver artículos\"."
+            "title": "Receive Instructions",
+            "body": "We'll provide return instructions and the correct return address."
           },
           {
             "step": "3",
-            "title": "Elige los Artículos",
-            "body": "Selecciona los artículos a devolver e indica el motivo."
-          },
-          {
-            "step": "4",
-            "title": "Elige el Método de Envío",
-            "body": "Elige Entrega en UPS, Recogida UPS o Devolución Instantánea (crédito al escanear, +$4.99)."
-          },
-          {
-            "step": "5",
-            "title": "Envíalo de Regreso",
-            "body": "Imprime tu etiqueta prepagada o muestra el código QR en cualquier punto UPS. Nosotros cubrimos el costo."
+            "title": "Ship the Item Back",
+            "body": "Ship the item back following our provided guidelines."
           }
         ]
       },
       "refunds": {
-        "title": "¿Cuándo recibiré mi reembolso?",
-        "body": "Una vez que recibamos e inspeccionemos tu devolución, el reembolso se emite al método de pago original en un plazo de 5 a 7 días hábiles. Recibirás un correo de confirmación cuando se procese el reembolso.",
-        "note": "El crédito de Devolución Instantánea se aplica inmediatamente a tu saldo de cuenta al escanear en el punto de entrega."
+        "title": "Reembolsos",
+        "body": "Refunds are issued after the item is received and inspected. Please allow 7–14 business days for processing.",
+        "note": "You will receive an email confirmation once your refund has been issued to your original payment method."
       },
       "exchanges": {
-        "title": "¿Puedo cambiar un artículo?",
-        "body": "Sí. Durante el proceso de devolución, selecciona \"Cambio\" como resolución y elige el color, talla o variante de reemplazo. Los cambios se envían gratis una vez recibamos tu devolución."
+        "title": "Envío de devolución",
+        "body": "Customers are responsible for return shipping costs unless the item is damaged or incorrect."
       },
       "damaged": {
-        "title": "¿Qué pasa si mi artículo llegó dañado o defectuoso?",
-        "body": "Lo sentimos mucho. Por favor, contáctanos dentro de los 7 días posteriores a la entrega con fotos del daño. Gestionaremos un reemplazo o reembolso completo sin costo — no es necesario devolver el artículo."
+        "title": "Artículos dañados o incorrectos",
+        "body": "If your item arrives damaged or incorrect, contact us within 24 hours of delivery with photos and your order number. We'll make it right at no cost to you."
       },
       "international": {
-        "title": "Devoluciones Internacionales",
-        "body": "Para pedidos enviados fuera de los Estados Unidos, los gastos de devolución corren a cargo del cliente, salvo que el artículo haya llegado dañado o defectuoso. Los reembolsos no incluyen los gastos de envío originales ni los derechos de aduana pagados."
+        "title": "¿Necesitas ayuda?",
+        "body": "For full details or help with a return, please contact our support team. We're happy to guide you through the process."
       }
     },
     "contact": {
       "heading": "¿Tienes más preguntas?",
-      "body": "Nuestro equipo de soporte está disponible de lunes a viernes, de 9 a.m. a 6 p.m. ET.",
+      "body": "Nuestro equipo de soporte está listo para ayudarte con cualquier consulta sobre devoluciones.",
       "cta": "Contactar Soporte",
       "faqCta": "Visitar Preguntas Frecuentes"
     },
@@ -1497,93 +1482,100 @@
     },
     "categories": {
       "ordersShipping": "Pedidos y Envíos",
-      "returnsExchanges": "Devoluciones y Cambios",
-      "accountPayments": "Cuenta y Pagos",
-      "productsInventory": "Productos e Inventario"
+      "returnsRefunds": "Devoluciones y Reembolsos",
+      "payments": "Pagos",
+      "accountPrivacy": "Cuenta y Privacidad",
+      "products": "Productos"
     },
     "items": {
       "ordersShipping": [
         {
-          "q": "¿Cómo puedo rastrear mi pedido?",
-          "a": "Una vez que tu pedido sea enviado, recibirás un correo de confirmación con un número de seguimiento. También puedes rastrear tu pedido desde la página Mis Pedidos en tu cuenta."
+          "q": "How can I track my order?",
+          "a": "Once your order ships, you'll receive a confirmation email with a tracking link. You can also track your order directly through your account page. If you need help, contact us anytime."
         },
         {
-          "q": "¿Cuánto tarda el envío estándar?",
-          "a": "El envío estándar tarda entre 5 y 7 días hábiles. Trabajamos con UPS para entregar en los 50 estados."
+          "q": "How long does shipping take?",
+          "a": "Shipping times vary based on your location and product availability. Standard delivery typically takes 3 to 5 business days once shipped."
         },
         {
-          "q": "¿Ofrecen envío gratuito?",
-          "a": "Ofrecemos envío estándar gratuito en pedidos superiores a $75. Los pedidos inferiores a $75 tienen un cargo fijo de $5.99."
+          "q": "Do you offer expedited shipping?",
+          "a": "No, expedited shipping options are not available at this time. Once it is, we will let you know."
         },
         {
-          "q": "¿Puedo cambiar mi dirección de envío después de realizar un pedido?",
-          "a": "Los cambios de dirección se pueden realizar dentro de 1 hora de haber realizado el pedido. Contacta a nuestro equipo de soporte de inmediato y haremos todo lo posible por actualizar los datos antes de que el pedido sea enviado."
+          "q": "Can I change or cancel my order?",
+          "a": "Orders can be modified or canceled within 12 hours. After that, processing begins and changes may not be possible."
         },
         {
-          "q": "¿Hacen envíos internacionales?",
-          "a": "Actualmente solo enviamos dentro de los Estados Unidos. Las opciones de envío internacional están en nuestros planes y se anunciarán en nuestro blog."
+          "q": "Do you ship internationally?",
+          "a": "We currently ship to and service customers in the United States. International shipping is not available at this time."
         }
       ],
-      "returnsExchanges": [
+      "returnsRefunds": [
         {
-          "q": "¿Cuál es su política de devoluciones?",
-          "a": "Aceptamos devoluciones dentro de los 30 días posteriores a la entrega. Los artículos deben estar en su embalaje original y en condición sin usar. Los artículos de venta final no son elegibles para devolución."
+          "q": "What is your return policy?",
+          "a": "We accept returns within 15 days after delivery. Items must be unused and in original packaging. Please review our full return policy for details."
         },
         {
-          "q": "¿Cómo inicio una devolución?",
-          "a": "Ve a Mis Pedidos en tu cuenta, busca el pedido y haz clic en 'Devolver o Reemplazar Artículos'. Nuestro flujo de devolución guiado te llevará paso a paso."
+          "q": "How do I start a return?",
+          "a": "To start a return, contact our support team with your order number and reason for return. We'll guide you through the process."
         },
         {
-          "q": "¿Cuánto tarda el reembolso?",
-          "a": "Los reembolsos se procesan dentro de 5 a 7 días hábiles después de recibir tu devolución. Recibirás un correo de confirmación cuando el reembolso sea emitido al método de pago original."
+          "q": "When will I receive my refund?",
+          "a": "Refunds are processed within 7–14 business days after the return process is completed."
         },
         {
-          "q": "¿Puedo cambiar un artículo en lugar de devolverlo?",
-          "a": "¡Sí! Durante el proceso de devolución, selecciona 'Cambio' como opción de resolución. Puedes elegir un color, talla o variante diferente del mismo producto."
+          "q": "Are return shipping fees covered?",
+          "a": "Return shipping costs are the customer's responsibility unless the item is damaged or incorrect."
         },
         {
-          "q": "¿El envío de devolución es gratuito?",
-          "a": "El envío de devolución estándar mediante depósito en UPS siempre es gratuito. También ofrecemos una opción de recogida programada y una opción de Devolución Instantánea (aplica tarifa pequeña)."
+          "q": "What if my item arrives damaged?",
+          "a": "If your item arrives damaged, contact us within 24 hours of delivery with photos and your order number. See Return Policy for more details."
         }
       ],
-      "accountPayments": [
+      "payments": [
         {
-          "q": "¿Qué métodos de pago aceptan?",
-          "a": "Aceptamos todas las tarjetas de crédito y débito principales (Visa, Mastercard, AmEx, Discover), Shop Pay, Apple Pay y Google Pay."
+          "q": "What payment methods do you accept?",
+          "a": "We accept major credit cards, Shop Pay, Apple Pay, Google Pay, and other secure payment methods supported by Shopify."
         },
         {
-          "q": "¿Es segura mi información de pago?",
-          "a": "Sí. Todas las transacciones se procesan a través de la infraestructura certificada PCI DSS Nivel 1 de Shopify con cifrado SSL de 256 bits. Hy-lee nunca almacena tu número de tarjeta ni CVV."
+          "q": "Is my payment information secure?",
+          "a": "Yes, all payments are processed securely using Shopify's encrypted checkout system."
         },
         {
-          "q": "¿Cómo creo una cuenta?",
-          "a": "Haz clic en 'Registrarse' en la navegación superior. Necesitarás tu nombre, correo electrónico y una contraseña. Crear una cuenta te da acceso al historial de pedidos, lista de deseos, libreta de direcciones y un proceso de pago más rápido."
-        },
-        {
-          "q": "Olvidé mi contraseña. ¿Cómo la restablezco?",
-          "a": "Haz clic en 'Iniciar Sesión' y luego en '¿Olvidaste tu contraseña?' Ingresa tu correo electrónico y te enviaremos un enlace de restablecimiento en pocos minutos."
-        },
-        {
-          "q": "¿Puedo usar códigos de promoción al pagar?",
-          "a": "Sí. Ingresa tu código en el campo 'Código Promocional' en tu carrito antes de continuar con el pago. Los códigos no pueden aplicarse retroactivamente después de realizar un pedido."
+          "q": "Can I use Shop Pay?",
+          "a": "Yes, Shop Pay allows you to check out quickly and securely with saved payment and shipping details."
         }
       ],
-      "productsInventory": [
+      "accountPrivacy": [
         {
-          "q": "¿Cómo sé si un producto está en stock?",
-          "a": "Las páginas de producto muestran disponibilidad en tiempo real. Si un artículo está agotado, el botón 'Agregar al Carrito' será reemplazado por un indicador de 'Agotado'."
+          "q": "Do I need an account to place an order?",
+          "a": "No, you can check out as a guest. Creating an account allows you to track orders and save your details."
         },
         {
-          "q": "¿Puedo guardar un producto para comprarlo después?",
-          "a": "Sí. Haz clic en el ícono de corazón en cualquier tarjeta de producto o página de producto para agregarlo a tu Lista de Deseos. Puedes encontrar tus artículos guardados en Mi Cuenta → Lista de Deseos."
+          "q": "How do I reset my password?",
+          "a": "Click \"Forgot Password\" on the login page and follow the instructions."
         },
         {
-          "q": "¿Ofrecen igualación de precios?",
-          "a": "Actualmente no ofrecemos una política formal de igualación de precios. Sin embargo, realizamos promociones y descuentos con regularidad — suscríbete a nuestro boletín para estar informado."
+          "q": "How is my personal information used?",
+          "a": "We use your information to process orders and improve your experience. See our Privacy Policy for full details."
         },
         {
-          "q": "¿Cómo puedo comparar productos?",
-          "a": "Haz clic en el ícono de comparar en cualquier tarjeta de producto para agregarlo a tu lista de comparación (máximo 4 productos). Luego haz clic en 'Comparar Ahora' para ver un análisis comparativo."
+          "q": "Can I update my account information?",
+          "a": "Yes, log in to your account and update your details anytime."
+        }
+      ],
+      "products": [
+        {
+          "q": "Are your products in stock?",
+          "a": "Product availability is shown on each product page. Some items may be backordered."
+        },
+        {
+          "q": "Do your products come with a warranty?",
+          "a": "Warranty coverage varies by product. See product details or contact us for more information."
+        },
+        {
+          "q": "Do product colors match the photos?",
+          "a": "We strive for accuracy, but colors may vary slightly due to screen settings."
         }
       ]
     }
