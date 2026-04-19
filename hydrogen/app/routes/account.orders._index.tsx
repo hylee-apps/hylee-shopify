@@ -1,9 +1,8 @@
 import {useMemo, useState, useEffect} from 'react';
 import type {Route} from './+types/account.orders._index';
-import {redirect, Link, useSearchParams} from 'react-router';
+import {Link, useSearchParams} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {useTranslation} from 'react-i18next';
-import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {Button} from '~/components/ui/button';
 import {Package, Undo2, RotateCcw, ChevronDown} from 'lucide-react';
 import {OrderStatsCards} from '~/components/account/OrderStatsCards';
@@ -27,18 +26,17 @@ export function meta() {
 }
 
 // ============================================================================
-// GraphQL Query (Storefront API)
+// GraphQL Query (Customer Account API)
 // ============================================================================
 
 const CUSTOMER_ORDERS_QUERY = `#graphql
-  query CustomerOrders($customerAccessToken: String!, $first: Int, $after: String) {
-    customer(customerAccessToken: $customerAccessToken) {
-      orders(first: $first, after: $after, sortKey: PROCESSED_AT, reverse: true) {
+  query CustomerOrders($first: Int) {
+    customer {
+      orders(first: $first, sortKey: PROCESSED_AT, reverse: true) {
         nodes {
           id
           name
           processedAt
-          financialStatus
           fulfillmentStatus
           totalPrice {
             amount
@@ -56,22 +54,16 @@ const CUSTOMER_ORDERS_QUERY = `#graphql
             nodes {
               title
               quantity
-              variant {
-                id
-                image {
-                  url
-                  altText
-                  width
-                  height
-                }
-                title
-                price {
-                  amount
-                  currencyCode
-                }
-                product {
-                  handle
-                }
+              image {
+                url
+                altText
+                width
+                height
+              }
+              variantTitle
+              price {
+                amount
+                currencyCode
               }
             }
           }
@@ -117,23 +109,16 @@ function getFilterMonths(filter: TimeFilter): number | null {
 // Loader
 // ============================================================================
 
-export async function loader({context, request}: Route.LoaderArgs) {
-  if (!isCustomerLoggedIn(context.session)) {
-    return redirect('/account/login');
-  }
+export async function loader({context}: Route.LoaderArgs) {
+  await context.customerAccount.handleAuthStatus();
 
-  const token = getCustomerAccessToken(context.session)!;
-
-  // Fetch a generous batch for client-side filtering, pagination, and stats
-  const data = await context.storefront.query(CUSTOMER_ORDERS_QUERY, {
-    variables: {customerAccessToken: token, first: 250},
+  const {data} = await context.customerAccount.query(CUSTOMER_ORDERS_QUERY, {
+    variables: {first: 250},
   });
 
   const allOrders = data.customer?.orders.nodes ?? [];
 
-  return {
-    orders: allOrders,
-  };
+  return {orders: allOrders};
 }
 
 // ============================================================================

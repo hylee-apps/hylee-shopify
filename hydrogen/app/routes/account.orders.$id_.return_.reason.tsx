@@ -2,7 +2,6 @@ import {useState, useCallback, useMemo} from 'react';
 import type {Route} from './+types/account.orders.$id_.return_.reason';
 import {redirect, Link} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
-import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {ReturnStepProgress} from '~/components/account/ReturnStepProgress';
 import {ReturnReasonItemCard} from '~/components/account/ReturnReasonItemCard';
 import type {ReturnLineItem} from '~/components/account/ReturnItemCard';
@@ -26,33 +25,26 @@ export function meta({data}: Route.MetaArgs) {
 // ============================================================================
 
 const CUSTOMER_ORDER_RETURN_QUERY = `#graphql
-  query CustomerOrderReturn($customerAccessToken: String!, $first: Int!) {
-    customer(customerAccessToken: $customerAccessToken) {
-      orders(first: $first, sortKey: PROCESSED_AT, reverse: true) {
+  query CustomerOrderReturn($orderId: ID!) {
+    order(id: $orderId) {
+      id
+      name
+      processedAt
+      fulfillmentStatus
+      lineItems(first: 50) {
         nodes {
-          id
-          name
-          processedAt
-          fulfillmentStatus
-          lineItems(first: 50) {
-            nodes {
-              title
-              quantity
-              variant {
-                id
-                image {
-                  url
-                  altText
-                  width
-                  height
-                }
-                title
-                price {
-                  amount
-                  currencyCode
-                }
-              }
-            }
+          title
+          quantity
+          image {
+            url
+            altText
+            width
+            height
+          }
+          variantTitle
+          price {
+            amount
+            currencyCode
           }
         }
       }
@@ -65,9 +57,7 @@ const CUSTOMER_ORDER_RETURN_QUERY = `#graphql
 // ============================================================================
 
 export async function loader({context, params, request}: Route.LoaderArgs) {
-  if (!isCustomerLoggedIn(context.session)) {
-    return redirect('/account/login');
-  }
+  await context.customerAccount.handleAuthStatus();
 
   const url = new URL(request.url);
   const itemsParam = url.searchParams.get('items');
@@ -85,17 +75,16 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     return redirect(`/account/orders/${params.id}/return`);
   }
 
-  const token = getCustomerAccessToken(context.session)!;
-  const targetGid = `gid://shopify/Order/${params.id}`;
+  const orderId = `gid://shopify/Order/${params.id}`;
 
-  const data = await context.storefront.query(CUSTOMER_ORDER_RETURN_QUERY, {
-    variables: {customerAccessToken: token, first: 250},
-  });
-
-  const allOrders = (data as any).customer?.orders?.nodes ?? [];
-  const order = allOrders.find(
-    (o: any) => o.id === targetGid || o.id.startsWith(targetGid + '?'),
+  const {data} = await context.customerAccount.query(
+    CUSTOMER_ORDER_RETURN_QUERY,
+    {
+      variables: {orderId},
+    },
   );
+
+  const order = data.order;
   if (!order) {
     throw new Response('Order not found', {status: 404});
   }
@@ -109,17 +98,17 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const allLineItems: ReturnLineItem[] = (order.lineItems?.nodes ?? []).map(
     (item: any, idx: number) => {
       const variantTitle =
-        item.variant?.title && item.variant.title !== 'Default Title'
-          ? item.variant.title
+        item.variantTitle && item.variantTitle !== 'Default Title'
+          ? item.variantTitle
           : null;
 
       return {
-        id: item.variant?.id ?? `item-${idx}`,
+        id: `item-${idx}`,
         title: item.title,
         variantTitle,
         quantity: item.quantity,
-        price: item.variant?.price ?? {amount: '0', currencyCode: 'USD'},
-        image: item.variant?.image ?? null,
+        price: item.price ?? {amount: '0', currencyCode: 'USD'},
+        image: item.image ?? null,
         eligible: true,
       } satisfies ReturnLineItem;
     },

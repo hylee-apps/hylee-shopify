@@ -204,18 +204,22 @@ function getEnv(context: AnyContext): StorefrontContext['env'] {
 
 export async function readAddressBook(
   context: AnyContext,
+  customerIdOverride?: string,
 ): Promise<{book: AddressBook; customerId: string; surveyCompleted: boolean}> {
-  const storefront = getStorefront(context);
   const env = getEnv(context);
-  const token = getToken(context);
 
-  // Step 1: resolve customer GID via Storefront API (ID never changes — no
-  // propagation issue here).
-  const idData = await storefront.query(CUSTOMER_ID_QUERY, {
-    variables: {customerAccessToken: token},
-    cache: CacheNone(),
-  });
-  const customerId = (idData as {customer?: {id: string}})?.customer?.id;
+  let customerId: string | undefined = customerIdOverride;
+
+  if (!customerId) {
+    // Fallback: resolve customer GID via Storefront API (legacy path)
+    const storefront = getStorefront(context);
+    const token = getToken(context);
+    const idData = await storefront.query(CUSTOMER_ID_QUERY, {
+      variables: {customerAccessToken: token},
+      cache: CacheNone(),
+    });
+    customerId = (idData as {customer?: {id: string}})?.customer?.id;
+  }
 
   if (!customerId) {
     return {

@@ -3,7 +3,6 @@ import {redirect, Form, useActionData, useNavigation} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {useTranslation} from 'react-i18next';
 import {useState, useEffect} from 'react';
-import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {adminApi, setCustomerMetafields, type AdminEnv} from '~/lib/admin-api';
 
 // ============================================================================
@@ -21,14 +20,9 @@ export function meta() {
 // GraphQL
 // ============================================================================
 
-/**
- * Storefront API — only used to resolve the customer GID from an access token.
- * All data reads (metafields, marketing state) use the Admin API so writes are
- * immediately visible on the next load without a propagation delay.
- */
 const CUSTOMER_GID_QUERY = `#graphql
-  query CustomerGidForNotifications($customerAccessToken: String!) {
-    customer(customerAccessToken: $customerAccessToken) {
+  query CustomerGidForNotifications {
+    customer {
       id
     }
   }
@@ -96,21 +90,12 @@ const DEFAULT_PREFS: NotificationPreferences = {
 // ============================================================================
 
 export async function loader({context}: Route.LoaderArgs) {
-  if (!isCustomerLoggedIn(context.session)) {
-    return redirect('/account/login');
-  }
+  await context.customerAccount.handleAuthStatus();
 
-  const token = getCustomerAccessToken(context.session)!;
   const env = context.env as unknown as AdminEnv;
 
-  // Step 1: Resolve customer GID via Storefront API.
-  // CacheNone() is required — without it, Hydrogen's default cache can return a
-  // stale or null result on hard refresh, which causes the early-return to
-  // DEFAULT_PREFS and every toggle appearing as false after a page reload.
-  const gidData = await context.storefront.query(CUSTOMER_GID_QUERY, {
-    variables: {customerAccessToken: token},
-    cache: context.storefront.CacheNone(),
-  });
+  const {data: gidData} =
+    await context.customerAccount.query(CUSTOMER_GID_QUERY);
   const customerId = gidData?.customer?.id ?? null;
 
   if (!customerId) {
@@ -158,20 +143,14 @@ interface ActionError {
 }
 
 export async function action({request, context}: Route.ActionArgs) {
-  if (!isCustomerLoggedIn(context.session)) {
-    return redirect('/account/login');
-  }
+  await context.customerAccount.handleAuthStatus();
 
-  const token = getCustomerAccessToken(context.session)!;
   const formData = await request.formData();
   const intent = formData.get('intent') as string;
   const env = context.env as unknown as AdminEnv;
 
-  // Resolve the customer GID once — both intents need it for Admin API calls.
-  const customerData = await context.storefront.query(CUSTOMER_GID_QUERY, {
-    variables: {customerAccessToken: token},
-    cache: context.storefront.CacheNone(),
-  });
+  const {data: customerData} =
+    await context.customerAccount.query(CUSTOMER_GID_QUERY);
   const customerId = customerData?.customer?.id;
 
   if (!customerId) {

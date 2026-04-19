@@ -19,7 +19,6 @@ import {I18nextProvider} from 'react-i18next';
 import {resources, i18nConfig} from '~/i18n';
 import {PageLayout} from '~/components/layout';
 import appStyles from '~/styles/app.css?url';
-import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {categoryNavConfig} from '~/config/navigation';
 import {prioritizeCategories} from '~/lib/navigation';
 import {readWishlistIds, type AdminEnv} from '~/lib/wishlist';
@@ -130,14 +129,20 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
   // Fetch wishlist IDs for logged-in users so all product cards start with
   // the correct wishlisted state without a client-side roundtrip.
   let wishlistIds: string[] = [];
-  if (isCustomerLoggedIn(context.session)) {
-    const token = getCustomerAccessToken(context.session);
-    if (token) {
+  if (await context.customerAccount.isLoggedIn()) {
+    try {
+      const {data: idData} = await context.customerAccount.query(
+        `#graphql query RootCustomerId { customer { id } }` as const,
+      );
+      const customerId = (idData as any)?.customer?.id ?? undefined;
       wishlistIds = await readWishlistIds(
         storefront,
         context.env as unknown as AdminEnv,
-        token,
+        '',
+        customerId,
       ).catch(() => []);
+    } catch {
+      // Wishlist fetch failed — proceed without
     }
   }
 
@@ -161,7 +166,7 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 
   return {
     cart: cart.get(),
-    isLoggedIn: isCustomerLoggedIn(context.session),
+    isLoggedIn: context.customerAccount.isLoggedIn(),
     footer,
   };
 }

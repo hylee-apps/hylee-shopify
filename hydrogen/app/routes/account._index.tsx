@@ -1,13 +1,8 @@
 import type {Route} from './+types/account._index';
-import {redirect, Link} from 'react-router';
+import {Link, redirect} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {useTranslation} from 'react-i18next';
 import {readAddressBook} from '~/lib/address-book-graphql';
-import {
-  getAuthenticatedCustomer,
-  getCustomerAccessToken,
-  isCustomerLoggedIn,
-} from '~/lib/customer-auth';
 import {Package, ImageIcon} from 'lucide-react';
 import {mapOrder, statusColor, type OrderSummary} from '~/lib/account-helpers';
 
@@ -23,12 +18,15 @@ export function meta() {
 }
 
 // ============================================================================
-// GraphQL — Recent Orders (Storefront API)
+// GraphQL — Customer Account API
 // ============================================================================
 
-const DASHBOARD_ORDERS_QUERY = `#graphql
-  query DashboardOrders($customerAccessToken: String!) {
-    customer(customerAccessToken: $customerAccessToken) {
+const DASHBOARD_QUERY = `#graphql
+  query DashboardData {
+    customer {
+      id
+      firstName
+      createdAt
       orders(first: 50, sortKey: PROCESSED_AT, reverse: true) {
         nodes {
           id
@@ -50,24 +48,23 @@ const DASHBOARD_ORDERS_QUERY = `#graphql
 // ============================================================================
 
 export async function loader({context}: Route.LoaderArgs) {
-  if (!isCustomerLoggedIn(context.session)) {
-    return redirect('/account/login');
-  }
+  await context.customerAccount.handleAuthStatus();
 
-  const customer = await getAuthenticatedCustomer(
-    context.storefront,
-    context.session,
-  );
+  const {data} = await context.customerAccount.query(DASHBOARD_QUERY);
+  const customer = data.customer;
 
   // Redirect new customers to the welcome survey
   const surveyDone = context.session.get('surveyCompleted') === 'true';
   if (!surveyDone) {
     try {
-      const {surveyCompleted} = await readAddressBook(context);
+      const {surveyCompleted} = await readAddressBook(
+        context,
+        customer?.id ?? undefined,
+      );
       if (surveyCompleted) {
         context.session.set('surveyCompleted', 'true');
       } else {
-        const createdAt = customer.createdAt;
+        const createdAt = customer?.createdAt;
         if (createdAt) {
           const accountAge = Date.now() - new Date(createdAt).getTime();
           const sevenDays = 7 * 24 * 60 * 60 * 1000;
@@ -81,38 +78,28 @@ export async function loader({context}: Route.LoaderArgs) {
     }
   }
 
-  // Fetch recent orders + address count in parallel
   let recentOrders: OrderSummary[] = [];
   let totalOrders = 0;
   let activeOrders = 0;
   let addressCount = 0;
-  const token = getCustomerAccessToken(context.session)!;
 
   try {
-    const [ordersResult, addressBookResult] = await Promise.all([
-      context.storefront.query(DASHBOARD_ORDERS_QUERY, {
-        variables: {customerAccessToken: token},
-      }),
-      readAddressBook(context).catch(() => null),
-    ]);
-    const data = ordersResult;
-
-    const allOrders = (data.customer?.orders.nodes ?? []).map(mapOrder);
+    const addressBookResult = await readAddressBook(
+      context,
+      customer?.id ?? undefined,
+    ).catch(() => null);
+    const allOrders = (customer?.orders.nodes ?? []).map(mapOrder);
     totalOrders = allOrders.length;
-    activeOrders = allOrders.filter((o) => o.status !== 'FULFILLED').length;
+    activeOrders = allOrders.filter(
+      (o: OrderSummary) => o.status !== 'FULFILLED',
+    ).length;
     recentOrders = allOrders.slice(0, 3);
     addressCount = addressBookResult?.book.contacts?.length ?? 0;
   } catch {
     // Graceful degradation — show empty dashboard
   }
 
-  return {
-    customer,
-    recentOrders,
-    totalOrders,
-    activeOrders,
-    addressCount,
-  };
+  return {customer, recentOrders, totalOrders, activeOrders, addressCount};
 }
 
 // ============================================================================

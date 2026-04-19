@@ -3,13 +3,19 @@ import {redirect, Form, useNavigation} from 'react-router';
 import {useTranslation} from 'react-i18next';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {useState} from 'react';
-import {isCustomerLoggedIn} from '~/lib/customer-auth';
+
 import {
   readAddressBook,
   writeAddressBook,
   setSurveyCompleted,
 } from '~/lib/address-book-graphql';
 import type {AddressBook} from '~/lib/address-book';
+
+const CUSTOMER_ID_QUERY = `#graphql
+  query WelcomeCustomerId {
+    customer { id }
+  }
+` as const;
 import {Card, CardHeader, CardTitle, CardContent} from '~/components/ui/card';
 import {Button} from '~/components/ui/button';
 import {Input} from '~/components/ui/input';
@@ -39,9 +45,7 @@ export function meta() {
 // ============================================================================
 
 export async function loader({context}: Route.LoaderArgs) {
-  if (!isCustomerLoggedIn(context.session)) {
-    return redirect('/account/login');
-  }
+  await context.customerAccount.handleAuthStatus();
 
   // Check session flag first (set when user completes/skips survey)
   if (context.session.get('surveyCompleted') === 'true') {
@@ -50,7 +54,9 @@ export async function loader({context}: Route.LoaderArgs) {
 
   // Fall back to metafield check
   try {
-    const {surveyCompleted} = await readAddressBook(context);
+    const {data} = await context.customerAccount.query(CUSTOMER_ID_QUERY);
+    const customerId = data?.customer?.id ?? undefined;
+    const {surveyCompleted} = await readAddressBook(context, customerId);
     if (surveyCompleted) {
       context.session.set('surveyCompleted', 'true');
       return redirect('/account');
@@ -67,17 +73,17 @@ export async function loader({context}: Route.LoaderArgs) {
 // ============================================================================
 
 export async function action({request, context}: Route.ActionArgs) {
-  if (!isCustomerLoggedIn(context.session)) {
-    return redirect('/account/login');
-  }
+  await context.customerAccount.handleAuthStatus();
+
+  const {data: idData} = await context.customerAccount.query(CUSTOMER_ID_QUERY);
+  const customerId = idData?.customer?.id ?? undefined;
 
   const formData = await request.formData();
   const intent = formData.get('intent');
 
   if (intent === 'skip') {
     try {
-      const {customerId} = await readAddressBook(context);
-      await setSurveyCompleted(context, customerId);
+      if (customerId) await setSurveyCompleted(context, customerId);
     } catch (err) {
       console.warn(
         '[welcome] Could not persist survey_completed metafield:',
@@ -97,7 +103,7 @@ export async function action({request, context}: Route.ActionArgs) {
   }
 
   try {
-    const {book, customerId} = await readAddressBook(context);
+    const {book} = await readAddressBook(context, customerId);
     const updatedBook: AddressBook = {
       ...book,
       surveyResponse: {
@@ -107,8 +113,10 @@ export async function action({request, context}: Route.ActionArgs) {
         answeredAt: new Date().toISOString(),
       },
     };
-    await writeAddressBook(context, customerId, updatedBook);
-    await setSurveyCompleted(context, customerId);
+    if (customerId) {
+      await writeAddressBook(context, customerId, updatedBook);
+      await setSurveyCompleted(context, customerId);
+    }
   } catch (err) {
     console.warn('[welcome] Could not persist survey data to metafields:', err);
   }

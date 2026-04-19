@@ -114,8 +114,11 @@ export async function readWishlistIds(
   storefront: StorefrontLike,
   env: AdminEnv,
   customerAccessToken: string,
+  customerIdOverride?: string,
 ): Promise<string[]> {
-  const customerId = await resolveCustomerId(storefront, customerAccessToken);
+  const customerId =
+    customerIdOverride ??
+    (await resolveCustomerId(storefront, customerAccessToken));
   if (!customerId) return [];
   return readWishlistIdsByGid(env, customerId);
 }
@@ -168,8 +171,11 @@ export async function removeFromWishlist(
   env: AdminEnv,
   customerAccessToken: string,
   productId: string,
+  customerIdOverride?: string,
 ): Promise<string[]> {
-  const customerId = await resolveCustomerId(storefront, customerAccessToken);
+  const customerId =
+    customerIdOverride ??
+    (await resolveCustomerId(storefront, customerAccessToken));
   if (!customerId) return [];
 
   const currentIds = await readWishlistIdsByGid(env, customerId);

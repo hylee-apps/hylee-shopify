@@ -3,7 +3,7 @@ import {redirect, useActionData, useNavigation, Form} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {useState, useEffect} from 'react';
 import {useTranslation} from 'react-i18next';
-import {isCustomerLoggedIn} from '~/lib/customer-auth';
+
 import {Button} from '~/components/ui/button';
 import {
   Dialog,
@@ -76,24 +76,40 @@ export function meta() {
 // Loader
 // ============================================================================
 
-export async function loader({context}: Route.LoaderArgs) {
-  if (!isCustomerLoggedIn(context.session)) {
-    return redirect('/account/login');
+const CUSTOMER_ID_QUERY = `#graphql
+  query AddressBookCustomerId {
+    customer { id }
   }
+` as const;
 
-  // Fetch both address book metafield and native addresses via Storefront API.
-  // Re-throw Response objects (redirects) but catch other errors gracefully.
-  let book, customerId, shopifyAddresses, defaultAddressId;
+export async function loader({context}: Route.LoaderArgs) {
+  await context.customerAccount.handleAuthStatus();
+
+  const {data: idData} = await context.customerAccount.query(CUSTOMER_ID_QUERY);
+  const caCustomerId = idData?.customer?.id ?? undefined;
+
+  // Fetch address book metafield; native addresses via Storefront API may fail gracefully.
+  let book: any,
+    customerId: string,
+    shopifyAddresses: import('~/lib/address-book-graphql').CustomerAddressNode[],
+    defaultAddressId: string | null;
   try {
-    [{book, customerId}, {addresses: shopifyAddresses, defaultAddressId}] =
-      await Promise.all([
-        readAddressBook(context),
-        readCustomerAddresses(context),
-      ]);
+    book = (await readAddressBook(context, caCustomerId)).book;
+    customerId = caCustomerId ?? '';
+    try {
+      ({addresses: shopifyAddresses, defaultAddressId} =
+        await readCustomerAddresses(context));
+    } catch {
+      shopifyAddresses = [];
+      defaultAddressId = null;
+    }
   } catch (error) {
     if (error instanceof Response) throw error;
     console.error('Failed to load address book data:', error);
-    return redirect('/account/login');
+    book = {contacts: []} as any;
+    customerId = caCustomerId ?? '';
+    shopifyAddresses = [];
+    defaultAddressId = null;
   }
 
   // ── Compute untracked Shopify addresses (read-only; the loader never writes)
@@ -125,9 +141,10 @@ export async function loader({context}: Route.LoaderArgs) {
 // ============================================================================
 
 export async function action({request, context}: Route.ActionArgs) {
-  if (!isCustomerLoggedIn(context.session)) {
-    return redirect('/account/login');
-  }
+  await context.customerAccount.handleAuthStatus();
+
+  const {data: idData} = await context.customerAccount.query(CUSTOMER_ID_QUERY);
+  const caCustomerId = idData?.customer?.id ?? undefined;
 
   const formData = await request.formData();
   const intent = formData.get('intent') as string;
@@ -136,7 +153,7 @@ export async function action({request, context}: Route.ActionArgs) {
     // ── New contact-based intents ─────────────────────────────────────────
 
     case 'createContact': {
-      const {book, customerId} = await readAddressBook(context);
+      const {book, customerId} = await readAddressBook(context, caCustomerId);
       const contact = extractContactFromForm(formData);
 
       // If home category, dual-write to Shopify native addresses
@@ -164,7 +181,7 @@ export async function action({request, context}: Route.ActionArgs) {
     }
 
     case 'updateContact': {
-      const {book, customerId} = await readAddressBook(context);
+      const {book, customerId} = await readAddressBook(context, caCustomerId);
       const contactId = formData.get('contactId') as string;
       const updated = extractContactFromForm(formData);
       updated.id = contactId;
@@ -223,7 +240,7 @@ export async function action({request, context}: Route.ActionArgs) {
     }
 
     case 'bulkDeleteContacts': {
-      const {book, customerId} = await readAddressBook(context);
+      const {book, customerId} = await readAddressBook(context, caCustomerId);
       const contactIdsRaw = formData.get('contactIds') as string;
       let contactIds: string[] = [];
       try {
@@ -259,7 +276,7 @@ export async function action({request, context}: Route.ActionArgs) {
       // the loader) so there is no write-write race with createContact.  We read
       // the freshest book state right here before writing, which picks up any
       // contacts written by recent createContact calls.
-      const {book, customerId} = await readAddressBook(context);
+      const {book, customerId} = await readAddressBook(context, caCustomerId);
       const {addresses: shopifyAddresses, defaultAddressId} =
         await readCustomerAddresses(context);
 
@@ -314,7 +331,7 @@ export async function action({request, context}: Route.ActionArgs) {
     }
 
     case 'deleteContact': {
-      const {book, customerId} = await readAddressBook(context);
+      const {book, customerId} = await readAddressBook(context, caCustomerId);
       const contactId = formData.get('contactId') as string;
       const contact = book.contacts.find((c) => c.id === contactId);
 
@@ -350,7 +367,7 @@ export async function action({request, context}: Route.ActionArgs) {
     }
 
     case 'setPrimary': {
-      const {book, customerId} = await readAddressBook(context);
+      const {book, customerId} = await readAddressBook(context, caCustomerId);
       const contactId = formData.get('contactId') as string;
       const addressId = formData.get('addressId') as string;
 
