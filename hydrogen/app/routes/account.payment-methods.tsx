@@ -10,7 +10,7 @@ import {
   EyeOff,
   ShoppingBag,
 } from 'lucide-react';
-import {isCustomerLoggedIn} from '~/lib/customer-auth';
+
 import {cn} from '~/lib/utils';
 
 // ============================================================================
@@ -29,9 +29,7 @@ export function meta() {
 // ============================================================================
 
 export async function loader({context}: Route.LoaderArgs) {
-  if (!isCustomerLoggedIn(context.session)) {
-    return redirect('/account/login');
-  }
+  await context.customerAccount.handleAuthStatus();
   return {};
 }
 

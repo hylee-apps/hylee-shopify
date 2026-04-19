@@ -3,7 +3,6 @@ import {redirect, Form, Link, useNavigation} from 'react-router';
 import {getSeoMeta, CartForm, Image} from '@shopify/hydrogen';
 import {useTranslation} from 'react-i18next';
 import {Heart, ImageIcon, ShoppingCart, Check, Loader2} from 'lucide-react';
-import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {
   readWishlistIds,
   removeFromWishlist,
@@ -71,18 +70,22 @@ interface WishlistItem {
 // Loader
 // ============================================================================
 
-export async function loader({context}: Route.LoaderArgs) {
-  if (!isCustomerLoggedIn(context.session)) {
-    return redirect('/account/login');
-  }
+const CUSTOMER_ID_QUERY = `
+  query WishlistCustomerId { customer { id } }
+` as const;
 
-  const token = getCustomerAccessToken(context.session)!;
+export async function loader({context}: Route.LoaderArgs) {
+  await context.customerAccount.handleAuthStatus();
+
+  const {data: idData} = await context.customerAccount.query(CUSTOMER_ID_QUERY);
+  const customerId = idData?.customer?.id ?? undefined;
 
   // Step 1: Read the wishlist metafield to get product GIDs
   const productIds = await readWishlistIds(
     context.storefront,
     context.env as unknown as AdminEnv,
-    token,
+    '',
+    customerId,
   );
 
   if (productIds.length === 0) {
@@ -134,11 +137,11 @@ export async function loader({context}: Route.LoaderArgs) {
 // ============================================================================
 
 export async function action({request, context}: Route.ActionArgs) {
-  if (!isCustomerLoggedIn(context.session)) {
-    return redirect('/account/login');
-  }
+  await context.customerAccount.handleAuthStatus();
 
-  const token = getCustomerAccessToken(context.session)!;
+  const {data: idData} = await context.customerAccount.query(CUSTOMER_ID_QUERY);
+  const customerId = idData?.customer?.id ?? undefined;
+
   const formData = await request.formData();
   const intent = formData.get('intent') as string;
 
@@ -147,8 +150,9 @@ export async function action({request, context}: Route.ActionArgs) {
     await removeFromWishlist(
       context.storefront,
       context.env as unknown as AdminEnv,
-      token,
+      '',
       productId,
+      customerId,
     );
     return {success: true};
   }

@@ -1,7 +1,6 @@
 import type {Route} from './+types/account.orders.$id';
-import {redirect, Link} from 'react-router';
+import {Link} from 'react-router';
 import {getSeoMeta, Image} from '@shopify/hydrogen';
-import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {Truck, ExternalLink, ImageIcon, ArrowLeft, Undo2} from 'lucide-react';
 import {RecipientBadge} from '~/components/account/RecipientBadge';
 import {CHECKOUT_ATTR} from '~/lib/checkout';
@@ -21,127 +20,96 @@ export function meta({data}: Route.MetaArgs) {
 }
 
 // ============================================================================
-// GraphQL Query (Storefront API — uses node() since there's no root order())
+// GraphQL Query (Customer Account API — order(id: ID!) available at root)
 // ============================================================================
 
 const ORDER_QUERY = `#graphql
   query OrderDetail($orderId: ID!) {
-    node(id: $orderId) {
-      ... on Order {
-        id
+    order(id: $orderId) {
+      id
+      name
+      processedAt
+      cancelledAt
+      cancelReason
+      fulfillmentStatus
+      totalPrice {
+        amount
+        currencyCode
+      }
+      subtotal {
+        amount
+        currencyCode
+      }
+      totalTax {
+        amount
+        currencyCode
+      }
+      totalShipping {
+        amount
+        currencyCode
+      }
+      shippingAddress {
         name
-        processedAt
-        canceledAt
-        cancelReason
-        financialStatus
-        fulfillmentStatus
-        totalPrice {
-          amount
-          currencyCode
-        }
-        subtotalPrice {
-          amount
-          currencyCode
-        }
-        totalTax {
-          amount
-          currencyCode
-        }
-        totalShippingPrice {
-          amount
-          currencyCode
-        }
-        shippingAddress {
-          name
-          formatted
-          address1
-          address2
-          city
-          provinceCode
-          zip
-          country
-        }
-        customAttributes {
-          key
-          value
-        }
-        billingAddress {
-          name
-          formatted
-        }
-        lineItems(first: 50) {
-          nodes {
-            title
-            quantity
-            discountedTotalPrice {
+        formatted
+        address1
+        address2
+        city
+        zoneCode
+        zip
+        territoryCode
+      }
+      customAttributes {
+        key
+        value
+      }
+      billingAddress {
+        name
+        formatted
+      }
+      lineItems(first: 50) {
+        nodes {
+          title
+          quantity
+          soldDiscountedTotalPrice {
+            amount
+            currencyCode
+          }
+          image {
+            url
+            altText
+            width
+            height
+          }
+          variantTitle
+          price {
+            amount
+            currencyCode
+          }
+          discountAllocations {
+            allocatedAmount {
               amount
               currencyCode
             }
-            variant {
-              image {
-                url
-                altText
-                width
-                height
+            discountApplication {
+              ... on AutomaticDiscountApplication {
+                title
               }
-              title
-              price {
-                amount
-                currencyCode
+              ... on ManualDiscountApplication {
+                title
               }
-            }
-            discountAllocations {
-              allocatedAmount {
-                amount
-                currencyCode
-              }
-              discountApplication {
-                ... on AutomaticDiscountApplication {
-                  title
-                }
-                ... on ManualDiscountApplication {
-                  title
-                }
-                ... on DiscountCodeApplication {
-                  code
-                }
+              ... on DiscountCodeApplication {
+                code
               }
             }
           }
         }
-        successfulFulfillments(first: 10) {
-          trackingCompany
-          trackingInfo {
+      }
+      fulfillments(first: 10) {
+        nodes {
+          trackingInformation {
+            company
             number
             url
-          }
-        }
-        discountApplications(first: 10) {
-          nodes {
-            ... on AutomaticDiscountApplication {
-              title
-              value {
-                ... on MoneyV2 {
-                  amount
-                  currencyCode
-                }
-                ... on PricingPercentageValue {
-                  percentage
-                }
-              }
-            }
-            ... on DiscountCodeApplication {
-              code
-              value {
-                ... on MoneyV2 {
-                  amount
-                  currencyCode
-                }
-                ... on PricingPercentageValue {
-                  percentage
-                }
-              }
-            }
           }
         }
       }
@@ -154,17 +122,15 @@ const ORDER_QUERY = `#graphql
 // ============================================================================
 
 export async function loader({context, params}: Route.LoaderArgs) {
-  if (!isCustomerLoggedIn(context.session)) {
-    return redirect('/account/login');
-  }
+  await context.customerAccount.handleAuthStatus();
 
   const orderId = `gid://shopify/Order/${params.id}`;
 
-  const data = await context.storefront.query(ORDER_QUERY, {
+  const {data} = await context.customerAccount.query(ORDER_QUERY, {
     variables: {orderId},
   });
 
-  const order = data.node;
+  const order = data.order;
   if (!order) {
     throw new Response('Order not found', {status: 404});
   }
@@ -293,11 +259,11 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
         </div>
       </div>
 
-      {order.canceledAt && (
+      {order.cancelledAt && (
         <div className="mb-6 rounded-md border border-red-200 bg-red-50 p-4">
           <p className="text-sm font-medium text-red-800">
             {t('orderDetail.cancelledNotice', {
-              date: formatDate(order.canceledAt),
+              date: formatDate(order.cancelledAt),
             })}
             {order.cancelReason && ` — ${order.cancelReason}`}
           </p>
@@ -308,15 +274,15 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Tracking / Fulfillment */}
-          {(order.successfulFulfillments?.length ?? 0) > 0 && (
+          {(order.fulfillments?.nodes?.length ?? 0) > 0 && (
             <div className="rounded-lg border border-border p-5">
               <h2 className="mb-4 text-lg font-semibold text-dark">
                 {t('orderDetail.deliveryStatus.title')}
               </h2>
-              {order.successfulFulfillments!.map(
+              {order.fulfillments!.nodes.map(
                 (fulfillment: any, idx: number) => (
                   <div key={idx} className="space-y-2">
-                    {fulfillment.trackingInfo?.map(
+                    {fulfillment.trackingInformation?.map(
                       (tracking: any, tIdx: number) => (
                         <div
                           key={tIdx}
@@ -326,7 +292,7 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
                             <Truck size={20} className="text-primary" />
                             <div>
                               <p className="text-sm font-medium text-dark">
-                                {fulfillment.trackingCompany ||
+                                {tracking.company ||
                                   t('orderDetail.deliveryStatus.carrier')}
                               </p>
                               <p className="text-xs text-text-muted">
@@ -363,8 +329,8 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
             </h2>
             <div className="divide-y divide-border">
               {order.lineItems.nodes.map((item: any, idx: number) => {
-                const image = item.variant?.image;
-                const variantTitle = item.variant?.title;
+                const image = item.image;
+                const variantTitle = item.variantTitle;
                 return (
                   <div key={idx} className="flex items-center gap-4 px-5 py-4">
                     {image ? (
@@ -407,7 +373,7 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
                         )}
                     </div>
                     <span className="shrink-0 text-sm font-medium text-dark">
-                      {formatMoney(item.discountedTotalPrice)}
+                      {formatMoney(item.soldDiscountedTotalPrice)}
                     </span>
                   </div>
                 );
@@ -424,25 +390,25 @@ export default function OrderDetailPage({loaderData}: Route.ComponentProps) {
               {t('orderDetail.summary.title')}
             </h2>
             <div className="space-y-2 text-sm">
-              {order.subtotalPrice && (
+              {order.subtotal && (
                 <div className="flex justify-between">
                   <span className="text-text">
                     {t('orderDetail.summary.subtotal')}
                   </span>
                   <span className="font-medium text-dark">
-                    {formatMoney(order.subtotalPrice)}
+                    {formatMoney(order.subtotal)}
                   </span>
                 </div>
               )}
-              {order.totalShippingPrice && (
+              {order.totalShipping && (
                 <div className="flex justify-between">
                   <span className="text-text">
                     {t('orderDetail.summary.shipping')}
                   </span>
                   <span className="font-medium text-dark">
-                    {parseFloat(order.totalShippingPrice.amount) === 0
+                    {parseFloat(order.totalShipping.amount) === 0
                       ? t('orderDetail.summary.shippingFree')
-                      : formatMoney(order.totalShippingPrice)}
+                      : formatMoney(order.totalShipping)}
                   </span>
                 </div>
               )}

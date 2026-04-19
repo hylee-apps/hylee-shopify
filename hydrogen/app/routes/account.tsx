@@ -1,14 +1,7 @@
 import {Outlet, useLocation} from 'react-router';
 import type {Route} from './+types/account';
-import {
-  isCustomerLoggedIn,
-  getAuthenticatedCustomer,
-} from '~/lib/customer-auth';
 import {AccountSidebar} from '~/components/account/AccountSidebar';
 
-/**
- * Routes that should NOT render the sidebar layout.
- */
 const NO_SIDEBAR_ROUTES = [
   '/account/login',
   '/account/register',
@@ -18,24 +11,37 @@ const NO_SIDEBAR_ROUTES = [
   '/account/authorize',
 ];
 
-/**
- * Route patterns that should NOT render the sidebar layout (regex).
- */
 const NO_SIDEBAR_PATTERNS = [/^\/account\/orders\/[^/]+\/return/];
 
-export async function loader({context}: Route.LoaderArgs) {
-  const loggedIn = isCustomerLoggedIn(context.session);
+const CUSTOMER_QUERY = `#graphql
+  query AccountLayoutCustomer {
+    customer {
+      firstName
+      lastName
+      emailAddress {
+        emailAddress
+      }
+    }
+  }
+` as const;
 
-  if (!loggedIn) {
+export async function loader({context}: Route.LoaderArgs) {
+  const isLoggedIn = await context.customerAccount.isLoggedIn();
+
+  if (!isLoggedIn) {
     return {customer: null};
   }
 
   try {
-    const customer = await getAuthenticatedCustomer(
-      context.storefront,
-      context.session,
-    );
-    return {customer};
+    const {data} = await context.customerAccount.query(CUSTOMER_QUERY);
+    const c = data.customer;
+    return {
+      customer: {
+        firstName: c.firstName ?? null,
+        lastName: c.lastName ?? null,
+        email: c.emailAddress?.emailAddress ?? null,
+      },
+    };
   } catch {
     return {customer: null};
   }
@@ -49,7 +55,6 @@ export default function AccountLayout({loaderData}: Route.ComponentProps) {
     NO_SIDEBAR_ROUTES.some((route) => location.pathname.startsWith(route)) ||
     NO_SIDEBAR_PATTERNS.some((pattern) => pattern.test(location.pathname));
 
-  // Auth pages, return flow, etc. render without sidebar
   if (!customer || isNoSidebarRoute) {
     return <Outlet />;
   }

@@ -1,21 +1,9 @@
 import type {Route} from './+types/account.settings';
-import {
-  redirect,
-  Form,
-  useActionData,
-  useNavigation,
-  useLoaderData,
-} from 'react-router';
+import {Form, useActionData, useNavigation} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
-import {
-  isCustomerLoggedIn,
-  getCustomerAccessToken,
-  loginCustomer,
-} from '~/lib/customer-auth';
 import {getInitials} from '~/lib/account-helpers';
 import {setCustomerMetafields, type AdminEnv} from '~/lib/admin-api';
 import {Camera} from 'lucide-react';
-import {useEffect, useRef} from 'react';
 import {useTranslation} from 'react-i18next';
 
 // ============================================================================
@@ -30,33 +18,30 @@ export function meta() {
 }
 
 // ============================================================================
-// GraphQL (Storefront API)
+// GraphQL (Customer Account API)
 // ============================================================================
 
 const CUSTOMER_SETTINGS_QUERY = `#graphql
-  query CustomerSettings($customerAccessToken: String!) {
-    customer(customerAccessToken: $customerAccessToken) {
+  query CustomerSettings {
+    customer {
       id
       firstName
       lastName
-      email
-      phone
-      dateOfBirth: metafield(namespace: "custom", key: "date_of_birth") {
-        value
+      emailAddress {
+        emailAddress
       }
     }
   }
 ` as const;
 
 const UPDATE_CUSTOMER_MUTATION = `#graphql
-  mutation UpdateCustomer($customerAccessToken: String!, $customer: CustomerUpdateInput!) {
-    customerUpdate(customerAccessToken: $customerAccessToken, customer: $customer) {
+  mutation UpdateCustomer($customer: CustomerUpdateInput!) {
+    customerUpdate(input: $customer) {
       customer {
         firstName
         lastName
-        phone
       }
-      customerUserErrors {
+      userErrors {
         field
         message
       }
@@ -69,19 +54,21 @@ const UPDATE_CUSTOMER_MUTATION = `#graphql
 // ============================================================================
 
 export async function loader({context}: Route.LoaderArgs) {
-  if (!isCustomerLoggedIn(context.session)) {
-    return redirect('/account/login');
-  }
+  await context.customerAccount.handleAuthStatus();
 
-  const token = getCustomerAccessToken(context.session)!;
-  const data = await context.storefront.query(CUSTOMER_SETTINGS_QUERY, {
-    variables: {customerAccessToken: token},
-  });
-
+  const {data} = await context.customerAccount.query(CUSTOMER_SETTINGS_QUERY);
   const customer = data.customer;
+
   return {
-    customer,
-    dateOfBirth: customer?.dateOfBirth?.value ?? null,
+    customer: customer
+      ? {
+          id: customer.id,
+          firstName: customer.firstName ?? null,
+          lastName: customer.lastName ?? null,
+          email: customer.emailAddress?.emailAddress ?? null,
+        }
+      : null,
+    dateOfBirth: null as string | null,
   };
 }
 
@@ -95,35 +82,24 @@ interface ActionError {
 }
 
 export async function action({request, context}: Route.ActionArgs) {
-  if (!isCustomerLoggedIn(context.session)) {
-    return redirect('/account/login');
-  }
+  await context.customerAccount.handleAuthStatus();
 
   const formData = await request.formData();
   const intent = formData.get('intent') as string;
-  const token = getCustomerAccessToken(context.session)!;
 
   switch (intent) {
     case 'updateProfile': {
       const firstName = formData.get('firstName') as string;
       const lastName = formData.get('lastName') as string;
-      const rawPhone = (formData.get('phone') as string) ?? '';
       const dateOfBirth = (formData.get('dateOfBirth') as string) || null;
 
-      // Normalize phone to E.164 format for Shopify (e.g. "+15551234567")
-      const digits = rawPhone.replace(/\D/g, '');
-      let phone: string | null = null;
-      if (digits.length > 0) {
-        phone = digits.length === 10 ? `+1${digits}` : `+${digits}`;
-      }
-
-      const data = await context.storefront.mutate(UPDATE_CUSTOMER_MUTATION, {
-        variables: {
-          customerAccessToken: token,
-          customer: {firstName, lastName, phone},
+      const {data} = await context.customerAccount.mutate(
+        UPDATE_CUSTOMER_MUTATION,
+        {
+          variables: {customer: {firstName, lastName}},
         },
-      });
-      const errors = data?.customerUpdate?.customerUserErrors;
+      );
+      const errors = (data as any)?.customerUpdate?.userErrors;
       if (errors?.length) {
         return {errors: errors as ActionError[], intent};
       }
@@ -131,12 +107,10 @@ export async function action({request, context}: Route.ActionArgs) {
       // Save date of birth as customer metafield via Admin API
       if (dateOfBirth) {
         try {
-          // Fetch customer ID for Admin API
-          const customerData = await context.storefront.query(
+          const {data: idData} = await context.customerAccount.query(
             CUSTOMER_SETTINGS_QUERY,
-            {variables: {customerAccessToken: token}},
           );
-          const customerId = customerData?.customer?.id;
+          const customerId = (idData as any)?.customer?.id;
           if (customerId) {
             await setCustomerMetafields(
               context.env as unknown as AdminEnv,
@@ -153,7 +127,6 @@ export async function action({request, context}: Route.ActionArgs) {
           }
         } catch (e) {
           console.error('Failed to save date of birth:', e);
-          // Non-blocking — profile still saved successfully
         }
       }
 
@@ -161,94 +134,6 @@ export async function action({request, context}: Route.ActionArgs) {
         success: true,
         intent,
         message: 'settings.success.profileUpdated',
-      };
-    }
-
-    case 'updatePassword': {
-      const currentPassword = formData.get('currentPassword') as string;
-      const newPassword = formData.get('newPassword') as string;
-      const confirmPassword = formData.get('confirmPassword') as string;
-
-      if (!currentPassword || !newPassword || !confirmPassword) {
-        return {
-          errors: [
-            {field: 'password', message: 'settings.error.allFieldsRequired'},
-          ] as ActionError[],
-          intent,
-        };
-      }
-
-      if (newPassword !== confirmPassword) {
-        return {
-          errors: [
-            {
-              field: 'confirmPassword',
-              message: 'settings.error.passwordsDoNotMatch',
-            },
-          ] as ActionError[],
-          intent,
-        };
-      }
-
-      if (newPassword.length < 8) {
-        return {
-          errors: [
-            {
-              field: 'newPassword',
-              message: 'settings.error.passwordTooShort',
-            },
-          ] as ActionError[],
-          intent,
-        };
-      }
-
-      // Re-authenticate with current password to verify it's correct
-      const customerData = await context.storefront.query(
-        CUSTOMER_SETTINGS_QUERY,
-        {variables: {customerAccessToken: token}},
-      );
-      const email = customerData?.customer?.email;
-      if (!email) {
-        return {
-          errors: [
-            {field: 'password', message: 'settings.error.unableToVerify'},
-          ] as ActionError[],
-          intent,
-        };
-      }
-
-      const loginResult = await loginCustomer(
-        context.storefront,
-        email,
-        currentPassword,
-      );
-      if ('errors' in loginResult) {
-        return {
-          errors: [
-            {
-              field: 'currentPassword',
-              message: 'settings.error.currentPasswordIncorrect',
-            },
-          ] as ActionError[],
-          intent,
-        };
-      }
-
-      // Update password
-      const data = await context.storefront.mutate(UPDATE_CUSTOMER_MUTATION, {
-        variables: {
-          customerAccessToken: token,
-          customer: {password: newPassword},
-        },
-      });
-      const errors = data?.customerUpdate?.customerUserErrors;
-      if (errors?.length) {
-        return {errors: errors as ActionError[], intent};
-      }
-      return {
-        success: true,
-        intent,
-        message: 'settings.success.passwordUpdated',
       };
     }
 
@@ -292,14 +177,6 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
     customer?.firstName ?? null,
     customer?.lastName ?? null,
   );
-
-  // Reset password form after successful submission
-  const passwordFormRef = useRef<HTMLFormElement>(null);
-  useEffect(() => {
-    if (actionData?.intent === 'updatePassword' && actionData?.success) {
-      passwordFormRef.current?.reset();
-    }
-  }, [actionData]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -408,21 +285,6 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
               </p>
             </div>
 
-            {/* Phone Number */}
-            <div className="flex flex-col gap-2 pt-5">
-              <label htmlFor="phone" className={LABEL_CLASS}>
-                {t('settings.personalInfo.phoneNumber')}
-              </label>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                defaultValue={customer?.phone ?? ''}
-                placeholder={t('settings.personalInfo.phonePlaceholder')}
-                className={INPUT_CLASS}
-              />
-            </div>
-
             {/* Date of Birth */}
             <div className="flex flex-col gap-2 py-5">
               <label htmlFor="dateOfBirth" className={LABEL_CLASS}>
@@ -447,95 +309,6 @@ export default function SettingsPage({loaderData}: Route.ComponentProps) {
               {submittingIntent === 'updateProfile'
                 ? t('settings.personalInfo.saving')
                 : t('settings.personalInfo.saveChanges')}
-            </button>
-          </Form>
-        </div>
-      </div>
-
-      {/* ================================================================ */}
-      {/* Card 2: Change Password                                          */}
-      {/* ================================================================ */}
-      <div className="overflow-hidden rounded-xl border border-border bg-white shadow-sm">
-        {/* Card Header */}
-        <div className="border-b border-border px-6 py-5">
-          <h2 className="text-lg font-bold text-gray-900">
-            {t('settings.password.cardTitle')}
-          </h2>
-        </div>
-
-        {/* Card Body */}
-        <div className="p-4 sm:p-6">
-          <Form ref={passwordFormRef} method="post" className="flex flex-col">
-            <input type="hidden" name="intent" value="updatePassword" />
-
-            {/* Success/Error for password */}
-            {actionData?.intent === 'updatePassword' && actionData?.success && (
-              <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-                {t(actionData.message as string)}
-              </div>
-            )}
-            {actionData?.intent === 'updatePassword' && actionData?.errors && (
-              <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
-                {(actionData.errors as ActionError[]).map((e, i) => (
-                  <p key={i}>{t(e.message)}</p>
-                ))}
-              </div>
-            )}
-
-            {/* Current Password */}
-            <div className="flex flex-col gap-2">
-              <label htmlFor="currentPassword" className={LABEL_CLASS}>
-                {t('settings.password.currentPassword')}
-              </label>
-              <input
-                id="currentPassword"
-                name="currentPassword"
-                type="password"
-                placeholder={t('settings.password.currentPasswordPlaceholder')}
-                className={INPUT_CLASS}
-              />
-            </div>
-
-            {/* New Password + Confirm */}
-            <div className="flex flex-col gap-4 py-5 sm:flex-row">
-              <div className="flex flex-1 flex-col gap-2">
-                <label htmlFor="newPassword" className={LABEL_CLASS}>
-                  {t('settings.password.newPassword')}
-                </label>
-                <input
-                  id="newPassword"
-                  name="newPassword"
-                  type="password"
-                  placeholder={t('settings.password.newPasswordPlaceholder')}
-                  className={INPUT_CLASS}
-                />
-              </div>
-              <div className="flex flex-1 flex-col gap-2">
-                <label htmlFor="confirmPassword" className={LABEL_CLASS}>
-                  {t('settings.password.confirmPassword')}
-                </label>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  placeholder={t(
-                    'settings.password.confirmPasswordPlaceholder',
-                  )}
-                  className={INPUT_CLASS}
-                />
-              </div>
-            </div>
-
-            {/* Update Password */}
-            <button
-              type="submit"
-              disabled={submittingIntent === 'updatePassword'}
-              className={BUTTON_CLASS}
-              style={{width: 'fit-content'}}
-            >
-              {submittingIntent === 'updatePassword'
-                ? t('settings.password.updating')
-                : t('settings.password.update')}
             </button>
           </Form>
         </div>
