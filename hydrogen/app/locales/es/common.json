@@ -2,6 +2,7 @@
   "nav": {
     "categories": "Categorías",
     "whatsNew": "Novedades",
+    "seasonal": "Temporada",
     "discounts": "Descuentos",
     "promotionsDeals": "Promociones y Ofertas",
     "blogMedia": "Blog y Medios",
@@ -1152,7 +1153,12 @@
     "ariaLabel": "Galería de productos",
     "thumbnailAriaLabel": "Ver imagen {{number}}",
     "scrollLeft": "Desplazar miniaturas a la izquierda",
-    "scrollRight": "Desplazar miniaturas a la derecha"
+    "scrollRight": "Desplazar miniaturas a la derecha",
+    "zoomImage": "Ampliar imagen",
+    "lightboxTitle": "Lightbox de imágenes del producto",
+    "closeLightbox": "Cerrar lightbox",
+    "previousImage": "Imagen anterior",
+    "nextImage": "Imagen siguiente"
   },
   "variantSelector": {
     "chooseOption": "Elige un {{optionName}}",
@@ -1579,5 +1585,29 @@
         }
       ]
     }
+  },
+  "contactPage": {
+    "title": "Contáctanos",
+    "subtitle": "¿Tienes una pregunta o necesitas ayuda? Estamos aquí para ti.",
+    "name": "Nombre",
+    "namePlaceholder": "Tu nombre completo",
+    "email": "Correo electrónico",
+    "emailPlaceholder": "tu@correo.com",
+    "subject": "Asunto",
+    "subjectPlaceholder": "¿En qué podemos ayudarte?",
+    "message": "Mensaje",
+    "messagePlaceholder": "Cuéntanos más sobre tu pregunta o inquietud...",
+    "submit": "Enviar mensaje",
+    "submitting": "Enviando...",
+    "successTitle": "¡Mensaje enviado!",
+    "successBody": "Gracias por contactarnos. Te responderemos en 1–2 días hábiles.",
+    "sendAnother": "Enviar otro mensaje",
+    "errorTitle": "Algo salió mal",
+    "errorBody": "No pudimos enviar tu mensaje. Intenta de nuevo o escríbenos directamente.",
+    "infoHeading": "Otras formas de contactarnos",
+    "infoEmailLabel": "Correo",
+    "infoEmail": "support@hy-lee.com",
+    "infoHoursLabel": "Horario de atención",
+    "infoHours": "Lunes – Viernes, 9am – 5pm EST"
   }
 }

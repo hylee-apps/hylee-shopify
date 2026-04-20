@@ -22,7 +22,7 @@ export interface FooterProps {
   /**
    * Color scheme variant.
    * - default:   white bg, colored logo, green-bordered input, filled teal submit button
-   * - primary:   green bg (#2ac864), white logo, white-bordered input, white outline button
+   * - primary:   dark green bg (#55962D), white logo, white-bordered input, white outline button
    * - secondary: teal bg (#2699a6), white logo, white-bordered input, white outline button
    * - tertiary:  mint bg (#2bd9a8), white logo, white-bordered input, white outline button
    */
@@ -73,7 +73,7 @@ const SOCIAL_LINKS = [
 
 const BG_CLASSES: Record<FooterVariant, string> = {
   default: 'bg-white',
-  primary: 'bg-primary',
+  primary: 'bg-[#55962D]',
   secondary: 'bg-secondary',
   tertiary: 'bg-brand-accent',
 };

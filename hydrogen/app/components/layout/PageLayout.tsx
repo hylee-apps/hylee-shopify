@@ -60,7 +60,15 @@ export function PageLayout({children}: PageLayoutProps) {
     return <>{children ?? <Outlet />}</>;
   }
 
-  const {header, footer, isLoggedIn, cart, categories, currentLanguage} = data;
+  const {
+    header,
+    footer,
+    isLoggedIn,
+    cart,
+    categories,
+    seasonalItems,
+    currentLanguage,
+  } = data;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -71,6 +79,7 @@ export function PageLayout({children}: PageLayoutProps) {
         cart={cart}
         variant={headerVariant}
         categories={categories}
+        seasonalItems={seasonalItems ?? []}
         currentLanguage={currentLanguage ?? 'EN'}
       />
 

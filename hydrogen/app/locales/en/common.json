@@ -2,6 +2,7 @@
   "nav": {
     "categories": "Categories",
     "whatsNew": "What's New",
+    "seasonal": "Seasonal",
     "discounts": "Discounts",
     "promotionsDeals": "Promotions & Deals",
     "blogMedia": "Blog & Media",
@@ -1152,7 +1153,12 @@
     "ariaLabel": "Product gallery",
     "thumbnailAriaLabel": "View image {{number}}",
     "scrollLeft": "Scroll thumbnails left",
-    "scrollRight": "Scroll thumbnails right"
+    "scrollRight": "Scroll thumbnails right",
+    "zoomImage": "Zoom image",
+    "lightboxTitle": "Product image lightbox",
+    "closeLightbox": "Close lightbox",
+    "previousImage": "Previous image",
+    "nextImage": "Next image"
   },
   "variantSelector": {
     "chooseOption": "Choose a {{optionName}}",
@@ -1579,5 +1585,29 @@
         }
       ]
     }
+  },
+  "contactPage": {
+    "title": "Contact Us",
+    "subtitle": "Have a question or need help? We're here for you.",
+    "name": "Name",
+    "namePlaceholder": "Your full name",
+    "email": "Email",
+    "emailPlaceholder": "your@email.com",
+    "subject": "Subject",
+    "subjectPlaceholder": "What can we help you with?",
+    "message": "Message",
+    "messagePlaceholder": "Tell us more about your question or concern...",
+    "submit": "Send Message",
+    "submitting": "Sending...",
+    "successTitle": "Message sent!",
+    "successBody": "Thanks for reaching out. We'll get back to you within 1–2 business days.",
+    "sendAnother": "Send another message",
+    "errorTitle": "Something went wrong",
+    "errorBody": "We couldn't send your message. Please try again or email us directly.",
+    "infoHeading": "Other ways to reach us",
+    "infoEmailLabel": "Email",
+    "infoEmail": "support@hy-lee.com",
+    "infoHoursLabel": "Support hours",
+    "infoHours": "Monday – Friday, 9am – 5pm EST"
   }
 }
