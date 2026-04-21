@@ -21,10 +21,7 @@ export interface CategoryNavConfig {
 }
 
 export const categoryNavConfig: CategoryNavConfig = {
-  excluded: [
-    // Collection handles to hide from navigation.
-    // e.g. 'hidden-collection', 'test-products'
-  ],
+  excluded: ['seasonal'],
   maxVisible: 8,
-  pinned: [{handle: 'seasonal', title: 'Seasonal'}],
+  pinned: [],
 };
