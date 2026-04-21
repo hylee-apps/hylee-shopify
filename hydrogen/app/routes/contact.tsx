@@ -1,4 +1,3 @@
-import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Mail, Clock, CheckCircle, AlertCircle} from 'lucide-react';
 import {
@@ -10,7 +9,8 @@ import {
   BreadcrumbSeparator,
 } from '~/components/ui/breadcrumb';
 import {Button} from '~/components/ui/button';
-import {Link} from 'react-router';
+import {Link, useFetcher} from 'react-router';
+import type {Route} from './+types/contact';
 
 export function meta() {
   return [
@@ -23,49 +23,33 @@ export function meta() {
   ];
 }
 
+// TODO: wire up to Klaviyo or Shopify Email once Darian configures the integration.
+export async function action({request}: Route.ActionArgs) {
+  const formData = await request.formData();
+  const name = formData.get('name');
+  const email = formData.get('email');
+  const subject = formData.get('subject');
+  const message = formData.get('message');
+
+  if (!name || !email || !subject || !message) {
+    return {success: false as const};
+  }
+
+  return {success: true as const};
+}
+
 export default function ContactPage() {
   const {t} = useTranslation();
-  const [status, setStatus] = useState<
-    'idle' | 'submitting' | 'success' | 'error'
-  >('idle');
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-  });
+  const fetcher = useFetcher<typeof action>();
 
-  function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) {
-    setFormData((prev) => ({...prev, [e.target.name]: e.target.value}));
-  }
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setStatus('submitting');
-    try {
-      // Shopify Contact Form API endpoint
-      const body = new URLSearchParams({
-        'contact[name]': formData.name,
-        'contact[email]': formData.email,
-        'contact[body]': `Subject: ${formData.subject}\n\n${formData.message}`,
-      });
-      const res = await fetch('/contact#contact_form', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: body.toString(),
-      });
-      setStatus(res.ok ? 'success' : 'error');
-    } catch {
-      setStatus('error');
-    }
-  }
-
-  function handleReset() {
-    setFormData({name: '', email: '', subject: '', message: ''});
-    setStatus('idle');
-  }
+  const status =
+    fetcher.state !== 'idle'
+      ? 'submitting'
+      : fetcher.data?.success === true
+        ? 'success'
+        : fetcher.data?.success === false
+          ? 'error'
+          : 'idle';
 
   return (
     <div className="min-h-screen bg-surface">
@@ -116,7 +100,7 @@ export default function ContactPage() {
                 </p>
                 <Button
                   variant="outline"
-                  onClick={handleReset}
+                  onClick={() => fetcher.load('/contact')}
                   className="mt-2 border-secondary text-secondary hover:bg-secondary hover:text-white"
                 >
                   {t('contactPage.sendAnother')}
@@ -133,14 +117,14 @@ export default function ContactPage() {
                 </p>
                 <Button
                   variant="outline"
-                  onClick={handleReset}
+                  onClick={() => fetcher.load('/contact')}
                   className="mt-2 border-secondary text-secondary hover:bg-secondary hover:text-white"
                 >
                   {t('contactPage.sendAnother')}
                 </Button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <fetcher.Form method="post" className="flex flex-col gap-5">
                 {/* Name */}
                 <div className="flex flex-col gap-1.5">
                   <label
@@ -154,8 +138,6 @@ export default function ContactPage() {
                     name="name"
                     type="text"
                     required
-                    value={formData.name}
-                    onChange={handleChange}
                     placeholder={t('contactPage.namePlaceholder')}
                     className="w-full rounded-[8px] border border-[#d1d5db] px-4 py-2.5 text-[15px] text-[#111827] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition-colors"
                   />
@@ -174,8 +156,6 @@ export default function ContactPage() {
                     name="email"
                     type="email"
                     required
-                    value={formData.email}
-                    onChange={handleChange}
                     placeholder={t('contactPage.emailPlaceholder')}
                     className="w-full rounded-[8px] border border-[#d1d5db] px-4 py-2.5 text-[15px] text-[#111827] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition-colors"
                   />
@@ -194,8 +174,6 @@ export default function ContactPage() {
                     name="subject"
                     type="text"
                     required
-                    value={formData.subject}
-                    onChange={handleChange}
                     placeholder={t('contactPage.subjectPlaceholder')}
                     className="w-full rounded-[8px] border border-[#d1d5db] px-4 py-2.5 text-[15px] text-[#111827] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition-colors"
                   />
@@ -214,8 +192,6 @@ export default function ContactPage() {
                     name="message"
                     required
                     rows={6}
-                    value={formData.message}
-                    onChange={handleChange}
                     placeholder={t('contactPage.messagePlaceholder')}
                     className="w-full rounded-[8px] border border-[#d1d5db] px-4 py-2.5 text-[15px] text-[#111827] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition-colors resize-none"
                   />
@@ -230,7 +206,7 @@ export default function ContactPage() {
                     ? t('contactPage.submitting')
                     : t('contactPage.submit')}
                 </Button>
-              </form>
+              </fetcher.Form>
             )}
           </div>
 
