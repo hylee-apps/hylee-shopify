@@ -59,29 +59,24 @@ export async function loader({context}: Route.LoaderArgs) {
   const checkoutData = getCheckoutAttributes(cart);
 
   // Optionally fetch address book + native addresses for logged-in users
+  const isLoggedIn = await context.customerAccount.isLoggedIn();
   let addressBook: AddressBook | null = null;
   let savedAddresses: SavedShippingAddress[] = [];
-  try {
-    const {isCustomerLoggedIn: checkLoggedIn} =
-      await import('~/lib/customer-auth');
-    const isLoggedIn = checkLoggedIn(context.session);
-    if (isLoggedIn) {
-      const [bookResult, addressesResult] = await Promise.all([
-        readAddressBook(context).catch(() => null),
-        readCustomerAddresses(context).catch(() => ({
-          addresses: [] as SavedShippingAddress[],
-          defaultAddressId: null,
-        })),
-      ]);
-      addressBook = bookResult?.book ?? null;
-      savedAddresses = addressesResult.addresses as SavedShippingAddress[];
-    }
-  } catch {
-    // Guest checkout — no address book or saved addresses
+  if (isLoggedIn) {
+    const [bookResult, addressesResult] = await Promise.all([
+      readAddressBook(context).catch(() => null),
+      readCustomerAddresses(context).catch(() => ({
+        addresses: [] as SavedShippingAddress[],
+        defaultAddressId: null,
+      })),
+    ]);
+    addressBook = bookResult?.book ?? null;
+    savedAddresses = addressesResult.addresses as SavedShippingAddress[];
   }
 
   return {
     cart,
+    isLoggedIn,
     savedAddress: checkoutData.shippingAddress,
     savedDeliveryInstructions: checkoutData.deliveryInstructions,
     savedShippingCategory: checkoutData.shippingCategory,
@@ -502,6 +497,7 @@ function OrderSummaryWithTranslation({
 export default function CheckoutShippingPage() {
   const {
     cart,
+    isLoggedIn,
     savedAddress,
     savedDeliveryInstructions,
     savedShippingCategory,
@@ -572,13 +568,15 @@ export default function CheckoutShippingPage() {
         <div className="grid grid-cols-[1fr_400px] items-start gap-8">
           {/* Left: Main content */}
           <div className="flex flex-col gap-6">
-            <ShippingCategorySelector
-              book={addressBook}
-              savedAddresses={savedAddresses}
-              defaultCategory={savedShippingCategory}
-              defaultContactId={savedContactId}
-              onAddressFill={handleAddressFill}
-            />
+            {isLoggedIn && (
+              <ShippingCategorySelector
+                book={addressBook}
+                savedAddresses={savedAddresses}
+                defaultCategory={savedShippingCategory}
+                defaultContactId={savedContactId}
+                onAddressFill={handleAddressFill}
+              />
+            )}
             <ShippingAddressCard
               key={formKey}
               defaultValues={formDefaults}
