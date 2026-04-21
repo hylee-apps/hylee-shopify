@@ -2,6 +2,7 @@ import {useEffect, useRef} from 'react';
 import {ChevronLeft, ChevronRight} from 'lucide-react';
 import {useTranslation} from 'react-i18next';
 import {Link, Form, useLoaderData} from 'react-router';
+import {getSeoMeta} from '@shopify/hydrogen';
 import {PillInput} from '~/components/ui/pill-input';
 import {
   ProductCard,
@@ -70,14 +71,18 @@ function buildHeroSlides(data: any): CarouselSlide[] {
 // ============================================================================
 
 export function meta({}: Route.MetaArgs) {
-  return [
-    {title: 'Hy-lee | Home'},
-    {
-      name: 'description',
-      content:
-        'Discover unique products from trusted vendors worldwide. Shop electronics, fashion, home goods, and more.',
+  return getSeoMeta({
+    title: 'Hy-lee | Home',
+    description:
+      'Discover unique products from trusted vendors worldwide. Shop electronics, fashion, home goods, and more.',
+    media: {
+      type: 'image',
+      url: 'https://hy-lee.com/logo-full.png',
+      height: 630,
+      width: 1200,
+      altText: 'Hy-lee — your marketplace for unique products',
     },
-  ];
+  });
 }
 
 // ============================================================================
@@ -830,6 +835,8 @@ export default function Homepage() {
 
   return (
     <>
+      <h1 className="sr-only">Hy-lee — Your Online Marketplace</h1>
+
       {/* ================================================================ */}
       {/* HERO CAROUSEL — Figma node 203:267                              */}
       {/* Carousel IS the hero: cycling bg + logo + search always shown   */}

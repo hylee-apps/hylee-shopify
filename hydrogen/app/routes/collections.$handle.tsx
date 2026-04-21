@@ -231,6 +231,7 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
 
   const url = new URL(request.url);
   const searchParams = url.searchParams;
+  const canonicalUrl = `${url.origin}/collections/${handle}`;
 
   const filters = parseFiltersFromSearchParams(searchParams);
   const {sortKey, reverse} = parseSortFromSearchParams(searchParams);
@@ -255,6 +256,7 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
       collection: null,
       comingSoon: true as const,
       handle,
+      canonicalUrl,
       searchParamsString: searchParams.toString(),
     };
   }
@@ -272,6 +274,7 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
       collection: null,
       comingSoon: true as const,
       handle,
+      canonicalUrl,
       searchParamsString: searchParams.toString(),
     };
   }
@@ -280,6 +283,7 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
     collection,
     comingSoon: false as const,
     handle,
+    canonicalUrl,
     searchParamsString: searchParams.toString(),
   };
 }
@@ -289,6 +293,10 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
 // ============================================================================
 
 export function meta({data}: Route.MetaArgs) {
+  const canonical = data?.canonicalUrl
+    ? [{tagName: 'link', rel: 'canonical', href: data.canonicalUrl}]
+    : [];
+
   if (!data?.collection) {
     const title = data?.handle
       ? data.handle
@@ -296,16 +304,19 @@ export function meta({data}: Route.MetaArgs) {
           .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
           .join(' ')
       : 'Coming Soon';
-    return [{title: `${title} | Hy-lee`}];
+    return [{title: `${title} | Hy-lee`}, ...canonical];
   }
 
   const {collection} = data;
 
-  return getSeoMeta({
-    title: collection.seo?.title ?? collection.title,
-    description: collection.seo?.description ?? collection.description,
-    media: collection.image,
-  });
+  return [
+    ...(getSeoMeta({
+      title: collection.seo?.title ?? collection.title,
+      description: collection.seo?.description ?? collection.description,
+      media: collection.image,
+    }) ?? []),
+    ...canonical,
+  ];
 }
 
 // ============================================================================
