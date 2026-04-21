@@ -34,6 +34,7 @@
     "links": {
       "about": "About",
       "faq": "FAQ",
+      "trackOrder": "Track Your Order",
       "termsOfUse": "Terms of Use",
       "privacyPolicy": "Privacy Policy",
       "returnPolicy": "Return Policy",
@@ -1609,5 +1610,18 @@
     "infoEmail": "support@hy-lee.com",
     "infoHoursLabel": "Support hours",
     "infoHours": "Monday – Friday, 9am – 5pm EST"
+  },
+  "orderTracking": {
+    "heading": "Track Your Order",
+    "subheading": "Enter your email and order number to see the latest status.",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "you@example.com",
+    "orderNumberLabel": "Order Number",
+    "orderNumberPlaceholder": "e.g. 1234",
+    "orderNumberHint": "Found in your confirmation email (without the #).",
+    "submit": "Track Order",
+    "submitting": "Looking up...",
+    "errorMissingFields": "Please enter both your email address and order number.",
+    "errorNotFound": "We couldn't find an order matching that email and order number. Please double-check and try again."
   }
 }

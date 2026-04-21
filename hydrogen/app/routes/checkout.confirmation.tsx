@@ -38,15 +38,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
   // Try to get the cart — if it was just completed, it may be empty now
   const cart = await context.cart.get();
 
-  // Check if user is logged in to show/hide account creation CTA
-  let isLoggedIn = false;
-  try {
-    const {isCustomerLoggedIn: checkLoggedIn} =
-      await import('~/lib/customer-auth');
-    isLoggedIn = checkLoggedIn(context.session);
-  } catch {
-    // Guest user
-  }
+  const isLoggedIn = await context.customerAccount.isLoggedIn();
 
   return {
     orderId,
@@ -60,7 +52,13 @@ export async function loader({request, context}: Route.LoaderArgs) {
 // Success Hero
 // ============================================================================
 
-function SuccessHero({orderNumber}: {orderNumber: string}) {
+function SuccessHero({
+  orderNumber,
+  isLoggedIn,
+}: {
+  orderNumber: string;
+  isLoggedIn: boolean;
+}) {
   const {t} = useTranslation('common');
   return (
     <div className="flex flex-col items-center py-12 text-center">
@@ -89,7 +87,7 @@ function SuccessHero({orderNumber}: {orderNumber: string}) {
       {/* Action buttons */}
       <div className="flex items-center gap-3">
         <Link
-          to="/account/orders"
+          to={isLoggedIn ? '/account/orders' : '/order-tracking'}
           className="flex items-center gap-2 rounded-lg bg-[#e67e22] px-6 py-3.5 text-base font-semibold text-white transition-colors hover:bg-[#d35400]"
         >
           <Package size={18} />
@@ -300,7 +298,7 @@ export default function CheckoutConfirmationPage() {
       {/* Success hero */}
       <div className="bg-white">
         <div className="mx-auto max-w-[800px]">
-          <SuccessHero orderNumber={orderNumber} />
+          <SuccessHero orderNumber={orderNumber} isLoggedIn={isLoggedIn} />
         </div>
       </div>
 
