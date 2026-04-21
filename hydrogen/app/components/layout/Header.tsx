@@ -295,7 +295,7 @@ function MobileMenu({
             {t('nav.whatsNew')}
           </Link>
 
-          {seasonalItems.length > 0 && (
+          {seasonalItems.length > 0 ? (
             <div className="border-b border-border">
               <button
                 className="flex items-center justify-between w-full px-4 py-3 text-text font-medium"
@@ -331,6 +331,14 @@ function MobileMenu({
                 </div>
               )}
             </div>
+          ) : (
+            <Link
+              to="/collections/seasonal"
+              className="block px-4 py-3 font-medium text-text hover:text-primary border-b border-border"
+              onClick={onClose}
+            >
+              {t('nav.seasonal')}
+            </Link>
           )}
 
           <Link
@@ -557,8 +565,12 @@ export function Header({
                 {t('nav.whatsNew')}
               </Link>
 
-              {seasonalItems.length > 0 && (
+              {seasonalItems.length > 0 ? (
                 <SeasonalDropdown items={seasonalItems} />
+              ) : (
+                <Link to="/collections/seasonal" className={NAV_TRIGGER_CLASS}>
+                  {t('nav.seasonal')}
+                </Link>
               )}
 
               <Link to={FILTERED_URLS.discounts} className={NAV_TRIGGER_CLASS}>
