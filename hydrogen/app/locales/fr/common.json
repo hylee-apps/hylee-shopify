@@ -34,6 +34,7 @@
     "links": {
       "about": "À propos",
       "faq": "FAQ",
+      "trackOrder": "Suivre Votre Commande",
       "termsOfUse": "Conditions d'utilisation",
       "privacyPolicy": "Politique de confidentialité",
       "returnPolicy": "Politique de retour",
@@ -1609,5 +1610,18 @@
     "infoEmail": "support@hy-lee.com",
     "infoHoursLabel": "Horaires d'assistance",
     "infoHours": "Lundi – Vendredi, 9h – 17h EST"
+  },
+  "orderTracking": {
+    "heading": "Suivre Votre Commande",
+    "subheading": "Entrez votre e-mail et numéro de commande pour voir l'état.",
+    "emailLabel": "Adresse e-mail",
+    "emailPlaceholder": "vous@exemple.com",
+    "orderNumberLabel": "Numéro de commande",
+    "orderNumberPlaceholder": "ex. 1234",
+    "orderNumberHint": "Trouvé dans votre e-mail de confirmation (sans le #).",
+    "submit": "Suivre la commande",
+    "submitting": "Recherche en cours...",
+    "errorMissingFields": "Veuillez entrer votre e-mail et votre numéro de commande.",
+    "errorNotFound": "Nous n'avons pas trouvé de commande correspondant à cet e-mail et numéro. Vérifiez et réessayez."
   }
 }

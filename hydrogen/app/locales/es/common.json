@@ -34,6 +34,7 @@
     "links": {
       "about": "Nosotros",
       "faq": "Preguntas Frecuentes",
+      "trackOrder": "Rastrear Tu Pedido",
       "termsOfUse": "Términos de Uso",
       "privacyPolicy": "Política de Privacidad",
       "returnPolicy": "Política de Devoluciones",
@@ -1609,5 +1610,18 @@
     "infoEmail": "support@hy-lee.com",
     "infoHoursLabel": "Horario de atención",
     "infoHours": "Lunes – Viernes, 9am – 5pm EST"
+  },
+  "orderTracking": {
+    "heading": "Rastrear Tu Pedido",
+    "subheading": "Ingresa tu correo y número de pedido para ver el estado.",
+    "emailLabel": "Correo Electrónico",
+    "emailPlaceholder": "tu@ejemplo.com",
+    "orderNumberLabel": "Número de Pedido",
+    "orderNumberPlaceholder": "ej. 1234",
+    "orderNumberHint": "Encuéntralo en tu correo de confirmación (sin el #).",
+    "submit": "Rastrear Pedido",
+    "submitting": "Buscando...",
+    "errorMissingFields": "Por favor ingresa tu correo y número de pedido.",
+    "errorNotFound": "No encontramos un pedido con ese correo y número. Verifica e intenta de nuevo."
   }
 }
