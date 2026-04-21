@@ -234,7 +234,7 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
 
   const filters = parseFiltersFromSearchParams(searchParams);
   const {sortKey, reverse} = parseSortFromSearchParams(searchParams);
-  const paginationVariables = getPaginationVariables(request, {pageBy: 24});
+  const paginationVariables = getPaginationVariables(request, {pageBy: 48});
 
   const {collection} = await storefront.query(COLLECTION_QUERY, {
     variables: {
