@@ -1,4 +1,5 @@
 import {useEffect, useRef} from 'react';
+import {ChevronLeft, ChevronRight} from 'lucide-react';
 import {useTranslation} from 'react-i18next';
 import {Link, Form, useLoaderData} from 'react-router';
 import {PillInput} from '~/components/ui/pill-input';
@@ -560,12 +561,56 @@ function ProductSection({
   products: CollectionProduct[];
 }) {
   const {t} = useTranslation();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollStart = useRef(0);
+
+  useEffect(() => {
+    function onMouseMove(e: MouseEvent) {
+      if (!isDragging.current || !scrollRef.current) return;
+      e.preventDefault();
+      scrollRef.current.scrollLeft =
+        scrollStart.current - (e.clientX - startX.current);
+    }
+    function onMouseUp() {
+      if (!isDragging.current) return;
+      isDragging.current = false;
+      if (scrollRef.current) scrollRef.current.style.cursor = 'grab';
+    }
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, []);
+
+  function handleMouseDown(e: React.MouseEvent<HTMLDivElement>) {
+    isDragging.current = true;
+    startX.current = e.clientX;
+    scrollStart.current = scrollRef.current?.scrollLeft ?? 0;
+    if (scrollRef.current) scrollRef.current.style.cursor = 'grabbing';
+  }
+
+  function scrollBy(direction: 'prev' | 'next') {
+    const el = scrollRef.current;
+    if (!el) return;
+    const cardWidth = el.firstElementChild
+      ? (el.firstElementChild as HTMLElement).offsetWidth + 16
+      : 220;
+    el.scrollBy({
+      left: direction === 'next' ? cardWidth * 2 : -cardWidth * 2,
+      behavior: 'smooth',
+    });
+  }
+
   if (!products.length) return null;
 
   return (
     <div className="flex flex-col w-full">
       <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
-        {/* Section header — accent bar left, title, See all right */}
+        {/* Section header */}
         <div className="flex items-center justify-between border-b-2 border-border pb-3 mb-5">
           <div className="flex items-center gap-3">
             <span className="w-1 h-8 rounded-full bg-secondary shrink-0" />
@@ -573,29 +618,60 @@ function ProductSection({
               {categoryLabel}
             </h2>
           </div>
-          <Link
-            to={seeAllUrl}
-            className="shrink-0 flex items-center gap-1 rounded-full border border-secondary px-4 py-1.5 text-[14px] font-semibold text-secondary transition-colors hover:bg-secondary hover:text-white"
-          >
-            {t('collection.seeAll')}
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => scrollBy('prev')}
+              className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full border border-border text-text-muted hover:text-primary hover:border-primary transition-colors"
+              aria-label="Scroll left"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button
+              onClick={() => scrollBy('next')}
+              className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full border border-border text-text-muted hover:text-primary hover:border-primary transition-colors"
+              aria-label="Scroll right"
+            >
+              <ChevronRight size={16} />
+            </button>
+            <Link
+              to={seeAllUrl}
+              className="shrink-0 flex items-center gap-1 rounded-full border border-secondary px-4 py-1.5 text-[14px] font-semibold text-secondary transition-colors hover:bg-secondary hover:text-white"
+            >
+              {t('collection.seeAll')}
+            </Link>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {products.slice(0, 20).map((product) => {
+        <div
+          ref={scrollRef}
+          className="no-scrollbar flex gap-4 overflow-x-auto overflow-y-hidden cursor-grab select-none"
+          style={
+            {
+              touchAction: 'pan-x',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+            } as React.CSSProperties
+          }
+          onMouseDown={handleMouseDown}
+        >
+          {products.slice(0, 12).map((product) => {
             const isNew =
               product.createdAt &&
               Date.now() - new Date(product.createdAt).getTime() <
                 30 * 24 * 60 * 60 * 1000;
             return (
-              <ProductCard
+              <div
                 key={product.id}
-                product={product}
-                size="end-node"
-                collectionHandle={collectionHandle}
-                customBadge={isNew ? t('home.newBadge') : undefined}
-                customBadgeColor={isNew ? 'bg-primary' : undefined}
-              />
+                className="shrink-0 w-[calc(50%-8px)] sm:w-[calc(33.333%-11px)] lg:w-[calc(16.666%-14px)]"
+              >
+                <ProductCard
+                  product={product}
+                  size="end-node"
+                  collectionHandle={collectionHandle}
+                  customBadge={isNew ? t('home.newBadge') : undefined}
+                  customBadgeColor={isNew ? 'bg-primary' : undefined}
+                />
+              </div>
             );
           })}
         </div>

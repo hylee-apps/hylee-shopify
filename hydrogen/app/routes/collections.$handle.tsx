@@ -560,10 +560,10 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
 
                       {/* 6-column grid — Figma: ~229px pitch on 1400px container */}
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5">
-                        {nodes.map((product) => (
+                        {(nodes as CollectionProduct[]).map((product) => (
                           <ProductCard
                             key={product.id}
-                            product={product as CollectionProduct}
+                            product={product}
                             size="category"
                             collectionHandle={collection.handle}
                           />
@@ -621,6 +621,13 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
     <div className="pb-12">
       {/* Breadcrumbs */}
       <CollectionBreadcrumbs navPath={navPath} title={collection.title} />
+
+      {/* Hero — image + title/description */}
+      <CollectionHero
+        title={collection.title}
+        description={collection.description}
+        image={collection.image}
+      />
 
       {/* Listing layout: sidebar (240px) + main (flex-1) */}
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-[24px]">
@@ -682,10 +689,10 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
 
                       {/* 4-column grid — Figma: 4 cols at 1080px main width */}
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-                        {nodes.map((product) => (
+                        {(nodes as CollectionProduct[]).map((product) => (
                           <ProductCard
                             key={product.id}
-                            product={product as CollectionProduct}
+                            product={product}
                             size="end-node"
                             collectionHandle={collection.handle}
                           />

@@ -276,9 +276,6 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
         <div className="relative mx-auto flex max-w-screen-2xl items-center gap-8 px-4 py-10 sm:px-6 lg:gap-16 lg:px-8 lg:py-14">
           {/* Text block */}
           <div className="flex-1">
-            <p className="mb-3 text-sm font-bold uppercase tracking-widest text-secondary">
-              {t('collectionsAll.promoHeadline')}
-            </p>
             <h1 className="text-5xl font-black leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl">
               {t('collectionsAll.title')}
             </h1>

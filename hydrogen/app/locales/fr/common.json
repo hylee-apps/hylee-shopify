@@ -1153,7 +1153,12 @@
     "ariaLabel": "Galerie de produits",
     "thumbnailAriaLabel": "Voir l'image {{number}}",
     "scrollLeft": "Faire défiler les miniatures vers la gauche",
-    "scrollRight": "Faire défiler les miniatures vers la droite"
+    "scrollRight": "Faire défiler les miniatures vers la droite",
+    "zoomImage": "Agrandir l'image",
+    "lightboxTitle": "Lightbox d'images produit",
+    "closeLightbox": "Fermer le lightbox",
+    "previousImage": "Image précédente",
+    "nextImage": "Image suivante"
   },
   "variantSelector": {
     "chooseOption": "Choisissez un {{optionName}}",
@@ -1580,5 +1585,29 @@
         }
       ]
     }
+  },
+  "contactPage": {
+    "title": "Contactez-nous",
+    "subtitle": "Une question ou besoin d'aide ? Nous sommes là pour vous.",
+    "name": "Nom",
+    "namePlaceholder": "Votre nom complet",
+    "email": "E-mail",
+    "emailPlaceholder": "votre@email.com",
+    "subject": "Sujet",
+    "subjectPlaceholder": "Comment pouvons-nous vous aider ?",
+    "message": "Message",
+    "messagePlaceholder": "Dites-nous en plus sur votre question ou préoccupation...",
+    "submit": "Envoyer le message",
+    "submitting": "Envoi en cours...",
+    "successTitle": "Message envoyé !",
+    "successBody": "Merci de nous avoir contactés. Nous vous répondrons sous 1 à 2 jours ouvrables.",
+    "sendAnother": "Envoyer un autre message",
+    "errorTitle": "Une erreur s'est produite",
+    "errorBody": "Nous n'avons pas pu envoyer votre message. Veuillez réessayer ou nous écrire directement.",
+    "infoHeading": "Autres façons de nous joindre",
+    "infoEmailLabel": "E-mail",
+    "infoEmail": "support@hy-lee.com",
+    "infoHoursLabel": "Horaires d'assistance",
+    "infoHours": "Lundi – Vendredi, 9h – 17h EST"
   }
 }
