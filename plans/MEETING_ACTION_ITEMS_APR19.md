@@ -2,6 +2,7 @@
 
 > **Status**: 🟡 In Progress
 > **Created**: 2026-04-19
+> **Last Updated**: 2026-04-21
 > **Source**: Weekly Meeting 2026-04-19 (Shawn Jones, Derek Hawkins, Jeremiah Tillman)
 > **Stack**: Hydrogen (React + TypeScript + Tailwind v4 + shadcn/ui + React Router 7)
 
@@ -15,8 +16,24 @@ prioritized by go-live impact — access/auth fix is immediate, then nav/homepag
 product fixes, then SEO/polish.
 
 > **Note**: The Shopify mandatory-login gate was diagnosed and deployed during the meeting
-> itself (liquid env variables still being read after Hydrogen migration). Confirm that fix
-> landed and notify Shawn before any other work begins.
+> itself (liquid env variables still being read after Hydrogen migration). Confirmed fixed.
+
+---
+
+## Progress Summary
+
+| # | Workstream | Status |
+|---|-----------|--------|
+| 1 | Auth Gate Fix | ✅ Complete |
+| 2 | Seasonal Header Nav | ✅ Complete |
+| 3 | Homepage Section Carousels | ✅ Complete (partial — see notes) |
+| 4 | Guest Checkout & Order Tracking | 🔲 Not started |
+| 5 | Product & Category Display Fixes | 🟡 Partial (Bug 4 done; Bugs 1–3 pending) |
+| 6 | PDP Image Zoom & Carousel | ✅ Complete |
+| 7 | Product Specs Display | 🔲 Blocked (awaiting Jeremiah session) |
+| 8 | Footer Color & Layout | ✅ Complete (color done; form alignment N/A — no off-center form found) |
+| 9 | Contact Us Page | ✅ Complete |
+| 10 | SEO Code Tasks | 🔲 Not started (post-launch) |
 
 ---
 
@@ -35,13 +52,16 @@ product fixes, then SEO/polish.
 | `feature/templates/contact-us` | Contact Us page | MEDIUM |
 | `chore/assets/seo-code-review` | SEO checklist code tasks + tag audit | LOW |
 
+> All completed workstreams were implemented on `feature/customer/migrate-to-customer-account-api`
+> and committed in `d7c84df` on 2026-04-21.
+
 ---
 
 ## Workstream 1 — Auth Gate Fix (CONFIRM + NOTIFY)
 
 **Branch**: `bugfix/customer/shopify-auth-gate`
 **Priority**: CRITICAL
-**Status**: Deployed during meeting — needs confirmation
+**Status**: ✅ Complete
 
 ### Context
 During the meeting Derek identified the root cause: Liquid env variables (`password_page_enabled`
@@ -64,6 +84,7 @@ Shawn must be notified once confirmed working on an incognito/logged-out browser
 
 **Branch**: `feature/header/seasonal-nav-dropdown`
 **Priority**: HIGH
+**Status**: ✅ Complete
 
 ### Context
 Shawn wants "Seasonal" as a **top-level** header item (not inside Categories). It should have
@@ -76,24 +97,31 @@ prioritized via a back-end field (same mechanic as the existing category priorit
 Categories ▾  |  What's New  |  Seasonal ▾  |  Discounts  |  Promotions & Deals  |  Blog & Media
 ```
 
+### Implementation Notes
+- `SEASONAL_NAV_QUERY` added to `root.tsx` `loadCriticalData` — queries the `seasonal` collection's
+  `child_nodes` metafield (same pattern as `HEADER_COLLECTIONS_QUERY`), sorted by `menu_priority_order`,
+  capped at 5 items, cached with `CacheLong`.
+- `seasonalItems` prop flows: `root.tsx` → `PageLayout.tsx` → `Header.tsx`
+- `SeasonalDropdown` component uses shadcn `DropdownMenu` — same pattern as `NavDropdown`.
+  Items are dynamic from Shopify; "See All" footer link → `/collections/seasonal`.
+- Mobile: collapsible section in `MobileMenu` between What's New and Discounts, same accordion
+  pattern as the Categories section.
+- i18n keys `nav.seasonal` added to EN/ES/FR locales.
+
 ### Tasks
+- [x] Add `SEASONAL_NAV_QUERY` to `root.tsx` — fetches child collections of `seasonal` via metafield
+- [x] Process and sort seasonal items (priority metafield → alpha fallback, max 5)
+- [x] Pass `seasonalItems` through `PageLayout` to `Header`
+- [x] Create `SeasonalDropdown` component in `Header.tsx`
+- [x] Wire into desktop nav between What's New and Discounts (only renders if items exist)
+- [x] Wire into mobile `MobileMenu` as collapsible section
+- [x] Add i18n keys (`nav.seasonal`) to EN/ES/FR
 
-#### Phase 1: Navigation Config
-- [ ] Add `seasonal` to top-level nav items in `hydrogen/app/config/navigation.ts`
-- [ ] Position it between `What's New` and `Discounts` (or after `What's New` per Shawn's order)
-- [ ] Define `SeasonalNavConfig` interface with `maxItems: 5` and `seeAllHandle: 'seasonal'`
-
-#### Phase 2: Dropdown Component
-- [ ] Audit `hydrogen/app/components/layout/Header.tsx` — confirm existing CategoryDropdown pattern
-- [ ] Create (or reuse) `SeasonalDropdown` component with same dropdown mechanics as `CategoryDropdown`
-- [ ] Fetch seasonal subcollections: query collections where `collection.metafield(namespace: "custom", key: "seasonal") == true` OR use a `seasonal` collection menu in Shopify admin
-- [ ] Cap display to 5 items; render prioritized by `custom.menu_priority_order` metafield
-- [ ] Add "See All Seasonal →" link at bottom → `/collections/seasonal`
-- [ ] Wire to `Header.tsx` desktop nav
-
-#### Phase 3: Prioritization Admin Hook
-- [ ] Confirm `custom.menu_priority_order` metafield can be set on collections in Shopify admin
-- [ ] Document for Shawn: how to set priority order on seasonal collections (same as main categories)
+### Remaining / Shawn's action
+- [ ] **Shawn**: Set up the `seasonal` collection in Shopify admin with child collections linked
+  via the `custom.child_nodes` metafield (same structure as other nav collections)
+- [ ] **Shawn**: Set `custom.menu_priority_order` on each seasonal child collection to control
+  the display order in the dropdown
 
 ### Manual Tests
 1. Seasonal appears in header between What's New and Discounts (desktop)
@@ -101,12 +129,7 @@ Categories ▾  |  What's New  |  Seasonal ▾  |  Discounts  |  Promotions & De
 3. Dropdown shows ≤5 seasonal collection items
 4. "See All" link goes to `/collections/seasonal`
 5. Dropdown closes on outside click / Escape
-6. Mobile: Seasonal visible in mobile nav menu
-
-### Pre-Commit Checks
-```bash
-pnpm format && pnpm format:check && pnpm typecheck && pnpm build && pnpm test
-```
+6. Mobile: Seasonal visible in mobile nav menu as collapsible section
 
 ---
 
@@ -114,6 +137,7 @@ pnpm format && pnpm format:check && pnpm typecheck && pnpm build && pnpm test
 
 **Branch**: `feature/homepage/section-carousels`
 **Priority**: HIGH
+**Status**: ✅ Complete (Phases 1 & 2 done; Phases 3–4 partial — see notes)
 
 ### Context
 Shawn's feedback on the homepage body sections (What's New, Discounts, Promotions & Deals):
@@ -123,63 +147,29 @@ Shawn's feedback on the homepage body sections (What's New, Discounts, Promotion
 - What's New must link to the `what-s-new` backend collection (currently may be static)
 - Discounts section needs category-level discount priority (discount whole categories, not individual items)
 
+### Implementation Notes
+- `ProductSection` in `_index.tsx` was converted from a static grid to a drag-to-scroll horizontal
+  carousel. Cards are `shrink-0` with responsive widths: 2-up on mobile, 3-up on sm, 6-up on lg.
+  Prev/Next arrow buttons scroll by 2 card-widths; drag-to-scroll (mouse) also works.
+- Shows up to 12 products (6 visible on desktop, remaining accessible via scroll/arrows).
+- Fake promo headline ("Grab Upto 50% Off On Selected Products") removed from `collections.all.tsx`.
+  The locale key `collectionsAll.promoHeadline` remains in the JSON files but is no longer rendered.
+- Category-level discount priority (Phase 3 detail) and full Promotions & Deals wire-up (Phase 4)
+  are deferred until Darian returns.
+
 ### Tasks
-
-#### Phase 1: Remove Fake Promo Text
-- [ ] Find and delete "Grab up to 15% off on select items" placeholder in `hydrogen/app/routes/_index.tsx`
-  or wherever it's rendered in the Promotions section
-
-#### Phase 2: What's New Carousel
-- [ ] Confirm `what-s-new` collection handle in Shopify admin (may be `what-s-new`)
-- [ ] In `_index.tsx` loader, ensure What's New queries `collections/what-s-new` products (already
-  partially wired per ACTIVE_CONTEXT — verify it's pulling real data not static placeholders)
-- [ ] Replace current What's New grid with a `<HomepageSectionCarousel>` component:
-  - 1 visible row, 6 items shown at a time
-  - Auto-rotates OR has prev/next arrows
-  - "See All" link → `/collections/what-s-new`
-- [ ] Add `data-testid="whats-new-carousel"` for E2E targeting
-
-#### Phase 3: Discounts Carousel
-- [ ] Query discounted/sale products: use `sortKey: PRICE` with a `filters` for `price: { max: ... }`
-  OR query a dedicated `discounts` collection if Shawn creates one in Shopify admin
-- [ ] Support category-level discount priority: read `custom.menu_priority_order` on collections
-  to determine which category's discounted products surface first
-- [ ] Render using same `<HomepageSectionCarousel>` component
-- [ ] "See All" link → `/collections/discounts` (confirm handle with Shawn)
-
-#### Phase 4: Promotions & Deals Carousel
-- [ ] This section surfaces the promo deal codes (8%, 10%, 15%, 20%, 25% tiers from Mar 29 plan)
-- [ ] For v1: render deal cards showing each promotional tier (not individual products)
-- [ ] People can "Claim" or see details; "See All" → promotions page
-- [ ] Wire to real promo data once Darian is back (placeholder structure is acceptable for now)
-
-#### Phase 5: Shared Carousel Component
-- [ ] Create `hydrogen/app/components/home/HomepageSectionCarousel.tsx`:
-  ```tsx
-  interface HomepageSectionCarouselProps {
-    title: string;
-    products: ProductCardProps[];
-    seeAllHref: string;
-    seeAllLabel?: string;
-  }
-  ```
-- [ ] 1-row layout with horizontal scroll or arrow navigation
-- [ ] Shows 6 items at a time (desktop), 2–3 on mobile
-- [ ] Tailwind v4 tokens only, no hardcoded colors
+- [x] Remove fake promo text from `hydrogen/app/routes/collections.all.tsx`
+- [x] Convert `ProductSection` from static grid to drag-to-scroll horizontal carousel with prev/next arrows
+- [x] Cap display at 12 products (6 visible on desktop at once)
+- [ ] **Deferred**: Category-level discount priority (requires Darian's promo tier data)
+- [ ] **Deferred**: Full Promotions & Deals carousel wired to real promo metaobjects (structure exists)
 
 ### Manual Tests
-1. Homepage loads — fake promo text gone
+1. Homepage loads — fake promo text gone from `/collections/all` hero
 2. What's New shows real products from Shopify in a carousel row
-3. Carousel arrows or scroll works to see more items
-4. "See All" in What's New goes to `/collections/what-s-new`
-5. Discounts carousel shows discounted products
-6. Promotions & Deals section shows deal tier cards (or skeleton if not yet wired)
-7. All three sections: "See All" links navigate correctly
-
-### Pre-Commit Checks
-```bash
-pnpm format && pnpm format:check && pnpm typecheck && pnpm build && pnpm test
-```
+3. Carousel arrows scroll to reveal more items
+4. Drag-to-scroll works (mouse only; touch uses native scroll)
+5. "See All" in each section navigates to the correct collection
 
 ---
 
@@ -187,7 +177,7 @@ pnpm format && pnpm format:check && pnpm typecheck && pnpm build && pnpm test
 
 **Branch**: `feature/customer/guest-checkout-tracking`
 **Priority**: HIGH
-**Status**: Already in progress — Derek said "done by end of day" on Apr 19
+**Status**: 🔲 Not started
 
 ### Context
 Customers must be able to:
@@ -219,6 +209,7 @@ pnpm format && pnpm format:check && pnpm typecheck && pnpm build && pnpm test
 
 **Branch**: `bugfix/product/category-display-fixes`
 **Priority**: HIGH
+**Status**: 🟡 Partial — Bug 4 (end-node header) done; Bugs 1–3 still pending
 
 ### Context
 Shawn identified three bugs during the meeting:
@@ -228,42 +219,32 @@ Shawn identified three bugs during the meeting:
 4. **End-node layout**: Category photo + category name should appear at the TOP of end-node pages
    (currently missing; Shawn wants it even on end-node, matching the non-end-node layout)
 
+### Implementation Notes
+- **Bug 4 (done)**: `CollectionHero` is now rendered at the top of the end-node layout in
+  `collections.$handle.tsx`, before the listing layout. End-node pages show the hero image +
+  collection name but still omit `SubcategoryScrollSection` (correct per Shawn's spec).
+- **Bug 3 (blocked)**: `ProductConnection.totalCount` is NOT available in the Shopify Storefront API
+  for collection queries — attempted and confirmed via codegen error. The "24+" behavior is
+  intentional pagination with `hasNextPage ? '+' : ''` suffix using `nodes.length`. To show the
+  true total, a separate `COLLECTION_COUNT_QUERY` would need to fetch `products(first: 250)`
+  count-only — or Shawn can raise the per-page limit (currently 24) to capture all products
+  in a single page.
+
 ### Tasks
-
-#### Bug 1: Missing Breadcrumb / Category Visibility
-- [ ] Navigate to Furniture → Bed and Accessories in dev — reproduce the breadcrumb gap
-- [ ] Check `CollectionHero` or `BreadcrumbNav` component in `hydrogen/app/routes/collections.$handle.tsx`
-- [ ] Confirm the collection hierarchy data is being queried — may need to add parent collection
-  metafield (`custom.parent_collection`) to the breadcrumb query
-- [ ] Fix breadcrumb to reflect full hierarchy: Home > Furniture > Bed and Accessories
-
-#### Bug 2: Missing Product (Latex Mattress)
-- [ ] Go to Shopify admin → verify Latex Mattress is assigned to its collection and is `active`
-- [ ] If it IS in Shopify but not showing in the Hydrogen app, check the collection query filter
-  (may have an `available: true` filter accidentally excluding it)
-- [ ] Fix query or flag for Shawn to check product status in admin
-
-#### Bug 3: Product Count Display
-- [ ] Find the component rendering "24+" — likely in `CollectionToolbar` or similar header
-- [ ] Replace the capped display with the actual `collection.products.totalCount` from the
-  Storefront API (confirm field is present in the current collection query)
-- [ ] If the query doesn't return `totalCount`, add it to the fragment in `hydrogen/app/lib/fragments.ts`
-
-#### Bug 4: End-Node Category Header
-- [ ] In `hydrogen/app/routes/collections.$handle.tsx`, check the conditional that hides the
-  hero image/name for end-node collections (previously `CollectionHero` was removed for end-nodes
-  per the Apr 11 plan)
-- [ ] Restore the category photo + name header on end-node pages
-- [ ] Keep the breadcrumb; just ADD the photo + name above it (Shawn: "continue the layout right
-  down to the last end node, only missing is not to show [the subcategory scroll section]")
-- [ ] Ensure end-node pages: show photo + name ✅, show breadcrumb ✅, NO subcategory scroll section ✅
+- [x] **Bug 4**: Add `CollectionHero` to end-node layout (`collections.$handle.tsx`)
+- [ ] **Bug 1**: Reproduce breadcrumb gap for Furniture > Bed and Accessories
+  - Check `buildPathFromParentMetafields` in `~/lib/breadcrumbs`
+  - May need Shawn to verify the `custom.parent_collection` metafield is set on "Bed and Accessories"
+- [ ] **Bug 2**: Verify Latex Mattress in Shopify admin (active + assigned to collection)
+  - If present in admin but missing in app, check `availableForSale` filter in `COLLECTION_QUERY`
+- [ ] **Bug 3**: Decide approach with Shawn — either raise page size limit or accept `+` indicator
 
 ### Manual Tests
-1. Furniture > Bed and Accessories breadcrumb shows all three levels
-2. Latex Mattress appears in its category page
-3. Product count shows full number (e.g., "47 products" not "24+")
-4. End-node collection page shows category hero image + name at top
-5. End-node page does NOT show the horizontal subcategory scroll strip
+1. ~~Furniture > Bed and Accessories breadcrumb shows all three levels~~ (pending)
+2. ~~Latex Mattress appears in its category page~~ (pending)
+3. ~~Product count shows full number~~ (pending — API limitation noted above)
+4. End-node collection page shows category hero image + name at top ✅
+5. End-node page does NOT show the horizontal subcategory scroll strip ✅
 
 ### Pre-Commit Checks
 ```bash
@@ -276,6 +257,7 @@ pnpm format && pnpm format:check && pnpm typecheck && pnpm build && pnpm test
 
 **Branch**: `feature/product/image-zoom-carousel`
 **Priority**: MEDIUM
+**Status**: ✅ Complete
 
 ### Context
 Shawn: "We need to find a way where the imaging can be like pushed out like if somebody selected
@@ -285,16 +267,26 @@ it, it comes forward… people can carousel it." Current PDP has a vertical thum
 - Lightbox has prev/next arrows to carousel through all product images
 - Current thumbnails remain; clicking a thumbnail also opens the lightbox to that image
 
+### Implementation Notes
+- shadcn `Dialog` lightbox added to `ProductGallery.tsx` — no new library.
+- Main image wrapped in a `<button>` with `cursor-zoom-in`; thumbnail click navigates to that
+  index AND opens the lightbox.
+- Lightbox: black/95 background, full-size `Image`, prev/next arrows (hidden if single image),
+  dot indicators at bottom, X close button top-right.
+- Keyboard: window `keydown` listener for ← / → while lightbox is open (ArrowLeft/ArrowRight).
+  Escape is handled natively by shadcn `Dialog`.
+- Works in both `vertical` (PDP) and `horizontal` gallery layouts.
+- i18n keys (`zoomImage`, `lightboxTitle`, `closeLightbox`, `previousImage`, `nextImage`) added
+  to EN/ES/FR.
+
 ### Tasks
-- [ ] Audit `hydrogen/app/components/product/ProductGallery.tsx` for current thumbnail + main image layout
-- [ ] Check `hydrogen/app/components/ui/` for any existing Dialog/Modal/Lightbox component (shadcn Dialog)
-- [ ] Implement lightbox using shadcn `Dialog`:
-  - Click main image or thumbnail → `Dialog` opens with full-size image
-  - Prev/Next arrows navigate through `product.images` array
-  - Keyboard: Escape closes, ← / → navigate
-  - Close button (X) in top-right
-- [ ] Add `data-testid="product-image-lightbox"` and `data-testid="lightbox-next"` etc.
-- [ ] Mobile: same behavior, swipe gestures optional (v1 arrows are fine)
+- [x] Audit `ProductGallery.tsx` — confirmed vertical layout, no existing lightbox
+- [x] Add `lightboxOpen` state and `useEffect` keyboard handler
+- [x] Build `lightbox` JSX using shadcn `Dialog` with prev/next/close/dots
+- [x] Wrap main image in `<button>` to open lightbox (both vertical and horizontal layouts)
+- [x] Thumbnail click: navigate to index + open lightbox
+- [x] Add i18n keys to all three locales
+- [ ] **Optional follow-up**: Add touch swipe gestures for mobile (v1 arrows are sufficient)
 
 ### Manual Tests
 1. PDP → click main product image → lightbox opens at full size
@@ -304,18 +296,13 @@ it, it comes forward… people can carousel it." Current PDP has a vertical thum
 5. Lightbox: click thumbnail in gallery → lightbox opens at that image
 6. Mobile: lightbox opens and arrows work
 
-### Pre-Commit Checks
-```bash
-pnpm format && pnpm format:check && pnpm typecheck && pnpm build && pnpm test
-```
-
 ---
 
 ## Workstream 7 — Product Specs Display (with Jeremiah)
 
 **Branch**: `feature/product/specs-display`
 **Priority**: MEDIUM
-**Dependency**: Requires coordination session with Jeremiah Tillman
+**Status**: 🔲 Blocked — awaiting Jeremiah debug session
 
 ### Context
 Category meta fields (specs like dimensions, weight, material) are not rendering on the PDP.
@@ -361,39 +348,29 @@ pnpm format && pnpm format:check && pnpm typecheck && pnpm build && pnpm test
 
 **Branch**: `bugfix/footer/color-layout-corrections`
 **Priority**: MEDIUM
+**Status**: ✅ Complete (color done; form alignment N/A)
 
 ### Context
 Two minor visual bugs:
-1. **Footer green**: The footer uses `#899a44` (per Derek's inspection during meeting); the site
-   primary green is `#2ac864`. Shawn wants them aligned — the footer button/accents should use
-   the same green shade as other site elements.
-2. **Off-center form**: One page's form layout appears slightly off-center. Shawn identified it
-   but didn't specify which page (likely the Contact Us or Supplier page). Check and correct.
+1. **Footer green**: The footer primary variant was using `bg-primary` (#2ac864 — the bright green).
+   Derek clarified during implementation that the correct color is `#55962D` — the darker green
+   matching the "H" in the logo.
+2. **Off-center form**: One page's form layout appears slightly off-center. No off-center form was
+   found during implementation — the Contact Us page (WS9) was built centered from the start.
+   Flag for Shawn to identify the specific page if still observed.
+
+### Implementation Notes
+- `BG_CLASSES.primary` in `Footer.tsx` changed from `'bg-primary'` to `'bg-[#55962D]'`.
+- Color is `#55962D`, NOT the site `--color-primary` (`#2ac864`) — intentionally different.
 
 ### Tasks
-
-#### Footer Color Fix
-- [ ] In `hydrogen/app/components/layout/Footer.tsx`, find references to hardcoded hex `#899a44`
-  or whichever Tailwind class is resolving to that color
-- [ ] Replace with `text-primary` / `bg-primary` / `border-primary` (maps to `#2ac864`)
-- [ ] Verify in browser — footer buttons/highlights now match the header/body green
-
-#### Form Alignment Fix
-- [ ] Identify the page with the off-center form:
-  - Check `hydrogen/app/routes/suppliers.tsx` or any page with a standalone form
-  - Check Contact Us page if it exists
-- [ ] Likely fix: add `mx-auto` or `max-w-*` centering to the form wrapper
-- [ ] Verify form is visually centered at 1440px and at 375px (mobile)
+- [x] Change `Footer.tsx` primary variant bg from `bg-primary` to `bg-[#55962D]`
+- [ ] **Shawn to confirm**: if any other page's form appears off-center, identify the specific URL
 
 ### Manual Tests
-1. Footer green elements match the rest of the site (compare against header CTA color)
-2. Identified form page: form is horizontally centered
-3. No other colors changed inadvertently (check footer text, links)
-
-### Pre-Commit Checks
-```bash
-pnpm format && pnpm format:check && pnpm typecheck && pnpm build && pnpm test
-```
+1. Footer primary variant bg is `#55962D` (dark green matching logo "H") ✅
+2. Footer text and links are unaffected ✅
+3. ~~Identified form page: form is horizontally centered~~ (no off-center form identified)
 
 ---
 
@@ -401,34 +378,40 @@ pnpm format && pnpm format:check && pnpm typecheck && pnpm build && pnpm test
 
 **Branch**: `feature/templates/contact-us`
 **Priority**: MEDIUM
+**Status**: ✅ Complete
 
 ### Context
 Shawn confirmed "Contact Us" is on Derek's docket. This is a new page with a contact form.
 
+### Implementation Notes
+- Route: `hydrogen/app/routes/contact.tsx`
+- Two-column layout (lg): form card (flex-1) + contact info sidebar (280px).
+- Form fields: Name, Email, Subject, Message — all required with native HTML5 validation.
+- Submit: POSTs to Shopify's built-in contact form endpoint (`/contact#contact_form`).
+- States: idle → submitting → success (green checkmark + "Send another" button) / error (alert icon + retry).
+- Contact info sidebar: email (`support@hy-lee.com`) + support hours (Mon–Fri 9am–5pm EST).
+- i18n: all strings in EN/ES/FR locales under `contactPage.*` namespace.
+- Breadcrumb: Home > Contact Us.
+
 ### Tasks
-- [ ] Create route: `hydrogen/app/routes/contact.tsx`
-- [ ] Form fields: Name, Email, Subject, Message, Submit
-- [ ] Action: POST to Shopify's built-in contact form endpoint OR send to a Klaviyo/email service
-  (confirm with Shawn/Darian which email platform to use; use a simple `mailto:` or Shopify
-  contact endpoint as v1 fallback)
-- [ ] Add to footer navigation under "Customer Support" or equivalent link group
-- [ ] Style with existing Tailwind tokens + shadcn Input/Textarea/Button
-- [ ] Add `data-testid` attributes to form inputs
-- [ ] Success state: "Your message has been sent. We'll respond within 24 hours."
-- [ ] Basic client-side validation: required fields, email format
+- [x] Create `hydrogen/app/routes/contact.tsx`
+- [x] Form fields: Name, Email, Subject, Message, Submit
+- [x] POST to Shopify contact form endpoint as v1
+- [x] Success and error states
+- [x] Contact info sidebar (email + hours)
+- [x] i18n keys in EN/ES/FR
+- [x] Breadcrumb navigation
+- [ ] **Follow-up**: Add "Contact Us" link to footer nav (confirm which footer link group with Shawn)
+- [ ] **Follow-up**: Confirm email delivery with Darian (Klaviyo vs Shopify native notifications)
 
 ### Manual Tests
-1. Footer "Contact Us" link navigates to `/contact`
-2. Form renders with all fields
-3. Submit with empty fields → required field errors shown
-4. Submit with invalid email → email error shown
-5. Submit with valid data → success message shown
-6. Page is mobile-responsive
-
-### Pre-Commit Checks
-```bash
-pnpm format && pnpm format:check && pnpm typecheck && pnpm build && pnpm test
-```
+1. `/contact` route renders the form and info sidebar
+2. Form renders with all four fields
+3. Submit with empty fields → browser required-field validation fires
+4. Submit with invalid email → browser email validation fires
+5. Submit with valid data → success state shown
+6. "Send another message" resets and returns to form
+7. Page is mobile-responsive (form stacks above info sidebar on mobile)
 
 ---
 
@@ -436,6 +419,7 @@ pnpm format && pnpm format:check && pnpm typecheck && pnpm build && pnpm test
 
 **Branch**: `chore/assets/seo-code-review`
 **Priority**: LOW (post-launch per Apr 11 meeting decisions)
+**Status**: 🔲 Not started
 
 ### Context
 Shawn is handling SEO admin tasks (meta titles, descriptions, tags) in Shopify admin himself.
@@ -487,11 +471,13 @@ pnpm test                # unit tests must pass
 ```
 
 ### Manual Regression Tests (run after each workstream lands)
-- [ ] Homepage loads without auth prompt (incognito)
+- [x] Homepage loads without auth prompt (incognito)
 - [ ] Header nav renders all items; dropdowns open/close correctly
 - [ ] Add to cart → cart drawer opens → checkout flow reachable
 - [ ] PDP renders: images, title, price, variant selector, add-to-cart
+- [ ] PDP lightbox: click image → opens; arrows navigate; Escape closes
 - [ ] Collection page: products display, filters work, pagination works
+- [ ] End-node collection: hero image + title visible at top
 - [ ] Account login/register still works (auth pages not broken by header changes)
 - [ ] Mobile (375px): no horizontal overflow, nav accessible, carousels usable
 - [ ] No TypeScript `any` types introduced
@@ -504,7 +490,8 @@ pnpm test                # unit tests must pass
 - **Shawn's tasks** (not Derek's): Create project tickets in Project Hub for each item above;
   create homepage page entry in Shopify admin with SEO fields; populate meta titles/descriptions
   for all pages; clean up product data (item numbers, supplier titles); set up Seasonal collection
-  in Shopify admin; define promotional tiers/codes with Darian.
+  in Shopify admin with child collections linked via `custom.child_nodes` metafield; define
+  promotional tiers/codes with Darian; confirm the specific page with the off-center form (WS8).
 - **Jeremiah's task**: Schedule spec debug session with Derek this week; develop analytics schema
   and KPI documentation (mobile-first); run schema by team for review.
 - **Specs issue**: Jeremiah believes it may be a Shopify API change, not a code bug. Do not
@@ -512,6 +499,9 @@ pnpm test                # unit tests must pass
   namespace/key fix.
 - **Promotions section**: Do not build the full promotion redemption flow until Darian is back.
   The carousel structure is sufficient for v1; wire to real promo data in a follow-up.
-- **Image carousel (WS6)**: Use shadcn `Dialog` — do not add a new lightbox library.
-- **Footer color (WS8)**: If `#899a44` is coming from a design token that was intentionally
-  different, confirm with Shawn before overriding. It may be the "olive" accent vs the primary green.
+- **Product count "24+"**: `ProductConnection.totalCount` is not available in the Shopify
+  Storefront API — confirmed via codegen validation error. The `+` indicator is the correct
+  behavior for paginated results. Resolve by raising the page size limit or accepting the
+  indicator; discuss with Shawn.
+- **Contact Us email delivery**: Currently POSTing to Shopify's native contact form endpoint.
+  Confirm with Darian whether to route through Klaviyo instead once she's back.
