@@ -89,7 +89,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
   const lang = langMatch?.[1]?.toUpperCase() ?? '';
   const currentLanguage = ['EN', 'ES', 'FR'].includes(lang) ? lang : 'EN';
 
-  const [header, collectionsResult] = await Promise.all([
+  const [header, collectionsResult, seasonalNavResult] = await Promise.all([
     storefront.query(HEADER_QUERY, {
       cache: storefront.CacheLong(),
       variables: {
@@ -105,6 +105,15 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
         country: storefront.i18n.country,
       },
     }),
+    storefront
+      .query(SEASONAL_NAV_QUERY, {
+        cache: storefront.CacheLong(),
+        variables: {
+          language: currentLanguage as LanguageCode,
+          country: storefront.i18n.country,
+        },
+      })
+      .catch(() => null),
   ]);
 
   const rawCategories =
@@ -123,6 +132,39 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     ) ?? [];
 
   const categories = prioritizeCategories(rawCategories, categoryNavConfig);
+
+  const rawSeasonalItems: Array<{
+    id: string;
+    title: string;
+    handle: string;
+    priority: number | null;
+  }> =
+    (
+      seasonalNavResult?.collection?.childCollections?.references?.nodes ?? []
+    ).map(
+      (c: {
+        id: string;
+        title: string;
+        handle: string;
+        menuPriority?: {value: string} | null;
+      }) => ({
+        id: c.id,
+        title: c.title,
+        handle: c.handle,
+        priority: c.menuPriority ? parseInt(c.menuPriority.value, 10) : null,
+      }),
+    ) ?? [];
+
+  const seasonalItems = rawSeasonalItems
+    .sort((a, b) => {
+      if (a.priority !== null && b.priority !== null)
+        return a.priority - b.priority;
+      if (a.priority !== null) return -1;
+      if (b.priority !== null) return 1;
+      return a.title.localeCompare(b.title);
+    })
+    .slice(0, 5)
+    .map(({priority: _p, ...item}) => item);
 
   const locale = currentLanguage.toLowerCase() as 'en' | 'es' | 'fr';
 
@@ -146,7 +188,14 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     }
   }
 
-  return {header, categories, currentLanguage, locale, wishlistIds};
+  return {
+    header,
+    categories,
+    seasonalItems,
+    currentLanguage,
+    locale,
+    wishlistIds,
+  };
 }
 
 function loadDeferredData({context}: Route.LoaderArgs) {
@@ -343,6 +392,30 @@ const HEADER_COLLECTIONS_QUERY = `#graphql
         handle
         menuPriority: metafield(namespace: "custom", key: "menu_priority_order") {
           value
+        }
+      }
+    }
+  }
+` as const;
+
+const SEASONAL_NAV_QUERY = `#graphql
+  query SeasonalNavItems(
+    $country: CountryCode
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
+    collection(handle: "seasonal") {
+      childCollections: metafield(namespace: "custom", key: "child_nodes") {
+        references(first: 10) {
+          nodes {
+            ... on Collection {
+              id
+              title
+              handle
+              menuPriority: metafield(namespace: "custom", key: "menu_priority_order") {
+                value
+              }
+            }
+          }
         }
       }
     }

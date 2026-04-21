@@ -45,6 +45,7 @@ export interface HeaderProps {
     handle: string;
     subcategories?: Array<{id: string; title: string; handle: string}>;
   }>;
+  seasonalItems?: Array<{id: string; title: string; handle: string}>;
 }
 
 const LANGUAGES = [
@@ -69,6 +70,7 @@ interface MobileMenuProps {
   menu: HeaderQuery['menu'];
   isLoggedIn: boolean;
   categories?: HeaderProps['categories'];
+  seasonalItems?: HeaderProps['seasonalItems'];
 }
 
 // ============================================================================
@@ -148,6 +150,48 @@ function NavDropdown({
 }
 
 // ============================================================================
+// SeasonalDropdown — dynamic dropdown populated from Shopify seasonal collection
+// ============================================================================
+
+function SeasonalDropdown({
+  items,
+}: {
+  items: NonNullable<HeaderProps['seasonalItems']>;
+}) {
+  const {t} = useTranslation();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className={NAV_TRIGGER_CLASS}>
+          {t('nav.seasonal')}
+          <ChevronDown size={16} />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="min-w-48">
+        {items.map((item) => (
+          <DropdownMenuItem key={item.id} asChild>
+            <Link
+              to={`/collections/${item.handle}`}
+              className="cursor-pointer text-[14px]"
+            >
+              {item.title}
+            </Link>
+          </DropdownMenuItem>
+        ))}
+        <DropdownMenuItem asChild>
+          <Link
+            to="/collections/seasonal"
+            className="cursor-pointer text-[14px] font-semibold text-secondary border-t border-border mt-1 pt-1"
+          >
+            {t('nav.seeAll')}
+          </Link>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+// ============================================================================
 // CategoryBar — full-width horizontal category navigation
 // ============================================================================
 
@@ -187,6 +231,7 @@ function MobileMenu({
   menu,
   isLoggedIn,
   categories,
+  seasonalItems = [],
 }: MobileMenuProps) {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const {t} = useTranslation();
@@ -249,6 +294,53 @@ function MobileMenu({
           >
             {t('nav.whatsNew')}
           </Link>
+
+          {seasonalItems.length > 0 ? (
+            <div className="border-b border-border">
+              <button
+                className="flex items-center justify-between w-full px-4 py-3 text-text font-medium"
+                onClick={() => toggleSection('seasonal')}
+              >
+                <span>{t('nav.seasonal')}</span>
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform ${
+                    expandedSection === 'seasonal' ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+              {expandedSection === 'seasonal' && (
+                <div className="bg-surface pb-2">
+                  {seasonalItems.map((item) => (
+                    <Link
+                      key={item.id}
+                      to={`/collections/${item.handle}`}
+                      className="block px-6 py-2 text-sm text-text hover:text-primary"
+                      onClick={onClose}
+                    >
+                      {item.title}
+                    </Link>
+                  ))}
+                  <Link
+                    to="/collections/seasonal"
+                    className="block px-6 py-2 text-sm font-semibold text-secondary hover:text-primary"
+                    onClick={onClose}
+                  >
+                    {t('nav.seeAll')}
+                  </Link>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              to="/collections/seasonal"
+              className="block px-4 py-3 font-medium text-text hover:text-primary border-b border-border"
+              onClick={onClose}
+            >
+              {t('nav.seasonal')}
+            </Link>
+          )}
+
           <Link
             to={FILTERED_URLS.discounts}
             className="block px-4 py-3 text-text font-medium border-b border-border hover:text-primary"
@@ -363,6 +455,7 @@ export function Header({
   variant = 'default',
   currentLanguage = 'EN',
   categories = [],
+  seasonalItems = [],
 }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [categoryBarOpen, setCategoryBarOpen] = useState(false);
@@ -471,6 +564,14 @@ export function Header({
               >
                 {t('nav.whatsNew')}
               </Link>
+
+              {seasonalItems.length > 0 ? (
+                <SeasonalDropdown items={seasonalItems} />
+              ) : (
+                <Link to="/collections/seasonal" className={NAV_TRIGGER_CLASS}>
+                  {t('nav.seasonal')}
+                </Link>
+              )}
 
               <Link to={FILTERED_URLS.discounts} className={NAV_TRIGGER_CLASS}>
                 {t('nav.discounts')}
@@ -638,6 +739,7 @@ export function Header({
         menu={menu}
         isLoggedIn={resolvedIsLoggedIn}
         categories={categories}
+        seasonalItems={seasonalItems}
       />
     </>
   );
