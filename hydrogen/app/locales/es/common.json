@@ -33,6 +33,7 @@
     },
     "links": {
       "about": "Nosotros",
+      "contact": "Contáctenos",
       "faq": "Preguntas Frecuentes",
       "trackOrder": "Rastrear Tu Pedido",
       "termsOfUse": "Términos de Uso",
@@ -964,6 +965,7 @@
     },
     "action": {
       "trackPackage": "Rastrear paquete",
+      "trackOnCarrier": "Rastrear en {{carrier}}",
       "returnOrReplace": "Devolver o reemplazar artículos",
       "shareGiftReceipt": "Compartir recibo de regalo",
       "askProductQuestion": "Hacer pregunta sobre el producto",
@@ -1611,6 +1613,22 @@
     "infoHoursLabel": "Horario de atención",
     "infoHours": "Lunes – Viernes, 9am – 5pm EST"
   },
+  "orderStatus": {
+    "backToTracking": "Volver al rastreo",
+    "progress": {
+      "placed": "Pedido realizado",
+      "confirmed": "Confirmado",
+      "shipped": "Enviado",
+      "delivered": "Entregado",
+      "cancelled": "Cancelado"
+    },
+    "trackingSection": "Seguimiento",
+    "itemsSection": "Artículos",
+    "shippingSection": "Enviar a",
+    "trackOnCarrier": "Rastrear en {{carrier}}",
+    "needHelp": "¿Necesitas ayuda?",
+    "contactUs": "Contáctanos"
+  },
   "orderTracking": {
     "heading": "Rastrear Tu Pedido",
     "subheading": "Ingresa tu correo y número de pedido para ver el estado.",
@@ -1622,6 +1640,22 @@
     "submit": "Rastrear Pedido",
     "submitting": "Buscando...",
     "errorMissingFields": "Por favor ingresa tu correo y número de pedido.",
-    "errorNotFound": "No encontramos un pedido con ese correo y número. Verifica e intenta de nuevo."
+    "errorNotFound": "No encontramos un pedido con ese correo y número. Verifica e intenta de nuevo.",
+    "errorApiError": "Hubo un problema al conectar con nuestro servicio de rastreo. Intenta de nuevo en un momento.",
+    "result": {
+      "orderNumber": "Pedido {{number}}",
+      "placedOn": "Realizado el {{date}}",
+      "statusProcessing": "Procesando",
+      "statusShipped": "Enviado",
+      "statusDelivered": "Entregado",
+      "statusCancelled": "Cancelado",
+      "items": "Artículos",
+      "qty": "Cant: {{qty}}",
+      "shippingTo": "Enviar a",
+      "trackingLabel": "Seguimiento",
+      "trackOnCarrier": "Rastrear en {{carrier}}",
+      "viewStatusPage": "Ver página de estado del pedido",
+      "searchAnother": "Buscar otro pedido"
+    }
   }
 }

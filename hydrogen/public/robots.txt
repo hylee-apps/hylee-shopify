@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /account
+Disallow: /cart
+Disallow: /checkout
+Disallow: /api/
+Disallow: /admin
+
+Sitemap: https://hy-lee.com/sitemap.xml

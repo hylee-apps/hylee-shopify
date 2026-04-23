@@ -12,6 +12,7 @@ import {
   Star,
   Headphones,
   MessageSquare,
+  ExternalLink,
 } from 'lucide-react';
 
 // ============================================================================
@@ -34,6 +35,14 @@ interface LineItem {
   } | null;
 }
 
+interface OrderFulfillment {
+  trackingInformation: Array<{
+    company: string | null;
+    number: string | null;
+    url: string | null;
+  }>;
+}
+
 interface OrderCardProps {
   order: {
     id: string;
@@ -46,6 +55,7 @@ interface OrderCardProps {
       firstName?: string | null;
       lastName?: string | null;
     } | null;
+    fulfillments?: {nodes: OrderFulfillment[]} | null;
   };
 }
 
@@ -229,6 +239,12 @@ export function OrderCard({order}: OrderCardProps) {
     : null;
   const actionButtons = getActionButtons(order.fulfillmentStatus);
 
+  // Extract first tracking URL from fulfillments (if available)
+  const firstTracking =
+    order.fulfillments?.nodes?.[0]?.trackingInformation?.[0] ?? null;
+  const trackingUrl = firstTracking?.url ?? null;
+  const trackingCarrier = firstTracking?.company ?? null;
+
   return (
     <div className="w-full overflow-clip rounded-[12px] bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
       {/* Card Header */}
@@ -308,6 +324,8 @@ export function OrderCard({order}: OrderCardProps) {
             actionButtons={idx === 0 ? actionButtons : undefined}
             hasBorder={idx < order.lineItems.nodes.length - 1}
             orderId={orderId}
+            trackingUrl={idx === 0 ? trackingUrl : null}
+            trackingCarrier={idx === 0 ? trackingCarrier : null}
           />
         ))}
       </div>
@@ -342,12 +360,16 @@ function ProductRow({
   actionButtons,
   hasBorder,
   orderId,
+  trackingUrl,
+  trackingCarrier,
 }: {
   item: LineItem;
   processedAt: string;
   actionButtons?: ActionButton[];
   orderId?: string;
   hasBorder: boolean;
+  trackingUrl?: string | null;
+  trackingCarrier?: string | null;
 }) {
   const {t, i18n} = useTranslation();
   const locale = i18n.language;
@@ -425,6 +447,44 @@ function ProductRow({
       {actionButtons && actionButtons.length > 0 && (
         <div className="hidden w-[200px] min-w-[200px] flex-col gap-[8px] lg:flex">
           {actionButtons.map((action) => {
+            // Wire "Track Package" — carrier URL (new tab) or order detail page
+            if (action.key === 'trackPackage') {
+              if (trackingUrl) {
+                return (
+                  <a
+                    key={action.key}
+                    href={trackingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`inline-flex w-full items-center justify-center gap-[6px] px-[17px] py-[13px] text-center text-[14px] leading-[21px] transition-colors ${
+                      action.primary
+                        ? 'border border-[#14b8a6] bg-[#14b8a6] text-white hover:bg-[#0d9488]'
+                        : 'border border-[#d1d5db] bg-white text-[#374151] hover:border-[#9ca3af]'
+                    }`}
+                  >
+                    <ExternalLink size={13} />
+                    {trackingCarrier
+                      ? t('orderCard.action.trackOnCarrier', {
+                          carrier: trackingCarrier,
+                        })
+                      : t(action.labelKey)}
+                  </a>
+                );
+              }
+              return (
+                <Link
+                  key={action.key}
+                  to={`/account/orders/${orderId}`}
+                  className={`inline-flex w-full items-center justify-center gap-[6px] px-[17px] py-[13px] text-center text-[14px] leading-[21px] transition-colors ${
+                    action.primary
+                      ? 'border border-[#14b8a6] bg-[#14b8a6] text-white hover:bg-[#0d9488]'
+                      : 'border border-[#d1d5db] bg-white text-[#374151] hover:border-[#9ca3af]'
+                  }`}
+                >
+                  {t(action.labelKey)}
+                </Link>
+              );
+            }
             // Wire "Return or replace items" to the return flow
             if (action.key === 'returnOrReplace') {
               return (

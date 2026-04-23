@@ -33,6 +33,7 @@
     },
     "links": {
       "about": "À propos",
+      "contact": "Contactez-nous",
       "faq": "FAQ",
       "trackOrder": "Suivre Votre Commande",
       "termsOfUse": "Conditions d'utilisation",
@@ -964,6 +965,7 @@
     },
     "action": {
       "trackPackage": "Suivre le colis",
+      "trackOnCarrier": "Suivre sur {{carrier}}",
       "returnOrReplace": "Retourner ou remplacer des articles",
       "shareGiftReceipt": "Partager le reçu cadeau",
       "askProductQuestion": "Poser une question sur le produit",
@@ -1611,6 +1613,22 @@
     "infoHoursLabel": "Horaires d'assistance",
     "infoHours": "Lundi – Vendredi, 9h – 17h EST"
   },
+  "orderStatus": {
+    "backToTracking": "Retour au suivi",
+    "progress": {
+      "placed": "Commande passée",
+      "confirmed": "Confirmée",
+      "shipped": "Expédiée",
+      "delivered": "Livrée",
+      "cancelled": "Annulée"
+    },
+    "trackingSection": "Suivi",
+    "itemsSection": "Articles",
+    "shippingSection": "Livraison à",
+    "trackOnCarrier": "Suivre sur {{carrier}}",
+    "needHelp": "Besoin d'aide ?",
+    "contactUs": "Contactez-nous"
+  },
   "orderTracking": {
     "heading": "Suivre Votre Commande",
     "subheading": "Entrez votre e-mail et numéro de commande pour voir l'état.",
@@ -1622,6 +1640,22 @@
     "submit": "Suivre la commande",
     "submitting": "Recherche en cours...",
     "errorMissingFields": "Veuillez entrer votre e-mail et votre numéro de commande.",
-    "errorNotFound": "Nous n'avons pas trouvé de commande correspondant à cet e-mail et numéro. Vérifiez et réessayez."
+    "errorNotFound": "Nous n'avons pas trouvé de commande correspondant à cet e-mail et numéro. Vérifiez et réessayez.",
+    "errorApiError": "Un problème est survenu lors de la connexion à notre service de suivi. Veuillez réessayer dans un instant.",
+    "result": {
+      "orderNumber": "Commande {{number}}",
+      "placedOn": "Passée le {{date}}",
+      "statusProcessing": "En cours",
+      "statusShipped": "Expédiée",
+      "statusDelivered": "Livrée",
+      "statusCancelled": "Annulée",
+      "items": "Articles",
+      "qty": "Qté : {{qty}}",
+      "shippingTo": "Livraison à",
+      "trackingLabel": "Suivi",
+      "trackOnCarrier": "Suivre sur {{carrier}}",
+      "viewStatusPage": "Voir la page de statut de la commande",
+      "searchAnother": "Chercher une autre commande"
+    }
   }
 }
