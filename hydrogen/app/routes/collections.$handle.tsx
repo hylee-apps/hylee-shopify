@@ -585,7 +585,10 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
   return (
     <div className="pb-12">
       {/* Breadcrumbs */}
-      <CollectionBreadcrumbs navPath={navPath} title={collection.title} />
+      <PageBreadcrumbs
+        crumbs={breadcrumbAncestors}
+        current={breadcrumbCurrent}
+      />
 
       {/* Hero — image + title/description */}
       <CollectionHero
