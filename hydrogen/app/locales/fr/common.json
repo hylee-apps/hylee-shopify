@@ -1161,7 +1161,9 @@
     "lightboxTitle": "Lightbox d'images produit",
     "closeLightbox": "Fermer le lightbox",
     "previousImage": "Image précédente",
-    "nextImage": "Image suivante"
+    "nextImage": "Image suivante",
+    "zoomIn": "Agrandir",
+    "zoomOut": "Réduire"
   },
   "variantSelector": {
     "chooseOption": "Choisissez un {{optionName}}",

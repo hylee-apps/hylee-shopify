@@ -5,14 +5,7 @@ import {useTranslation} from 'react-i18next';
 import {Search} from 'lucide-react';
 import {Button} from '~/components/ui/button';
 import {Input} from '~/components/ui/input';
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '~/components/ui/breadcrumb';
+import {PageBreadcrumbs} from '~/components/ui/PageBreadcrumbs';
 import {ProductCard} from '~/components/commerce';
 import {searchProducts, type SearchaniseProduct} from '~/lib/searchanise';
 
@@ -96,52 +89,44 @@ export default function SearchPage() {
   const totalPages = pageSize > 0 ? Math.ceil(totalCount / pageSize) : 1;
 
   return (
-    <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">{t('search.breadcrumb.home')}</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{t('search.breadcrumb.search')}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <>
+      <PageBreadcrumbs current={t('search.breadcrumb.search')} />
+      <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Results */}
+        {searchTerm ? (
+          <>
+            <p className="mb-6 text-text-muted">
+              {totalCount > 0
+                ? t('search.results_other', {
+                    count: totalCount,
+                    term: searchTerm,
+                  })
+                : t('search.noResults', {term: searchTerm})}
+            </p>
 
-      {/* Results */}
-      {searchTerm ? (
-        <>
-          <p className="mb-6 text-text-muted">
-            {totalCount > 0
-              ? t('search.results_other', {count: totalCount, term: searchTerm})
-              : t('search.noResults', {term: searchTerm})}
-          </p>
-
-          {products && products.length > 0 ? (
-            <>
-              <SearchResults products={products} />
-              {totalPages > 1 && (
-                <SearchPagination
-                  page={page}
-                  totalPages={totalPages}
-                  searchTerm={searchTerm}
-                />
-              )}
-            </>
-          ) : (
-            <EmptySearchResults searchTerm={searchTerm} />
-          )}
-        </>
-      ) : (
-        <div className="py-12 text-center">
-          <Search size={64} className="mx-auto mb-4 text-text-muted" />
-          <p className="text-lg text-text-muted">{t('search.enterTerm')}</p>
-        </div>
-      )}
-    </div>
+            {products && products.length > 0 ? (
+              <>
+                <SearchResults products={products} />
+                {totalPages > 1 && (
+                  <SearchPagination
+                    page={page}
+                    totalPages={totalPages}
+                    searchTerm={searchTerm}
+                  />
+                )}
+              </>
+            ) : (
+              <EmptySearchResults searchTerm={searchTerm} />
+            )}
+          </>
+        ) : (
+          <div className="py-12 text-center">
+            <Search size={64} className="mx-auto mb-4 text-text-muted" />
+            <p className="text-lg text-text-muted">{t('search.enterTerm')}</p>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 

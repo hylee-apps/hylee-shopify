@@ -6,14 +6,7 @@ import {
   CompareTable,
   type CompareProduct,
 } from '~/components/commerce/CompareTable';
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '~/components/ui/breadcrumb';
+import {PageBreadcrumbs} from '~/components/ui/PageBreadcrumbs';
 import {X, Plus, Columns2} from 'lucide-react';
 
 // ============================================================================
@@ -153,58 +146,46 @@ export default function ComparePage({loaderData}: Route.ComponentProps) {
   };
 
   return (
-    <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* Breadcrumb */}
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">{t('search.breadcrumb.home')}</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{t('compare.page.heading')}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      {/* Header */}
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
-            {t('compare.page.heading')}
-          </h1>
+    <>
+      <PageBreadcrumbs current={t('compare.page.heading')} />
+      <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
+              {t('compare.page.heading')}
+            </h1>
+            {hasProducts && (
+              <p className="mt-1 text-sm text-slate-600">
+                {t('compare.page.subheading', {count: products.length})}
+              </p>
+            )}
+          </div>
           {hasProducts && (
-            <p className="mt-1 text-sm text-slate-600">
-              {t('compare.page.subheading', {count: products.length})}
-            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={clearAll}
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-slate-300 hover:text-slate-900"
+              >
+                <X size={16} />
+                {t('compare.page.clearAll')}
+              </button>
+              <Link
+                to="/collections/all"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90"
+              >
+                <Plus size={16} />
+                {t('compare.page.addMore')}
+              </Link>
+            </div>
           )}
         </div>
-        {hasProducts && (
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={clearAll}
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-slate-300 hover:text-slate-900"
-            >
-              <X size={16} />
-              {t('compare.page.clearAll')}
-            </button>
-            <Link
-              to="/collections/all"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90"
-            >
-              <Plus size={16} />
-              {t('compare.page.addMore')}
-            </Link>
-          </div>
-        )}
-      </div>
 
-      {/* Content */}
-      {hasProducts ? <CompareTable products={products} /> : <EmptyState />}
-    </div>
+        {/* Content */}
+        {hasProducts ? <CompareTable products={products} /> : <EmptyState />}
+      </div>
+    </>
   );
 }
 
