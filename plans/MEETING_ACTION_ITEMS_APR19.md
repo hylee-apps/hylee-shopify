@@ -2,7 +2,7 @@
 
 > **Status**: 🟡 In Progress
 > **Created**: 2026-04-19
-> **Last Updated**: 2026-04-21 (session 2)
+> **Last Updated**: 2026-04-22 (session 3)
 > **Source**: Weekly Meeting 2026-04-19 (Shawn Jones, Derek Hawkins, Jeremiah Tillman)
 > **Stack**: Hydrogen (React + TypeScript + Tailwind v4 + shadcn/ui + React Router 7)
 
@@ -27,7 +27,7 @@ product fixes, then SEO/polish.
 | 1 | Auth Gate Fix | ✅ Complete |
 | 2 | Seasonal Header Nav | ✅ Complete |
 | 3 | Homepage Section Carousels | ✅ Complete (partial — see notes) |
-| 4 | Guest Checkout & Order Tracking | ✅ Complete |
+| 4 | Guest Checkout & Order Tracking | ✅ Complete (full tracking experience — see notes) |
 | 5 | Product & Category Display Fixes | 🟡 Partial (Bug 4 done; Bugs 1–3 pending) |
 | 6 | PDP Image Zoom & Carousel | ✅ Complete |
 | 7 | Product Specs Display | 🔲 Blocked (awaiting Jeremiah session) |
@@ -56,6 +56,8 @@ product fixes, then SEO/polish.
 > All completed workstreams were implemented on `feature/customer/migrate-to-customer-account-api`
 > and committed in `d7c84df` on 2026-04-21.
 > WS4, WS10, and contact fix completed 2026-04-21 (session 2) — PRs #63, #64, #65, #66.
+> WS4 full tracking experience (bug fix + rich UI + account integration) completed 2026-04-22
+> (session 3) on branch `chore/assets/seo-code-review`.
 
 ---
 
@@ -177,33 +179,129 @@ Shawn's feedback on the homepage body sections (What's New, Discounts, Promotion
 
 ## Workstream 4 — Guest Checkout & Order Tracking
 
-**Branch**: `feature/customer/guest-checkout-tracking`
+**Branch**: `chore/assets/seo-code-review` (implemented in session 3, 2026-04-22)
 **Priority**: HIGH
-**Status**: 🔲 Not started
+**Status**: ✅ Complete
 
 ### Context
 Customers must be able to:
-1. Complete checkout without creating an account (guest checkout)
+1. Complete checkout without creating an account (guest checkout — handled by Shopify's native
+   checkout via `cart.checkoutUrl`; no code change needed)
 2. Track their order without an account (order lookup by email + order number)
 
+The order tracking form was returning "not found" for all lookups because the Shopify Admin API
+app only had `read_customers`/`write_customers` scopes — missing `read_orders`. Additionally, the
+catch block silently swallowed all errors, making every failure look like "not found." Beyond the
+bug fix, the full order tracking experience was built out: a rich on-site result page instead of
+an external redirect, tracking data wired into the account order list, and the "Track Package"
+button in `OrderCard` activated.
+
+### Root Cause of Bug
+Admin API app lacked `read_orders` scope. Prerequisite fix (completed by Derek, 2026-04-22):
+Shopify Partner Dashboard → app → Configuration → add `read_orders` → reinstall on store.
+
+### Implementation Notes
+
+#### `hydrogen/app/lib/admin-api.ts`
+- Updated setup comment to document `read_orders` as a required scope alongside existing scopes.
+- Added `AdminOrderDetail` interface — typed shape for a full order lookup result (line items,
+  shipping address, fulfillment tracking, totals).
+- Added `getOrderByEmailAndNumber(env, email, orderNumber)` helper — richer GraphQL query that
+  returns `id`, `name`, `processedAt`, `fulfillmentStatus`, `financialStatus`, `statusUrl`,
+  `totalPriceSet`, `shippingAddress`, `lineItems(first:5)`, and `fulfillments(first:1)` with
+  `trackingCompany`, `trackingNumbers`, `trackingUrls`. Returns `null` if no match.
+
+#### `hydrogen/app/routes/order-tracking.tsx` (full rewrite)
+- **Error logging**: catch block now logs the real API error via `console.error` before returning
+  `not_found`, so server logs show the actual cause if the lookup fails.
+- **Action**: uses `getOrderByEmailAndNumber()` instead of a bare `adminApi()` call. Returns
+  `{ order: AdminOrderDetail }` on success instead of redirecting to `statusUrl`.
+- **`SearchForm` component**: extracted from the original monolith; unchanged UX.
+- **`OrderResultCard` component** (new): shown when `actionData.order` is present.
+  - Header: order number + status badge (Processing / Shipped / Delivered / Cancelled) + total
+  - Items section: up to 5 line items with thumbnail, title, quantity
+  - Shipping address: formatted address with `MapPin` icon
+  - Tracking section (conditional on fulfillment data): carrier name, tracking number,
+    "Track on [Carrier]" button → opens carrier URL in new tab
+  - "View order status page" → Shopify `statusUrl` (always present as fallback)
+  - "Search another order" → `/order-tracking` reset link
+- Page renders `<SearchForm>` or `<OrderResultCard>` depending on `actionData` shape.
+
+#### `hydrogen/app/routes/account.orders._index.tsx`
+- `CUSTOMER_ORDERS_QUERY` expanded to include:
+  ```graphql
+  fulfillments(first: 5) {
+    nodes {
+      trackingInformation {
+        company
+        number
+        url
+      }
+    }
+  }
+  ```
+  Note: `trackingInformation` on the Customer Account API `Fulfillment` type is a direct array,
+  not a connection — no `first` argument (confirmed via codegen validation).
+
+#### `hydrogen/app/components/account/OrderCard.tsx`
+- Added `OrderFulfillment` interface and `fulfillments?: { nodes: OrderFulfillment[] }` to
+  `OrderCardProps`.
+- `OrderCard` extracts `trackingUrl` and `trackingCarrier` from the first fulfillment node and
+  passes them down to the first `ProductRow`.
+- `ProductRow` now accepts `trackingUrl` and `trackingCarrier` props.
+- **"Track Package" button** is now live (was a disabled stub):
+  - If `trackingUrl` is present → renders as `<a href={trackingUrl} target="_blank">` with
+    `ExternalLink` icon, labelled "Track on [Carrier]" when carrier name is available.
+  - Otherwise → renders as `<Link to="/account/orders/${orderId}">` pointing to the detail page
+    (which already shows full tracking info).
+
+#### i18n — `app/locales/en/common.json`, `es/common.json`, `fr/common.json`
+- Added `orderTracking.result.*` keys: `orderNumber`, `placedOn`, `statusProcessing`,
+  `statusShipped`, `statusDelivered`, `statusCancelled`, `items`, `qty`, `shippingTo`,
+  `trackingLabel`, `trackOnCarrier`, `viewStatusPage`, `searchAnother`.
+- Added `orderCard.action.trackOnCarrier` key to all three locales.
+
 ### Tasks
-- [ ] Confirm guest checkout flow works end-to-end without Customer Account login requirement
-- [ ] Add order tracking page: `hydrogen/app/routes/order-tracking.tsx`
-  - Form: email address + order number
-  - Queries Storefront API: `order(id: ...)` or uses Shopify order status page URL
-- [ ] Add "Track Your Order" link to footer and/or account section for non-logged-in users
-- [ ] Test: complete a checkout as guest → receive order confirmation → track order without account
+- [x] **Prerequisite**: Add `read_orders` scope to Shopify Admin API app + reinstall on store
+- [x] Add `console.error` logging to catch block in `order-tracking.tsx` action
+- [x] Add `getOrderByEmailAndNumber()` helper + `AdminOrderDetail` type to `admin-api.ts`
+- [x] Update `admin-api.ts` scope documentation to include `read_orders`
+- [x] Rewrite `order-tracking.tsx` — rich result page instead of external redirect
+- [x] Add `fulfillments` to `CUSTOMER_ORDERS_QUERY` in `account.orders._index.tsx`
+- [x] Add fulfillment props to `OrderCardProps` and `ProductRow`
+- [x] Wire "Track Package" button in `OrderCard` to carrier URL or order detail page
+- [x] Add `orderTracking.result.*` i18n keys to EN/ES/FR
+- [x] Add `orderCard.action.trackOnCarrier` i18n key to EN/ES/FR
+- [x] Format, typecheck, build, test — all pass ✅
 
 ### Manual Tests
-1. Add item to cart → Checkout → complete purchase without creating account
-2. Confirmation page shows order number
-3. Navigate to order tracking → enter email + order number → see order status
-4. Order tracking accessible from footer without logging in
+
+#### Guest order tracking (`/order-tracking`)
+1. Navigate to `/order-tracking` — search form renders with email + order number fields
+2. Submit with both fields empty → "Please enter both your email and order number" error shown
+3. Submit with wrong email/number → "We couldn't find an order" error shown
+4. Submit with correct email + order number (e.g. order 1005) → result card appears:
+   - Order number badge, placed date, total, status badge (Processing/Shipped/Delivered)
+   - Line item thumbnails with title and quantity
+   - Shipping address with map pin icon
+   - If order has tracking: carrier name + number + "Track on [Carrier]" button
+   - "View order status page" link present (opens Shopify hosted page in new tab)
+5. Click "Search another order" → returns to empty search form
+6. Link accessible from footer "Track Your Order" (already wired from prior work)
+7. Checkout confirmation → "Track Order" CTA → navigates to `/order-tracking` for guests
+
+#### Account order list (`/account/orders`)
+8. Log in → My Orders → fulfilled or in-progress order card → desktop panel on right
+9. "Track Package" button on an in-progress order: if tracking URL is available → opens carrier
+   site in new tab; if no tracking URL → navigates to `/account/orders/${id}` detail page
+10. Order detail page (`/account/orders/${id}`) — tracking section still renders correctly
+    (carrier, number, external link) — confirm no regression
 
 ### Pre-Commit Checks
 ```bash
 pnpm format && pnpm format:check && pnpm typecheck && pnpm build && pnpm test
 ```
+All passed on 2026-04-22.
 
 ---
 

@@ -3,11 +3,12 @@
 // ============================================================================
 //
 // The Storefront API cannot write customer metafields. This module exchanges
-// a Client ID + Secret (from a Dev Dashboard app with `write_customers` scope)
+// a Client ID + Secret (from a Dev Dashboard app with the required scopes)
 // for a short-lived Admin API access token, and caches it in memory.
 //
 // Setup:
-//   1. Shopify Dev Dashboard → create app → add `read_customers` + `write_customers` scopes
+//   1. Shopify Dev Dashboard → create app → add these scopes:
+//        read_customers, write_customers, read_orders
 //   2. Install the app on your store
 //   3. Copy Client ID + Client Secret → add to .env:
 //        ADMIN_APP_CLIENT_ID=...
@@ -229,4 +230,85 @@ export async function setCustomerMetafields(
       `Failed to set customer metafields: ${errors.map((e) => e.message).join(', ')}`,
     );
   }
+}
+
+// ── Order Lookup ─────────────────────────────────────────────────────────────
+
+// Admin API 2025-01 field names (renamed from older versions):
+//   fulfillmentStatus  → displayFulfillmentStatus
+//   financialStatus    → displayFinancialStatus
+//   statusUrl          → statusPageUrl
+//   Fulfillment.trackingCompany/Numbers/Urls → trackingInfo[].{company,number,url}
+export interface AdminOrderDetail {
+  id: string;
+  name: string;
+  processedAt: string;
+  displayFulfillmentStatus: string;
+  displayFinancialStatus: string;
+  statusPageUrl: string;
+  totalPriceSet: {shopMoney: {amount: string; currencyCode: string}};
+  shippingAddress: {
+    name: string;
+    address1: string;
+    city: string;
+    province: string;
+    country: string;
+    zip: string;
+  } | null;
+  lineItems: {
+    nodes: Array<{
+      title: string;
+      quantity: number;
+      image: {url: string; altText: string | null} | null;
+    }>;
+  };
+  fulfillments: Array<{
+    trackingInfo: Array<{
+      company: string | null;
+      number: string | null;
+      url: string | null;
+    }>;
+  }>;
+}
+
+const ORDER_LOOKUP_QUERY = `
+  query FindOrder($q: String!) {
+    orders(first: 1, query: $q) {
+      nodes {
+        id
+        name
+        processedAt
+        displayFulfillmentStatus
+        displayFinancialStatus
+        statusPageUrl
+        totalPriceSet { shopMoney { amount currencyCode } }
+        shippingAddress { name address1 city province country zip }
+        lineItems(first: 5) {
+          nodes { title quantity image { url altText } }
+        }
+        fulfillments(first: 1) {
+          trackingInfo { company number url }
+        }
+      }
+    }
+  }
+`;
+
+/**
+ * Look up an order by email + order number using the Admin API.
+ * Requires the app to have the `read_orders` scope.
+ * Returns null if no matching order is found.
+ */
+export async function getOrderByEmailAndNumber(
+  env: AdminEnv,
+  email: string,
+  orderNumber: string,
+): Promise<AdminOrderDetail | null> {
+  const q = `name:#${orderNumber} email:${email}`;
+  const data = await adminApi<{orders: {nodes: AdminOrderDetail[]}}>(
+    env,
+    ORDER_LOOKUP_QUERY,
+    {q},
+  );
+  return data?.orders?.nodes?.[0] ?? null;
 }

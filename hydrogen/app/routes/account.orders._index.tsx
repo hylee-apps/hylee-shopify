@@ -67,6 +67,15 @@ const CUSTOMER_ORDERS_QUERY = `#graphql
               }
             }
           }
+          fulfillments(first: 5) {
+            nodes {
+              trackingInformation {
+                company
+                number
+                url
+              }
+            }
+          }
         }
         pageInfo {
           hasNextPage

@@ -979,6 +979,7 @@
     },
     "action": {
       "trackPackage": "Track package",
+      "trackOnCarrier": "Track on {{carrier}}",
       "returnOrReplace": "Return or replace items",
       "shareGiftReceipt": "Share gift receipt",
       "askProductQuestion": "Ask Product Question",
@@ -1612,6 +1613,22 @@
     "infoHoursLabel": "Support hours",
     "infoHours": "Monday – Friday, 9am – 5pm EST"
   },
+  "orderStatus": {
+    "backToTracking": "Back to tracking",
+    "progress": {
+      "placed": "Order Placed",
+      "confirmed": "Confirmed",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "trackingSection": "Tracking",
+    "itemsSection": "Items",
+    "shippingSection": "Shipping To",
+    "trackOnCarrier": "Track on {{carrier}}",
+    "needHelp": "Need help?",
+    "contactUs": "Contact us"
+  },
   "orderTracking": {
     "heading": "Track Your Order",
     "subheading": "Enter your email and order number to see the latest status.",
@@ -1623,6 +1640,22 @@
     "submit": "Track Order",
     "submitting": "Looking up...",
     "errorMissingFields": "Please enter both your email address and order number.",
-    "errorNotFound": "We couldn't find an order matching that email and order number. Please double-check and try again."
+    "errorNotFound": "We couldn't find an order matching that email and order number. Please double-check and try again.",
+    "errorApiError": "There was a problem connecting to our order lookup service. Please try again in a moment.",
+    "result": {
+      "orderNumber": "Order {{number}}",
+      "placedOn": "Placed {{date}}",
+      "statusProcessing": "Processing",
+      "statusShipped": "Shipped",
+      "statusDelivered": "Delivered",
+      "statusCancelled": "Cancelled",
+      "items": "Items",
+      "qty": "Qty: {{qty}}",
+      "shippingTo": "Shipping to",
+      "trackingLabel": "Tracking",
+      "trackOnCarrier": "Track on {{carrier}}",
+      "viewStatusPage": "View order status page",
+      "searchAnother": "Search another order"
+    }
   }
 }
