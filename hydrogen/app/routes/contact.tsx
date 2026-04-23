@@ -1,15 +1,8 @@
 import {useTranslation} from 'react-i18next';
 import {Mail, Clock, CheckCircle, AlertCircle} from 'lucide-react';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '~/components/ui/breadcrumb';
+import {PageBreadcrumbs} from '~/components/ui/PageBreadcrumbs';
 import {Button} from '~/components/ui/button';
-import {Link, useFetcher} from 'react-router';
+import {useFetcher} from 'react-router';
 import type {Route} from './+types/contact';
 
 export function meta() {
@@ -53,27 +46,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-surface">
-      {/* Breadcrumbs */}
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink
-                asChild
-                className="h-10 px-4 rounded-xl hover:bg-accent inline-flex items-center"
-              >
-                <Link to="/">Home</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage className="text-[#111827] font-medium h-10 px-4 inline-flex items-center">
-                {t('contactPage.title')}
-              </BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
+      <PageBreadcrumbs current={t('contactPage.title')} />
 
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Page header */}

@@ -1,13 +1,6 @@
 import {Link} from 'react-router';
 import type {Route} from './+types/policies._index';
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '~/components/ui/breadcrumb';
+import {PageBreadcrumbs} from '~/components/ui/PageBreadcrumbs';
 import {Info, ChevronRight} from 'lucide-react';
 
 // ============================================================================
@@ -90,30 +83,39 @@ export default function PoliciesIndex({loaderData}: Route.ComponentProps) {
   const {policies} = loaderData;
 
   return (
-    <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Policies</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <>
+      <PageBreadcrumbs current="Policies" />
+      <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        <h1 className="mt-6 mb-8 text-3xl font-bold text-dark sm:text-4xl">
+          Store Policies
+        </h1>
 
-      <h1 className="mt-6 mb-8 text-3xl font-bold text-dark sm:text-4xl">
-        Store Policies
-      </h1>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        {policies.map((policy) => (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {policies.map((policy) => (
+            <Link
+              key={policy.id}
+              to={`/policies/${policy.handle}`}
+              className="group flex items-center gap-4 rounded-xl border border-border bg-white p-6 shadow-sm transition hover:border-primary/30 hover:shadow-md"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                <Info size={20} className="text-primary" />
+              </div>
+              <div>
+                <h2 className="font-semibold text-dark group-hover:text-primary">
+                  {policy.title}
+                </h2>
+                <p className="mt-1 text-sm text-text-muted">
+                  View our {policy.title.toLowerCase()}
+                </p>
+              </div>
+              <ChevronRight
+                size={20}
+                className="ml-auto text-text-muted group-hover:text-primary"
+              />
+            </Link>
+          ))}
           <Link
-            key={policy.id}
-            to={`/policies/${policy.handle}`}
+            to="/policies/return-policy"
             className="group flex items-center gap-4 rounded-xl border border-border bg-white p-6 shadow-sm transition hover:border-primary/30 hover:shadow-md"
           >
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
@@ -121,10 +123,10 @@ export default function PoliciesIndex({loaderData}: Route.ComponentProps) {
             </div>
             <div>
               <h2 className="font-semibold text-dark group-hover:text-primary">
-                {policy.title}
+                Return Policy
               </h2>
               <p className="mt-1 text-sm text-text-muted">
-                View our {policy.title.toLowerCase()}
+                View our return policy
               </p>
             </div>
             <ChevronRight
@@ -132,31 +134,11 @@ export default function PoliciesIndex({loaderData}: Route.ComponentProps) {
               className="ml-auto text-text-muted group-hover:text-primary"
             />
           </Link>
-        ))}
-        <Link
-          to="/policies/return-policy"
-          className="group flex items-center gap-4 rounded-xl border border-border bg-white p-6 shadow-sm transition hover:border-primary/30 hover:shadow-md"
-        >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-            <Info size={20} className="text-primary" />
-          </div>
-          <div>
-            <h2 className="font-semibold text-dark group-hover:text-primary">
-              Return Policy
-            </h2>
-            <p className="mt-1 text-sm text-text-muted">
-              View our return policy
-            </p>
-          </div>
-          <ChevronRight
-            size={20}
-            className="ml-auto text-text-muted group-hover:text-primary"
-          />
-        </Link>
+        </div>
+        {policies.length === 0 && (
+          <p className="text-text-muted">No policies available at this time.</p>
+        )}
       </div>
-      {policies.length === 0 && (
-        <p className="text-text-muted">No policies available at this time.</p>
-      )}
-    </div>
+    </>
   );
 }

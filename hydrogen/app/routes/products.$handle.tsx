@@ -45,13 +45,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '~/components/ui/accordion';
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-} from '~/components/ui/breadcrumb';
+import {PageBreadcrumbs} from '~/components/ui/PageBreadcrumbs';
 
 import {
   findDeepestNavPath,
@@ -507,294 +501,273 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
   );
 
   return (
-    <div className="mx-auto max-w-screen-2xl px-4 py-6 sm:px-6 lg:px-8">
-      {/* ── Breadcrumb ── */}
-      <div className="mb-5">
-        <Breadcrumb>
-          <BreadcrumbList className="text-sm">
-            {/* Ancestor nodes: L1 / L2 / ... */}
-            {breadcrumbNodes.map((node, i) => (
-              <>
-                {i > 0 && (
-                  <BreadcrumbSeparator key={`sep-${node.url}`}>
-                    /
-                  </BreadcrumbSeparator>
-                )}
-                <BreadcrumbItem key={node.url}>
-                  <BreadcrumbLink asChild>
-                    <Link to={node.url}>{node.title}</Link>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-              </>
-            ))}
+    <>
+      {/* Product title omitted — breadcrumb ends at the parent collection */}
+      <PageBreadcrumbs crumbs={breadcrumbNodes} />
+      <div className="mx-auto max-w-screen-2xl px-4 py-6 sm:px-6 lg:px-8">
+        {/* ── 3-Column Grid ── */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-[10px]">
+          {/* Col 1: Image Gallery (vertical thumbnails) */}
+          <div>
+            <ProductGallery
+              images={images}
+              selectedVariant={selectedVariant}
+              productTitle={product.title}
+              layout="vertical"
+            />
+          </div>
 
-            {/* Product title removed — breadcrumb ends at the last collection */}
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
+          {/* Col 2: Product Info + Accordion */}
+          <div className="flex flex-col gap-[9px]">
+            <h1 className="text-[21px] font-semibold leading-normal text-black">
+              {product.title}
+            </h1>
 
-      {/* ── 3-Column Grid ── */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-[10px]">
-        {/* Col 1: Image Gallery (vertical thumbnails) */}
-        <div>
-          <ProductGallery
-            images={images}
-            selectedVariant={selectedVariant}
-            productTitle={product.title}
-            layout="vertical"
-          />
-        </div>
+            {/* Aggregate Face Rating */}
+            <FaceRatingSummary
+              counts={storedReviews.reduce(
+                (
+                  acc: Partial<Record<FaceRatingValue, number>>,
+                  r: ProductReview,
+                ) => ({
+                  ...acc,
+                  [r.face]: (acc[r.face as FaceRatingValue] ?? 0) + 1,
+                }),
+                {} as Partial<Record<FaceRatingValue, number>>,
+              )}
+              totalCount={ratingCount ?? storedReviews.length}
+            />
 
-        {/* Col 2: Product Info + Accordion */}
-        <div className="flex flex-col gap-[9px]">
-          <h1 className="text-[21px] font-semibold leading-normal text-black">
-            {product.title}
-          </h1>
-
-          {/* Aggregate Face Rating */}
-          <FaceRatingSummary
-            counts={storedReviews.reduce(
-              (
-                acc: Partial<Record<FaceRatingValue, number>>,
-                r: ProductReview,
-              ) => ({
-                ...acc,
-                [r.face]: (acc[r.face as FaceRatingValue] ?? 0) + 1,
-              }),
-              {} as Partial<Record<FaceRatingValue, number>>,
-            )}
-            totalCount={ratingCount ?? storedReviews.length}
-          />
-
-          {/* Accordion: Key Features / Specs / Does It Fit */}
-          <Accordion
-            type="single"
-            defaultValue="key-features"
-            className="mt-2 flex flex-col gap-4"
-          >
-            <AccordionItem
-              value="key-features"
-              className="overflow-hidden rounded-lg ring-1 ring-inset ring-border bg-white px-4"
+            {/* Accordion: Key Features / Specs / Does It Fit */}
+            <Accordion
+              type="single"
+              defaultValue="key-features"
+              className="mt-2 flex flex-col gap-4"
             >
-              <AccordionTrigger className="text-[16px] font-semibold text-text hover:no-underline">
-                Key Item Features
-              </AccordionTrigger>
-              <AccordionContent>
-                <div
-                  className="prose prose-sm text-text-muted leading-relaxed"
-                  dangerouslySetInnerHTML={{
-                    __html: richTextToHtml(product.shortDescription?.value),
-                  }}
-                />
-                <button
-                  onClick={() => openAccordionAndScroll('details')}
-                  className="mt-3 text-sm font-medium text-secondary hover:underline"
-                >
-                  View full details
-                </button>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem
-              value="specs"
-              className="overflow-hidden rounded-lg ring-1 ring-inset ring-border bg-surface px-4"
-            >
-              <AccordionTrigger className="text-[16px] font-semibold text-text hover:no-underline">
-                Specs
-              </AccordionTrigger>
-              <AccordionContent>
-                <SpecsContent
-                  productMetafields={product.productMetafields}
-                  primaryOnly
-                />
-                <button
-                  onClick={() => openAccordionAndScroll('specifications')}
-                  className="mt-3 text-sm font-medium text-secondary hover:underline"
-                >
-                  View full specifications
-                </button>
-              </AccordionContent>
-            </AccordionItem>
-
-            {productCollections.some((c) =>
-              DOES_IT_FIT_COLLECTIONS.has(c.handle),
-            ) && (
               <AccordionItem
-                value="does-it-fit"
+                value="key-features"
+                className="overflow-hidden rounded-lg ring-1 ring-inset ring-border bg-white px-4"
+              >
+                <AccordionTrigger className="text-[16px] font-semibold text-text hover:no-underline">
+                  Key Item Features
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div
+                    className="prose prose-sm text-text-muted leading-relaxed"
+                    dangerouslySetInnerHTML={{
+                      __html: richTextToHtml(product.shortDescription?.value),
+                    }}
+                  />
+                  <button
+                    onClick={() => openAccordionAndScroll('details')}
+                    className="mt-3 text-sm font-medium text-secondary hover:underline"
+                  >
+                    View full details
+                  </button>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem
+                value="specs"
                 className="overflow-hidden rounded-lg ring-1 ring-inset ring-border bg-surface px-4"
               >
                 <AccordionTrigger className="text-[16px] font-semibold text-text hover:no-underline">
-                  Does It Fit
+                  Specs
                 </AccordionTrigger>
                 <AccordionContent>
-                  <p className="text-sm text-text-muted">
-                    {product.warranty?.value ??
-                      'Please check product dimensions before purchasing.'}
-                  </p>
+                  <SpecsContent
+                    productMetafields={product.productMetafields}
+                    primaryOnly
+                  />
+                  <button
+                    onClick={() => openAccordionAndScroll('specifications')}
+                    className="mt-3 text-sm font-medium text-secondary hover:underline"
+                  >
+                    View full specifications
+                  </button>
                 </AccordionContent>
               </AccordionItem>
+
+              {productCollections.some((c) =>
+                DOES_IT_FIT_COLLECTIONS.has(c.handle),
+              ) && (
+                <AccordionItem
+                  value="does-it-fit"
+                  className="overflow-hidden rounded-lg ring-1 ring-inset ring-border bg-surface px-4"
+                >
+                  <AccordionTrigger className="text-[16px] font-semibold text-text hover:no-underline">
+                    Does It Fit
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <p className="text-sm text-text-muted">
+                      {product.warranty?.value ??
+                        'Please check product dimensions before purchasing.'}
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+            </Accordion>
+          </div>
+
+          {/* Col 3: Purchase Controls */}
+          <div className="flex flex-col gap-0 overflow-hidden py-0.5">
+            {/* Price */}
+            <div className="flex items-baseline gap-3">
+              {selectedVariant && (
+                <>
+                  <PdpPrice
+                    money={selectedVariant.price}
+                    className="text-[24px] font-semibold tracking-[0.5px] text-black"
+                    supClassName="text-[12px]"
+                  />
+                  {isOnSale && selectedVariant.compareAtPrice && (
+                    <PdpPrice
+                      money={selectedVariant.compareAtPrice}
+                      className="text-[14px] font-semibold tracking-[0.5px] text-text-muted line-through"
+                      supClassName="text-[8px]"
+                    />
+                  )}
+                </>
+              )}
+            </div>
+
+            <Separator className="my-[15px]" />
+
+            {/* Variant Selector — hidden for single-variant products (no real options) */}
+            {hasVariantOptions && (
+              <>
+                <VariantSelector
+                  options={product.options}
+                  variants={product.variants.nodes}
+                  selectedVariant={selectedVariant}
+                  productHandle={product.handle}
+                />
+                <Separator className="my-3.75" />
+              </>
             )}
+
+            {/* Quantity + Add to Cart */}
+            {selectedVariant && (
+              <div className="flex items-center gap-[10px]">
+                <QuantitySelector
+                  quantity={quantity}
+                  onChange={setQuantity}
+                  min={1}
+                  max={99}
+                  className="shrink-0"
+                />
+                <AddToCart
+                  variantId={selectedVariant.id}
+                  quantity={quantity}
+                  available={!isOutOfStock}
+                  className="flex-1 rounded-full bg-secondary px-5 py-2.5 text-sm font-medium text-white hover:bg-secondary/90"
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <Plus size={16} />
+                    Add to Cart
+                  </span>
+                </AddToCart>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Below: Full-Width Accordion (Details / Specs / Warranty / Reviews) ── */}
+        <div className="mt-8" ref={detailsAccordionRef}>
+          <Accordion
+            type="multiple"
+            value={openDetailsItems}
+            onValueChange={setOpenDetailsItems}
+            className="flex flex-col gap-0"
+          >
+            <AccordionItem value="details" className="border-b">
+              <AccordionTrigger className="px-4 py-4 text-[16px] font-semibold text-text hover:no-underline">
+                <span className="flex items-center gap-3">
+                  <Star size={20} className="text-secondary shrink-0" />
+                  Details
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="px-4">
+                <div
+                  className="prose prose-sm text-text-muted leading-relaxed"
+                  dangerouslySetInnerHTML={{
+                    __html: product.descriptionHtml,
+                  }}
+                />
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="specifications" className="border-b">
+              <AccordionTrigger className="px-4 py-4 text-[16px] font-semibold text-text hover:no-underline">
+                <span className="flex items-center gap-3">
+                  <Star size={20} className="text-secondary shrink-0" />
+                  Specifications
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="px-4">
+                <SpecsContent productMetafields={product.productMetafields} />
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="warranty" className="border-b">
+              <AccordionTrigger className="px-4 py-4 text-[16px] font-semibold text-text hover:no-underline">
+                <span className="flex items-center gap-3">
+                  <Star size={20} className="text-secondary shrink-0" />
+                  Warranty
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="px-4">
+                <p className="text-sm text-text-muted">
+                  {product.warranty?.value ??
+                    'No warranty information available.'}
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="reviews" className="border-b">
+              <AccordionTrigger className="px-4 py-4 text-[16px] font-semibold text-text hover:no-underline">
+                <span className="flex items-center gap-3">
+                  <Star size={20} className="text-secondary shrink-0" />
+                  Reviews
+                  {ratingCount != null && ratingCount > 0 && (
+                    <span className="ml-1 text-sm font-normal text-text-muted">
+                      ({ratingCount})
+                    </span>
+                  )}
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="px-4">
+                <ReviewsSection
+                  key={product.id}
+                  rating={rating}
+                  ratingCount={ratingCount}
+                  reviews={storedReviews}
+                  productId={product.id}
+                  isLoggedIn={isLoggedIn}
+                  openWriteFormInitially={writeReviewParam}
+                />
+              </AccordionContent>
+            </AccordionItem>
           </Accordion>
         </div>
 
-        {/* Col 3: Purchase Controls */}
-        <div className="flex flex-col gap-0 overflow-hidden py-0.5">
-          {/* Price */}
-          <div className="flex items-baseline gap-3">
-            {selectedVariant && (
-              <>
-                <PdpPrice
-                  money={selectedVariant.price}
-                  className="text-[24px] font-semibold tracking-[0.5px] text-black"
-                  supClassName="text-[12px]"
+        {/* ── Recommended Products ── */}
+        <section className="mt-16">
+          <h2 className="mb-8 text-2xl font-bold text-dark">
+            Similar Items You Might Also Like
+          </h2>
+          <Suspense fallback={<RecommendedProductsSkeleton />}>
+            <Await resolve={recommendedProducts}>
+              {(data) => (
+                <RecommendedProducts
+                  products={data?.productRecommendations || []}
                 />
-                {isOnSale && selectedVariant.compareAtPrice && (
-                  <PdpPrice
-                    money={selectedVariant.compareAtPrice}
-                    className="text-[14px] font-semibold tracking-[0.5px] text-text-muted line-through"
-                    supClassName="text-[8px]"
-                  />
-                )}
-              </>
-            )}
-          </div>
-
-          <Separator className="my-[15px]" />
-
-          {/* Variant Selector — hidden for single-variant products (no real options) */}
-          {hasVariantOptions && (
-            <>
-              <VariantSelector
-                options={product.options}
-                variants={product.variants.nodes}
-                selectedVariant={selectedVariant}
-                productHandle={product.handle}
-              />
-              <Separator className="my-3.75" />
-            </>
-          )}
-
-          {/* Quantity + Add to Cart */}
-          {selectedVariant && (
-            <div className="flex items-center gap-[10px]">
-              <QuantitySelector
-                quantity={quantity}
-                onChange={setQuantity}
-                min={1}
-                max={99}
-                className="shrink-0"
-              />
-              <AddToCart
-                variantId={selectedVariant.id}
-                quantity={quantity}
-                available={!isOutOfStock}
-                className="flex-1 rounded-full bg-secondary px-5 py-2.5 text-sm font-medium text-white hover:bg-secondary/90"
-              >
-                <span className="flex items-center justify-center gap-2">
-                  <Plus size={16} />
-                  Add to Cart
-                </span>
-              </AddToCart>
-            </div>
-          )}
-        </div>
+              )}
+            </Await>
+          </Suspense>
+        </section>
       </div>
-
-      {/* ── Below: Full-Width Accordion (Details / Specs / Warranty / Reviews) ── */}
-      <div className="mt-8" ref={detailsAccordionRef}>
-        <Accordion
-          type="multiple"
-          value={openDetailsItems}
-          onValueChange={setOpenDetailsItems}
-          className="flex flex-col gap-0"
-        >
-          <AccordionItem value="details" className="border-b">
-            <AccordionTrigger className="px-4 py-4 text-[16px] font-semibold text-text hover:no-underline">
-              <span className="flex items-center gap-3">
-                <Star size={20} className="text-secondary shrink-0" />
-                Details
-              </span>
-            </AccordionTrigger>
-            <AccordionContent className="px-4">
-              <div
-                className="prose prose-sm text-text-muted leading-relaxed"
-                dangerouslySetInnerHTML={{
-                  __html: product.descriptionHtml,
-                }}
-              />
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="specifications" className="border-b">
-            <AccordionTrigger className="px-4 py-4 text-[16px] font-semibold text-text hover:no-underline">
-              <span className="flex items-center gap-3">
-                <Star size={20} className="text-secondary shrink-0" />
-                Specifications
-              </span>
-            </AccordionTrigger>
-            <AccordionContent className="px-4">
-              <SpecsContent productMetafields={product.productMetafields} />
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="warranty" className="border-b">
-            <AccordionTrigger className="px-4 py-4 text-[16px] font-semibold text-text hover:no-underline">
-              <span className="flex items-center gap-3">
-                <Star size={20} className="text-secondary shrink-0" />
-                Warranty
-              </span>
-            </AccordionTrigger>
-            <AccordionContent className="px-4">
-              <p className="text-sm text-text-muted">
-                {product.warranty?.value ??
-                  'No warranty information available.'}
-              </p>
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="reviews" className="border-b">
-            <AccordionTrigger className="px-4 py-4 text-[16px] font-semibold text-text hover:no-underline">
-              <span className="flex items-center gap-3">
-                <Star size={20} className="text-secondary shrink-0" />
-                Reviews
-                {ratingCount != null && ratingCount > 0 && (
-                  <span className="ml-1 text-sm font-normal text-text-muted">
-                    ({ratingCount})
-                  </span>
-                )}
-              </span>
-            </AccordionTrigger>
-            <AccordionContent className="px-4">
-              <ReviewsSection
-                key={product.id}
-                rating={rating}
-                ratingCount={ratingCount}
-                reviews={storedReviews}
-                productId={product.id}
-                isLoggedIn={isLoggedIn}
-                openWriteFormInitially={writeReviewParam}
-              />
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </div>
-
-      {/* ── Recommended Products ── */}
-      <section className="mt-16">
-        <h2 className="mb-8 text-2xl font-bold text-dark">
-          Similar Items You Might Also Like
-        </h2>
-        <Suspense fallback={<RecommendedProductsSkeleton />}>
-          <Await resolve={recommendedProducts}>
-            {(data) => (
-              <RecommendedProducts
-                products={data?.productRecommendations || []}
-              />
-            )}
-          </Await>
-        </Suspense>
-      </section>
-    </div>
+    </>
   );
 }
 

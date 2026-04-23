@@ -22,16 +22,9 @@ import {
 } from '@shopify/hydrogen';
 import type {ProductCardProps} from '~/components/commerce/ProductCard';
 import {Link} from 'react-router';
-import {ChevronRight, ChevronUp, Filter, Loader2, Search} from 'lucide-react';
+import {ChevronUp, Filter, Loader2, Search} from 'lucide-react';
 import {Button} from '~/components/ui/button';
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '~/components/ui/breadcrumb';
+import {PageBreadcrumbs} from '~/components/ui/PageBreadcrumbs';
 import {CollectionHero} from '~/components/commerce/CollectionHero';
 import {ActiveFilterChips} from '~/components/commerce/ActiveFilterChips';
 import {ProductCard} from '~/components/commerce/ProductCard';
@@ -323,59 +316,6 @@ export function meta({data}: Route.MetaArgs) {
 // Shared Breadcrumbs
 // ============================================================================
 
-function CollectionBreadcrumbs({
-  navPath,
-  title,
-}: {
-  navPath: Array<{url: string; title: string}> | null;
-  title: string;
-}) {
-  const {t} = useTranslation();
-  // Build: Home > [nav hierarchy] > Current Collection
-  // Filter out root and /collections — neither should appear as raw path entries.
-  const navItems = navPath
-    ? navPath.filter((n) => n.url !== '/' && n.url !== '/collections')
-    : [{url: null, title}];
-
-  const crumbs: Array<{url: string | null; title: string}> = [
-    {url: '/', title: t('breadcrumb.home')},
-    ...navItems,
-  ];
-
-  return (
-    <Breadcrumb className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      <BreadcrumbList className="text-[14px] font-medium text-[#4b5563]">
-        {crumbs.map((node, i) => {
-          const isLast = i === crumbs.length - 1;
-          return (
-            <>
-              {i > 0 && (
-                <BreadcrumbSeparator key={`sep-${i}`}>
-                  <ChevronRight size={12} className="text-[#9ca3af]" />
-                </BreadcrumbSeparator>
-              )}
-              <BreadcrumbItem key={node.url ?? node.title}>
-                {isLast || !node.url ? (
-                  <BreadcrumbPage className="text-[#111827] font-medium h-10 px-4 inline-flex items-center">
-                    {node.title}
-                  </BreadcrumbPage>
-                ) : (
-                  <BreadcrumbLink
-                    asChild
-                    className="h-10 px-4 rounded-xl hover:bg-accent inline-flex items-center"
-                  >
-                    <Link to={node.url}>{node.title}</Link>
-                  </BreadcrumbLink>
-                )}
-              </BreadcrumbItem>
-            </>
-          );
-        })}
-      </BreadcrumbList>
-    </Breadcrumb>
-  );
-}
-
 // ============================================================================
 // Non-end-node results header (count + sort, no filter sidebar)
 // ============================================================================
@@ -498,6 +438,17 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
   const navPath =
     metafieldPath ?? findNavPath(root?.header?.menu, collection.handle);
 
+  const breadcrumbNavItems = navPath
+    ? navPath.filter((n) => n.url !== '/' && n.url !== '/collections')
+    : [];
+  const breadcrumbAncestors = breadcrumbNavItems
+    .slice(0, -1)
+    .filter((n): n is {title: string; url: string} => !!n.url);
+  const breadcrumbCurrent =
+    breadcrumbNavItems.length > 0
+      ? breadcrumbNavItems[breadcrumbNavItems.length - 1].title
+      : collection.title;
+
   const searchParams = new URLSearchParams(searchParamsString);
 
   const {products} = collection;
@@ -517,7 +468,10 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
     return (
       <div className="pb-12">
         {/* Breadcrumbs */}
-        <CollectionBreadcrumbs navPath={navPath} title={collection.title} />
+        <PageBreadcrumbs
+          crumbs={breadcrumbAncestors}
+          current={breadcrumbCurrent}
+        />
 
         {/* Hero — image left + title/description right */}
         <CollectionHero

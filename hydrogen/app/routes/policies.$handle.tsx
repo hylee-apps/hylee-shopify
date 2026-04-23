@@ -1,13 +1,5 @@
 import type {Route} from './+types/policies.$handle';
-import {Link} from 'react-router';
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '~/components/ui/breadcrumb';
+import {PageBreadcrumbs} from '~/components/ui/PageBreadcrumbs';
 
 // ============================================================================
 // GraphQL
@@ -117,37 +109,23 @@ export default function PolicyRoute({loaderData}: Route.ComponentProps) {
   const {policy} = loaderData;
 
   return (
-    <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/policies">Policies</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{policy.title}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <>
+      <PageBreadcrumbs
+        crumbs={[{title: 'Policies', url: '/policies'}]}
+        current={policy.title}
+      />
+      <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        <article className="mt-6">
+          <h1 className="mb-6 text-3xl font-bold text-dark sm:text-4xl">
+            {policy.title}
+          </h1>
 
-      <article className="mt-6">
-        <h1 className="mb-6 text-3xl font-bold text-dark sm:text-4xl">
-          {policy.title}
-        </h1>
-
-        <div
-          className="prose prose-lg max-w-none text-text [&_a]:text-primary [&_a]:underline [&_h2]:mt-8 [&_h2]:mb-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-dark [&_h3]:mt-6 [&_h3]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-dark [&_p]:mb-4 [&_p]:leading-relaxed [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:mb-4 [&_ol]:list-decimal [&_ol]:pl-6"
-          dangerouslySetInnerHTML={{__html: policy.body}}
-        />
-      </article>
-    </div>
+          <div
+            className="prose prose-lg max-w-none text-text [&_a]:text-primary [&_a]:underline [&_h2]:mt-8 [&_h2]:mb-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-dark [&_h3]:mt-6 [&_h3]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-dark [&_p]:mb-4 [&_p]:leading-relaxed [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:mb-4 [&_ol]:list-decimal [&_ol]:pl-6"
+            dangerouslySetInnerHTML={{__html: policy.body}}
+          />
+        </article>
+      </div>
+    </>
   );
 }
