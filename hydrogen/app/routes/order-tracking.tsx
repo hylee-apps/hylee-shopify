@@ -59,7 +59,8 @@ export async function action({request, context}: Route.ActionArgs) {
 
   const orderNumber = rawNumber.replace(/^#/, '');
   const isDev =
-    (context.env as Record<string, string>).NODE_ENV !== 'production';
+    (context.env as unknown as Record<string, string>).NODE_ENV !==
+    'production';
 
   try {
     const order = await getOrderByEmailAndNumber(
