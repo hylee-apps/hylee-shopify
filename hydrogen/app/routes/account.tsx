@@ -1,6 +1,7 @@
 import {Outlet, useLocation} from 'react-router';
 import type {Route} from './+types/account';
 import {AccountSidebar} from '~/components/account/AccountSidebar';
+import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 
 const NO_SIDEBAR_ROUTES = [
   '/account/login',
@@ -14,33 +15,34 @@ const NO_SIDEBAR_ROUTES = [
 const NO_SIDEBAR_PATTERNS = [/^\/account\/orders\/[^/]+\/return/];
 
 const CUSTOMER_QUERY = `#graphql
-  query AccountLayoutCustomer {
-    customer {
+  query AccountLayoutCustomer($customerAccessToken: String!) {
+    customer(customerAccessToken: $customerAccessToken) {
       firstName
       lastName
-      emailAddress {
-        emailAddress
-      }
+      email
     }
   }
 ` as const;
 
 export async function loader({context}: Route.LoaderArgs) {
-  const isLoggedIn = await context.customerAccount.isLoggedIn();
-
-  if (!isLoggedIn) {
+  if (!isCustomerLoggedIn(context.session)) {
     return {customer: null};
   }
 
+  const token = getCustomerAccessToken(context.session)!;
+
   try {
-    const {data} = await context.customerAccount.query(CUSTOMER_QUERY);
-    const c = data.customer;
+    const {customer} = await context.storefront.query(CUSTOMER_QUERY, {
+      variables: {customerAccessToken: token},
+    });
     return {
-      customer: {
-        firstName: c.firstName ?? null,
-        lastName: c.lastName ?? null,
-        email: c.emailAddress?.emailAddress ?? null,
-      },
+      customer: customer
+        ? {
+            firstName: customer.firstName ?? null,
+            lastName: customer.lastName ?? null,
+            email: customer.email ?? null,
+          }
+        : null,
     };
   } catch {
     return {customer: null};

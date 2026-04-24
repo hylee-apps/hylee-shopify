@@ -1,8 +1,12 @@
 import type {Route} from './+types/account.logout';
 import {redirect} from 'react-router';
+import {clearCustomerAccessToken} from '~/lib/customer-auth';
 
 export async function action({context}: Route.ActionArgs) {
-  return context.customerAccount.logout();
+  clearCustomerAccessToken(context.session);
+  return redirect('/', {
+    headers: {'Set-Cookie': await context.session.commit()},
+  });
 }
 
 export async function loader() {

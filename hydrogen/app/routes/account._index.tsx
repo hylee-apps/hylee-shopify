@@ -5,6 +5,7 @@ import {useTranslation} from 'react-i18next';
 import {readAddressBook} from '~/lib/address-book-graphql';
 import {Package, ImageIcon} from 'lucide-react';
 import {mapOrder, statusColor, type OrderSummary} from '~/lib/account-helpers';
+import {requireAuth} from '~/lib/customer-auth';
 
 // ============================================================================
 // Route Meta
@@ -18,12 +19,12 @@ export function meta() {
 }
 
 // ============================================================================
-// GraphQL — Customer Account API
+// GraphQL — Storefront API (legacy customer auth)
 // ============================================================================
 
 const DASHBOARD_QUERY = `#graphql
-  query DashboardData {
-    customer {
+  query DashboardData($customerAccessToken: String!) {
+    customer(customerAccessToken: $customerAccessToken) {
       id
       firstName
       createdAt
@@ -48,10 +49,11 @@ const DASHBOARD_QUERY = `#graphql
 // ============================================================================
 
 export async function loader({context}: Route.LoaderArgs) {
-  await context.customerAccount.handleAuthStatus();
+  const token = requireAuth(context.session);
 
-  const {data} = await context.customerAccount.query(DASHBOARD_QUERY);
-  const customer = data.customer;
+  const {customer} = await context.storefront.query(DASHBOARD_QUERY, {
+    variables: {customerAccessToken: token},
+  });
 
   // Redirect new customers to the welcome survey
   const surveyDone = context.session.get('surveyCompleted') === 'true';

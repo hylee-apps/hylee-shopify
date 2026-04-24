@@ -6,6 +6,7 @@ import {RecipientBadge} from '~/components/account/RecipientBadge';
 import {CHECKOUT_ATTR} from '~/lib/checkout';
 import {useTranslation} from 'react-i18next';
 import type {TFunction} from 'i18next';
+import {requireAuth} from '~/lib/customer-auth';
 
 // ============================================================================
 // Route Meta
@@ -20,96 +21,99 @@ export function meta({data}: Route.MetaArgs) {
 }
 
 // ============================================================================
-// GraphQL Query (Customer Account API — order(id: ID!) available at root)
+// GraphQL Query — Storefront API (legacy customer auth)
+// Fetches all orders and we filter by ID to ensure customer ownership.
 // ============================================================================
 
 const ORDER_QUERY = `#graphql
-  query OrderDetail($orderId: ID!) {
-    order(id: $orderId) {
-      id
-      name
-      processedAt
-      cancelledAt
-      cancelReason
-      fulfillmentStatus
-      totalPrice {
-        amount
-        currencyCode
-      }
-      subtotal {
-        amount
-        currencyCode
-      }
-      totalTax {
-        amount
-        currencyCode
-      }
-      totalShipping {
-        amount
-        currencyCode
-      }
-      shippingAddress {
-        name
-        formatted
-        address1
-        address2
-        city
-        zoneCode
-        zip
-        territoryCode
-      }
-      customAttributes {
-        key
-        value
-      }
-      billingAddress {
-        name
-        formatted
-      }
-      lineItems(first: 50) {
+  query CustomerOrderDetail($customerAccessToken: String!) {
+    customer(customerAccessToken: $customerAccessToken) {
+      orders(first: 250) {
         nodes {
-          title
-          quantity
-          soldDiscountedTotalPrice {
+          id
+          name
+          processedAt
+          canceledAt
+          cancelReason
+          fulfillmentStatus
+          totalPrice {
             amount
             currencyCode
           }
-          image {
-            url
-            altText
-            width
-            height
-          }
-          variantTitle
-          price {
+          subtotalPrice {
             amount
             currencyCode
           }
-          discountAllocations {
-            allocatedAmount {
-              amount
-              currencyCode
-            }
-            discountApplication {
-              ... on AutomaticDiscountApplication {
-                title
+          totalTax {
+            amount
+            currencyCode
+          }
+          totalShippingPrice {
+            amount
+            currencyCode
+          }
+          shippingAddress {
+            firstName
+            lastName
+            formatted
+            address1
+            address2
+            city
+            provinceCode
+            zip
+            countryCodeV2
+          }
+          customAttributes {
+            key
+            value
+          }
+          billingAddress {
+            firstName
+            lastName
+            formatted
+          }
+          lineItems(first: 50) {
+            nodes {
+              title
+              quantity
+              discountedTotalPrice {
+                amount
+                currencyCode
               }
-              ... on ManualDiscountApplication {
+              variant {
                 title
+                image {
+                  url
+                  altText
+                  width
+                  height
+                }
               }
-              ... on DiscountCodeApplication {
-                code
+              discountAllocations {
+                allocatedAmount {
+                  amount
+                  currencyCode
+                }
+                discountApplication {
+                  ... on AutomaticDiscountApplication {
+                    title
+                  }
+                  ... on ManualDiscountApplication {
+                    title
+                  }
+                  ... on DiscountCodeApplication {
+                    code
+                  }
+                }
               }
             }
           }
-        }
-      }
-      fulfillments(first: 10) {
-        nodes {
-          trackingInformation {
-            company
-            number
-            url
+          successfulFulfillments {
+            trackingCompany
+            trackingInfo {
+              number
+              url
+            }
           }
         }
       }
@@ -122,21 +126,69 @@ const ORDER_QUERY = `#graphql
 // ============================================================================
 
 export async function loader({context, params}: Route.LoaderArgs) {
-  await context.customerAccount.handleAuthStatus();
+  const token = requireAuth(context.session);
+  const targetGid = `gid://shopify/Order/${params.id}`;
 
-  const orderId = `gid://shopify/Order/${params.id}`;
-
-  const {data} = await context.customerAccount.query(ORDER_QUERY, {
-    variables: {orderId},
+  const {customer} = await context.storefront.query(ORDER_QUERY, {
+    variables: {customerAccessToken: token},
   });
 
-  const order = data.order;
-  if (!order) {
-    throw new Response('Order not found', {status: 404});
-  }
+  // Filter by GID to verify customer ownership
+  const raw = (customer?.orders?.nodes ?? []).find(
+    (o: any) => o.id === targetGid,
+  );
+  if (!raw) throw new Response('Order not found', {status: 404});
 
-  // Extract recipient data from custom attributes
-  const attrs = (order as any).customAttributes ?? [];
+  // Normalize legacy field names to match what the component expects
+  const order = {
+    ...raw,
+    // canceledAt (legacy) → cancelledAt (component expectation)
+    cancelledAt: raw.canceledAt ?? null,
+    // Rename price fields
+    subtotal: raw.subtotalPrice ?? null,
+    totalShipping: raw.totalShippingPrice ?? null,
+    // Normalize addresses: compute `name` and keep `formatted`
+    shippingAddress: raw.shippingAddress
+      ? {
+          ...raw.shippingAddress,
+          name: [raw.shippingAddress.firstName, raw.shippingAddress.lastName]
+            .filter(Boolean)
+            .join(' '),
+        }
+      : null,
+    billingAddress: raw.billingAddress
+      ? {
+          ...raw.billingAddress,
+          name: [raw.billingAddress.firstName, raw.billingAddress.lastName]
+            .filter(Boolean)
+            .join(' '),
+        }
+      : null,
+    // Normalize line items: hoist variant.image → image; compute variantTitle
+    lineItems: {
+      nodes: (raw.lineItems?.nodes ?? []).map((item: any) => {
+        const vt = item.variant?.title;
+        return {
+          ...item,
+          image: item.variant?.image ?? null,
+          variantTitle: vt && vt !== 'Default Title' ? vt : null,
+          soldDiscountedTotalPrice: item.discountedTotalPrice ?? null,
+        };
+      }),
+    },
+    // Normalize fulfillments structure
+    fulfillments: {
+      nodes: (raw.successfulFulfillments ?? []).map((f: any) => ({
+        trackingInformation: (f.trackingInfo ?? []).map((t: any) => ({
+          company: f.trackingCompany ?? null,
+          number: t.number ?? null,
+          url: t.url ?? null,
+        })),
+      })),
+    },
+  };
+
+  const attrs = order.customAttributes ?? [];
   const getAttr = (key: string): string | null =>
     attrs.find((a: any) => a.key === key)?.value ?? null;
 

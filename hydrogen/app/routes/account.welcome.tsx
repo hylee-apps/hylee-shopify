@@ -10,10 +10,11 @@ import {
   setSurveyCompleted,
 } from '~/lib/address-book-graphql';
 import type {AddressBook} from '~/lib/address-book';
+import {requireAuth} from '~/lib/customer-auth';
 
 const CUSTOMER_ID_QUERY = `#graphql
-  query WelcomeCustomerId {
-    customer { id }
+  query WelcomeCustomerId($customerAccessToken: String!) {
+    customer(customerAccessToken: $customerAccessToken) { id }
   }
 ` as const;
 import {Card, CardHeader, CardTitle, CardContent} from '~/components/ui/card';
@@ -45,7 +46,7 @@ export function meta() {
 // ============================================================================
 
 export async function loader({context}: Route.LoaderArgs) {
-  await context.customerAccount.handleAuthStatus();
+  const token = requireAuth(context.session);
 
   // Check session flag first (set when user completes/skips survey)
   if (context.session.get('surveyCompleted') === 'true') {
@@ -54,8 +55,10 @@ export async function loader({context}: Route.LoaderArgs) {
 
   // Fall back to metafield check
   try {
-    const {data} = await context.customerAccount.query(CUSTOMER_ID_QUERY);
-    const customerId = data?.customer?.id ?? undefined;
+    const {customer} = await context.storefront.query(CUSTOMER_ID_QUERY, {
+      variables: {customerAccessToken: token},
+    });
+    const customerId = customer?.id ?? undefined;
     const {surveyCompleted} = await readAddressBook(context, customerId);
     if (surveyCompleted) {
       context.session.set('surveyCompleted', 'true');
@@ -73,10 +76,12 @@ export async function loader({context}: Route.LoaderArgs) {
 // ============================================================================
 
 export async function action({request, context}: Route.ActionArgs) {
-  await context.customerAccount.handleAuthStatus();
+  const token = requireAuth(context.session);
 
-  const {data: idData} = await context.customerAccount.query(CUSTOMER_ID_QUERY);
-  const customerId = idData?.customer?.id ?? undefined;
+  const {customer} = await context.storefront.query(CUSTOMER_ID_QUERY, {
+    variables: {customerAccessToken: token},
+  });
+  const customerId = customer?.id ?? undefined;
 
   const formData = await request.formData();
   const intent = formData.get('intent');

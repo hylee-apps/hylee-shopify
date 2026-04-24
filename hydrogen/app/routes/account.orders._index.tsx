@@ -1,6 +1,7 @@
 import {useMemo, useState, useEffect} from 'react';
 import type {Route} from './+types/account.orders._index';
 import {Link, useSearchParams} from 'react-router';
+import {requireAuth} from '~/lib/customer-auth';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {useTranslation} from 'react-i18next';
 import {Button} from '~/components/ui/button';
@@ -30,8 +31,8 @@ export function meta() {
 // ============================================================================
 
 const CUSTOMER_ORDERS_QUERY = `#graphql
-  query CustomerOrders($first: Int) {
-    customer {
+  query CustomerOrders($customerAccessToken: String!, $first: Int) {
+    customer(customerAccessToken: $customerAccessToken) {
       orders(first: $first, sortKey: PROCESSED_AT, reverse: true) {
         nodes {
           id
@@ -54,26 +55,26 @@ const CUSTOMER_ORDERS_QUERY = `#graphql
             nodes {
               title
               quantity
-              image {
-                url
-                altText
-                width
-                height
+              variant {
+                title
+                image {
+                  url
+                  altText
+                  width
+                  height
+                }
               }
-              variantTitle
-              price {
+              originalTotalPrice {
                 amount
                 currencyCode
               }
             }
           }
-          fulfillments(first: 5) {
-            nodes {
-              trackingInformation {
-                company
-                number
-                url
-              }
+          successfulFulfillments {
+            trackingCompany
+            trackingInfo {
+              number
+              url
             }
           }
         }
@@ -119,13 +120,44 @@ function getFilterMonths(filter: TimeFilter): number | null {
 // ============================================================================
 
 export async function loader({context}: Route.LoaderArgs) {
-  await context.customerAccount.handleAuthStatus();
+  const token = requireAuth(context.session);
 
-  const {data} = await context.customerAccount.query(CUSTOMER_ORDERS_QUERY, {
-    variables: {first: 250},
+  const {customer} = await context.storefront.query(CUSTOMER_ORDERS_QUERY, {
+    variables: {customerAccessToken: token, first: 250},
   });
 
-  const allOrders = data.customer?.orders.nodes ?? [];
+  // Normalize legacy field names so OrderCard components work unchanged
+  const allOrders = (customer?.orders?.nodes ?? []).map((order: any) => ({
+    ...order,
+    lineItems: {
+      nodes: (order.lineItems?.nodes ?? []).map((item: any) => {
+        const total = item.originalTotalPrice;
+        const unitAmount =
+          total && item.quantity > 0
+            ? (parseFloat(total.amount) / item.quantity).toFixed(2)
+            : '0';
+        const vt = item.variant?.title;
+        return {
+          ...item,
+          image: item.variant?.image ?? null,
+          variantTitle: vt && vt !== 'Default Title' ? vt : null,
+          price: {
+            amount: unitAmount,
+            currencyCode: total?.currencyCode ?? 'USD',
+          },
+        };
+      }),
+    },
+    fulfillments: {
+      nodes: (order.successfulFulfillments ?? []).map((f: any) => ({
+        trackingInformation: (f.trackingInfo ?? []).map((t: any) => ({
+          company: f.trackingCompany ?? null,
+          number: t.number ?? null,
+          url: t.url ?? null,
+        })),
+      })),
+    },
+  }));
 
   return {orders: allOrders};
 }

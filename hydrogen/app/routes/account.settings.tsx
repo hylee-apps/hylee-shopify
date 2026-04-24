@@ -3,6 +3,7 @@ import {Form, useActionData, useNavigation} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {getInitials} from '~/lib/account-helpers';
 import {setCustomerMetafields, type AdminEnv} from '~/lib/admin-api';
+import {requireAuth} from '~/lib/customer-auth';
 import {Camera} from 'lucide-react';
 import {useTranslation} from 'react-i18next';
 
@@ -22,26 +23,24 @@ export function meta() {
 // ============================================================================
 
 const CUSTOMER_SETTINGS_QUERY = `#graphql
-  query CustomerSettings {
-    customer {
+  query CustomerSettings($customerAccessToken: String!) {
+    customer(customerAccessToken: $customerAccessToken) {
       id
       firstName
       lastName
-      emailAddress {
-        emailAddress
-      }
+      email
     }
   }
 ` as const;
 
 const UPDATE_CUSTOMER_MUTATION = `#graphql
-  mutation UpdateCustomer($customer: CustomerUpdateInput!) {
-    customerUpdate(input: $customer) {
+  mutation UpdateCustomer($customerAccessToken: String!, $customer: CustomerUpdateInput!) {
+    customerUpdate(customerAccessToken: $customerAccessToken, customer: $customer) {
       customer {
         firstName
         lastName
       }
-      userErrors {
+      customerUserErrors {
         field
         message
       }
@@ -54,10 +53,11 @@ const UPDATE_CUSTOMER_MUTATION = `#graphql
 // ============================================================================
 
 export async function loader({context}: Route.LoaderArgs) {
-  await context.customerAccount.handleAuthStatus();
+  const token = requireAuth(context.session);
 
-  const {data} = await context.customerAccount.query(CUSTOMER_SETTINGS_QUERY);
-  const customer = data.customer;
+  const {customer} = await context.storefront.query(CUSTOMER_SETTINGS_QUERY, {
+    variables: {customerAccessToken: token},
+  });
 
   return {
     customer: customer
@@ -65,7 +65,7 @@ export async function loader({context}: Route.LoaderArgs) {
           id: customer.id,
           firstName: customer.firstName ?? null,
           lastName: customer.lastName ?? null,
-          email: customer.emailAddress?.emailAddress ?? null,
+          email: customer.email ?? null,
         }
       : null,
     dateOfBirth: null as string | null,
@@ -82,7 +82,7 @@ interface ActionError {
 }
 
 export async function action({request, context}: Route.ActionArgs) {
-  await context.customerAccount.handleAuthStatus();
+  const token = requireAuth(context.session);
 
   const formData = await request.formData();
   const intent = formData.get('intent') as string;
@@ -93,13 +93,16 @@ export async function action({request, context}: Route.ActionArgs) {
       const lastName = formData.get('lastName') as string;
       const dateOfBirth = (formData.get('dateOfBirth') as string) || null;
 
-      const {data} = await context.customerAccount.mutate(
+      const {customerUpdate} = await context.storefront.mutate(
         UPDATE_CUSTOMER_MUTATION,
         {
-          variables: {customer: {firstName, lastName}},
+          variables: {
+            customerAccessToken: token,
+            customer: {firstName, lastName},
+          },
         },
       );
-      const errors = (data as any)?.customerUpdate?.userErrors;
+      const errors = customerUpdate?.customerUserErrors;
       if (errors?.length) {
         return {errors: errors as ActionError[], intent};
       }
@@ -107,10 +110,11 @@ export async function action({request, context}: Route.ActionArgs) {
       // Save date of birth as customer metafield via Admin API
       if (dateOfBirth) {
         try {
-          const {data: idData} = await context.customerAccount.query(
+          const {customer: idCustomer} = await context.storefront.query(
             CUSTOMER_SETTINGS_QUERY,
+            {variables: {customerAccessToken: token}},
           );
-          const customerId = (idData as any)?.customer?.id;
+          const customerId = idCustomer?.id;
           if (customerId) {
             await setCustomerMetafields(
               context.env as unknown as AdminEnv,

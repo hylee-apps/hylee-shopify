@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 
 import {cn} from '~/lib/utils';
+import {requireAuth} from '~/lib/customer-auth';
 
 // ============================================================================
 // Route Meta
@@ -29,7 +30,7 @@ export function meta() {
 // ============================================================================
 
 export async function loader({context}: Route.LoaderArgs) {
-  await context.customerAccount.handleAuthStatus();
+  requireAuth(context.session);
   return {};
 }
 
