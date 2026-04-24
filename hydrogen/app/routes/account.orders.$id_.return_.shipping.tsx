@@ -1,6 +1,7 @@
 import {useState, useMemo} from 'react';
 import type {Route} from './+types/account.orders.$id_.return_.shipping';
 import {redirect, Link} from 'react-router';
+import {requireAuth} from '~/lib/customer-auth';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {useTranslation} from 'react-i18next';
 import {Package, Truck, Zap} from 'lucide-react';
@@ -63,26 +64,32 @@ const SHIPPING_OPTIONS_BASE = [
 // ============================================================================
 
 const CUSTOMER_ORDER_RETURN_QUERY = `#graphql
-  query CustomerOrderReturn($orderId: ID!) {
-    order(id: $orderId) {
-      id
-      name
-      processedAt
-      fulfillmentStatus
-      lineItems(first: 50) {
+  query CustomerOrderReturn($customerAccessToken: String!) {
+    customer(customerAccessToken: $customerAccessToken) {
+      orders(first: 250) {
         nodes {
-          title
-          quantity
-          image {
-            url
-            altText
-            width
-            height
-          }
-          variantTitle
-          price {
-            amount
-            currencyCode
+          id
+          name
+          processedAt
+          fulfillmentStatus
+          lineItems(first: 50) {
+            nodes {
+              title
+              quantity
+              variant {
+                title
+                image {
+                  url
+                  altText
+                  width
+                  height
+                }
+              }
+              originalTotalPrice {
+                amount
+                currencyCode
+              }
+            }
           }
         }
       }
@@ -95,7 +102,7 @@ const CUSTOMER_ORDER_RETURN_QUERY = `#graphql
 // ============================================================================
 
 export async function loader({context, params, request}: Route.LoaderArgs) {
-  await context.customerAccount.handleAuthStatus();
+  const token = requireAuth(context.session);
 
   const url = new URL(request.url);
   const itemsParam = url.searchParams.get('items');
@@ -113,19 +120,39 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     return redirect(`/account/orders/${params.id}/return`);
   }
 
-  const orderId = `gid://shopify/Order/${params.id}`;
+  const targetGid = `gid://shopify/Order/${params.id}`;
 
-  const {data} = await context.customerAccount.query(
+  const {customer} = await context.storefront.query(
     CUSTOMER_ORDER_RETURN_QUERY,
-    {
-      variables: {orderId},
-    },
+    {variables: {customerAccessToken: token}},
   );
 
-  const order = data.order;
-  if (!order) {
-    throw new Response('Order not found', {status: 404});
-  }
+  const raw = (customer?.orders?.nodes ?? []).find(
+    (o: any) => o.id === targetGid,
+  );
+  if (!raw) throw new Response('Order not found', {status: 404});
+
+  const order = {
+    ...raw,
+    lineItems: {
+      nodes: (raw.lineItems?.nodes ?? []).map((item: any) => {
+        const total = item.originalTotalPrice;
+        const unitAmount =
+          total && item.quantity > 0
+            ? (parseFloat(total.amount) / item.quantity).toFixed(2)
+            : '0';
+        return {
+          ...item,
+          image: item.variant?.image ?? null,
+          variantTitle: item.variant?.title ?? null,
+          price: {
+            amount: unitAmount,
+            currencyCode: total?.currencyCode ?? 'USD',
+          },
+        };
+      }),
+    },
+  };
 
   // Determine delivery date (use processedAt + simulated delivery offset)
   const processedDate = new Date(order.processedAt);
@@ -145,7 +172,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
         title: item.title,
         variantTitle,
         quantity: item.quantity,
-        price: item.price ?? {amount: '0', currencyCode: 'USD'},
+        price: item.price,
         image: item.image ?? null,
         eligible: true,
       } satisfies ReturnLineItem;

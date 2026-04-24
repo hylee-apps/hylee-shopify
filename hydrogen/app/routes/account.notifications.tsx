@@ -1,5 +1,6 @@
 import type {Route} from './+types/account.notifications';
 import {redirect, Form, useActionData, useNavigation} from 'react-router';
+import {requireAuth} from '~/lib/customer-auth';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {useTranslation} from 'react-i18next';
 import {useState, useEffect} from 'react';
@@ -21,8 +22,8 @@ export function meta() {
 // ============================================================================
 
 const CUSTOMER_GID_QUERY = `#graphql
-  query CustomerGidForNotifications {
-    customer {
+  query CustomerGidForNotifications($customerAccessToken: String!) {
+    customer(customerAccessToken: $customerAccessToken) {
       id
     }
   }
@@ -90,13 +91,14 @@ const DEFAULT_PREFS: NotificationPreferences = {
 // ============================================================================
 
 export async function loader({context}: Route.LoaderArgs) {
-  await context.customerAccount.handleAuthStatus();
-
+  const token = requireAuth(context.session);
   const env = context.env as unknown as AdminEnv;
 
-  const {data: gidData} =
-    await context.customerAccount.query(CUSTOMER_GID_QUERY);
-  const customerId = gidData?.customer?.id ?? null;
+  const {customer: gidCustomer} = await context.storefront.query(
+    CUSTOMER_GID_QUERY,
+    {variables: {customerAccessToken: token}},
+  );
+  const customerId = gidCustomer?.id ?? null;
 
   if (!customerId) {
     return {customerId: null, acceptsMarketing: false, prefs: DEFAULT_PREFS};
@@ -143,15 +145,17 @@ interface ActionError {
 }
 
 export async function action({request, context}: Route.ActionArgs) {
-  await context.customerAccount.handleAuthStatus();
+  const token = requireAuth(context.session);
 
   const formData = await request.formData();
   const intent = formData.get('intent') as string;
   const env = context.env as unknown as AdminEnv;
 
-  const {data: customerData} =
-    await context.customerAccount.query(CUSTOMER_GID_QUERY);
-  const customerId = customerData?.customer?.id;
+  const {customer: gidCustomer} = await context.storefront.query(
+    CUSTOMER_GID_QUERY,
+    {variables: {customerAccessToken: token}},
+  );
+  const customerId = gidCustomer?.id;
 
   if (!customerId) {
     return {

@@ -11,6 +11,7 @@ import {
 import {Card} from '~/components/ui/card';
 import {formatMoney} from '~/lib/checkout';
 import type {Route} from './+types/checkout.confirmation';
+import {isCustomerLoggedIn} from '~/lib/customer-auth';
 
 // ============================================================================
 // Route Meta
@@ -38,7 +39,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
   // Try to get the cart — if it was just completed, it may be empty now
   const cart = await context.cart.get();
 
-  const isLoggedIn = await context.customerAccount.isLoggedIn();
+  const isLoggedIn = isCustomerLoggedIn(context.session);
 
   return {
     orderId,

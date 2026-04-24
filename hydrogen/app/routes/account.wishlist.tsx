@@ -8,6 +8,7 @@ import {
   removeFromWishlist,
   type AdminEnv,
 } from '~/lib/wishlist';
+import {requireAuth} from '~/lib/customer-auth';
 
 // ============================================================================
 // Route Meta
@@ -70,15 +71,19 @@ interface WishlistItem {
 // Loader
 // ============================================================================
 
-const CUSTOMER_ID_QUERY = `
-  query WishlistCustomerId { customer { id } }
+const CUSTOMER_ID_QUERY = `#graphql
+  query WishlistCustomerId($customerAccessToken: String!) {
+    customer(customerAccessToken: $customerAccessToken) { id }
+  }
 ` as const;
 
 export async function loader({context}: Route.LoaderArgs) {
-  await context.customerAccount.handleAuthStatus();
+  const token = requireAuth(context.session);
 
-  const {data: idData} = await context.customerAccount.query(CUSTOMER_ID_QUERY);
-  const customerId = idData?.customer?.id ?? undefined;
+  const {customer} = await context.storefront.query(CUSTOMER_ID_QUERY, {
+    variables: {customerAccessToken: token},
+  });
+  const customerId = customer?.id ?? undefined;
 
   // Step 1: Read the wishlist metafield to get product GIDs
   const productIds = await readWishlistIds(
@@ -137,10 +142,12 @@ export async function loader({context}: Route.LoaderArgs) {
 // ============================================================================
 
 export async function action({request, context}: Route.ActionArgs) {
-  await context.customerAccount.handleAuthStatus();
+  const token = requireAuth(context.session);
 
-  const {data: idData} = await context.customerAccount.query(CUSTOMER_ID_QUERY);
-  const customerId = idData?.customer?.id ?? undefined;
+  const {customer} = await context.storefront.query(CUSTOMER_ID_QUERY, {
+    variables: {customerAccessToken: token},
+  });
+  const customerId = customer?.id ?? undefined;
 
   const formData = await request.formData();
   const intent = formData.get('intent') as string;

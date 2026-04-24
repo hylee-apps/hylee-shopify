@@ -43,6 +43,7 @@ import {
   deleteShopifyAddress,
   setDefaultShopifyAddress,
 } from '~/lib/address-book-graphql';
+import {requireAuth} from '~/lib/customer-auth';
 import {
   getContactsByCategory,
   getContactsBySubcategory,
@@ -77,16 +78,19 @@ export function meta() {
 // ============================================================================
 
 const CUSTOMER_ID_QUERY = `#graphql
-  query AddressBookCustomerId {
-    customer { id }
+  query AddressBookCustomerId($customerAccessToken: String!) {
+    customer(customerAccessToken: $customerAccessToken) { id }
   }
 ` as const;
 
 export async function loader({context}: Route.LoaderArgs) {
-  await context.customerAccount.handleAuthStatus();
+  const token = requireAuth(context.session);
 
-  const {data: idData} = await context.customerAccount.query(CUSTOMER_ID_QUERY);
-  const caCustomerId = idData?.customer?.id ?? undefined;
+  const {customer: idCustomer} = await context.storefront.query(
+    CUSTOMER_ID_QUERY,
+    {variables: {customerAccessToken: token}},
+  );
+  const caCustomerId = idCustomer?.id ?? undefined;
 
   // Fetch address book metafield; native addresses via Storefront API may fail gracefully.
   let book: any,
@@ -141,10 +145,13 @@ export async function loader({context}: Route.LoaderArgs) {
 // ============================================================================
 
 export async function action({request, context}: Route.ActionArgs) {
-  await context.customerAccount.handleAuthStatus();
+  const token = requireAuth(context.session);
 
-  const {data: idData} = await context.customerAccount.query(CUSTOMER_ID_QUERY);
-  const caCustomerId = idData?.customer?.id ?? undefined;
+  const {customer: idCustomer} = await context.storefront.query(
+    CUSTOMER_ID_QUERY,
+    {variables: {customerAccessToken: token}},
+  );
+  const caCustomerId = idCustomer?.id ?? undefined;
 
   const formData = await request.formData();
   const intent = formData.get('intent') as string;
