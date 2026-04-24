@@ -211,7 +211,7 @@ export function requireAuth(session: SessionLike): string {
   if (!token) {
     throw new Response(null, {
       status: 302,
-      headers: {Location: '/account/login'},
+      headers: {Location: '/account/unavailable'},
     });
   }
   return token;
