@@ -203,15 +203,15 @@ export function isCustomerLoggedIn(session: SessionLike): boolean {
 }
 
 /**
- * Require authentication — returns the access token or redirects to login.
- * Use in loaders/actions: `const token = requireAuth(session);`
+ * Require authentication — returns the access token or redirects to the
+ * sign-in-required screen. Use in loaders/actions: `const token = requireAuth(session);`
  */
 export function requireAuth(session: SessionLike): string {
   const token = getCustomerAccessToken(session);
   if (!token) {
     throw new Response(null, {
       status: 302,
-      headers: {Location: '/account/login'},
+      headers: {Location: '/account/unavailable'},
     });
   }
   return token;
