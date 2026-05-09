@@ -256,8 +256,13 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
 
   // Collection exists but has no products and no active filters — treat as
   // "not yet ready" rather than an empty results state.
+  // Exception: collections with child nodes are category browse pages and must
+  // never be considered empty regardless of their direct product count.
   const hasActiveFilters = filters.length > 0;
+  const hasChildCollections =
+    (collection.childCollections?.references?.nodes?.length ?? 0) > 0;
   const isEmpty =
+    !hasChildCollections &&
     !hasActiveFilters &&
     collection.products.nodes.length === 0 &&
     !collection.products.pageInfo.hasNextPage;
