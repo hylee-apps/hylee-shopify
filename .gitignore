@@ -55,3 +55,9 @@ test-results/
 
 # Searchanise — generated synonym artifact (run pnpm synonyms:generate to recreate)
 data/synonyms.json
+
+# Per-project Claude Code agent settings (machine-local)
+hydrogen/.claude/
+
+# Auto-generated meeting transcripts (may contain non-public attendee info)
+docs/Weekly Meeting*.txt
