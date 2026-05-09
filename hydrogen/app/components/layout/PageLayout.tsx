@@ -67,6 +67,7 @@ export function PageLayout({children}: PageLayoutProps) {
     cart,
     categories,
     seasonalItems,
+    discountItems,
     currentLanguage,
   } = data;
 
@@ -80,6 +81,7 @@ export function PageLayout({children}: PageLayoutProps) {
         variant={headerVariant}
         categories={categories}
         seasonalItems={seasonalItems ?? []}
+        discountItems={discountItems ?? []}
         currentLanguage={currentLanguage ?? 'EN'}
       />
 

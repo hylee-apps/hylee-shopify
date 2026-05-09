@@ -9,6 +9,7 @@ import {
   User,
   Search,
   ShoppingCart,
+  Package,
 } from 'lucide-react';
 import {
   Sheet,
@@ -46,6 +47,7 @@ export interface HeaderProps {
     subcategories?: Array<{id: string; title: string; handle: string}>;
   }>;
   seasonalItems?: Array<{id: string; title: string; handle: string}>;
+  discountItems?: Array<{id: string; title: string; handle: string}>;
 }
 
 const LANGUAGES = [
@@ -71,6 +73,7 @@ interface MobileMenuProps {
   isLoggedIn: boolean;
   categories?: HeaderProps['categories'];
   seasonalItems?: HeaderProps['seasonalItems'];
+  discountItems?: HeaderProps['discountItems'];
 }
 
 // ============================================================================
@@ -150,44 +153,74 @@ function NavDropdown({
 }
 
 // ============================================================================
-// SeasonalDropdown — dynamic dropdown populated from Shopify seasonal collection
+// SeasonalBar — full-width horizontal seasonal navigation (mirrors CategoryBar)
 // ============================================================================
 
-function SeasonalDropdown({
+function SeasonalBar({
   items,
 }: {
   items: NonNullable<HeaderProps['seasonalItems']>;
 }) {
   const {t} = useTranslation();
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button className={NAV_TRIGGER_CLASS}>
-          {t('nav.seasonal')}
-          <ChevronDown size={16} />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="min-w-48">
-        {items.map((item) => (
-          <DropdownMenuItem key={item.id} asChild>
-            <Link
-              to={`/collections/${item.handle}`}
-              className="cursor-pointer text-[14px]"
-            >
-              {item.title}
-            </Link>
-          </DropdownMenuItem>
-        ))}
-        <DropdownMenuItem asChild>
-          <Link
-            to="/collections/seasonal"
-            className="cursor-pointer text-[14px] font-semibold text-secondary border-t border-border mt-1 pt-1"
-          >
-            {t('nav.seeAll')}
-          </Link>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <nav className="hidden lg:block absolute left-0 right-0 border-t border-border bg-white shadow-md z-50">
+      <ul className="flex items-center justify-center">
+        {items.length > 0 ? (
+          items.map((item) => (
+            <li key={item.id} className="flex-1 text-center">
+              <Link
+                to={`/collections/${item.handle}`}
+                className="block py-2.5 text-[14px] font-medium text-text-muted hover:text-primary transition-colors whitespace-nowrap"
+              >
+                {item.title}
+              </Link>
+            </li>
+          ))
+        ) : (
+          <li className="py-2.5 text-[14px] text-text-muted">
+            {t('nav.seasonalComingSoon', {
+              defaultValue: 'Seasonal collections coming soon',
+            })}
+          </li>
+        )}
+      </ul>
+    </nav>
+  );
+}
+
+// ============================================================================
+// DiscountsBar — full-width horizontal discounted-categories navigation
+// ============================================================================
+
+function DiscountsBar({
+  items,
+}: {
+  items: NonNullable<HeaderProps['discountItems']>;
+}) {
+  const {t} = useTranslation();
+  return (
+    <nav className="hidden lg:block absolute left-0 right-0 border-t border-border bg-white shadow-md z-50">
+      <ul className="flex items-center justify-center">
+        {items.length > 0 ? (
+          items.map((item) => (
+            <li key={item.id} className="flex-1 text-center">
+              <Link
+                to={`/collections/${item.handle}`}
+                className="block py-2.5 text-[14px] font-medium text-text-muted hover:text-primary transition-colors whitespace-nowrap"
+              >
+                {item.title}
+              </Link>
+            </li>
+          ))
+        ) : (
+          <li className="py-2.5 text-[14px] text-text-muted">
+            {t('nav.discountsComingSoon', {
+              defaultValue: 'Discounted categories coming soon',
+            })}
+          </li>
+        )}
+      </ul>
+    </nav>
   );
 }
 
@@ -232,6 +265,7 @@ function MobileMenu({
   isLoggedIn,
   categories,
   seasonalItems = [],
+  discountItems = [],
 }: MobileMenuProps) {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const {t} = useTranslation();
@@ -341,13 +375,42 @@ function MobileMenu({
             </Link>
           )}
 
-          <Link
-            to={FILTERED_URLS.discounts}
-            className="block px-4 py-3 text-text font-medium border-b border-border hover:text-primary"
-            onClick={onClose}
-          >
-            {t('nav.discounts')}
-          </Link>
+          <div className="border-b border-border">
+            <button
+              className="flex items-center justify-between w-full px-4 py-3 text-text font-medium"
+              onClick={() => toggleSection('discounts')}
+            >
+              <span>{t('nav.discounts')}</span>
+              <ChevronDown
+                size={16}
+                className={`transition-transform ${
+                  expandedSection === 'discounts' ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
+            {expandedSection === 'discounts' && (
+              <div className="bg-surface pb-2">
+                {discountItems.length > 0 ? (
+                  discountItems.map((item) => (
+                    <Link
+                      key={item.id}
+                      to={`/collections/${item.handle}`}
+                      className="block px-6 py-2 text-sm text-text hover:text-primary"
+                      onClick={onClose}
+                    >
+                      {item.title}
+                    </Link>
+                  ))
+                ) : (
+                  <p className="px-6 py-2 text-sm text-text-muted">
+                    {t('nav.discountsComingSoon', {
+                      defaultValue: 'Discounted categories coming soon',
+                    })}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
           <Link
             to={FILTERED_URLS.promotions}
             className="block px-4 py-3 text-text font-medium border-b border-border hover:text-primary"
@@ -375,6 +438,14 @@ function MobileMenu({
               </Link>
             ) : (
               <div className="space-y-3">
+                <Link
+                  to="/order-tracking"
+                  className="flex items-center gap-2 text-text hover:text-primary"
+                  onClick={onClose}
+                >
+                  <Package size={20} />
+                  <span>{t('nav.trackOrders')}</span>
+                </Link>
                 <Link
                   to="/account/login"
                   className="flex items-center gap-2 text-text hover:text-primary"
@@ -456,9 +527,12 @@ export function Header({
   currentLanguage = 'EN',
   categories = [],
   seasonalItems = [],
+  discountItems = [],
 }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [categoryBarOpen, setCategoryBarOpen] = useState(false);
+  const [seasonalBarOpen, setSeasonalBarOpen] = useState(false);
+  const [discountsBarOpen, setDiscountsBarOpen] = useState(false);
   const [resolvedIsLoggedIn, setResolvedIsLoggedIn] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const location = useLocation();
@@ -489,12 +563,15 @@ export function Header({
   useEffect(() => {
     setMobileMenuOpen(false);
     setCategoryBarOpen(false);
+    setSeasonalBarOpen(false);
+    setDiscountsBarOpen(false);
   }, [location.pathname]);
 
   const accountItems = resolvedIsLoggedIn
     ? [
         {key: 'nav.myAccount', url: '/account'},
         {key: 'nav.myOrders', url: '/account/orders'},
+        {key: 'nav.trackOrders', url: '/order-tracking'},
         {
           key: 'nav.signOut',
           url: '/account/logout',
@@ -502,6 +579,7 @@ export function Header({
         },
       ]
     : [
+        {key: 'nav.trackOrders', url: '/order-tracking'},
         {key: 'nav.signIn', url: '/account/login'},
         {key: 'nav.register', url: '/account/register'},
       ];
@@ -548,7 +626,11 @@ export function Header({
               {categories.length > 0 && (
                 <button
                   className={NAV_TRIGGER_CLASS}
-                  onClick={() => setCategoryBarOpen((prev) => !prev)}
+                  onClick={() => {
+                    setSeasonalBarOpen(false);
+                    setDiscountsBarOpen(false);
+                    setCategoryBarOpen((prev) => !prev);
+                  }}
                 >
                   {t('nav.categories')}
                   <ChevronDown
@@ -565,17 +647,35 @@ export function Header({
                 {t('nav.whatsNew')}
               </Link>
 
-              {seasonalItems.length > 0 ? (
-                <SeasonalDropdown items={seasonalItems} />
-              ) : (
-                <Link to="/collections/seasonal" className={NAV_TRIGGER_CLASS}>
-                  {t('nav.seasonal')}
-                </Link>
-              )}
+              <button
+                className={NAV_TRIGGER_CLASS}
+                onClick={() => {
+                  setCategoryBarOpen(false);
+                  setDiscountsBarOpen(false);
+                  setSeasonalBarOpen((prev) => !prev);
+                }}
+              >
+                {t('nav.seasonal')}
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform ${seasonalBarOpen ? 'rotate-180' : ''}`}
+                />
+              </button>
 
-              <Link to={FILTERED_URLS.discounts} className={NAV_TRIGGER_CLASS}>
+              <button
+                className={NAV_TRIGGER_CLASS}
+                onClick={() => {
+                  setCategoryBarOpen(false);
+                  setSeasonalBarOpen(false);
+                  setDiscountsBarOpen((prev) => !prev);
+                }}
+              >
                 {t('nav.discounts')}
-              </Link>
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform ${discountsBarOpen ? 'rotate-180' : ''}`}
+                />
+              </button>
 
               <Link to={FILTERED_URLS.promotions} className={NAV_TRIGGER_CLASS}>
                 {t('nav.promotionsDeals')}
@@ -731,6 +831,8 @@ export function Header({
         {categoryBarOpen && categories.length > 0 && (
           <CategoryBar categories={categories} />
         )}
+        {seasonalBarOpen && <SeasonalBar items={seasonalItems} />}
+        {discountsBarOpen && <DiscountsBar items={discountItems} />}
       </header>
 
       <MobileMenu
@@ -740,6 +842,7 @@ export function Header({
         isLoggedIn={resolvedIsLoggedIn}
         categories={categories}
         seasonalItems={seasonalItems}
+        discountItems={discountItems}
       />
     </>
   );
