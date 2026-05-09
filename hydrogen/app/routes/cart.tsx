@@ -134,7 +134,7 @@ function CartEmpty() {
       </h2>
       <p className="mb-8 text-text-muted">{t('cart.empty.subtitle')}</p>
       <Button size="lg" asChild>
-        <Link to="/collections">{t('cart.empty.cta')}</Link>
+        <Link to="/collections/all">{t('cart.empty.cta')}</Link>
       </Button>
     </div>
   );
@@ -545,7 +545,9 @@ export default function CartPage() {
                     asChild
                     className="p-2 text-[15px] font-medium text-secondary hover:bg-transparent hover:text-secondary/80"
                   >
-                    <Link to="/collections">{t('cart.continueShopping')}</Link>
+                    <Link to="/collections/all">
+                      {t('cart.continueShopping')}
+                    </Link>
                   </Button>
                 </div>
 
