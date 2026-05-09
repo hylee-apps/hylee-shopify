@@ -90,32 +90,42 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
   const lang = langMatch?.[1]?.toUpperCase() ?? '';
   const currentLanguage = ['EN', 'ES', 'FR'].includes(lang) ? lang : 'EN';
 
-  const [header, collectionsResult, seasonalNavResult] = await Promise.all([
-    storefront.query(HEADER_QUERY, {
-      cache: storefront.CacheLong(),
-      variables: {
-        headerMenuHandle: 'main-menu',
-        language: currentLanguage as LanguageCode,
-        country: storefront.i18n.country,
-      },
-    }),
-    storefront.query(HEADER_COLLECTIONS_QUERY, {
-      cache: storefront.CacheLong(),
-      variables: {
-        language: currentLanguage as LanguageCode,
-        country: storefront.i18n.country,
-      },
-    }),
-    storefront
-      .query(SEASONAL_NAV_QUERY, {
+  const [header, collectionsResult, seasonalNavResult, discountsNavResult] =
+    await Promise.all([
+      storefront.query(HEADER_QUERY, {
+        cache: storefront.CacheLong(),
+        variables: {
+          headerMenuHandle: 'main-menu',
+          language: currentLanguage as LanguageCode,
+          country: storefront.i18n.country,
+        },
+      }),
+      storefront.query(HEADER_COLLECTIONS_QUERY, {
         cache: storefront.CacheLong(),
         variables: {
           language: currentLanguage as LanguageCode,
           country: storefront.i18n.country,
         },
-      })
-      .catch(() => null),
-  ]);
+      }),
+      storefront
+        .query(SEASONAL_NAV_QUERY, {
+          cache: storefront.CacheLong(),
+          variables: {
+            language: currentLanguage as LanguageCode,
+            country: storefront.i18n.country,
+          },
+        })
+        .catch(() => null),
+      storefront
+        .query(DISCOUNTS_NAV_QUERY, {
+          cache: storefront.CacheLong(),
+          variables: {
+            language: currentLanguage as LanguageCode,
+            country: storefront.i18n.country,
+          },
+        })
+        .catch(() => null),
+    ]);
 
   const rawCategories =
     collectionsResult?.collections?.nodes?.map(
@@ -167,6 +177,38 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     .slice(0, 5)
     .map(({priority: _p, ...item}) => item);
 
+  const rawDiscountItems: Array<{
+    id: string;
+    title: string;
+    handle: string;
+    priority: number | null;
+  }> =
+    (
+      discountsNavResult?.collection?.childCollections?.references?.nodes ?? []
+    ).map(
+      (c: {
+        id: string;
+        title: string;
+        handle: string;
+        menuPriority?: {value: string} | null;
+      }) => ({
+        id: c.id,
+        title: c.title,
+        handle: c.handle,
+        priority: c.menuPriority ? parseInt(c.menuPriority.value, 10) : null,
+      }),
+    ) ?? [];
+
+  const discountItems = rawDiscountItems
+    .sort((a, b) => {
+      if (a.priority !== null && b.priority !== null)
+        return a.priority - b.priority;
+      if (a.priority !== null) return -1;
+      if (b.priority !== null) return 1;
+      return a.title.localeCompare(b.title);
+    })
+    .map(({priority: _p, ...item}) => item);
+
   const locale = currentLanguage.toLowerCase() as 'en' | 'es' | 'fr';
 
   // Fetch wishlist IDs for logged-in users so all product cards start with
@@ -199,6 +241,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     header,
     categories,
     seasonalItems,
+    discountItems,
     currentLanguage,
     locale,
     wishlistIds,
@@ -231,6 +274,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>('root');
   const locale = (data?.locale ?? 'en') as string;
+  const shopDomain = data?.publicStoreDomain;
 
   return (
     <html lang={locale} data-locale={locale}>
@@ -244,6 +288,32 @@ export function Layout({children}: {children?: React.ReactNode}) {
       <body>
         {children}
         <ScrollRestoration nonce={nonce} />
+        {shopDomain ? (
+          <>
+            <script
+              nonce={nonce}
+              id="shopify-features"
+              type="application/json"
+              suppressHydrationWarning
+              dangerouslySetInnerHTML={{
+                __html: '{"features":["shopify-chat"]}',
+              }}
+            />
+            <script
+              nonce={nonce}
+              suppressHydrationWarning
+              dangerouslySetInnerHTML={{
+                __html: `window.Shopify = window.Shopify || {}; window.Shopify.shop = ${JSON.stringify(shopDomain)};`,
+              }}
+            />
+            <script
+              nonce={nonce}
+              defer
+              suppressHydrationWarning
+              src="https://cdn.shopify.com/extensions/a91f9cd9-7693-4b55-b0f8-a47f69a8cb0c/inbox-1267/assets/shopifyChatV1Widget.js"
+            />
+          </>
+        ) : null}
         <Scripts nonce={nonce} />
       </body>
     </html>
@@ -413,6 +483,30 @@ const SEASONAL_NAV_QUERY = `#graphql
     collection(handle: "seasonal") {
       childCollections: metafield(namespace: "custom", key: "child_nodes") {
         references(first: 10) {
+          nodes {
+            ... on Collection {
+              id
+              title
+              handle
+              menuPriority: metafield(namespace: "custom", key: "menu_priority_order") {
+                value
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+` as const;
+
+const DISCOUNTS_NAV_QUERY = `#graphql
+  query DiscountsNavItems(
+    $country: CountryCode
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
+    collection(handle: "discounts-menu") {
+      childCollections: metafield(namespace: "custom", key: "child_nodes") {
+        references(first: 20) {
           nodes {
             ... on Collection {
               id
