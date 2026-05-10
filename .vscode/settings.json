@@ -44,6 +44,10 @@
   "css.validate": true,
   "css.lint.unknownAtRules": "ignore",
 
+  "typescript.tsserver.maxTsServerMemory": 6144,
+  "typescript.tsserver.experimental.useVsCodeWatcher": true,
+  "typescript.disableAutomaticTypeAcquisition": true,
+
   "github.copilot.chat.codeGeneration.instructions": [
     {
       "file": ".github/copilot-instructions.md"
