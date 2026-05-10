@@ -11,3 +11,4 @@ export type {
   VariantSelectorVariant,
   VariantOption,
 } from './VariantSelector';
+export {StickyMobileCTA, type StickyMobileCTAProps} from './StickyMobileCTA';

@@ -346,15 +346,17 @@ export function ProductGallery({
     return (
       <>
         {lightbox}
-        <div className={`flex flex-row gap-3 ${className}`}>
-          {/* Vertical Thumbnail Strip */}
+        {/* On <md, stack main image above a horizontal swipe strip; on md+
+            revert to the desktop spec (vertical thumbs left, large image right). */}
+        <div className={`flex flex-col-reverse gap-3 md:flex-row ${className}`}>
+          {/* Thumbnail Strip — horizontal on mobile, vertical on md+ */}
           {hasMultipleImages && (
-            <div className="flex max-h-120.5 flex-col gap-2.5 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex flex-row gap-2.5 overflow-x-auto md:max-h-120.5 md:flex-col md:overflow-x-hidden md:overflow-y-auto snap-x snap-mandatory md:snap-none scroll-px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {images.map((image, index) => (
                 <button
                   key={image.id}
                   onClick={() => goToImage(index)}
-                  className={`relative shrink-0 w-15.75 h-18 rounded-[11px] overflow-hidden border-2 transition-colors ${
+                  className={`relative shrink-0 snap-start w-15.75 h-18 rounded-[11px] overflow-hidden border-2 transition-colors ${
                     index === currentIndex
                       ? 'border-secondary'
                       : 'border-transparent hover:border-secondary/50'
@@ -375,7 +377,9 @@ export function ProductGallery({
             </div>
           )}
 
-          {/* Main Image — click to open lightbox */}
+          {/* Main Image — click to open lightbox.
+              <md: square aspect for predictable height on phones.
+              md+: fixed 480px tall per Figma spec. */}
           <div
             className="relative flex-1"
             role="region"
@@ -384,7 +388,7 @@ export function ProductGallery({
             onKeyDown={handleKeyDown}
           >
             <button
-              className="w-full h-[480px] rounded-[13px] overflow-hidden border border-[#edf0f8] bg-surface cursor-zoom-in flex items-center justify-center"
+              className="w-full aspect-square md:aspect-auto md:h-[480px] rounded-[13px] overflow-hidden border border-[#edf0f8] bg-surface cursor-zoom-in flex items-center justify-center"
               onClick={() => openLightbox(currentIndex)}
               aria-label={t('productGallery.zoomImage')}
             >
