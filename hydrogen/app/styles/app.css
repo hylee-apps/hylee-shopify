@@ -199,12 +199,36 @@
   display: none;
 }
 
+/* === Mobile Utilities ===
+ * Touch target floor (Apple HIG / WCAG 2.5.5) and iOS safe-area padding helpers.
+ * Defined as Tailwind v4 @utility so they compose with variants (e.g. `sm:tap-target`).
+ */
+@utility tap-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
 /* === Responsive Typography === */
 @media (max-width: 768px) {
   :root {
     --text-5xl: 2.25rem;
     --text-4xl: 1.875rem;
     --text-3xl: 1.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --text-2xl: 1.25rem;
+    --text-xl: 1.125rem;
   }
 }
 /*
