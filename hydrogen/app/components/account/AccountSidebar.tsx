@@ -78,7 +78,7 @@ export function AccountSidebar({
           <SheetTrigger asChild>
             <button
               type="button"
-              className="flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm"
+              className="tap-target flex items-center gap-2 rounded-lg border border-border bg-white px-4 text-sm font-medium text-gray-700 shadow-sm"
             >
               <Menu size={18} />
               {t('account.sidebar.menuButton')}
