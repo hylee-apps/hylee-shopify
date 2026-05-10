@@ -77,13 +77,13 @@ export function SubcategoryScrollSection({
       {/* Scroll container */}
       <div
         ref={scrollRef}
-        className="flex gap-5 overflow-x-auto overflow-y-hidden pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex gap-5 overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-px-4 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {subcollections.map((sub) => (
           <Link
             key={sub.handle}
             to={`/collections/${sub.handle}`}
-            className="flex flex-col items-center gap-3 shrink-0 group"
+            className="flex flex-col items-center gap-3 shrink-0 snap-start group"
           >
             {/* Square image tile — 180×180px, object-contain so full image shows */}
             <div
