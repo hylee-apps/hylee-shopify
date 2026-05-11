@@ -72,9 +72,12 @@ test.describe('Cart — Mobile Visual', () => {
     const ctaBox = await checkoutCta.boundingBox();
     expect(ctaBox!.height).toBeGreaterThanOrEqual(44);
 
-    await expect(page).toHaveScreenshot('cart-populated-mobile.png', {
-      fullPage: true,
-    });
+    // No fullPage snapshot — the cart's content (prices, products, totals)
+    // is non-deterministic between test runs (Shopify session cookies can
+    // leak across runs and the "first product" on /collections/all isn't
+    // stable). Structural assertions above + no-horizontal-scroll guard
+    // cover what we care about; manual visual review is in
+    // docs/MOBILE_ROLLOUT_TESTING_PLAN.md §5.2.
     await expectNoHorizontalScroll(page);
   });
 
@@ -100,8 +103,10 @@ test.describe('Cart — Mobile Visual', () => {
     // click triggers the same React onClick handler with looser timing.
     await totalButton.click();
 
+    // Drawer should open. No screenshot — body contains subtotal/total/
+    // line items that vary with cart content. Manual review per testing
+    // plan §5.2.
     const drawer = page.getByRole('dialog');
     await expect(drawer).toBeVisible();
-    await expect(drawer).toHaveScreenshot('cart-summary-drawer-open.png');
   });
 });

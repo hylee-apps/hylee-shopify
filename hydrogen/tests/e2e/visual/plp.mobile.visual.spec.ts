@@ -20,9 +20,13 @@ test.describe('PLP — Mobile Visual', () => {
   test('end-node collection — closed', async ({page}) => {
     await page.goto('/collections/all');
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveScreenshot('plp-end-node-mobile.png', {
-      fullPage: true,
-    });
+
+    // No fullPage snapshot — ProductCard content (image, title, price)
+    // varies with Shopify inventory between runs. Layout is verified by
+    // structural assertions in the "2 columns" + "Filters Sheet" tests
+    // below; full-page visual review is manual per testing plan §3.1.
+    const toolbar = page.getByRole('button', {name: /open filters|filters/i});
+    await expect(toolbar.first()).toBeVisible();
     await expectNoHorizontalScroll(page);
   });
 
