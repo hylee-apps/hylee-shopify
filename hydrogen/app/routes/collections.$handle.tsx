@@ -389,10 +389,13 @@ function EndNodeResultsHeader({
 
       {/* Right: Filters + Sort */}
       <div className="flex items-center gap-[12px]">
-        {/* Filters button — opens mobile sheet on all viewports */}
+        {/* Filters button — opens mobile sheet on all viewports.
+            Inline minHeight for WCAG 2.5.5 — 44px tap target on phones.
+            Hidden at lg+ where Figma spec is 37px. */}
         <button
           type="button"
           onClick={onOpenFilters}
+          style={{minHeight: 44}}
           className="bg-white border border-[#d1d5db] rounded-[8px] px-[17px] py-[9px] flex items-center gap-[8px] hover:bg-[#f9fafb] transition-colors lg:hidden"
         >
           <Filter size={13} className="text-[#374151]" />
@@ -401,7 +404,7 @@ function EndNodeResultsHeader({
           </span>
         </button>
 
-        {/* Sort — override pill style → Figma square rounded-[8px] */}
+        {/* Sort — override pill style → Figma square rounded-[8px]. */}
         <SortSelect
           searchParams={searchParams}
           className="!rounded-[8px] !border-[#d1d5db] !px-[17px] !py-[9px] !text-[14px] !text-[#374151] !font-normal"
@@ -529,7 +532,7 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
                       )}
 
                       {/* 6-column grid — Figma: ~229px pitch on 1400px container */}
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
                         {(nodes as CollectionProduct[]).map((product) => (
                           <ProductCard
                             key={product.id}
@@ -661,7 +664,7 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
                       )}
 
                       {/* 4-column grid — Figma: 4 cols at 1080px main width */}
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
                         {(nodes as CollectionProduct[]).map((product) => (
                           <ProductCard
                             key={product.id}

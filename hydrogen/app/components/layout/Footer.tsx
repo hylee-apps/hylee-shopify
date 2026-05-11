@@ -112,7 +112,7 @@ function NewsletterSignup({colored = false}: NewsletterSignupProps) {
   };
 
   return (
-    <div className="flex flex-col gap-[13px] items-center w-[560px] max-w-full">
+    <div className="flex flex-col gap-[13px] items-center w-full sm:w-[560px] sm:max-w-full">
       <h3
         className={cn(
           'text-[20px] font-normal leading-[1.2] text-center',
@@ -121,7 +121,12 @@ function NewsletterSignup({colored = false}: NewsletterSignupProps) {
       >
         {t('footer.newsletter.heading')}
       </h3>
-      <form onSubmit={handleSubmit} className="flex items-center gap-2">
+      {/* Stacks vertically on phones so the input + submit don't force the
+          footer wider than the viewport. Side-by-side at sm+ matches Figma. */}
+      <form
+        onSubmit={handleSubmit}
+        className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center"
+      >
         <PillInput
           type="email"
           value={email}
@@ -129,11 +134,11 @@ function NewsletterSignup({colored = false}: NewsletterSignupProps) {
           placeholder={t('footer.newsletter.placeholder')}
           required
           hideIcon
-          className="min-w-68.75"
+          className="w-full sm:min-w-68.75"
         />
         <Button
           type="submit"
-          className="h-10 rounded-[25px] px-6.5 text-[14px] font-medium whitespace-nowrap bg-white text-dark hover:bg-white/90"
+          className="h-10 w-full rounded-[25px] px-6.5 text-[14px] font-medium whitespace-nowrap bg-white text-dark hover:bg-white/90 sm:w-auto"
         >
           {submitted
             ? t('footer.newsletter.sent')

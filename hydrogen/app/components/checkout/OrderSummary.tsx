@@ -74,6 +74,13 @@ interface OrderSummaryProps {
   };
   /** Trust badges config */
   trustBadges?: 'ssl-pci' | 'ssl-only' | 'none';
+  /**
+   * Render mode. 'inline' (default) wraps the summary in a sticky Card
+   * suitable for the desktop right rail. 'drawer' renders only the body
+   * rows + total — the parent MobileSummaryDrawer provides the title and
+   * the parent's sticky bar provides the CTA, so both are skipped here.
+   */
+  mode?: 'inline' | 'drawer';
 }
 
 export function OrderSummary({
@@ -87,6 +94,7 @@ export function OrderSummary({
   cta,
   back,
   trustBadges = 'ssl-pci',
+  mode = 'inline',
 }: OrderSummaryProps) {
   const {t} = useTranslation('common');
   const subtotal = cart.cost?.subtotalAmount;
@@ -106,6 +114,145 @@ export function OrderSummary({
       })
     : t('orderSummary.defaultSubtotal');
 
+  const isDrawer = mode === 'drawer';
+
+  const body = (
+    <div className={isDrawer ? 'pt-2' : 'px-6 pt-[22px]'}>
+      {/* Product items (when enabled) */}
+      {showProductItems && lines.length > 0 && (
+        <div className="mb-4 flex flex-col gap-3 border-b border-border pb-4">
+          {lines.map((line) => (
+            <ProductItemRow key={line.id} line={line} />
+          ))}
+        </div>
+      )}
+
+      {/* Summary rows */}
+      <div className="flex flex-col gap-[17px]">
+        <div className="flex items-center justify-between">
+          <span className="text-[15px] text-[#4b5563]">
+            {subtotalLabel ?? defaultSubtotalLabel}
+          </span>
+          <span className="text-[15px] text-[#4b5563]">
+            {subtotal ? formatMoney(subtotal) : '—'}
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-[15px] text-[#4b5563]">
+            {t('orderSummary.shipping')}
+          </span>
+          <span className="text-[15px] text-[#4b5563]">
+            {shippingDisplay ?? (
+              <span className="text-text-light">
+                {t('orderSummary.shippingCalculated')}
+              </span>
+            )}
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-[15px] text-[#4b5563]">
+            {t('orderSummary.tax')}
+          </span>
+          <span className="text-[15px] text-[#4b5563]">
+            {taxDisplay ??
+              (taxAmount ? (
+                formatMoney(taxAmount)
+              ) : (
+                <span className="text-text-light">
+                  {t('orderSummary.taxCalculated')}
+                </span>
+              ))}
+          </span>
+        </div>
+      </div>
+
+      {/* Separator + Total */}
+      <div className="my-[22px] border-t-2 border-border" />
+      <div className="flex items-center justify-between">
+        <span className="text-lg font-bold text-[#111827]">
+          {resolvedTotalLabel}
+        </span>
+        <span className="text-lg font-bold text-[#111827]">
+          {total ? formatMoney(total) : '—'}
+        </span>
+      </div>
+
+      {/* CTA + back link — suppressed in drawer mode (parent's sticky bar
+          owns the primary action so users don't have to open the drawer
+          just to advance the step). */}
+      {!isDrawer && cta && (
+        <div className="mt-[22px]">
+          {cta.isSubmit ? (
+            <button
+              type="submit"
+              disabled={cta.disabled}
+              className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {cta.label}
+              {cta.icon === 'arrow' && <ArrowRight size={16} />}
+              {cta.icon === 'check' && <Check size={16} />}
+            </button>
+          ) : (
+            <Link
+              to={cta.href}
+              className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-primary/90"
+            >
+              {cta.label}
+              {cta.icon === 'arrow' && <ArrowRight size={16} />}
+              {cta.icon === 'check' && <Check size={16} />}
+            </Link>
+          )}
+        </div>
+      )}
+
+      {!isDrawer && back && (
+        <div className="mt-1">
+          <Link
+            to={back.href}
+            className="flex w-full items-center justify-center gap-2 rounded-[8px] p-2 text-[15px] font-medium text-secondary transition-colors hover:bg-secondary/5"
+          >
+            <ArrowLeft size={15} />
+            {back.label}
+          </Link>
+        </div>
+      )}
+
+      {/* Trust badges */}
+      {trustBadges !== 'none' && (
+        <div className="mt-[22px] flex flex-col gap-3 border-t border-border pb-6 pt-[25px]">
+          {trustBadges === 'ssl-pci' ? (
+            <>
+              <div className="flex items-center gap-2">
+                <Lock size={13} className="shrink-0 text-primary" />
+                <span className="text-[13px] text-[#4b5563]">
+                  {t('orderSummary.trust.ssl')}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <ShieldCheck size={13} className="shrink-0 text-primary" />
+                <span className="text-[13px] text-[#4b5563]">
+                  {t('orderSummary.trust.pci')}
+                </span>
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center justify-center gap-2">
+              <Lock size={13} className="shrink-0 text-primary" />
+              <span className="text-[13px] text-[#4b5563]">
+                {t('orderSummary.trust.secure')}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
+  // Drawer mode: just the body. Parent (MobileSummaryDrawer) provides the
+  // title bar and the parent route's sticky bar provides the CTA.
+  if (isDrawer) return body;
+
+  // Inline (desktop) mode: sticky Card with title row.
   return (
     <div className="sticky top-4">
       <Card className="gap-0 overflow-hidden rounded-[12px] bg-white p-0 shadow-sm">
@@ -113,135 +260,7 @@ export function OrderSummary({
         <div className="border-b border-border px-6 pb-[17px] pt-6">
           <h3 className="text-lg font-bold text-[#1f2937]">{resolvedTitle}</h3>
         </div>
-
-        <div className="px-6 pt-[22px]">
-          {/* Product items (when enabled) */}
-          {showProductItems && lines.length > 0 && (
-            <div className="mb-4 flex flex-col gap-3 border-b border-border pb-4">
-              {lines.map((line) => (
-                <ProductItemRow key={line.id} line={line} />
-              ))}
-            </div>
-          )}
-
-          {/* Summary rows */}
-          <div className="flex flex-col gap-[17px]">
-            <div className="flex items-center justify-between">
-              <span className="text-[15px] text-[#4b5563]">
-                {subtotalLabel ?? defaultSubtotalLabel}
-              </span>
-              <span className="text-[15px] text-[#4b5563]">
-                {subtotal ? formatMoney(subtotal) : '—'}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-[15px] text-[#4b5563]">
-                {t('orderSummary.shipping')}
-              </span>
-              <span className="text-[15px] text-[#4b5563]">
-                {shippingDisplay ?? (
-                  <span className="text-text-light">
-                    {t('orderSummary.shippingCalculated')}
-                  </span>
-                )}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-[15px] text-[#4b5563]">
-                {t('orderSummary.tax')}
-              </span>
-              <span className="text-[15px] text-[#4b5563]">
-                {taxDisplay ??
-                  (taxAmount ? (
-                    formatMoney(taxAmount)
-                  ) : (
-                    <span className="text-text-light">
-                      {t('orderSummary.taxCalculated')}
-                    </span>
-                  ))}
-              </span>
-            </div>
-          </div>
-
-          {/* Separator + Total */}
-          <div className="my-[22px] border-t-2 border-border" />
-          <div className="flex items-center justify-between">
-            <span className="text-lg font-bold text-[#111827]">
-              {resolvedTotalLabel}
-            </span>
-            <span className="text-lg font-bold text-[#111827]">
-              {total ? formatMoney(total) : '—'}
-            </span>
-          </div>
-
-          {/* CTA */}
-          {cta && (
-            <div className="mt-[22px]">
-              {cta.isSubmit ? (
-                <button
-                  type="submit"
-                  disabled={cta.disabled}
-                  className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {cta.label}
-                  {cta.icon === 'arrow' && <ArrowRight size={16} />}
-                  {cta.icon === 'check' && <Check size={16} />}
-                </button>
-              ) : (
-                <Link
-                  to={cta.href}
-                  className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-primary px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-primary/90"
-                >
-                  {cta.label}
-                  {cta.icon === 'arrow' && <ArrowRight size={16} />}
-                  {cta.icon === 'check' && <Check size={16} />}
-                </Link>
-              )}
-            </div>
-          )}
-
-          {/* Back link */}
-          {back && (
-            <div className="mt-1">
-              <Link
-                to={back.href}
-                className="flex w-full items-center justify-center gap-2 rounded-[8px] p-2 text-[15px] font-medium text-secondary transition-colors hover:bg-secondary/5"
-              >
-                <ArrowLeft size={15} />
-                {back.label}
-              </Link>
-            </div>
-          )}
-
-          {/* Trust badges */}
-          {trustBadges !== 'none' && (
-            <div className="mt-[22px] flex flex-col gap-3 border-t border-border pb-6 pt-[25px]">
-              {trustBadges === 'ssl-pci' ? (
-                <>
-                  <div className="flex items-center gap-2">
-                    <Lock size={13} className="shrink-0 text-primary" />
-                    <span className="text-[13px] text-[#4b5563]">
-                      {t('orderSummary.trust.ssl')}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck size={13} className="shrink-0 text-primary" />
-                    <span className="text-[13px] text-[#4b5563]">
-                      {t('orderSummary.trust.pci')}
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <div className="flex items-center justify-center gap-2">
-                  <Lock size={13} className="shrink-0 text-primary" />
-                  <span className="text-[13px] text-[#4b5563]">
-                    {t('orderSummary.trust.secure')}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        {body}
       </Card>
     </div>
   );

@@ -40,6 +40,8 @@
     "build": "cd hydrogen && pnpm build",
     "preview": "cd hydrogen && pnpm preview",
     "typecheck": "cd hydrogen && pnpm typecheck",
+    "visual:header": "cd hydrogen && pnpm visual:header",
+    "visual:mobile": "cd hydrogen && pnpm visual:mobile",
     "context:export": "bash scripts/export-context.sh",
     "synonyms:generate": "tsx scripts/generate-synonyms.ts",
     "synonyms:upload": "tsx scripts/generate-synonyms.ts --upload"

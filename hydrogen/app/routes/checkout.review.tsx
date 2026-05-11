@@ -5,6 +5,7 @@ import {CreditCard, ImageIcon, Lock, Check} from 'lucide-react';
 import {Card} from '~/components/ui/card';
 import {CheckoutProgress} from '~/components/checkout/CheckoutProgress';
 import {OrderSummary} from '~/components/checkout/OrderSummary';
+import {MobileSummaryDrawer} from '~/components/commerce/MobileSummaryDrawer';
 import {
   getCheckoutAttributes,
   formatMoney,
@@ -285,12 +286,19 @@ export default function CheckoutReviewPage() {
     ? `$${shippingCost.toFixed(2)}`
     : '$5.99';
 
+  const total = (cart as any)?.cost?.totalAmount;
+
   return (
     <div className="min-h-screen bg-[#f9fafb]">
       <CheckoutProgress currentStep="review" />
 
-      <div className="mx-auto max-w-[1443px] px-6 py-8">
-        <div className="grid grid-cols-[1fr_400px] items-start gap-8">
+      {/* Form wraps everything so the mobile sticky-bar Place Order button
+          submits the same data as the desktop sidebar's submit button. */}
+      <Form
+        method="post"
+        className="mx-auto max-w-[1443px] px-4 py-8 pb-24 sm:px-6 lg:pb-8"
+      >
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[1fr_400px] lg:gap-8">
           {/* Left: Review content */}
           <div className="flex flex-col gap-6">
             <Card className="gap-0 overflow-hidden bg-white p-0 shadow-sm">
@@ -343,8 +351,8 @@ export default function CheckoutReviewPage() {
             </div>
           </div>
 
-          {/* Right: Order Total sidebar */}
-          <Form method="post" className="contents">
+          {/* Right: Order Total sidebar (desktop only) */}
+          <div className="hidden lg:block">
             <OrderSummary
               cart={cart as any}
               title={t('checkout.review.summary.title')}
@@ -359,9 +367,47 @@ export default function CheckoutReviewPage() {
               }}
               trustBadges="ssl-only"
             />
-          </Form>
+          </div>
         </div>
-      </div>
+
+        {/* Mobile-only summary drawer + sticky bar with Place Order. */}
+        <MobileSummaryDrawer
+          title={t('checkout.review.summary.title')}
+          stickyBar={({openSummary}) => (
+            <div className="flex items-stretch gap-3 px-4 py-3">
+              <button
+                type="button"
+                onClick={openSummary}
+                className="tap-target flex flex-1 flex-col items-start justify-center text-left"
+                aria-label={t('checkout.review.summary.title')}
+              >
+                <span className="text-xs uppercase tracking-wide text-text-muted">
+                  {t('checkout.review.summary.total')}
+                </span>
+                <span className="text-lg font-bold text-[#111827]">
+                  {total ? formatMoney(total) : '—'}
+                </span>
+              </button>
+              <button
+                type="submit"
+                className="tap-target inline-flex flex-1 items-center justify-center gap-2 rounded-[8px] bg-primary px-4 text-base font-semibold text-white transition-colors hover:bg-primary/90"
+              >
+                <Check size={16} />
+                {t('checkout.review.placeOrder')}
+              </button>
+            </div>
+          )}
+        >
+          <OrderSummary
+            cart={cart as any}
+            subtotalLabel={t('checkout.review.summary.subtotal')}
+            shippingDisplay={shippingDisplay}
+            totalLabel={t('checkout.review.summary.total')}
+            trustBadges="ssl-only"
+            mode="drawer"
+          />
+        </MobileSummaryDrawer>
+      </Form>
     </div>
   );
 }

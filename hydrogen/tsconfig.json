@@ -42,6 +42,7 @@
     "noEmit": true,
     "rootDirs": [".", "./.react-router/types"],
     "incremental": true,
+    "tsBuildInfoFile": "./node_modules/.cache/hydrogen-tsc.tsbuildinfo",
     "composite": false,
     "verbatimModuleSyntax": true
   }

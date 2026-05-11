@@ -304,7 +304,7 @@ export default function CheckoutConfirmationPage() {
       </div>
 
       {/* Order details */}
-      <div className="mx-auto max-w-[800px] px-6 py-8">
+      <div className="mx-auto max-w-[800px] px-4 py-8 sm:px-6">
         <OrderDetailsCard cart={cart} />
 
         {/* Account creation CTA — only for guests */}

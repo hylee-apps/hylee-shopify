@@ -2,16 +2,18 @@ import {useState} from 'react';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {Link, redirect, useLoaderData, Form} from 'react-router';
 import {useTranslation} from 'react-i18next';
-import {CreditCard} from 'lucide-react';
+import {ArrowRight, CreditCard} from 'lucide-react';
 import {Card} from '~/components/ui/card';
 import {cn} from '~/lib/utils';
 import {CheckoutProgress} from '~/components/checkout/CheckoutProgress';
 import {OrderSummary} from '~/components/checkout/OrderSummary';
+import {MobileSummaryDrawer} from '~/components/commerce/MobileSummaryDrawer';
 import {
   CHECKOUT_ATTR,
   CART_ATTRIBUTES_UPDATE,
   buildCartAttributes,
   getCheckoutAttributes,
+  formatMoney,
   type PaymentMethodType,
 } from '~/lib/checkout';
 import type {Route} from './+types/checkout.payment';
@@ -329,14 +331,19 @@ function PaymentMethodCard({
 
 export default function CheckoutPaymentPage() {
   const {cart, savedPaymentMethod} = useLoaderData<typeof loader>();
+  const {t} = useTranslation('common');
+  const total = (cart as any)?.cost?.totalAmount;
 
   return (
     <div className="min-h-screen bg-[#f9fafb]">
       {/* Progress bar */}
       <CheckoutProgress currentStep="payment" />
 
-      <Form method="post" className="mx-auto max-w-[1443px] px-6 py-8">
-        <div className="grid grid-cols-[1fr_400px] items-start gap-8">
+      <Form
+        method="post"
+        className="mx-auto max-w-[1443px] px-4 py-8 pb-24 sm:px-6 lg:pb-8"
+      >
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[1fr_400px] lg:gap-8">
           {/* ── Left: Main content ── */}
           <div className="flex flex-col gap-6">
             <PaymentMethodCard
@@ -345,9 +352,42 @@ export default function CheckoutPaymentPage() {
             <BillingAddressCard />
           </div>
 
-          {/* ── Right: Order Summary ── */}
-          <PaymentOrderSummary cart={cart} />
+          {/* ── Right: Order Summary (desktop sticky sidebar) ── */}
+          <div className="hidden lg:block">
+            <PaymentOrderSummary cart={cart} />
+          </div>
         </div>
+
+        {/* Mobile-only summary drawer + sticky bar with the step's submit. */}
+        <MobileSummaryDrawer
+          title={t('orderSummary.defaultTitle')}
+          stickyBar={({openSummary}) => (
+            <div className="flex items-stretch gap-3 px-4 py-3">
+              <button
+                type="button"
+                onClick={openSummary}
+                className="tap-target flex flex-1 flex-col items-start justify-center text-left"
+                aria-label={t('orderSummary.defaultTitle')}
+              >
+                <span className="text-xs uppercase tracking-wide text-text-muted">
+                  {t('orderSummary.defaultTotal')}
+                </span>
+                <span className="text-lg font-bold text-[#111827]">
+                  {total ? formatMoney(total) : '—'}
+                </span>
+              </button>
+              <button
+                type="submit"
+                className="tap-target inline-flex flex-1 items-center justify-center gap-2 rounded-[8px] bg-primary px-4 text-base font-semibold text-white transition-colors hover:bg-primary/90"
+              >
+                {t('checkout.payment.continueToShipping')}
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          )}
+        >
+          <OrderSummary cart={cart as any} mode="drawer" />
+        </MobileSummaryDrawer>
       </Form>
     </div>
   );

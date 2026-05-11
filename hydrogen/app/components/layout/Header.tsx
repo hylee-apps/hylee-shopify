@@ -14,9 +14,11 @@ import {
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
 } from '~/components/ui/sheet';
+import {VisuallyHidden} from '@radix-ui/react-visually-hidden';
 import {Button} from '~/components/ui/button';
 import {
   DropdownMenu,
@@ -71,6 +73,7 @@ interface MobileMenuProps {
   onClose: () => void;
   menu: HeaderQuery['menu'];
   isLoggedIn: boolean;
+  currentLanguage: string;
   categories?: HeaderProps['categories'];
   seasonalItems?: HeaderProps['seasonalItems'];
   discountItems?: HeaderProps['discountItems'];
@@ -263,6 +266,7 @@ function MobileMenu({
   onClose,
   menu,
   isLoggedIn,
+  currentLanguage,
   categories,
   seasonalItems = [],
   discountItems = [],
@@ -430,7 +434,7 @@ function MobileMenu({
             {isLoggedIn ? (
               <Link
                 to="/account"
-                className="flex items-center gap-2 text-text hover:text-primary"
+                className="flex items-center gap-2 tap-target text-text hover:text-primary"
                 onClick={onClose}
               >
                 <User size={20} />
@@ -448,7 +452,7 @@ function MobileMenu({
                 </Link>
                 <Link
                   to="/account/login"
-                  className="flex items-center gap-2 text-text hover:text-primary"
+                  className="flex items-center gap-2 tap-target text-text hover:text-primary"
                   onClick={onClose}
                 >
                   <User size={20} />
@@ -466,7 +470,65 @@ function MobileMenu({
               </div>
             )}
           </div>
+
+          <div className="px-4 py-3 border-t border-border">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
+              {t('header.selectLanguage')}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {LANGUAGES.map((lang) => (
+                <Form
+                  key={lang.code}
+                  method="post"
+                  action="/api/language"
+                  reloadDocument
+                  className="inline-flex"
+                >
+                  <input type="hidden" name="language" value={lang.code} />
+                  <button
+                    type="submit"
+                    className={`tap-target inline-flex items-center gap-1.5 rounded-full border px-3 text-sm transition-colors ${
+                      currentLanguage === lang.code
+                        ? 'border-secondary bg-secondary/10 text-secondary font-semibold'
+                        : 'border-border text-text hover:border-primary hover:text-primary'
+                    }`}
+                    aria-pressed={currentLanguage === lang.code}
+                  >
+                    <Globe size={14} />
+                    {lang.code}
+                  </button>
+                </Form>
+              ))}
+            </div>
+          </div>
         </nav>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+// ============================================================================
+// MobileSearchSheet — top-anchored Sheet with full-width SearchAutocomplete
+// ============================================================================
+
+function MobileSearchSheet({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  const {t} = useTranslation();
+  return (
+    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <SheetContent side="top" className="p-4 pt-12 lg:hidden">
+        <SheetHeader className="sr-only">
+          <SheetTitle>{t('header.search')}</SheetTitle>
+          <SheetDescription>
+            <VisuallyHidden>{t('search.placeholder')}</VisuallyHidden>
+          </SheetDescription>
+        </SheetHeader>
+        <SearchAutocomplete className="w-full" />
       </SheetContent>
     </Sheet>
   );
@@ -530,6 +592,7 @@ export function Header({
   discountItems = [],
 }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [categoryBarOpen, setCategoryBarOpen] = useState(false);
   const [seasonalBarOpen, setSeasonalBarOpen] = useState(false);
   const [discountsBarOpen, setDiscountsBarOpen] = useState(false);
@@ -562,6 +625,7 @@ export function Header({
 
   useEffect(() => {
     setMobileMenuOpen(false);
+    setMobileSearchOpen(false);
     setCategoryBarOpen(false);
     setSeasonalBarOpen(false);
     setDiscountsBarOpen(false);
@@ -604,7 +668,7 @@ export function Header({
             {/* Left column — logo + mobile hamburger */}
             <div className="flex items-center gap-2 flex-1">
               <button
-                className="lg:hidden p-2 -ml-2 text-text hover:text-primary transition-colors"
+                className="lg:hidden tap-target -ml-2 inline-flex items-center justify-center text-text hover:text-primary transition-colors"
                 onClick={() => setMobileMenuOpen(true)}
                 aria-label={t('header.openMenu')}
               >
@@ -708,28 +772,29 @@ export function Header({
 
               {/* Mobile */}
               <div className="lg:hidden flex items-center gap-1">
-                <Link
-                  to="/search"
-                  className="p-2 text-text-muted hover:text-primary transition-colors"
+                <button
+                  type="button"
+                  className="tap-target inline-flex items-center justify-center text-text-muted hover:text-primary transition-colors"
+                  onClick={() => setMobileSearchOpen(true)}
                   aria-label={t('header.search')}
                 >
                   <Search size={20} />
-                </Link>
+                </button>
                 <Link
                   to={resolvedIsLoggedIn ? '/account' : '/account/login'}
-                  className="p-2 text-text-muted hover:text-primary transition-colors"
+                  className="tap-target inline-flex items-center justify-center text-text-muted hover:text-primary transition-colors"
                   aria-label={t('nav.account')}
                 >
                   <User size={20} />
                 </Link>
                 <Link
                   to="/cart"
-                  className="relative p-2 text-text-muted hover:text-primary transition-colors"
+                  className="tap-target relative inline-flex items-center justify-center text-text-muted hover:text-primary transition-colors"
                   aria-label={t('header.cartCount', {count: cartCount})}
                 >
                   <ShoppingCart size={24} />
                   {cartCount > 0 && (
-                    <span className="absolute top-0 right-0 flex items-center justify-center min-w-4.5 h-4.5 px-1 text-[10px] font-medium text-white bg-primary rounded-full">
+                    <span className="absolute top-1 right-1 flex items-center justify-center min-w-4.5 h-4.5 px-1 text-[10px] font-medium text-white bg-primary rounded-full">
                       {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}
@@ -743,7 +808,7 @@ export function Header({
           <div className="max-w-screen-2xl mx-auto w-full flex items-center gap-4 lg:gap-[26px] px-4 sm:px-6 lg:px-8 py-2.5">
             {/* Mobile: hamburger */}
             <button
-              className="lg:hidden p-2 -ml-2 text-text hover:text-primary transition-colors"
+              className="lg:hidden tap-target -ml-2 inline-flex items-center justify-center text-text hover:text-primary transition-colors"
               onClick={() => setMobileMenuOpen(true)}
               aria-label={t('header.openMenu')}
             >
@@ -805,21 +870,22 @@ export function Header({
 
             {/* Mobile: search + cart */}
             <div className="lg:hidden flex items-center gap-1 ml-auto">
-              <Link
-                to="/search"
-                className="p-2 text-text-muted hover:text-primary transition-colors"
+              <button
+                type="button"
+                className="tap-target inline-flex items-center justify-center text-text-muted hover:text-primary transition-colors"
+                onClick={() => setMobileSearchOpen(true)}
                 aria-label={t('header.search')}
               >
                 <Search size={20} />
-              </Link>
+              </button>
               <Link
                 to="/cart"
-                className="relative p-2 text-text-muted hover:text-primary transition-colors"
+                className="tap-target relative inline-flex items-center justify-center text-text-muted hover:text-primary transition-colors"
                 aria-label={t('header.cartCount', {count: cartCount})}
               >
                 <ShoppingCart size={24} />
                 {cartCount > 0 && (
-                  <span className="absolute top-0 right-0 flex items-center justify-center min-w-4.5 h-4.5 px-1 text-[10px] font-medium text-white bg-primary rounded-full">
+                  <span className="absolute top-1 right-1 flex items-center justify-center min-w-4.5 h-4.5 px-1 text-[10px] font-medium text-white bg-primary rounded-full">
                     {cartCount > 99 ? '99+' : cartCount}
                   </span>
                 )}
@@ -840,9 +906,15 @@ export function Header({
         onClose={() => setMobileMenuOpen(false)}
         menu={menu}
         isLoggedIn={resolvedIsLoggedIn}
+        currentLanguage={currentLanguage}
         categories={categories}
         seasonalItems={seasonalItems}
         discountItems={discountItems}
+      />
+
+      <MobileSearchSheet
+        isOpen={mobileSearchOpen}
+        onClose={() => setMobileSearchOpen(false)}
       />
     </>
   );

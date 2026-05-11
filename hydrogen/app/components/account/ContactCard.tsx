@@ -63,14 +63,20 @@ export function ContactCard({
           <button
             type="button"
             onClick={() => onEdit(contact)}
-            className="flex size-8 items-center justify-center rounded-lg bg-[#4fd1a8] transition-opacity hover:opacity-90"
+            className="tap-target flex size-11 items-center justify-center rounded-lg bg-[#4fd1a8] transition-opacity hover:opacity-90 sm:size-8 sm:min-h-0 sm:min-w-0"
+            aria-label={t('contactCard.editAriaLabel', {
+              defaultValue: 'Edit',
+            })}
           >
             <Pencil size={13} className="text-white" />
           </button>
           <button
             type="button"
             onClick={() => onDelete(contact.id)}
-            className="flex size-8 items-center justify-center rounded-lg bg-red-100 transition-opacity hover:opacity-80"
+            className="tap-target flex size-11 items-center justify-center rounded-lg bg-red-100 transition-opacity hover:opacity-80 sm:size-8 sm:min-h-0 sm:min-w-0"
+            aria-label={t('contactCard.deleteAriaLabel', {
+              defaultValue: 'Delete',
+            })}
           >
             <Trash2 size={13} className="text-gray-800" />
           </button>

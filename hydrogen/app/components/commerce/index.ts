@@ -49,3 +49,8 @@ export {
   type FaceRatingSummaryProps,
   type FaceIconProps,
 } from './FaceRating';
+
+export {
+  MobileSummaryDrawer,
+  type MobileSummaryDrawerProps,
+} from './MobileSummaryDrawer';
