@@ -174,14 +174,14 @@ export function Footer({
   return (
     <footer className={BG_CLASSES[variant]}>
       <div className="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 lg:py-14.75">
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-[78px] items-start">
-          {/* Left column — Logo + social */}
-          <div className="flex flex-col gap-3 items-start shrink-0 lg:w-60">
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-[78px] items-center lg:items-start">
+          {/* Left column — Logo + social (bottom on mobile, first on desktop) */}
+          <div className="order-3 lg:order-1 flex flex-col gap-3 items-center lg:items-start shrink-0 lg:w-60">
             <Link to="/">
               <img
                 src={logoSrc}
                 alt={shopName}
-                className="h-[101.821px] w-[183px] object-contain"
+                className="h-[60px] w-[108px] lg:h-[101.821px] lg:w-[183px] object-contain"
                 loading="lazy"
               />
             </Link>
@@ -221,12 +221,10 @@ export function Footer({
             </div>
           </div>
 
-          {/* Center/right — Newsletter + nav links */}
-          <div className="flex flex-col items-center flex-1 lg:w-140 gap-3.25">
-            <NewsletterSignup colored={colored} />
-
-            {/* Nav links */}
-            <nav className="p-[10px]">
+          {/* Center/right — Newsletter + nav links (stacked; order flips on mobile) */}
+          <div className="order-1 lg:order-2 flex flex-col items-center flex-1 lg:w-140 gap-3.25">
+            {/* Nav links — first on mobile, second on desktop */}
+            <nav className="order-1 lg:order-2 p-[10px]">
               <ul className="flex flex-wrap items-center justify-center">
                 {displayLinks.map((link) => (
                   <li key={link.url}>
@@ -246,6 +244,11 @@ export function Footer({
                 ))}
               </ul>
             </nav>
+
+            {/* Newsletter — second on mobile, first on desktop */}
+            <div className="order-2 lg:order-1 w-full flex justify-center">
+              <NewsletterSignup colored={colored} />
+            </div>
           </div>
         </div>
 
