@@ -33,11 +33,22 @@ test.describe('PDP — Mobile Visual', () => {
   }) => {
     await gotoFirstProduct(page);
 
+    // No screenshot — `gotoFirstProduct` picks whatever's first on
+    // /collections/all, which varies with Shopify inventory order. The
+    // gallery, price, and product title all shift between runs. Layout
+    // is locked via the structural assertions below + manual visual
+    // review in docs/MOBILE_ROLLOUT_TESTING_PLAN.md §4.1.
     const gallery = page.getByRole('region').first();
     await expect(gallery).toBeVisible();
-    await expect(page).toHaveScreenshot('pdp-mobile-top.png', {
-      fullPage: false,
-    });
+
+    const addToCart = page.getByRole('button', {name: /add to cart/i}).first();
+    await expect(addToCart).toBeVisible();
+    const ctaBox = await addToCart.boundingBox();
+    const viewportH = page.viewportSize()?.height ?? 844;
+    // Verify the in-page Add-to-Cart sits ABOVE the fold on mobile —
+    // that's the entire point of the Phase 4 child reorder.
+    expect(ctaBox!.y).toBeLessThan(viewportH);
+
     await expectNoHorizontalScroll(page);
   });
 
