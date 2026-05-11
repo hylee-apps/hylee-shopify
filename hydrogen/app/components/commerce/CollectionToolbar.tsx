@@ -48,12 +48,17 @@ export function CollectionToolbar({
       </p>
 
       <div className="flex items-center gap-3">
-        {/* Mobile filter button — hidden on desktop (lg+) */}
+        {/* Mobile filter button — hidden on desktop (lg+).
+            Inline minHeight overrides shadcn Button's default `h-9` (36px)
+            for WCAG 2.5.5 — 44px tap-target on mobile. The default h-9
+            wins via `height: 36px`, but CSS resolves height to
+            max(min-height, height) = 44px. */}
         {onOpenMobileFilters && (
           <Button
             type="button"
             variant="outline"
             onClick={onOpenMobileFilters}
+            style={{minHeight: 44}}
             className="lg:hidden rounded-full px-4 py-2.5 shadow-none border-border text-dark hover:border-text-muted hover:bg-transparent"
             aria-label={t('toolbar.openFilters')}
           >

@@ -55,9 +55,16 @@ test.describe('Cart — Mobile Visual', () => {
     const empty = page.getByText(/your cart is empty/i);
     test.skip(await empty.isVisible(), 'cart could not be populated');
 
-    // Desktop sticky sidebar is `hidden lg:flex` — should be hidden at 390.
-    const desktopSummaryTitle = page.locator('.hidden.lg\\:flex h3');
-    await expect(desktopSummaryTitle).toHaveCount(0);
+    // Desktop sticky sidebar is `hidden lg:flex` — it stays in the DOM with
+    // display:none, so we assert visibility (not DOM count). Both the
+    // desktop sidebar h3 AND the mobile drawer's h3 say "Order Summary";
+    // we want zero VISIBLE matches at 390px (drawer is closed, sidebar is
+    // display:none).
+    const summaryTitles = page.getByRole('heading', {name: /order summary/i});
+    const titleCount = await summaryTitles.count();
+    for (let i = 0; i < titleCount; i++) {
+      await expect(summaryTitles.nth(i)).toBeHidden();
+    }
 
     // Sticky bottom bar should be present with a Checkout CTA.
     const checkoutCta = page.getByRole('link', {name: /checkout/i}).last();

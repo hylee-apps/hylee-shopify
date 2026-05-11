@@ -385,15 +385,13 @@ function EndNodeResultsHeader({
       {/* Right: Filters + Sort */}
       <div className="flex items-center gap-[12px]">
         {/* Filters button — opens mobile sheet on all viewports.
-            Uses the project's `tap-target` @utility (hardcoded
-            `min-height/min-width: 44px`) for WCAG 2.5.5 on mobile.
-            Cleared at sm+ to preserve the Figma 37px desktop spec.
-            (Tailwind's native min-h-11 doesn't work here — the project's
-            @theme spacing scale is discontinuous and skips --spacing-11.) */}
+            Inline minHeight for WCAG 2.5.5 — 44px tap target on phones.
+            Hidden at lg+ where Figma spec is 37px. */}
         <button
           type="button"
           onClick={onOpenFilters}
-          className="bg-white border border-[#d1d5db] rounded-[8px] tap-target sm:min-h-0 sm:min-w-0 px-[17px] py-[9px] flex items-center gap-[8px] hover:bg-[#f9fafb] transition-colors lg:hidden"
+          style={{minHeight: 44}}
+          className="bg-white border border-[#d1d5db] rounded-[8px] px-[17px] py-[9px] flex items-center gap-[8px] hover:bg-[#f9fafb] transition-colors lg:hidden"
         >
           <Filter size={13} className="text-[#374151]" />
           <span className="font-medium text-[13px] text-[#374151]">
@@ -401,10 +399,10 @@ function EndNodeResultsHeader({
           </span>
         </button>
 
-        {/* Sort — override pill style → Figma square rounded-[8px] */}
+        {/* Sort — override pill style → Figma square rounded-[8px]. */}
         <SortSelect
           searchParams={searchParams}
-          className="!rounded-[8px] !border-[#d1d5db] tap-target sm:!min-h-0 sm:!min-w-0 !px-[17px] !py-[9px] !text-[14px] !text-[#374151] !font-normal"
+          className="!rounded-[8px] !border-[#d1d5db] !px-[17px] !py-[9px] !text-[14px] !text-[#374151] !font-normal"
         />
       </div>
     </div>

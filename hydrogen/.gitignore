@@ -6,7 +6,16 @@ pnpm-lock.yaml
 # Playwright
 playwright-report/
 test-results/
-tests/e2e/visual/screenshots/
+# Top-level manual screenshot captures from .visual.spec.ts files
+# (debugging artifacts written via page.screenshot({path: ...})).
+tests/e2e/visual/screenshots/*.png
+# But keep Playwright baseline snapshots — those are the locked-in design
+# references checked by toHaveScreenshot() and must travel with the repo.
+!tests/e2e/visual/screenshots/mobile-chrome/
+!tests/e2e/visual/screenshots/chromium/
+!tests/e2e/visual/screenshots/webkit/
+!tests/e2e/visual/screenshots/mobile-safari/
+!tests/e2e/visual/screenshots/firefox/
 
 # Design references (binary + generated)
 design-references/**/screenshot.png

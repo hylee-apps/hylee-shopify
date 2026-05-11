@@ -65,8 +65,17 @@ export function StickyMobileCTA({
 
   if (!available || !visible) {
     // Render the sentinel even when hidden so the observer can re-attach
-    // after a route change without remounting the parent.
-    return <div ref={sentinelRef} aria-hidden="true" />;
+    // after a route change without remounting the parent. The testid lets
+    // tests verify the component is mounted with its ref wired up even
+    // when the bar isn't visible — IntersectionObserver behavior under
+    // Playwright is flaky enough that we can't rely on visibility alone.
+    return (
+      <div
+        ref={sentinelRef}
+        aria-hidden="true"
+        data-testid="sticky-mobile-cta-sentinel"
+      />
+    );
   }
 
   return (
