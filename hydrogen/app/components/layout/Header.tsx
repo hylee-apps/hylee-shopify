@@ -806,14 +806,24 @@ export function Header({
           /* ── ALTERNATE HEADER (non-homepage) ── */
           /* Figma node 2766:311: condensed logo + hamburger + search + DropdownMenu nav + cart */
           <div className="max-w-screen-2xl mx-auto w-full flex items-center gap-4 lg:gap-[26px] px-4 sm:px-6 lg:px-8 py-2.5">
-            {/* Mobile: hamburger */}
-            <button
-              className="lg:hidden tap-target -ml-2 inline-flex items-center justify-center text-text hover:text-primary transition-colors"
-              onClick={() => setMobileMenuOpen(true)}
-              aria-label={t('header.openMenu')}
-            >
-              <Menu size={24} />
-            </button>
+            {/* Mobile: hamburger + logo grouped (gap-2 matches homepage layout) */}
+            <div className="flex items-center gap-2 flex-1 lg:hidden">
+              <button
+                className="tap-target -ml-2 inline-flex items-center justify-center text-text hover:text-primary transition-colors"
+                onClick={() => setMobileMenuOpen(true)}
+                aria-label={t('header.openMenu')}
+              >
+                <Menu size={24} />
+              </button>
+              <Link to="/" className="shrink-0">
+                <img
+                  src="/logo-condensed.png"
+                  alt={shop.name}
+                  className="h-[50px] w-[65px] object-contain"
+                  loading="eager"
+                />
+              </Link>
+            </div>
 
             {/* Desktop left group: logo + categories button + search bar */}
             <div className="hidden lg:flex items-center gap-[15px] flex-1">
@@ -838,16 +848,6 @@ export function Header({
               {/* Search bar with Searchanise autocomplete */}
               <SearchAutocomplete className="flex-1" />
             </div>
-
-            {/* Mobile: logo */}
-            <Link to="/" className="shrink-0 lg:hidden">
-              <img
-                src="/logo-condensed.png"
-                alt={shop.name}
-                className="h-[50px] w-[65px] object-contain"
-                loading="eager"
-              />
-            </Link>
 
             {/* Desktop right: language + account + cart */}
             <div className="hidden lg:flex items-center gap-1 shrink-0">
