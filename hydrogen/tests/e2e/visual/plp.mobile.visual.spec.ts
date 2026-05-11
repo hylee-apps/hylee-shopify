@@ -50,8 +50,11 @@ test.describe('PLP — Mobile Visual', () => {
     await page.goto('/collections/all');
     await page.waitForLoadState('networkidle');
 
-    // Find the first product card; assert two cards fit side-by-side.
-    const cards = page.locator('main a[href^="/products/"]');
+    // Each ProductCard renders as an `<article>` (one per card). The previous
+    // selector `main a[href^="/products/"]` matched two links per card (image
+    // overlay + title hover link), so nth(0) and nth(1) were both inside the
+    // SAME card, giving a false 186px y-diff.
+    const cards = page.locator('main article');
     await expect(cards.first()).toBeVisible();
     const count = await cards.count();
     test.skip(count < 2, 'collection has fewer than 2 products');

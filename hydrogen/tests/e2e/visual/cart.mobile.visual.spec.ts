@@ -79,11 +79,19 @@ test.describe('Cart — Mobile Visual', () => {
     const empty = page.getByText(/your cart is empty/i);
     test.skip(await empty.isVisible(), 'cart could not be populated');
 
-    // The total button in the sticky bar opens the drawer.
-    const totalButton = page
-      .getByRole('button', {name: /summary|total/i})
-      .last();
-    await totalButton.tap();
+    // The Total button is inside the sticky bottom bar (data-slot=
+    // sticky-bottom-bar). Scope the locator to that bar so we don't pick
+    // up the desktop sidebar's "Order Summary" heading on viewports that
+    // momentarily render both.
+    const stickyBar = page.locator('[data-slot="sticky-bottom-bar"]');
+    await expect(stickyBar).toBeVisible();
+    const totalButton = stickyBar.getByRole('button', {
+      name: /summary|total/i,
+    });
+    // .click() instead of .tap() — Playwright's tap requires touch-event
+    // synthesis that occasionally times out under reduced-motion, while
+    // click triggers the same React onClick handler with looser timing.
+    await totalButton.click();
 
     const drawer = page.getByRole('dialog');
     await expect(drawer).toBeVisible();

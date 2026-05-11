@@ -71,12 +71,17 @@ test.describe('PDP — Mobile Visual', () => {
     const stickyBar = page.getByTestId('sticky-mobile-cta');
     await expect(stickyBar).toHaveCount(0);
 
-    // Scroll past the gallery and purchase panel — far enough that the
-    // in-page Add-to-Cart leaves the viewport.
-    await page.evaluate(() => window.scrollTo(0, 1500));
-    // Give the IntersectionObserver a tick to fire.
-    await page.waitForTimeout(300);
+    // Scroll all the way to the bottom — the in-page Add-to-Cart row sits
+    // in the purchase panel near the top of the page, so any meaningful
+    // scroll past it should fire the IntersectionObserver. Using
+    // scrollHeight instead of a fixed pixel value handles short PDPs.
+    await page.evaluate(() => {
+      window.scrollTo(0, document.body.scrollHeight);
+    });
 
+    // Wait for the bar to mount rather than relying on a fixed sleep —
+    // IntersectionObserver fires async, and Chromium emulation timing
+    // varies. The default expect timeout (5000ms) is plenty.
     await expect(stickyBar).toBeVisible();
     await expect(stickyBar).toHaveScreenshot('pdp-sticky-cta.png');
   });

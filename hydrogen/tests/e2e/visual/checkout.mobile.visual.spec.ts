@@ -83,10 +83,14 @@ test.describe('Checkout — Mobile Visual', () => {
     await page.waitForLoadState('networkidle');
     test.skip(!(await isOnCheckout(page)), 'cart could not be populated');
 
-    const totalButton = page
-      .getByRole('button', {name: /summary|total/i})
-      .last();
-    await totalButton.tap();
+    // Same scoping pattern as the cart spec — find the Total button inside
+    // the sticky bar (data-slot=sticky-bottom-bar), use click() not tap().
+    const stickyBar = page.locator('[data-slot="sticky-bottom-bar"]');
+    await expect(stickyBar).toBeVisible();
+    const totalButton = stickyBar.getByRole('button', {
+      name: /summary|total/i,
+    });
+    await totalButton.click();
 
     const drawer = page.getByRole('dialog');
     await expect(drawer).toBeVisible();
