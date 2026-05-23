@@ -41,9 +41,11 @@ export default async function handleRequest(
       'https://region1.google-analytics.com',
       'https://fonts.googleapis.com',
       'https://fonts.gstatic.com',
+      'https://cdn.shopify.com',
       'https://*.myshopify.com',
       'https://*.shopify.com',
       'https://*.shopifysvc.com',
+      'https://error-analytics-sessions-production.shopifysvc.com',
       'wss://*.shopify.com',
     ],
     frameSrc: [
