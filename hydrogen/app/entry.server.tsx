@@ -36,6 +36,7 @@ export default async function handleRequest(
     fontSrc: ["'self'", 'https://fonts.gstatic.com', 'https://cdn.shopify.com'],
     connectSrc: [
       "'self'",
+      'https://www.googletagmanager.com',
       'https://www.google-analytics.com',
       'https://region1.google-analytics.com',
       'https://fonts.googleapis.com',
@@ -45,7 +46,12 @@ export default async function handleRequest(
       'https://*.shopifysvc.com',
       'wss://*.shopify.com',
     ],
-    frameSrc: ["'self'", 'https://cdn.shopify.com', 'https://*.shopify.com'],
+    frameSrc: [
+      "'self'",
+      'https://www.googletagmanager.com',
+      'https://cdn.shopify.com',
+      'https://*.shopify.com',
+    ],
     imgSrc: [
       "'self'",
       'data:',
