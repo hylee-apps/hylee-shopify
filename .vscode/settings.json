@@ -5,10 +5,6 @@
   "editor.insertSpaces": true,
   "editor.detectIndentation": false,
 
-  "files.associations": {
-    "*.liquid": "liquid"
-  },
-
   "files.exclude": {
     "**/node_modules": true,
     "**/.git": true
@@ -17,11 +13,6 @@
   "search.exclude": {
     "**/node_modules": true,
     "**/pnpm-lock.yaml": true
-  },
-
-  "[liquid]": {
-    "editor.defaultFormatter": "Shopify.theme-check-vscode",
-    "editor.formatOnSave": true
   },
 
   "[css]": {

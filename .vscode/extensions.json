@@ -1,7 +1,5 @@
 {
   "recommendations": [
-    "Shopify.theme-check-vscode",
-    "sissel.shopify-liquid",
     "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
     "GitHub.copilot",

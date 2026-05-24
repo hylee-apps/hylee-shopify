@@ -56,8 +56,6 @@ export interface CompareTableProps {
 // ============================================================================
 
 /**
- * CompareTable — migrated from theme/snippets/pdp-compare-similar.liquid
- *
  * Side-by-side product comparison table with desktop (horizontal scroll)
  * and mobile (stacked cards) layouts.
  */
