@@ -47,6 +47,7 @@ export default async function handleRequest(
       'https://*.shopifysvc.com',
       'https://error-analytics-sessions-production.shopifysvc.com',
       'wss://*.shopify.com',
+      'wss://www.googletagmanager.com',
     ],
     frameSrc: [
       "'self'",
@@ -57,6 +58,8 @@ export default async function handleRequest(
     imgSrc: [
       "'self'",
       'data:',
+      'https://www.googletagmanager.com',
+      'https://www.google-analytics.com',
       'https://cdn.shopify.com',
       'https://*.shopify.com',
     ],
