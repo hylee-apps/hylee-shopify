@@ -5,21 +5,17 @@ export default defineConfig({
     // Test environment
     environment: 'node',
 
-    // Test file patterns
     include: [
-      'tests/components/**/*.{test,spec}.{js,ts}',
       'scripts/__tests__/**/*.{test,spec}.{ts,js}',
     ],
 
-    // Exclude patterns
-    exclude: ['node_modules', 'theme', 'tests/e2e'],
+    exclude: ['node_modules', 'tests/e2e'],
 
-    // Coverage configuration
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
       reportsDirectory: './coverage',
-      exclude: ['node_modules/**', 'tests/**', 'theme/**', '*.config.*'],
+      exclude: ['node_modules/**', 'tests/**', '*.config.*'],
     },
 
     // Don't fail when no test files exist yet

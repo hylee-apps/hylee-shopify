@@ -2,13 +2,7 @@
 
 echo "🔍 Running pre-commit checks..."
 
-# Only run Shopify theme check when Liquid theme files are staged
-if git diff --cached --name-only | grep -q '^theme/'; then
-  echo "🛍️  Running Shopify Theme Check..."
-  pnpm theme-check || exit 1
-fi
-
-# Always check formatting (covers both theme and hydrogen)
+# Always check formatting
 echo "💅 Checking code formatting..."
 pnpm format:check || exit 1
 
@@ -17,9 +11,5 @@ pnpm format:check || exit 1
 # react-router type graph (40+ routes). This dev machine has 15GB total with swap exhausted.
 # Run `pnpm typecheck` manually before pushing, or rely on CI for type validation.
 # All other checks (format, build, tests) still run and catch the majority of regressions.
-
-# Validate project structure
-echo "📂 Validating project structure..."
-pnpm validate:structure || exit 1
 
 echo "✅ Pre-commit checks passed!"

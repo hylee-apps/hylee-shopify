@@ -1,6 +1,6 @@
 # Hydrogen CLAUDE.md
 
-This is the Hydrogen (React/TypeScript) storefront, migrating from the Liquid theme in `theme/`.
+This is the Hy-lee Hydrogen/Remix storefront (React + TypeScript + Tailwind v4).
 
 ## Commands
 
