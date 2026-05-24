@@ -1,0 +1,98 @@
+/**
+ * Shopify Admin as CMS — global config via Shop metafields.
+ *
+ * All metafields live under namespace "custom" on the Shop resource.
+ * They are queryable via the Storefront API once Storefront API access is
+ * enabled per-definition.
+ *
+ * HOW TO ADD A NEW FIELD
+ * ─────────────────────
+ * 1. Add the metafield alias to GLOBAL_CMS_QUERY (alias matches the key below)
+ * 2. Add a typed key to GlobalCmsConfig
+ * 3. Add its default to DEFAULT_CMS_CONFIG
+ * 4. Parse it in parseGlobalCms
+ * 5. In Shopify Admin:
+ *    - Create definition: Settings → Metafields and metaobjects →
+ *      Metafield definitions → Shop → Add definition
+ *    - Enable Storefront API access on the definition
+ *    - Set value: Settings → General → Store Assets → Metafields
+ *
+ * METAFIELD DEFINITIONS (create these in Admin)
+ * ──────────────────────────────────────────────
+ * Namespace: custom
+ *
+ * | Key                  | Type               | Purpose                        |
+ * |----------------------|--------------------|--------------------------------|
+ * | announcement_bar     | Single line text   | Header banner text; null=hidden|
+ * | promo_tier_enabled   | True or false      | Show/hide promo tier bar       |
+ * | og_image_url         | Single line text   | Default OG social share image  |
+ *
+ * HOW TO SET VALUES
+ * ─────────────────
+ * Admin → Settings → General → Store Assets → Metafields
+ * Changes take effect on the next request (no deploy needed).
+ */
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+export interface GlobalCmsConfig {
+  /** Text shown in the header announcement bar. null = bar is hidden. */
+  announcementBar: string | null;
+  /** Whether the promo tier sticky banner is visible. Default: true. */
+  promoTierEnabled: boolean;
+  /** Default OG image URL for pages that don't specify their own. */
+  ogImageUrl: string | null;
+  homepage_description: string | null;
+  homepage_title: string | null;
+}
+
+const DEFAULT_CMS_CONFIG: GlobalCmsConfig = {
+  announcementBar: null,
+  promoTierEnabled: true,
+  ogImageUrl: null,
+  homepage_description: null,
+  homepage_title: null,
+};
+
+// ─── GraphQL Query ────────────────────────────────────────────────────────────
+
+export const GLOBAL_CMS_QUERY = `#graphql
+  query GlobalCms {
+    shop {
+      announcementBar: metafield(namespace: "custom", key: "announcement_bar") {
+        value
+      }
+      promoTierEnabled: metafield(namespace: "custom", key: "promo_tier_enabled") {
+        value
+      }
+      ogImageUrl: metafield(namespace: "custom", key: "og_image_url") {
+        value
+      }
+      homepageDescription: metafield(namespace: "custom", key: "homepage_description") {
+        value
+      }
+      homepageTitle: metafield(namespace: "custom", key: "homepage_title") {
+        value
+      }
+    }
+  }
+` as const;
+
+// ─── Parser ───────────────────────────────────────────────────────────────────
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function parseGlobalCms(data: any): GlobalCmsConfig {
+  const shop = data?.shop ?? {};
+  return {
+    announcementBar:
+      shop.announcementBar?.value ?? DEFAULT_CMS_CONFIG.announcementBar,
+    // Shopify boolean metafields are returned as the string "true"/"false"
+    promoTierEnabled: shop.promoTierEnabled?.value !== 'false',
+    ogImageUrl: shop.ogImageUrl?.value ?? DEFAULT_CMS_CONFIG.ogImageUrl,
+    homepage_description:
+      shop.homepageDescription?.value ??
+      DEFAULT_CMS_CONFIG.homepage_description,
+    homepage_title:
+      shop.homepageTitle?.value ?? DEFAULT_CMS_CONFIG.homepage_title,
+  };
+}

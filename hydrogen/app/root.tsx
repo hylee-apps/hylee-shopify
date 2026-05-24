@@ -23,6 +23,7 @@ import {categoryNavConfig} from '~/config/navigation';
 import {prioritizeCategories} from '~/lib/navigation';
 import {readWishlistIds, type AdminEnv} from '~/lib/wishlist';
 import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
+import {GLOBAL_CMS_QUERY, parseGlobalCms} from '~/lib/cms';
 
 export type RootLoader = typeof loader;
 
@@ -90,42 +91,50 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
   const lang = langMatch?.[1]?.toUpperCase() ?? '';
   const currentLanguage = ['EN', 'ES', 'FR'].includes(lang) ? lang : 'EN';
 
-  const [header, collectionsResult, seasonalNavResult, discountsNavResult] =
-    await Promise.all([
-      storefront.query(HEADER_QUERY, {
+  const [
+    header,
+    collectionsResult,
+    seasonalNavResult,
+    discountsNavResult,
+    globalCmsData,
+  ] = await Promise.all([
+    storefront.query(HEADER_QUERY, {
+      cache: storefront.CacheLong(),
+      variables: {
+        headerMenuHandle: 'main-menu',
+        language: currentLanguage as LanguageCode,
+        country: storefront.i18n.country,
+      },
+    }),
+    storefront.query(HEADER_COLLECTIONS_QUERY, {
+      cache: storefront.CacheLong(),
+      variables: {
+        language: currentLanguage as LanguageCode,
+        country: storefront.i18n.country,
+      },
+    }),
+    storefront
+      .query(SEASONAL_NAV_QUERY, {
         cache: storefront.CacheLong(),
         variables: {
-          headerMenuHandle: 'main-menu',
           language: currentLanguage as LanguageCode,
           country: storefront.i18n.country,
         },
-      }),
-      storefront.query(HEADER_COLLECTIONS_QUERY, {
+      })
+      .catch(() => null),
+    storefront
+      .query(DISCOUNTS_NAV_QUERY, {
         cache: storefront.CacheLong(),
         variables: {
           language: currentLanguage as LanguageCode,
           country: storefront.i18n.country,
         },
-      }),
-      storefront
-        .query(SEASONAL_NAV_QUERY, {
-          cache: storefront.CacheLong(),
-          variables: {
-            language: currentLanguage as LanguageCode,
-            country: storefront.i18n.country,
-          },
-        })
-        .catch(() => null),
-      storefront
-        .query(DISCOUNTS_NAV_QUERY, {
-          cache: storefront.CacheLong(),
-          variables: {
-            language: currentLanguage as LanguageCode,
-            country: storefront.i18n.country,
-          },
-        })
-        .catch(() => null),
-    ]);
+      })
+      .catch(() => null),
+    storefront
+      .query(GLOBAL_CMS_QUERY, {cache: storefront.CacheLong()})
+      .catch(() => null),
+  ]);
 
   const rawCategories =
     collectionsResult?.collections?.nodes?.map(
@@ -245,6 +254,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     currentLanguage,
     locale,
     wishlistIds,
+    globalCms: parseGlobalCms(globalCmsData),
   };
 }
 

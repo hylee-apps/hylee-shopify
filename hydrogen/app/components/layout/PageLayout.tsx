@@ -69,6 +69,7 @@ export function PageLayout({children}: PageLayoutProps) {
     seasonalItems,
     discountItems,
     currentLanguage,
+    globalCms,
   } = data;
 
   return (
@@ -83,6 +84,7 @@ export function PageLayout({children}: PageLayoutProps) {
         seasonalItems={seasonalItems ?? []}
         discountItems={discountItems ?? []}
         currentLanguage={currentLanguage ?? 'EN'}
+        announcement={globalCms?.announcementBar ?? undefined}
       />
 
       <main className="flex-1">{children ?? <Outlet />}</main>
