@@ -78,7 +78,7 @@ function buildHeroSlides(data: any): CarouselSlide[] {
 // ============================================================================
 
 export function meta({matches}: Route.MetaArgs) {
-  const rootMatch = matches.find((m) => m.id === 'root');
+  const rootMatch = matches.find((m) => m?.id === 'root');
   const globalCms = (
     rootMatch?.data as {globalCms?: GlobalCmsConfig} | undefined
   )?.globalCms;
