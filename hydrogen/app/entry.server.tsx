@@ -22,7 +22,6 @@ export default async function handleRequest(
     },
     scriptSrc: [
       "'self'",
-      "'strict-dynamic'",
       'https://cdn.shopify.com',
       'https://www.googletagmanager.com',
       'https://www.google-analytics.com',
@@ -46,6 +45,7 @@ export default async function handleRequest(
       'https://*.shopify.com',
       'https://*.shopifysvc.com',
       'https://error-analytics-sessions-production.shopifysvc.com',
+      'https://otlp-http-production.shopifysvc.com',
       'wss://*.shopify.com',
       'wss://www.googletagmanager.com',
     ],
