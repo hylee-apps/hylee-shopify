@@ -26,6 +26,11 @@
  * | announcement_bar     | Single line text   | Header banner text; null=hidden|
  * | promo_tier_enabled   | True or false      | Show/hide promo tier bar       |
  * | og_image_url         | Single line text   | Default OG social share image  |
+ * | homepage_description | Single line text   | Default homepage description   |
+ * | homepage_title       | Single line text   | Default homepage title         |
+ * | social_media_facebook  | URL              | Facebook profile URL           |
+ * | social_media_instagram | URL              | Instagram profile URL          |
+ * | social_media_pinterest | URL              | Pinterest profile URL          |
  *
  * HOW TO SET VALUES
  * ─────────────────
@@ -42,8 +47,14 @@ export interface GlobalCmsConfig {
   promoTierEnabled: boolean;
   /** Default OG image URL for pages that don't specify their own. */
   ogImageUrl: string | null;
+  /** Default homepage description for pages that don't specify their own. */
   homepage_description: string | null;
+  /** Default homepage title for pages that don't specify their own. */
   homepage_title: string | null;
+  /** Social media profile URLs — null falls back to the hardcoded icon link. */
+  socialFacebook: string | null;
+  socialInstagram: string | null;
+  socialPinterest: string | null;
 }
 
 const DEFAULT_CMS_CONFIG: GlobalCmsConfig = {
@@ -52,6 +63,9 @@ const DEFAULT_CMS_CONFIG: GlobalCmsConfig = {
   ogImageUrl: null,
   homepage_description: null,
   homepage_title: null,
+  socialFacebook: null,
+  socialInstagram: null,
+  socialPinterest: null,
 };
 
 // ─── GraphQL Query ────────────────────────────────────────────────────────────
@@ -74,6 +88,15 @@ export const GLOBAL_CMS_QUERY = `#graphql
       homepageTitle: metafield(namespace: "custom", key: "homepage_title") {
         value
       }
+      socialFacebook: metafield(namespace: "custom", key: "social_media_facebook") {
+        value
+      }
+      socialInstagram: metafield(namespace: "custom", key: "social_media_instagram") {
+        value
+      }
+      socialPinterest: metafield(namespace: "custom", key: "social_media_pinterest") {
+        value
+      }
     }
   }
 ` as const;
@@ -94,5 +117,11 @@ export function parseGlobalCms(data: any): GlobalCmsConfig {
       DEFAULT_CMS_CONFIG.homepage_description,
     homepage_title:
       shop.homepageTitle?.value ?? DEFAULT_CMS_CONFIG.homepage_title,
+    socialFacebook:
+      shop.socialFacebook?.value ?? DEFAULT_CMS_CONFIG.socialFacebook,
+    socialInstagram:
+      shop.socialInstagram?.value ?? DEFAULT_CMS_CONFIG.socialInstagram,
+    socialPinterest:
+      shop.socialPinterest?.value ?? DEFAULT_CMS_CONFIG.socialPinterest,
   };
 }
