@@ -13,6 +13,7 @@ import {headingText} from '~/lib/responsive-text';
 import {cn} from '~/lib/utils';
 import type {Route} from './+types/_index';
 import {adminApi, type AdminEnv} from '~/lib/admin-api';
+import type {GlobalCmsConfig} from '~/lib/cms';
 
 // ============================================================================
 // Hero slides — Shopify metaobjects (type: "hero_slide")
@@ -69,14 +70,27 @@ function buildHeroSlides(data: any): CarouselSlide[] {
 }
 
 // ============================================================================
-// Meta
+// Homepage SEO — reads from globalCms in the root loader (GLOBAL_CMS_QUERY).
+// Fields: custom.homepage_title / custom.homepage_description
+// To create definitions: Settings → Metafields and metaobjects → Metafield definitions → Shop
+// To set values: Settings → General → Store Assets → Metafields
+// See plans/SHOPIFY_CMS_PLAN.md for full setup instructions.
 // ============================================================================
 
-export function meta({}: Route.MetaArgs) {
+export function meta({matches}: Route.MetaArgs) {
+  const rootMatch = matches.find((m) => m?.id === 'root');
+  const globalCms = (
+    rootMatch?.data as {globalCms?: GlobalCmsConfig} | undefined
+  )?.globalCms;
+
+  const title = globalCms?.homepage_title ?? 'Hy-lee | Home';
+  const description =
+    globalCms?.homepage_description ??
+    'Discover unique products from trusted vendors worldwide. Shop electronics, fashion, home goods, and more.';
+
   return getSeoMeta({
-    title: 'Hy-lee | Home',
-    description:
-      'Discover unique products from trusted vendors worldwide. Shop electronics, fashion, home goods, and more.',
+    title,
+    description,
     media: {
       type: 'image',
       url: 'https://hy-lee.com/logo-full.png',
@@ -501,7 +515,9 @@ export async function loader({context}: Route.LoaderArgs) {
     .toISOString()
     .split('T')[0];
 
-  // Fetch all homepage data in parallel
+  // Fetch all homepage data in parallel.
+  // Note: homepage SEO (title/description) comes from the root loader's
+  // globalCms — no need to fetch it again here.
   const [
     whatsNewResult,
     seasonalResult,
