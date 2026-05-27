@@ -393,11 +393,11 @@ export function meta({data}: Route.MetaArgs) {
     ? [{tagName: 'link', rel: 'canonical', href: canonicalUrl}]
     : [];
   return [
-    ...getSeoMeta({
+    ...(getSeoMeta({
       title: product.seo?.title ?? product.title,
       description: product.seo?.description ?? product.description,
       media: selectedVariant?.image ?? product.featuredImage,
-    }),
+    }) ?? []),
     ...canonical,
   ];
 }

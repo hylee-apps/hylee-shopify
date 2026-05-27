@@ -6,10 +6,8 @@ echo "🔍 Running pre-commit checks..."
 echo "💅 Checking code formatting..."
 pnpm format:check || exit 1
 
-# Hydrogen typecheck is intentionally skipped in this hook.
-# tsc --noEmit on this project requires >12GB RAM due to the size of the generated
-# react-router type graph (40+ routes). This dev machine has 15GB total with swap exhausted.
-# Run `pnpm typecheck` manually before pushing, or rely on CI for type validation.
-# All other checks (format, build, tests) still run and catch the majority of regressions.
+# TypeScript check — catches type errors before they reach CI
+echo "🔷 Running TypeScript check..."
+pnpm typecheck || exit 1
 
 echo "✅ Pre-commit checks passed!"
