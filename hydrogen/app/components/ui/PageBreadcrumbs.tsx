@@ -40,7 +40,7 @@ export function PageBreadcrumbs({
         className,
       )}
     >
-      <BreadcrumbList className="text-[14px] font-medium text-[#4b5563]">
+      <BreadcrumbList className="text-[14px] font-medium text-text-muted">
         <BreadcrumbItem>
           {hasItems ? (
             <BreadcrumbLink
@@ -50,7 +50,7 @@ export function PageBreadcrumbs({
               <Link to="/">{t('breadcrumb.home')}</Link>
             </BreadcrumbLink>
           ) : (
-            <BreadcrumbPage className="text-[#111827] font-medium h-10 px-4 inline-flex items-center">
+            <BreadcrumbPage className="text-text font-medium h-10 px-4 inline-flex items-center">
               {t('breadcrumb.home')}
             </BreadcrumbPage>
           )}
@@ -59,7 +59,7 @@ export function PageBreadcrumbs({
         {crumbs.map((crumb) => (
           <React.Fragment key={crumb.url}>
             <BreadcrumbSeparator>
-              <ChevronRight size={12} className="text-[#9ca3af]" />
+              <ChevronRight size={12} className="text-text-light" />
             </BreadcrumbSeparator>
             <BreadcrumbItem>
               <BreadcrumbLink
@@ -75,10 +75,10 @@ export function PageBreadcrumbs({
         {current && (
           <>
             <BreadcrumbSeparator>
-              <ChevronRight size={12} className="text-[#9ca3af]" />
+              <ChevronRight size={12} className="text-text-light" />
             </BreadcrumbSeparator>
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-[#111827] font-medium h-10 px-4 inline-flex items-center">
+              <BreadcrumbPage className="text-text font-medium h-10 px-4 inline-flex items-center">
                 {current}
               </BreadcrumbPage>
             </BreadcrumbItem>

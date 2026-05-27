@@ -40,7 +40,7 @@ export function CollectionHero({title, image, className}: CollectionHeroProps) {
       */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-10">
         {/* Hero image */}
-        <div className="w-full h-48 shrink-0 rounded-[12px] overflow-hidden shadow-md bg-[#f3f4f6] lg:w-[400px] lg:h-[280px]">
+        <div className="w-full h-48 shrink-0 rounded-[12px] overflow-hidden shadow-md bg-gray-100 lg:w-[400px] lg:h-[280px]">
           {image ? (
             <Image
               data={image}
@@ -51,14 +51,14 @@ export function CollectionHero({title, image, className}: CollectionHeroProps) {
               alt={image.altText ?? t('collectionHero.imageAlt', {title})}
             />
           ) : (
-            <div className="w-full h-full bg-[#f3f4f6]" />
+            <div className="w-full h-full bg-gray-100" />
           )}
         </div>
 
         {/* Single H1 — responsive size, one DOM node */}
         <h1
           id="collection-title"
-          className="font-bold text-[28px] leading-tight text-[#111827] lg:text-[42px]"
+          className="font-bold text-[28px] leading-tight text-text lg:text-[42px]"
         >
           {title}
         </h1>
