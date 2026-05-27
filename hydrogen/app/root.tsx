@@ -397,23 +397,117 @@ export default function App() {
 
 export function ErrorBoundary() {
   const error = useRouteError();
-  let errorMessage = 'Unknown error';
   let errorStatus = 500;
 
   if (isRouteErrorResponse(error)) {
-    errorMessage = error?.data?.message ?? error.data;
     errorStatus = error.status;
-  } else if (error instanceof Error) {
-    errorMessage = error.message;
   }
 
+  const is404 = errorStatus === 404;
+
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-5xl font-bold text-dark">{errorStatus}</h1>
-        <p className="mt-4 text-lg text-text-muted">{errorMessage}</p>
-      </div>
-    </div>
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        {is404 && <meta name="robots" content="noindex, nofollow" />}
+        <title>
+          {is404 ? 'Page Not Found | Hy-lee' : 'Something went wrong | Hy-lee'}
+        </title>
+        <Links />
+      </head>
+      <body>
+        <div className="flex min-h-screen flex-col items-center justify-center gap-8 px-4 text-center">
+          {is404 ? (
+            <>
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-widest text-primary">
+                  404
+                </p>
+                <h1 className="mt-2 text-4xl font-bold text-dark sm:text-5xl">
+                  Page not found
+                </h1>
+                <p className="mt-4 text-lg text-text-muted">
+                  The page you&apos;re looking for doesn&apos;t exist or has
+                  been moved.
+                </p>
+              </div>
+
+              <form
+                action="/search"
+                method="get"
+                className="flex w-full max-w-md gap-2"
+              >
+                <input
+                  type="search"
+                  name="q"
+                  placeholder="Search products…"
+                  className="flex-1 rounded-xl border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  aria-label="Search products"
+                />
+                <button
+                  type="submit"
+                  className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary/90"
+                >
+                  Search
+                </button>
+              </form>
+
+              <nav
+                aria-label="Return to site"
+                className="flex flex-wrap justify-center gap-3"
+              >
+                <a
+                  href="/"
+                  className="rounded-xl border border-border px-4 py-2 text-sm font-medium hover:bg-accent"
+                >
+                  Home
+                </a>
+                <a
+                  href="/collections"
+                  className="rounded-xl border border-border px-4 py-2 text-sm font-medium hover:bg-accent"
+                >
+                  All Collections
+                </a>
+                <a
+                  href="/collections/new-arrivals"
+                  className="rounded-xl border border-border px-4 py-2 text-sm font-medium hover:bg-accent"
+                >
+                  New Arrivals
+                </a>
+                <a
+                  href="/faq"
+                  className="rounded-xl border border-border px-4 py-2 text-sm font-medium hover:bg-accent"
+                >
+                  FAQ
+                </a>
+              </nav>
+            </>
+          ) : (
+            <>
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-widest text-destructive">
+                  {errorStatus}
+                </p>
+                <h1 className="mt-2 text-4xl font-bold text-dark sm:text-5xl">
+                  Something went wrong
+                </h1>
+                <p className="mt-4 text-lg text-text-muted">
+                  An unexpected error occurred. Please try again later.
+                </p>
+              </div>
+              <a
+                href="/"
+                className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary/90"
+              >
+                Return to home
+              </a>
+            </>
+          )}
+        </div>
+        <Scripts />
+      </body>
+    </html>
   );
 }
 

@@ -367,6 +367,8 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
     // No reviews yet or Admin API unavailable — show empty list
   }
 
+  const canonicalUrl = `${url.origin}/products/${encodeURIComponent(handle)}`;
+
   return {
     product,
     selectedVariant,
@@ -374,6 +376,7 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
     collectionHandle,
     isLoggedIn,
     storedReviews,
+    canonicalUrl,
   };
 }
 
@@ -385,12 +388,18 @@ export function meta({data}: Route.MetaArgs) {
   if (!data?.product) {
     return [{title: 'Product Not Found'}];
   }
-  const {product, selectedVariant} = data;
-  return getSeoMeta({
-    title: product.seo?.title ?? product.title,
-    description: product.seo?.description ?? product.description,
-    media: selectedVariant?.image ?? product.featuredImage,
-  });
+  const {product, selectedVariant, canonicalUrl} = data;
+  const canonical = canonicalUrl
+    ? [{tagName: 'link', rel: 'canonical', href: canonicalUrl}]
+    : [];
+  return [
+    ...getSeoMeta({
+      title: product.seo?.title ?? product.title,
+      description: product.seo?.description ?? product.description,
+      media: selectedVariant?.image ?? product.featuredImage,
+    }),
+    ...canonical,
+  ];
 }
 
 // ============================================================================
@@ -503,8 +512,43 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
     (opt: {name: string}) => opt.name.toLowerCase() !== 'title',
   );
 
+  const {canonicalUrl} = loaderData;
+  const origin = canonicalUrl ? new URL(canonicalUrl).origin : '';
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: `${origin}/`,
+      },
+      ...breadcrumbNodes.map((crumb, i) => ({
+        '@type': 'ListItem',
+        position: i + 2,
+        name: crumb.title,
+        item: crumb.url.startsWith('http')
+          ? crumb.url
+          : `${origin}${crumb.url}`,
+      })),
+      {
+        '@type': 'ListItem',
+        position: breadcrumbNodes.length + 2,
+        name: product.title,
+        item: canonicalUrl ?? `${origin}/products/${product.handle}`,
+      },
+    ],
+  };
+
   return (
     <>
+      {canonicalUrl && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{__html: JSON.stringify(breadcrumbSchema)}}
+        />
+      )}
       {/* Product title omitted — breadcrumb ends at the parent collection */}
       <PageBreadcrumbs crumbs={breadcrumbNodes} />
       <div className="mx-auto max-w-screen-2xl px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:pb-6">

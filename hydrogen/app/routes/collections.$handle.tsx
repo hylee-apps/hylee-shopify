@@ -418,8 +418,49 @@ function EndNodeResultsHeader({
 // Component
 // ============================================================================
 
+function BreadcrumbJsonLd({
+  crumbs,
+  current,
+  currentUrl,
+}: {
+  crumbs: Array<{title: string; url: string}>;
+  current: string;
+  currentUrl: string;
+}) {
+  const origin = currentUrl.startsWith('http')
+    ? new URL(currentUrl).origin
+    : '';
+  const items = [
+    {title: 'Home', url: `${origin}/`},
+    ...crumbs.map((c) => ({
+      title: c.title,
+      url: c.url.startsWith('http') ? c.url : `${origin}${c.url}`,
+    })),
+    {title: current, url: currentUrl},
+  ];
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: item.title,
+      item: item.url,
+    })),
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{__html: JSON.stringify(schema)}}
+    />
+  );
+}
+
 export default function CollectionPage({loaderData}: Route.ComponentProps) {
-  const {collection, comingSoon, handle, searchParamsString} = loaderData;
+  const {collection, comingSoon, handle, searchParamsString, canonicalUrl} =
+    loaderData;
   const {t} = useTranslation();
   const {pathname} = useLocation();
   const navigation = useNavigation();
@@ -475,6 +516,14 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
   if (isCategory) {
     return (
       <div className="pb-12">
+        {canonicalUrl && (
+          <BreadcrumbJsonLd
+            crumbs={breadcrumbAncestors}
+            current={breadcrumbCurrent}
+            currentUrl={canonicalUrl}
+          />
+        )}
+
         {/* Breadcrumbs */}
         <PageBreadcrumbs
           crumbs={breadcrumbAncestors}
@@ -592,6 +641,14 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
 
   return (
     <div className="pb-12">
+      {canonicalUrl && (
+        <BreadcrumbJsonLd
+          crumbs={breadcrumbAncestors}
+          current={breadcrumbCurrent}
+          currentUrl={canonicalUrl}
+        />
+      )}
+
       {/* Breadcrumbs */}
       <PageBreadcrumbs
         crumbs={breadcrumbAncestors}
