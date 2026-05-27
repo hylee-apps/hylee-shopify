@@ -77,7 +77,7 @@ function buildHeroSlides(data: any): CarouselSlide[] {
 // See plans/SHOPIFY_CMS_PLAN.md for full setup instructions.
 // ============================================================================
 
-export function meta({matches}: Route.MetaArgs) {
+export function meta({data, matches}: Route.MetaArgs) {
   const rootMatch = matches.find((m) => m?.id === 'root');
   const globalCms = (
     rootMatch?.data as {globalCms?: GlobalCmsConfig} | undefined
@@ -88,17 +88,24 @@ export function meta({matches}: Route.MetaArgs) {
     globalCms?.homepage_description ??
     'Discover unique products from trusted vendors worldwide. Shop electronics, fashion, home goods, and more.';
 
-  return getSeoMeta({
-    title,
-    description,
-    media: {
-      type: 'image',
-      url: 'https://hy-lee.com/logo-full.png',
-      height: 630,
-      width: 1200,
-      altText: 'Hy-lee — your marketplace for unique products',
-    },
-  });
+  const canonical = data?.canonicalUrl
+    ? [{tagName: 'link', rel: 'canonical', href: data.canonicalUrl}]
+    : [];
+
+  return [
+    ...(getSeoMeta({
+      title,
+      description,
+      media: {
+        type: 'image',
+        url: 'https://hy-lee.com/logo-full.png',
+        height: 630,
+        width: 1200,
+        altText: 'Hy-lee — your marketplace for unique products',
+      },
+    }) ?? []),
+    ...canonical,
+  ];
 }
 
 // ============================================================================
@@ -501,7 +508,8 @@ function buildPromoSlidesFromDiscounts(data: any): PromoSlide[] {
 // Loader
 // ============================================================================
 
-export async function loader({context}: Route.LoaderArgs) {
+export async function loader({request, context}: Route.LoaderArgs) {
+  const canonicalUrl = new URL(request.url).origin + '/';
   const {storefront} = context;
 
   const baseVars = {
@@ -562,6 +570,7 @@ export async function loader({context}: Route.LoaderArgs) {
     discounted: discountedResult?.products?.nodes ?? [],
     promotions,
     heroSlides,
+    canonicalUrl,
   };
 }
 

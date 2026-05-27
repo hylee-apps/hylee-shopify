@@ -68,7 +68,7 @@ const POLICY_MAP: Record<string, string> = {
 // Loader
 // ============================================================================
 
-export async function loader({params, context}: Route.LoaderArgs) {
+export async function loader({request, params, context}: Route.LoaderArgs) {
   const {storefront} = context;
 
   if (!params.handle || !POLICY_MAP[params.handle]) {
@@ -89,7 +89,8 @@ export async function loader({params, context}: Route.LoaderArgs) {
     throw new Response('Policy not found', {status: 404});
   }
 
-  return {policy};
+  const canonicalUrl = `${new URL(request.url).origin}/policies/${params.handle}`;
+  return {policy, canonicalUrl};
 }
 
 // ============================================================================
@@ -98,7 +99,13 @@ export async function loader({params, context}: Route.LoaderArgs) {
 
 export function meta({data}: Route.MetaArgs) {
   const policy = data?.policy;
-  return [{title: policy?.title ? `${policy.title} | Hy-lee` : 'Policy'}];
+  const canonical = data?.canonicalUrl
+    ? [{tagName: 'link', rel: 'canonical', href: data.canonicalUrl}]
+    : [];
+  return [
+    {title: policy?.title ? `${policy.title} | Hy-lee` : 'Policy'},
+    ...canonical,
+  ];
 }
 
 // ============================================================================

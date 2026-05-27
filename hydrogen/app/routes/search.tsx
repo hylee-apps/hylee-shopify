@@ -15,12 +15,15 @@ import {searchProducts, type SearchaniseProduct} from '~/lib/searchanise';
 
 export function meta({data}: Route.MetaArgs) {
   const query = data?.searchTerm ?? '';
-  return getSeoMeta({
-    title: query ? `Search results for "${query}"` : 'Search',
-    description: query
-      ? `Browse search results for "${query}" on Hy-lee.`
-      : 'Search our products and collections.',
-  });
+  return [
+    ...(getSeoMeta({
+      title: query ? `Search results for "${query}"` : 'Search',
+      description: query
+        ? `Browse search results for "${query}" on Hy-lee.`
+        : 'Search our products and collections.',
+    }) ?? []),
+    {name: 'robots', content: 'noindex, nofollow'},
+  ];
 }
 
 // ============================================================================

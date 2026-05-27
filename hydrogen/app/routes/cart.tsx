@@ -33,10 +33,13 @@ import {MobileSummaryDrawer} from '~/components/commerce/MobileSummaryDrawer';
 // ============================================================================
 
 export function meta({data}: Route.MetaArgs) {
-  return getSeoMeta({
-    title: 'Shopping Cart',
-    description: 'Review your shopping cart and proceed to checkout.',
-  });
+  return [
+    ...(getSeoMeta({
+      title: 'Shopping Cart',
+      description: 'Review your shopping cart and proceed to checkout.',
+    }) ?? []),
+    {name: 'robots', content: 'noindex, nofollow'},
+  ];
 }
 
 // ============================================================================

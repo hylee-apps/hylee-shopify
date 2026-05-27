@@ -18,10 +18,13 @@ import {isCustomerLoggedIn} from '~/lib/customer-auth';
 // ============================================================================
 
 export function meta(_: Route.MetaArgs) {
-  return getSeoMeta({
-    title: 'Order Confirmed — Hy-lee',
-    description: 'Thank you for your order!',
-  });
+  return [
+    ...(getSeoMeta({
+      title: 'Order Confirmed — Hy-lee',
+      description: 'Thank you for your order!',
+    }) ?? []),
+    {name: 'robots', content: 'noindex, nofollow'},
+  ];
 }
 
 // ============================================================================
