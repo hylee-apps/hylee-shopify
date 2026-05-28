@@ -33,6 +33,7 @@
  * | social_media_pinterest        | URL                | Pinterest profile URL                |
  * | google_container_id           | Single line text   | GTM container ID (e.g. GTM-XXXXXXX)  |
  * | shopify_inbox_widget_script_url | URL              | Inbox widget CDN URL fallback        |
+ * | shopify_inbox_shop_id         | Single line text   | Inbox data-shop-id attribute value   |
  *
  * HOW TO SET VALUES
  * ─────────────────
@@ -61,6 +62,8 @@ export interface GlobalCmsConfig {
   gtmContainerId: string | null;
   /** Shopify Inbox widget CDN URL. Used as fallback when Admin API script_tags lookup fails. */
   shopifyInboxWidgetScriptUrl: string | null;
+  /** Inbox widget data-shop-id attribute. Visible in the Liquid <script> tag Shopify injects. */
+  shopifyInboxShopId: string | null;
 }
 
 const DEFAULT_CMS_CONFIG: GlobalCmsConfig = {
@@ -74,6 +77,7 @@ const DEFAULT_CMS_CONFIG: GlobalCmsConfig = {
   socialPinterest: null,
   gtmContainerId: null,
   shopifyInboxWidgetScriptUrl: null,
+  shopifyInboxShopId: null,
 };
 
 // ─── GraphQL Query ────────────────────────────────────────────────────────────
@@ -111,6 +115,9 @@ export const GLOBAL_CMS_QUERY = `#graphql
       shopifyInboxWidgetScriptUrl: metafield(namespace: "custom", key: "shopify_inbox_widget_script_url") {
         value
       }
+      shopifyInboxShopId: metafield(namespace: "custom", key: "shopify_inbox_shop_id") {
+        value
+      }
     }
   }
 ` as const;
@@ -141,5 +148,7 @@ export function parseGlobalCms(data: any): GlobalCmsConfig {
     shopifyInboxWidgetScriptUrl:
       shop.shopifyInboxWidgetScriptUrl?.value ??
       DEFAULT_CMS_CONFIG.shopifyInboxWidgetScriptUrl,
+    shopifyInboxShopId:
+      shop.shopifyInboxShopId?.value ?? DEFAULT_CMS_CONFIG.shopifyInboxShopId,
   };
 }

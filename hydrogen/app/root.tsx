@@ -24,7 +24,12 @@ import {prioritizeCategories} from '~/lib/navigation';
 import {readWishlistIds, type AdminEnv} from '~/lib/wishlist';
 import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {GLOBAL_CMS_QUERY, parseGlobalCms} from '~/lib/cms';
-import {getInboxScriptUrl, getMainThemeId} from '~/lib/admin-api';
+import {
+  getInboxScriptUrl,
+  getMainThemeId,
+  buildInboxWidgetConfig,
+  type InboxWidgetConfig,
+} from '~/lib/admin-api';
 
 export type RootLoader = typeof loader;
 
@@ -255,6 +260,14 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     getMainThemeId(adminEnv),
   ]);
 
+  const inboxConfig = inboxScriptUrl
+    ? buildInboxWidgetConfig(
+        inboxScriptUrl,
+        context.env.PUBLIC_STORE_DOMAIN,
+        globalCms.shopifyInboxShopId,
+      )
+    : null;
+
   return {
     header,
     categories,
@@ -264,7 +277,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     locale,
     wishlistIds,
     globalCms,
-    inboxScriptUrl,
+    inboxConfig,
     shopifyThemeId,
     storeCurrency: header?.shop?.paymentSettings?.currencyCode ?? 'USD',
   };
@@ -297,7 +310,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
   const data = useRouteLoaderData<RootLoader>('root');
   const locale = (data?.locale ?? 'en') as string;
   const shopDomain = data?.publicStoreDomain;
-  const inboxScriptUrl = data?.inboxScriptUrl;
+  const inboxConfig = data?.inboxConfig ?? null;
   const storeCurrency = data?.storeCurrency ?? 'USD';
   const storeCountry = data?.storeCountry ?? 'US';
   const shopifyThemeId = data?.shopifyThemeId ?? 0;
@@ -344,7 +357,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
         )}
         {children}
         <ScrollRestoration nonce={nonce} />
-        {shopDomain && inboxScriptUrl ? (
+        {inboxConfig ? (
           <>
             <script
               nonce={nonce}
@@ -373,9 +386,21 @@ export function Layout({children}: {children?: React.ReactNode}) {
             />
             <script
               nonce={nonce}
+              type="module"
               defer
+              async
               suppressHydrationWarning
-              src={inboxScriptUrl}
+              src={inboxConfig.scriptUrl}
+              data-button-color={inboxConfig.buttonColor}
+              data-secondary-color={inboxConfig.secondaryColor}
+              data-ternary-color={inboxConfig.ternaryColor}
+              data-icon={inboxConfig.icon}
+              data-text={inboxConfig.text}
+              data-position={inboxConfig.position}
+              data-vertical-position={inboxConfig.verticalPosition}
+              data-shop-id={inboxConfig.shopId}
+              data-shop={inboxConfig.shopDomain}
+              data-shop-domain={inboxConfig.shopDomain}
             />
           </>
         ) : null}
