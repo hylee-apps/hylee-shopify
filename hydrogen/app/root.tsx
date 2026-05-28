@@ -301,7 +301,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
   const storeCurrency = data?.storeCurrency ?? 'USD';
   const storeCountry = data?.storeCountry ?? 'US';
   const shopifyThemeId = data?.shopifyThemeId ?? 0;
-  const gtmContainerId = data?.globalCms?.gtmContainerId ?? null;
+  const gtmContainerId = data?.globalCms?.gtmContainerId ?? 'GTM-T925VVHC';
 
   return (
     <html lang={locale} data-locale={locale}>
