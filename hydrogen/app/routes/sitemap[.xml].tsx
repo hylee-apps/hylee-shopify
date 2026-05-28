@@ -33,11 +33,19 @@ const STATIC_PATHS = [
   {path: '/faq', priority: '0.5', changefreq: 'monthly'},
   {path: '/about', priority: '0.5', changefreq: 'monthly'},
   {path: '/contact', priority: '0.5', changefreq: 'monthly'},
-  {path: '/order-tracking', priority: '0.4', changefreq: 'monthly'},
 ];
 
 /** Handles that should be excluded from the sitemap (noindex candidates) */
 const EXCLUDED_PAGE_HANDLES = new Set(['return-policy']);
+
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
 
 function urlEntry(
   loc: string,
@@ -46,7 +54,7 @@ function urlEntry(
   const lastmodLine = opts.lastmod
     ? `\n    <lastmod>${opts.lastmod}</lastmod>`
     : '';
-  return `  <url>\n    <loc>${loc}</loc>${lastmodLine}\n    <changefreq>${opts.changefreq}</changefreq>\n    <priority>${opts.priority}</priority>\n  </url>`;
+  return `  <url>\n    <loc>${escapeXml(loc)}</loc>${lastmodLine}\n    <changefreq>${opts.changefreq}</changefreq>\n    <priority>${opts.priority}</priority>\n  </url>`;
 }
 
 export async function loader({request, context}: LoaderFunctionArgs) {
