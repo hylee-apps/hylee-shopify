@@ -48,12 +48,14 @@ export default async function handleRequest(
       'https://otlp-http-production.shopifysvc.com',
       'wss://*.shopify.com',
       'wss://www.googletagmanager.com',
+      'https://messaging-api.shopifyapps.com',
     ],
     frameSrc: [
       "'self'",
       'https://www.googletagmanager.com',
       'https://cdn.shopify.com',
       'https://*.shopify.com',
+      'https://*.shopifyapps.com',
     ],
     imgSrc: [
       "'self'",
