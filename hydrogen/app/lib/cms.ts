@@ -31,7 +31,7 @@
  * | social_media_facebook         | URL                | Facebook profile URL                 |
  * | social_media_instagram        | URL                | Instagram profile URL                |
  * | social_media_pinterest        | URL                | Pinterest profile URL                |
- * | google_tag_manager_id         | Single line text   | GTM container ID (e.g. GTM-XXXXXXX)  |
+ * | google_container_id           | Single line text   | GTM container ID (e.g. GTM-XXXXXXX)  |
  * | shopify_inbox_widget_script_url | URL              | Inbox widget CDN URL fallback        |
  *
  * HOW TO SET VALUES
@@ -57,7 +57,7 @@ export interface GlobalCmsConfig {
   socialFacebook: string | null;
   socialInstagram: string | null;
   socialPinterest: string | null;
-  /** GTM container ID (e.g. "GTM-T925VVHC"). null = GTM not loaded. */
+  /** GTM container ID (e.g. "GTM-T925VVHC"). null = metafield not configured, GTM will not load. */
   gtmContainerId: string | null;
   /** Shopify Inbox widget CDN URL. Used as fallback when Admin API script_tags lookup fails. */
   shopifyInboxWidgetScriptUrl: string | null;
@@ -105,7 +105,7 @@ export const GLOBAL_CMS_QUERY = `#graphql
       socialPinterest: metafield(namespace: "custom", key: "social_media_pinterest") {
         value
       }
-      gtmContainerId: metafield(namespace: "custom", key: "google_tag_manager_id") {
+      gtmContainerId: metafield(namespace: "custom", key: "google_container_id") {
         value
       }
       shopifyInboxWidgetScriptUrl: metafield(namespace: "custom", key: "shopify_inbox_widget_script_url") {
@@ -137,8 +137,7 @@ export function parseGlobalCms(data: any): GlobalCmsConfig {
       shop.socialInstagram?.value ?? DEFAULT_CMS_CONFIG.socialInstagram,
     socialPinterest:
       shop.socialPinterest?.value ?? DEFAULT_CMS_CONFIG.socialPinterest,
-    gtmContainerId:
-      shop.gtmContainerId?.value ?? DEFAULT_CMS_CONFIG.gtmContainerId,
+    gtmContainerId: shop.gtmContainerId?.value || null,
     shopifyInboxWidgetScriptUrl:
       shop.shopifyInboxWidgetScriptUrl?.value ??
       DEFAULT_CMS_CONFIG.shopifyInboxWidgetScriptUrl,
