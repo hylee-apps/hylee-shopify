@@ -232,6 +232,109 @@ export async function setCustomerMetafields(
   }
 }
 
+// ── Admin REST Client ────────────────────────────────────────────────────────
+
+async function adminRestGet<T = unknown>(
+  env: AdminEnv,
+  path: string,
+): Promise<T> {
+  const token = await getAdminAccessToken(env);
+  const url = `https://${env.PUBLIC_STORE_DOMAIN}/admin/api/${ADMIN_API_VERSION}/${path}`;
+  const response = await fetch(url, {
+    headers: {'X-Shopify-Access-Token': token},
+  });
+  if (!response.ok) {
+    throw new Error(
+      `Admin REST GET /${path} failed: ${response.status} ${response.statusText}`,
+    );
+  }
+  return response.json() as Promise<T>;
+}
+
+// ── Shopify Inbox Script URL ─────────────────────────────────────────────────
+//
+// Shopify Inbox registers a script tag via the Script Tags API. In Liquid
+// themes Shopify injects it automatically; in Hydrogen we must do it manually.
+// This function fetches the current versioned CDN URL so the widget stays
+// up-to-date without code changes when Shopify releases a new Inbox version.
+//
+// Requires the Admin app to have the `read_script_tags` scope.
+
+// Fallback URL used if the Admin API call fails (e.g. scope not yet granted).
+// Update this whenever Shopify ships a new major Inbox release.
+const INBOX_SCRIPT_FALLBACK =
+  'https://cdn.shopify.com/extensions/a91f9cd9-7693-4b55-b0f8-a47f69a8cb0c/inbox-1267/assets/shopifyChatV1Widget.js';
+
+let cachedInboxUrl: string | null = null;
+let inboxUrlExpiresAt = 0;
+
+export async function getInboxScriptUrl(env: AdminEnv): Promise<string> {
+  if (cachedInboxUrl && Date.now() < inboxUrlExpiresAt) {
+    return cachedInboxUrl;
+  }
+
+  try {
+    const data = await adminRestGet<{
+      script_tags: Array<{src: string; event: string}>;
+    }>(env, 'script_tags.json');
+
+    const tag = data.script_tags.find(
+      (t) =>
+        t.src.includes('cdn.shopify.com/extensions') &&
+        t.src.includes('shopifyChatV1Widget'),
+    );
+
+    if (tag) {
+      cachedInboxUrl = tag.src;
+      // 24-hour cache — long enough to avoid per-request overhead, short
+      // enough to pick up Inbox version updates within a day.
+      inboxUrlExpiresAt = Date.now() + 24 * 60 * 60 * 1000;
+      return cachedInboxUrl;
+    }
+  } catch {
+    // Swallow — missing read_script_tags scope or network error.
+    // The widget still loads via the fallback URL below.
+  }
+
+  return INBOX_SCRIPT_FALLBACK;
+}
+
+// ── Published Theme ID ───────────────────────────────────────────────────────
+//
+// The Shopify Inbox widget matches chat settings to the store by checking
+// window.Shopify.theme.id against the published (role:"main") theme. Without
+// the real theme ID the widget loads but ignores all Admin-configured settings
+// (greeting, quick replies, availability, etc.) and falls back to defaults.
+//
+// Requires the Admin app to have the `read_themes` scope.
+
+let cachedThemeId: number | null = null;
+let themeIdExpiresAt = 0;
+
+export async function getMainThemeId(env: AdminEnv): Promise<number> {
+  if (cachedThemeId !== null && Date.now() < themeIdExpiresAt) {
+    return cachedThemeId;
+  }
+
+  try {
+    const data = await adminRestGet<{
+      themes: Array<{id: number; role: string; name: string}>;
+    }>(env, 'themes.json?role=main');
+
+    const main = data.themes.find((t) => t.role === 'main');
+    if (main) {
+      cachedThemeId = main.id;
+      // Themes rarely change — cache for 24 hours.
+      themeIdExpiresAt = Date.now() + 24 * 60 * 60 * 1000;
+      return cachedThemeId;
+    }
+  } catch {
+    // Swallow — missing read_themes scope or network error. Caller falls back.
+  }
+
+  return 0;
+}
+
 // ── Order Lookup ─────────────────────────────────────────────────────────────
 
 // Admin API 2025-01 field names (renamed from older versions):
