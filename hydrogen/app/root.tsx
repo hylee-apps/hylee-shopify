@@ -24,6 +24,7 @@ import {prioritizeCategories} from '~/lib/navigation';
 import {readWishlistIds, type AdminEnv} from '~/lib/wishlist';
 import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {GLOBAL_CMS_QUERY, parseGlobalCms} from '~/lib/cms';
+import {getInboxScriptUrl, getMainThemeId} from '~/lib/admin-api';
 
 export type RootLoader = typeof loader;
 
@@ -68,6 +69,7 @@ export async function loader(args: Route.LoaderArgs) {
     ...deferredData,
     ...criticalData,
     publicStoreDomain: env.PUBLIC_STORE_DOMAIN,
+    storeCountry: args.context.storefront.i18n.country,
     shop: getShopAnalytics({
       storefront,
       publicStorefrontId: env.PUBLIC_STOREFRONT_ID,
@@ -246,6 +248,12 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     }
   }
 
+  const adminEnv = context.env as unknown as AdminEnv;
+  const [inboxScriptUrl, shopifyThemeId] = await Promise.all([
+    getInboxScriptUrl(adminEnv),
+    getMainThemeId(adminEnv),
+  ]);
+
   return {
     header,
     categories,
@@ -255,6 +263,9 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     locale,
     wishlistIds,
     globalCms: parseGlobalCms(globalCmsData),
+    inboxScriptUrl,
+    shopifyThemeId,
+    storeCurrency: header?.shop?.paymentSettings?.currencyCode ?? 'USD',
   };
 }
 
@@ -285,6 +296,10 @@ export function Layout({children}: {children?: React.ReactNode}) {
   const data = useRouteLoaderData<RootLoader>('root');
   const locale = (data?.locale ?? 'en') as string;
   const shopDomain = data?.publicStoreDomain;
+  const inboxScriptUrl = data?.inboxScriptUrl;
+  const storeCurrency = data?.storeCurrency ?? 'USD';
+  const storeCountry = data?.storeCountry ?? 'US';
+  const shopifyThemeId = data?.shopifyThemeId ?? 0;
 
   return (
     <html lang={locale} data-locale={locale}>
@@ -321,7 +336,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
         </noscript>
         {children}
         <ScrollRestoration nonce={nonce} />
-        {shopDomain ? (
+        {shopDomain && inboxScriptUrl ? (
           <>
             <script
               nonce={nonce}
@@ -336,14 +351,23 @@ export function Layout({children}: {children?: React.ReactNode}) {
               nonce={nonce}
               suppressHydrationWarning
               dangerouslySetInnerHTML={{
-                __html: `window.Shopify = window.Shopify || {}; window.Shopify.shop = ${JSON.stringify(shopDomain)};`,
+                __html: [
+                  'window.Shopify = window.Shopify || {};',
+                  `window.Shopify.shop = ${JSON.stringify(shopDomain)};`,
+                  `window.Shopify.locale = ${JSON.stringify(locale)};`,
+                  `window.Shopify.currency = ${JSON.stringify(storeCurrency)};`,
+                  `window.Shopify.country = ${JSON.stringify(storeCountry)};`,
+                  // role:"main" + real theme id lets Inbox match the store's
+                  // Admin-configured settings (greeting, quick replies, etc.).
+                  `window.Shopify.theme = {handle:"hydrogen",id:${shopifyThemeId},role:"main",style:{id:null,handle:null}};`,
+                ].join(' '),
               }}
             />
             <script
               nonce={nonce}
               defer
               suppressHydrationWarning
-              src="https://cdn.shopify.com/extensions/a91f9cd9-7693-4b55-b0f8-a47f69a8cb0c/inbox-1267/assets/shopifyChatV1Widget.js"
+              src={inboxScriptUrl}
             />
           </>
         ) : null}
@@ -567,6 +591,9 @@ const HEADER_QUERY = `#graphql
           url
         }
       }
+    }
+    paymentSettings {
+      currencyCode
     }
   }
   query Header(
