@@ -1,18 +1,35 @@
+import type {LoaderFunctionArgs} from 'react-router';
 import type {Route} from './+types/blogs.$handle';
 import {ComingSoonPage} from '~/components/display/ComingSoonPage';
+
+// ============================================================================
+// Loader
+// ============================================================================
+
+export async function loader({params, request}: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  const canonicalUrl = params.handle
+    ? `${url.origin}/blogs/${params.handle}`
+    : null;
+  return {handle: params.handle, canonicalUrl};
+}
 
 // ============================================================================
 // Meta
 // ============================================================================
 
-export function meta({params}: Route.MetaArgs) {
-  const title = params.handle
-    ? params.handle
+export function meta({data, params}: Route.MetaArgs) {
+  const handle = data?.handle ?? params.handle;
+  const title = handle
+    ? handle
         .split('-')
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
         .join(' ')
     : 'Blog';
-  return [{title: `${title} | Hy-lee`}];
+  const canonical = data?.canonicalUrl
+    ? [{tagName: 'link', rel: 'canonical', href: data.canonicalUrl}]
+    : [];
+  return [{title: `${title} | Hy-lee`}, ...canonical];
 }
 
 // ============================================================================

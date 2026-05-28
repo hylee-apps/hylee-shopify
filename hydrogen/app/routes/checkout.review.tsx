@@ -22,10 +22,13 @@ import type {Route} from './+types/checkout.review';
 // ============================================================================
 
 export function meta(_: Route.MetaArgs) {
-  return getSeoMeta({
-    title: 'Review Order — Checkout',
-    description: 'Review your order details before placing your order.',
-  });
+  return [
+    ...(getSeoMeta({
+      title: 'Review Order — Checkout',
+      description: 'Review your order details before placing your order.',
+    }) ?? []),
+    {name: 'robots', content: 'noindex, nofollow'},
+  ];
 }
 
 // ============================================================================

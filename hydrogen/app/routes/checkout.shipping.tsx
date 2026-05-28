@@ -41,10 +41,13 @@ import type {Route} from './+types/checkout.shipping';
 // ============================================================================
 
 export function meta(_: Route.MetaArgs) {
-  return getSeoMeta({
-    title: 'Shipping — Checkout',
-    description: 'Enter your shipping address and select a shipping method.',
-  });
+  return [
+    ...(getSeoMeta({
+      title: 'Shipping — Checkout',
+      description: 'Enter your shipping address and select a shipping method.',
+    }) ?? []),
+    {name: 'robots', content: 'noindex, nofollow'},
+  ];
 }
 
 // ============================================================================

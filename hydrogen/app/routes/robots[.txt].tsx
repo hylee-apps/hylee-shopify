@@ -5,11 +5,35 @@ export async function loader({request}: LoaderFunctionArgs) {
   const baseUrl = url.origin;
 
   const body = `User-agent: *
+Allow: /
+
+# Crawl-budget savers — private, transactional, and filtered pages
 Disallow: /account
+Disallow: /orders
 Disallow: /cart
 Disallow: /checkout
 Disallow: /api/
 Disallow: /admin
+Disallow: /*?*
+
+# AI crawlers — explicitly allowed
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: CCBot
+Allow: /
 
 Sitemap: ${baseUrl}/sitemap.xml
 `;

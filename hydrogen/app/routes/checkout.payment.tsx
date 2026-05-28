@@ -23,10 +23,13 @@ import type {Route} from './+types/checkout.payment';
 // ============================================================================
 
 export function meta(_: Route.MetaArgs) {
-  return getSeoMeta({
-    title: 'Payment — Checkout',
-    description: 'Enter your payment details to complete your order.',
-  });
+  return [
+    ...(getSeoMeta({
+      title: 'Payment — Checkout',
+      description: 'Enter your payment details to complete your order.',
+    }) ?? []),
+    {name: 'robots', content: 'noindex, nofollow'},
+  ];
 }
 
 // ============================================================================

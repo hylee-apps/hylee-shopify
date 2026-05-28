@@ -252,6 +252,7 @@ export function SearchAutocomplete({
                             src={product.image_link}
                             alt={product.title}
                             className="h-10 w-10 rounded object-cover shrink-0"
+                            loading="lazy"
                           />
                         ) : (
                           <div className="h-10 w-10 rounded bg-surface shrink-0" />

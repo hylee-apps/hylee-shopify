@@ -1,4 +1,6 @@
 import {useState, useMemo} from 'react';
+import type {LoaderFunctionArgs} from 'react-router';
+import type {Route} from './+types/faq';
 import {Link} from 'react-router';
 import {useTranslation} from 'react-i18next';
 import {MessageCircle, Search} from 'lucide-react';
@@ -26,10 +28,21 @@ interface FaqCategory {
 }
 
 // ============================================================================
+// Loader
+// ============================================================================
+
+export async function loader({request}: LoaderFunctionArgs) {
+  return {canonicalUrl: `${new URL(request.url).origin}/faq`};
+}
+
+// ============================================================================
 // Meta
 // ============================================================================
 
-export function meta() {
+export function meta({data}: Route.MetaArgs) {
+  const canonical = data?.canonicalUrl
+    ? [{tagName: 'link', rel: 'canonical', href: data.canonicalUrl}]
+    : [];
   return [
     {title: 'FAQ | Hy-lee'},
     {
@@ -37,6 +50,7 @@ export function meta() {
       content:
         'Find answers to frequently asked questions about shopping, shipping, returns, and your account at Hy-lee.',
     },
+    ...canonical,
   ];
 }
 
