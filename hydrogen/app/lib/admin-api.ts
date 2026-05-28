@@ -306,6 +306,52 @@ export async function getInboxScriptUrl(
   return cmsOverride ?? null;
 }
 
+// ── Inbox Widget Config ───────────────────────────────────────────────────────
+//
+// Mirrors the data-* attributes Shopify injects on the <script> tag in Liquid.
+// In Hydrogen we must set these manually so the widget initialises correctly.
+//
+// data-shop-id  comes from the custom.shopify_inbox_shop_id Shop metafield
+//               (copy from the Liquid <script> tag in your theme preview).
+// data-shop / data-shop-domain are derived from env.PUBLIC_STORE_DOMAIN.
+// Styling defaults (color, position, icon) match the Shopify Inbox Admin
+//   settings; update them here if you reconfigure the widget in Admin.
+
+export interface InboxWidgetConfig {
+  scriptUrl: string;
+  shopDomain: string;
+  shopId: string;
+  buttonColor: string;
+  secondaryColor: string;
+  ternaryColor: string;
+  icon: string;
+  text: string;
+  position: string;
+  verticalPosition: string;
+}
+
+export function buildInboxWidgetConfig(
+  scriptUrl: string,
+  shopDomain: string,
+  shopId: string | null,
+): InboxWidgetConfig | null {
+  if (!shopId) return null;
+  return {
+    scriptUrl,
+    shopDomain,
+    shopId,
+    // Defaults match current Shopify Inbox Admin settings.
+    // Update if you change button color, position, or icon in the Inbox Admin.
+    buttonColor: '#55962d',
+    secondaryColor: '#ffffff',
+    ternaryColor: '#6a6a6a',
+    icon: 'chat_bubble',
+    text: 'no_text',
+    position: 'bottom_right',
+    verticalPosition: 'lowest',
+  };
+}
+
 // ── Published Theme ID ───────────────────────────────────────────────────────
 //
 // The Shopify Inbox widget matches chat settings to the store by checking
