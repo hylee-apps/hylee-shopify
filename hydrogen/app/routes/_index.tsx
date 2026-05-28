@@ -86,7 +86,7 @@ export function meta({data, matches}: Route.MetaArgs) {
   const title = globalCms?.homepage_title ?? 'Hy-lee | Home';
   const description =
     globalCms?.homepage_description ??
-    'Discover unique products from trusted vendors worldwide. Shop electronics, fashion, home goods, and more.';
+    'Shop Hylee for compact furniture, off-grid power, and space-saving essentials. Perfect for tiny homes, van life, dorms & small apartments. Maximize your space!';
 
   const canonical = data?.canonicalUrl
     ? [{tagName: 'link', rel: 'canonical', href: data.canonicalUrl}]
@@ -96,13 +96,15 @@ export function meta({data, matches}: Route.MetaArgs) {
     ...(getSeoMeta({
       title,
       description,
-      media: {
-        type: 'image',
-        url: 'https://hy-lee.com/logo-full.png',
-        height: 630,
-        width: 1200,
-        altText: 'Hy-lee — your marketplace for unique products',
-      },
+      media: globalCms?.ogImageUrl
+        ? {
+            type: 'image',
+            url: globalCms.ogImageUrl,
+            height: 630,
+            width: 1200,
+            altText: 'Hy-lee — your marketplace for unique products',
+          }
+        : undefined,
     }) ?? []),
     ...canonical,
   ];

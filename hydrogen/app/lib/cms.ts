@@ -21,16 +21,18 @@
  * ──────────────────────────────────────────────
  * Namespace: custom
  *
- * | Key                  | Type               | Purpose                        |
- * |----------------------|--------------------|--------------------------------|
- * | announcement_bar     | Single line text   | Header banner text; null=hidden|
- * | promo_tier_enabled   | True or false      | Show/hide promo tier bar       |
- * | og_image_url         | Single line text   | Default OG social share image  |
- * | homepage_description | Single line text   | Default homepage description   |
- * | homepage_title       | Single line text   | Default homepage title         |
- * | social_media_facebook  | URL              | Facebook profile URL           |
- * | social_media_instagram | URL              | Instagram profile URL          |
- * | social_media_pinterest | URL              | Pinterest profile URL          |
+ * | Key                           | Type               | Purpose                              |
+ * |-------------------------------|--------------------|--------------------------------------|
+ * | announcement_bar              | Single line text   | Header banner text; null=hidden      |
+ * | promo_tier_enabled            | True or false      | Show/hide promo tier bar             |
+ * | og_image_url                  | Single line text   | Default OG social share image        |
+ * | homepage_description          | Single line text   | Default homepage description         |
+ * | homepage_title                | Single line text   | Default homepage title               |
+ * | social_media_facebook         | URL                | Facebook profile URL                 |
+ * | social_media_instagram        | URL                | Instagram profile URL                |
+ * | social_media_pinterest        | URL                | Pinterest profile URL                |
+ * | google_tag_manager_id         | Single line text   | GTM container ID (e.g. GTM-XXXXXXX)  |
+ * | shopify_inbox_widget_script_url | URL              | Inbox widget CDN URL fallback        |
  *
  * HOW TO SET VALUES
  * ─────────────────
@@ -55,6 +57,10 @@ export interface GlobalCmsConfig {
   socialFacebook: string | null;
   socialInstagram: string | null;
   socialPinterest: string | null;
+  /** GTM container ID (e.g. "GTM-T925VVHC"). null = GTM not loaded. */
+  gtmContainerId: string | null;
+  /** Shopify Inbox widget CDN URL. Used as fallback when Admin API script_tags lookup fails. */
+  shopifyInboxWidgetScriptUrl: string | null;
 }
 
 const DEFAULT_CMS_CONFIG: GlobalCmsConfig = {
@@ -66,6 +72,8 @@ const DEFAULT_CMS_CONFIG: GlobalCmsConfig = {
   socialFacebook: null,
   socialInstagram: null,
   socialPinterest: null,
+  gtmContainerId: null,
+  shopifyInboxWidgetScriptUrl: null,
 };
 
 // ─── GraphQL Query ────────────────────────────────────────────────────────────
@@ -97,6 +105,12 @@ export const GLOBAL_CMS_QUERY = `#graphql
       socialPinterest: metafield(namespace: "custom", key: "social_media_pinterest") {
         value
       }
+      gtmContainerId: metafield(namespace: "custom", key: "google_tag_manager_id") {
+        value
+      }
+      shopifyInboxWidgetScriptUrl: metafield(namespace: "custom", key: "shopify_inbox_widget_script_url") {
+        value
+      }
     }
   }
 ` as const;
@@ -123,5 +137,10 @@ export function parseGlobalCms(data: any): GlobalCmsConfig {
       shop.socialInstagram?.value ?? DEFAULT_CMS_CONFIG.socialInstagram,
     socialPinterest:
       shop.socialPinterest?.value ?? DEFAULT_CMS_CONFIG.socialPinterest,
+    gtmContainerId:
+      shop.gtmContainerId?.value ?? DEFAULT_CMS_CONFIG.gtmContainerId,
+    shopifyInboxWidgetScriptUrl:
+      shop.shopifyInboxWidgetScriptUrl?.value ??
+      DEFAULT_CMS_CONFIG.shopifyInboxWidgetScriptUrl,
   };
 }

@@ -249,8 +249,9 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
   }
 
   const adminEnv = context.env as unknown as AdminEnv;
+  const globalCms = parseGlobalCms(globalCmsData);
   const [inboxScriptUrl, shopifyThemeId] = await Promise.all([
-    getInboxScriptUrl(adminEnv),
+    getInboxScriptUrl(adminEnv, globalCms.shopifyInboxWidgetScriptUrl),
     getMainThemeId(adminEnv),
   ]);
 
@@ -262,7 +263,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     currentLanguage,
     locale,
     wishlistIds,
-    globalCms: parseGlobalCms(globalCmsData),
+    globalCms,
     inboxScriptUrl,
     shopifyThemeId,
     storeCurrency: header?.shop?.paymentSettings?.currencyCode ?? 'USD',
@@ -300,40 +301,47 @@ export function Layout({children}: {children?: React.ReactNode}) {
   const storeCurrency = data?.storeCurrency ?? 'USD';
   const storeCountry = data?.storeCountry ?? 'US';
   const shopifyThemeId = data?.shopifyThemeId ?? 0;
+  const gtmContainerId = data?.globalCms?.gtmContainerId ?? null;
 
   return (
     <html lang={locale} data-locale={locale}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        {/* Google Tag Manager */}
-        <script
-          nonce={nonce}
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{
-            __html: `window.dataLayer=window.dataLayer||[];window.dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});`,
-          }}
-        />
-        <script
-          nonce={nonce}
-          async
-          suppressHydrationWarning
-          src="https://www.googletagmanager.com/gtm.js?id=GTM-T925VVHC"
-        />
+        {/* Google Tag Manager — container ID from custom.google_tag_manager_id Shop metafield */}
+        {gtmContainerId && (
+          <>
+            <script
+              nonce={nonce}
+              suppressHydrationWarning
+              dangerouslySetInnerHTML={{
+                __html: `window.dataLayer=window.dataLayer||[];window.dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});`,
+              }}
+            />
+            <script
+              nonce={nonce}
+              async
+              suppressHydrationWarning
+              src={`https://www.googletagmanager.com/gtm.js?id=${gtmContainerId}`}
+            />
+          </>
+        )}
         <link rel="stylesheet" href={appStyles} />
         <Meta />
         <Links />
       </head>
       <body>
         {/* Google Tag Manager (noscript) */}
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-T925VVHC"
-            height="0"
-            width="0"
-            style={{display: 'none', visibility: 'hidden'}}
-          />
-        </noscript>
+        {gtmContainerId && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${gtmContainerId}`}
+              height="0"
+              width="0"
+              style={{display: 'none', visibility: 'hidden'}}
+            />
+          </noscript>
+        )}
         {children}
         <ScrollRestoration nonce={nonce} />
         {shopDomain && inboxScriptUrl ? (

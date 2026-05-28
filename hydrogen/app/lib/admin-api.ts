@@ -260,15 +260,22 @@ async function adminRestGet<T = unknown>(
 //
 // Requires the Admin app to have the `read_script_tags` scope.
 
-// Fallback URL used if the Admin API call fails (e.g. scope not yet granted).
-// Update this whenever Shopify ships a new major Inbox release.
-const INBOX_SCRIPT_FALLBACK =
-  'https://cdn.shopify.com/extensions/a91f9cd9-7693-4b55-b0f8-a47f69a8cb0c/inbox-1267/assets/shopifyChatV1Widget.js';
-
 let cachedInboxUrl: string | null = null;
 let inboxUrlExpiresAt = 0;
 
-export async function getInboxScriptUrl(env: AdminEnv): Promise<string> {
+/**
+ * Returns the current Shopify Inbox widget CDN URL.
+ *
+ * Resolution order:
+ *   1. In-memory cache (24h TTL)
+ *   2. Admin REST API script_tags lookup (live, authoritative)
+ *   3. cmsOverride — value from the custom.shopify_inbox_widget_script_url Shop metafield
+ *   4. null — widget is not loaded
+ */
+export async function getInboxScriptUrl(
+  env: AdminEnv,
+  cmsOverride?: string | null,
+): Promise<string | null> {
   if (cachedInboxUrl && Date.now() < inboxUrlExpiresAt) {
     return cachedInboxUrl;
   }
@@ -296,7 +303,7 @@ export async function getInboxScriptUrl(env: AdminEnv): Promise<string> {
     // The widget still loads via the fallback URL below.
   }
 
-  return INBOX_SCRIPT_FALLBACK;
+  return cmsOverride ?? null;
 }
 
 // ── Published Theme ID ───────────────────────────────────────────────────────
