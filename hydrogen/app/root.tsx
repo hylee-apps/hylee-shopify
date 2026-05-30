@@ -130,7 +130,7 @@ const BANNER_DISCOUNTS_QUERY = `
             status
             codes(first: 1) { nodes { code } }
             customerBuys { value { ... on DiscountQuantity { quantity } } }
-            customerGets { value { ... on DiscountQuantity { quantity } } }
+            customerGets { quantity { quantity } }
           }
           ... on DiscountCodeFreeShipping {
             status
@@ -148,9 +148,9 @@ function describeDiscount(d: any): string {
   if (type === 'DiscountCodeFreeShipping') return 'Free shipping on your order';
 
   if (type === 'DiscountCodeBxgy') {
-    const buy = d.customerBuys?.value?.quantity ?? 2;
-    const get = d.customerGets?.value?.quantity ?? 1;
-    return `Buy ${buy}, get ${get} free`;
+    const buyQty = d.customerBuys?.value?.quantity ?? 2;
+    const getQty = d.customerGets?.quantity?.quantity ?? 1;
+    return `Buy ${buyQty}, get ${getQty} free`;
   }
 
   if (type === 'DiscountCodeBasic') {
