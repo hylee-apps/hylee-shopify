@@ -1,8 +1,8 @@
 # Implementation Plan: Meeting Action Items — May 16, 2026
 
-> **Status**: 🟡 In Progress
+> **Status**: 🟢 Complete
 > **Created**: 2026-05-20
-> **Last Updated**: 2026-05-29 (audited against code + git history)
+> **Last Updated**: 2026-05-30 (all workstreams implemented)
 > **Source**: Weekly Meeting 2026-05-16 (Shawn Jones, Derek Hawkins)
 > **Stack**: Hydrogen (React + TypeScript + Tailwind v4 + shadcn/ui + React Router 7)
 
@@ -24,11 +24,11 @@ and prioritized by go-live impact.
 | --- | --------------------------------------------- | -------- | -------------- |
 | 1   | Shopify Inbox CSP Fix                         | CRITICAL | ✅ Complete — commit `7f5d019`, PR #89 |
 | 2   | Promo Tier Sticky Banner                      | HIGH     | ⚠️ Partial — CMS flag wired, no component |
-| 3   | "Live Well Anywhere" Hero Section Links       | HIGH     | 🔲 Not Started — code does not exist  |
+| 3   | "Live Well Anywhere" Hero Section Links       | HIGH     | ✅ Complete — commit `46309e7` |
 | 4   | Discount + Seasonal → Direct Collection Links | HIGH     | ✅ Complete — `SeasonalBar`/`DiscountsBar` implemented |
-| 5   | All-Categories A-to-Z Page                    | HIGH     | 🔲 Not Started |
-| 6   | Pre-Purchase Mini Cart Preview                | MEDIUM   | 🔲 Not Started |
-| 7   | SEO H1 Tag Fixes                              | LOW      | ⚠️ Partial — collections page missing `<h1>` |
+| 5   | All-Categories A-to-Z Page                    | HIGH     | ✅ Complete — commit `a4d1982` |
+| 6   | Pre-Purchase Mini Cart Preview                | MEDIUM   | ✅ Complete — commit `5b15c86` |
+| 7   | SEO H1 Tag Fixes                              | LOW      | ✅ Complete — `CollectionHero` already had `<h1>` |
 
 ---
 
