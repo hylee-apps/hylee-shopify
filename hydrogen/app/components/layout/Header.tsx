@@ -28,6 +28,7 @@ import {
 } from '~/components/ui/dropdown-menu';
 import type {HeaderQuery} from 'storefrontapi.generated';
 import {AnnouncementBanner} from './AnnouncementBanner';
+import {MiniCart} from './MiniCart';
 
 // ============================================================================
 // Types
@@ -681,6 +682,7 @@ export function Header({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [categoryBarOpen, setCategoryBarOpen] = useState(false);
+  const [miniCartOpen, setMiniCartOpen] = useState(false);
   const [seasonalBarOpen, setSeasonalBarOpen] = useState(false);
   const [discountsBarOpen, setDiscountsBarOpen] = useState(false);
   const [resolvedIsLoggedIn, setResolvedIsLoggedIn] = useState(false);
@@ -716,6 +718,7 @@ export function Header({
     setCategoryBarOpen(false);
     setSeasonalBarOpen(false);
     setDiscountsBarOpen(false);
+    setMiniCartOpen(false);
   }, [location.pathname]);
 
   const accountItems = resolvedIsLoggedIn
@@ -847,8 +850,9 @@ export function Header({
               <div className="hidden lg:flex items-center gap-1">
                 <LanguageSelector currentLanguage={currentLanguage} />
                 <NavDropdown label={t('nav.account')} items={accountItems} />
-                <Link
-                  to="/cart"
+                <button
+                  type="button"
+                  onClick={() => setMiniCartOpen(true)}
                   className="relative p-2 text-secondary hover:text-primary transition-colors shrink-0"
                   aria-label={t('header.cartCount', {count: cartCount})}
                 >
@@ -858,7 +862,7 @@ export function Header({
                       {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}
-                </Link>
+                </button>
               </div>
 
               {/* Mobile */}
@@ -878,8 +882,9 @@ export function Header({
                 >
                   <User size={20} />
                 </Link>
-                <Link
-                  to="/cart"
+                <button
+                  type="button"
+                  onClick={() => setMiniCartOpen(true)}
                   className="tap-target relative inline-flex items-center justify-center text-text-muted hover:text-primary transition-colors"
                   aria-label={t('header.cartCount', {count: cartCount})}
                 >
@@ -889,7 +894,7 @@ export function Header({
                       {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}
-                </Link>
+                </button>
               </div>
             </div>
           </div>
@@ -945,8 +950,9 @@ export function Header({
               <LanguageSelector currentLanguage={currentLanguage} />
               <NavDropdown label={t('nav.account')} items={accountItems} />
 
-              <Link
-                to="/cart"
+              <button
+                type="button"
+                onClick={() => setMiniCartOpen(true)}
                 className="relative p-2 text-secondary hover:text-primary transition-colors shrink-0"
                 aria-label={t('header.cartCount', {count: cartCount})}
               >
@@ -956,7 +962,7 @@ export function Header({
                     {cartCount > 99 ? '99+' : cartCount}
                   </span>
                 )}
-              </Link>
+              </button>
             </div>
 
             {/* Mobile: search + cart */}
@@ -969,8 +975,9 @@ export function Header({
               >
                 <Search size={20} />
               </button>
-              <Link
-                to="/cart"
+              <button
+                type="button"
+                onClick={() => setMiniCartOpen(true)}
                 className="tap-target relative inline-flex items-center justify-center text-text-muted hover:text-primary transition-colors"
                 aria-label={t('header.cartCount', {count: cartCount})}
               >
@@ -980,7 +987,7 @@ export function Header({
                     {cartCount > 99 ? '99+' : cartCount}
                   </span>
                 )}
-              </Link>
+              </button>
             </div>
           </div>
         )}
@@ -1009,6 +1016,12 @@ export function Header({
       <MobileSearchSheet
         isOpen={mobileSearchOpen}
         onClose={() => setMobileSearchOpen(false)}
+      />
+
+      <MiniCart
+        open={miniCartOpen}
+        onClose={() => setMiniCartOpen(false)}
+        cartCount={cartCount}
       />
     </>
   );

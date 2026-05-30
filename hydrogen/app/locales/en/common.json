@@ -775,6 +775,16 @@
     "title": "All Product Categories",
     "sectionLabel": "Categories beginning with {{letter}}"
   },
+  "miniCart": {
+    "title": "Your Cart ({{count}})",
+    "empty": "Your cart is empty",
+    "continueShopping": "Continue Shopping",
+    "qty": "Qty: {{count}}",
+    "subtotal": "Subtotal",
+    "viewCart": "View Cart",
+    "checkout": "Checkout",
+    "close": "Close cart"
+  },
   "announcementBanner": {
     "firstOrder": {
       "message": "First-time shopper? Get 8% off your order.",

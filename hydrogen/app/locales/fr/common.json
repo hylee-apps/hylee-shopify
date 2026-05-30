@@ -761,6 +761,16 @@
     "title": "Toutes les Catégories de Produits",
     "sectionLabel": "Catégories commençant par {{letter}}"
   },
+  "miniCart": {
+    "title": "Votre Panier ({{count}})",
+    "empty": "Votre panier est vide",
+    "continueShopping": "Continuer vos Achats",
+    "qty": "Qté : {{count}}",
+    "subtotal": "Sous-total",
+    "viewCart": "Voir le Panier",
+    "checkout": "Commander",
+    "close": "Fermer le panier"
+  },
   "announcementBanner": {
     "firstOrder": {
       "message": "Première commande ? Bénéficiez de 8% de réduction.",

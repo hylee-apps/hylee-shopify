@@ -761,6 +761,16 @@
     "title": "Todas las Categorías de Productos",
     "sectionLabel": "Categorías que empiezan con {{letter}}"
   },
+  "miniCart": {
+    "title": "Tu Carrito ({{count}})",
+    "empty": "Tu carrito está vacío",
+    "continueShopping": "Continuar Comprando",
+    "qty": "Cant: {{count}}",
+    "subtotal": "Subtotal",
+    "viewCart": "Ver Carrito",
+    "checkout": "Pagar",
+    "close": "Cerrar carrito"
+  },
   "announcementBanner": {
     "firstOrder": {
       "message": "¿Primera vez comprando? Obtén un 8% de descuento en tu pedido.",
