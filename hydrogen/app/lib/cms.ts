@@ -68,7 +68,7 @@ export interface GlobalCmsConfig {
 
 const DEFAULT_CMS_CONFIG: GlobalCmsConfig = {
   announcementBar: null,
-  promoTierEnabled: true,
+  promoTierEnabled: false,
   ogImageUrl: null,
   homepage_description: null,
   homepage_title: null,

@@ -99,7 +99,7 @@ export function AnnouncementBanner() {
         </button>
 
         {/* Message */}
-        <p className="text-center font-medium leading-tight flex-1">
+        <p className="text-center font-medium leading-tight">
           {t(`announcementBanner.${tier.key}.message`)}{' '}
           <Link
             to={tier.href}
