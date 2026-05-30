@@ -127,10 +127,9 @@ const BANNER_DISCOUNTS_QUERY = `
             }
           }
           ... on DiscountCodeBxgy {
+            title
             status
             codes(first: 1) { nodes { code } }
-            customerBuys { value { ... on DiscountQuantity { quantity } } }
-            customerGets { quantity { quantity } }
           }
           ... on DiscountCodeFreeShipping {
             status
@@ -148,9 +147,7 @@ function describeDiscount(d: any): string {
   if (type === 'DiscountCodeFreeShipping') return 'Free shipping on your order';
 
   if (type === 'DiscountCodeBxgy') {
-    const buyQty = d.customerBuys?.value?.quantity ?? 2;
-    const getQty = d.customerGets?.quantity?.quantity ?? 1;
-    return `Buy ${buyQty}, get ${getQty} free`;
+    return d.title || 'Buy & get offer';
   }
 
   if (type === 'DiscountCodeBasic') {
