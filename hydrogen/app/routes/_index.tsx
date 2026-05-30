@@ -42,18 +42,6 @@ const HERO_SLIDES_QUERY = `#graphql
   }
 ` as const;
 
-const LIFESTYLE_COLLECTIONS_QUERY = `#graphql
-  query LifestyleCollections(
-    $country: CountryCode
-    $language: LanguageCode
-  ) @inContext(country: $country, language: $language) {
-    tinyHome: collection(handle: "tiny-home-living") { title handle }
-    apartment: collection(handle: "apartment-and-studio-living") { title handle }
-    vanRv: collection(handle: "van-and-rv-life-essentials") { title handle }
-    offGrid: collection(handle: "off-grid-living") { title handle }
-  }
-` as const;
-
 function buildHeroSlides(data: any): CarouselSlide[] {
   const nodes: any[] = data?.metaobjects?.nodes ?? [];
 
@@ -546,7 +534,6 @@ export async function loader({request, context}: Route.LoaderArgs) {
     discountedResult,
     discountsData,
     heroSlidesData,
-    lifestyleData,
   ] = await Promise.all([
     storefront
       .query(WHATS_NEW_QUERY, {
@@ -574,29 +561,10 @@ export async function loader({request, context}: Route.LoaderArgs) {
         cache: storefront.CacheShort(),
       })
       .catch(() => null),
-    storefront
-      .query(LIFESTYLE_COLLECTIONS_QUERY, {
-        variables: {
-          country: storefront.i18n.country,
-          language: storefront.i18n.language,
-        },
-        cache: storefront.CacheLong(),
-      })
-      .catch(() => null),
   ]);
 
   const promotions = buildPromoSlidesFromDiscounts(discountsData);
   const heroSlides = buildHeroSlides(heroSlidesData);
-
-  const lifestyleCollections = [
-    lifestyleData?.tinyHome,
-    lifestyleData?.apartment,
-    lifestyleData?.vanRv,
-    lifestyleData?.offGrid,
-  ].filter(
-    (c): c is {title: string; handle: string} =>
-      !!c && typeof c.title === 'string' && typeof c.handle === 'string',
-  );
 
   return {
     whatsNew: whatsNewResult?.products?.nodes ?? [],
@@ -604,7 +572,6 @@ export async function loader({request, context}: Route.LoaderArgs) {
     discounted: discountedResult?.products?.nodes ?? [],
     promotions,
     heroSlides,
-    lifestyleCollections,
     canonicalUrl,
   };
 }
@@ -901,14 +868,8 @@ function PromotionsCarousel({promotions}: {promotions: PromoSlide[]}) {
 // ============================================================================
 
 export default function Homepage() {
-  const {
-    whatsNew,
-    seasonal,
-    discounted,
-    promotions,
-    heroSlides,
-    lifestyleCollections,
-  } = useLoaderData<typeof loader>();
+  const {whatsNew, seasonal, discounted, promotions, heroSlides} =
+    useLoaderData<typeof loader>();
   const {t} = useTranslation();
 
   return (
@@ -928,24 +889,6 @@ export default function Homepage() {
             className="h-[101.821px] w-[183px] object-cover shrink-0"
             loading="eager"
           />
-        }
-        body={
-          lifestyleCollections.length > 0 ? (
-            <nav aria-label={t('home.lifestyleNav')}>
-              <ul className="flex flex-wrap justify-center gap-2">
-                {lifestyleCollections.map((col) => (
-                  <li key={col.handle}>
-                    <Link
-                      to={`/collections/${col.handle}`}
-                      className="inline-block px-4 py-1.5 rounded-full bg-white/20 text-white text-sm font-medium backdrop-blur-sm hover:bg-white/30 transition-colors"
-                    >
-                      {col.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          ) : null
         }
         footer={
           <Form action="/search" method="get" className="w-full max-w-[683px]">
