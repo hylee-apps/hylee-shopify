@@ -25,6 +25,7 @@ import {readWishlistIds, type AdminEnv} from '~/lib/wishlist';
 import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {GLOBAL_CMS_QUERY, parseGlobalCms} from '~/lib/cms';
 import {
+  adminApi,
   getInboxScriptUrl,
   getMainThemeId,
   buildInboxWidgetConfig,
@@ -89,6 +90,116 @@ export async function loader(args: Route.LoaderArgs) {
   };
 }
 
+// ─── Banner Discounts ─────────────────────────────────────────────────────────
+
+export interface BannerDiscount {
+  id: string;
+  code: string;
+  title: string;
+}
+
+const BANNER_DISCOUNTS_QUERY = `
+  query BannerDiscounts {
+    codeDiscountNodes(first: 30) {
+      nodes {
+        id
+        codeDiscount {
+          __typename
+          ... on DiscountCodeBasic {
+            status
+            codes(first: 1) { nodes { code } }
+            customerGets {
+              value {
+                __typename
+                ... on DiscountPercentage { percentage }
+                ... on DiscountAmount { amount { amount currencyCode } }
+              }
+              items {
+                __typename
+                ... on AllDiscountItems { allItems }
+                ... on DiscountCollections {
+                  collections(first: 1) { nodes { title } }
+                }
+                ... on DiscountProducts {
+                  products(first: 1) { nodes { title } }
+                }
+              }
+            }
+          }
+          ... on DiscountCodeBxgy {
+            title
+            status
+            codes(first: 1) { nodes { code } }
+          }
+          ... on DiscountCodeFreeShipping {
+            status
+            codes(first: 1) { nodes { code } }
+          }
+        }
+      }
+    }
+  }
+`;
+
+function describeDiscount(d: any): string {
+  const type = d.__typename;
+
+  if (type === 'DiscountCodeFreeShipping') return 'Free shipping on your order';
+
+  if (type === 'DiscountCodeBxgy') {
+    return d.title || 'Buy & get offer';
+  }
+
+  if (type === 'DiscountCodeBasic') {
+    const val = d.customerGets?.value;
+    const items = d.customerGets?.items;
+
+    // Build value string
+    let valueStr = '';
+    if (val?.__typename === 'DiscountPercentage') {
+      const pct = Math.round((val.percentage ?? 0) * 100);
+      valueStr = `${pct}% off`;
+    } else if (val?.__typename === 'DiscountAmount') {
+      const amt = parseFloat(val.amount?.amount ?? '0');
+      const currency = val.amount?.currencyCode ?? 'USD';
+      valueStr = `${new Intl.NumberFormat('en-US', {style: 'currency', currency}).format(amt)} off`;
+    }
+
+    // Build scope string
+    let scopeStr = '';
+    const itemType = items?.__typename;
+    if (itemType === 'AllDiscountItems') {
+      scopeStr = 'everything';
+    } else if (itemType === 'DiscountCollections') {
+      const collTitle = items.collections?.nodes?.[0]?.title;
+      scopeStr = collTitle ?? 'select collections';
+    } else if (itemType === 'DiscountProducts') {
+      const prodTitle = items.products?.nodes?.[0]?.title;
+      scopeStr = prodTitle ?? 'select products';
+    }
+
+    return (
+      [valueStr, scopeStr].filter(Boolean).join(' on ') || 'Special discount'
+    );
+  }
+
+  return 'Special discount';
+}
+
+function parseBannerDiscounts(data: any): BannerDiscount[] {
+  const nodes: any[] = data?.codeDiscountNodes?.nodes ?? [];
+  return nodes
+    .filter((n) => n.codeDiscount?.status === 'ACTIVE')
+    .map((n) => {
+      const code = (n.codeDiscount.codes?.nodes?.[0]?.code as string) ?? '';
+      const description = describeDiscount(n.codeDiscount);
+      return {id: n.id as string, code, title: description};
+    })
+    .filter((d) => d.code);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 async function loadCriticalData({context, request}: Route.LoaderArgs) {
   const {storefront} = context;
 
@@ -104,6 +215,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     seasonalNavResult,
     discountsNavResult,
     globalCmsData,
+    bannerDiscountsData,
   ] = await Promise.all([
     storefront.query(HEADER_QUERY, {
       cache: storefront.CacheLong(),
@@ -139,8 +251,14 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
       })
       .catch(() => null),
     storefront
-      .query(GLOBAL_CMS_QUERY, {cache: storefront.CacheLong()})
+      .query(GLOBAL_CMS_QUERY, {cache: storefront.CacheShort()})
       .catch(() => null),
+    adminApi(context.env as unknown as AdminEnv, BANNER_DISCOUNTS_QUERY).catch(
+      (err) => {
+        console.error('[BannerDiscounts] Admin API error:', err);
+        return null;
+      },
+    ),
   ]);
 
   const rawCategories =
@@ -254,7 +372,15 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
   }
 
   const adminEnv = context.env as unknown as AdminEnv;
-  const globalCms = parseGlobalCms(globalCmsData);
+  const globalCms = parseGlobalCms(globalCmsData, adminEnv);
+  const bannerDiscounts = parseBannerDiscounts(bannerDiscountsData);
+  if (globalCms.promoTierEnabled && !bannerDiscounts.length) {
+    console.warn(
+      '[AnnouncementBanner] promoTierEnabled=true but no active discounts returned.',
+      'Raw response:',
+      JSON.stringify(bannerDiscountsData)?.slice(0, 300),
+    );
+  }
   const [inboxScriptUrl, shopifyThemeId] = await Promise.all([
     getInboxScriptUrl(adminEnv, globalCms.shopifyInboxWidgetScriptUrl),
     getMainThemeId(adminEnv),
@@ -277,6 +403,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     locale,
     wishlistIds,
     globalCms,
+    bannerDiscounts,
     inboxConfig,
     shopifyThemeId,
     storeCurrency: header?.shop?.paymentSettings?.currencyCode ?? 'USD',

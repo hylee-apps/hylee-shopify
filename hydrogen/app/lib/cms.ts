@@ -44,9 +44,7 @@
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export interface GlobalCmsConfig {
-  /** Text shown in the header announcement bar. null = bar is hidden. */
-  announcementBar: string | null;
-  /** Whether the promo tier sticky banner is visible. Default: true. */
+  /** Whether the promo tier sticky banner is visible. Default: false (off until enabled in Admin). */
   promoTierEnabled: boolean;
   /** Default OG image URL for pages that don't specify their own. */
   ogImageUrl: string | null;
@@ -67,8 +65,7 @@ export interface GlobalCmsConfig {
 }
 
 const DEFAULT_CMS_CONFIG: GlobalCmsConfig = {
-  announcementBar: null,
-  promoTierEnabled: true,
+  promoTierEnabled: false,
   ogImageUrl: null,
   homepage_description: null,
   homepage_title: null,
@@ -85,9 +82,6 @@ const DEFAULT_CMS_CONFIG: GlobalCmsConfig = {
 export const GLOBAL_CMS_QUERY = `#graphql
   query GlobalCms {
     shop {
-      announcementBar: metafield(namespace: "custom", key: "announcement_bar") {
-        value
-      }
       promoTierEnabled: metafield(namespace: "custom", key: "promo_tier_enabled") {
         value
       }
@@ -125,13 +119,18 @@ export const GLOBAL_CMS_QUERY = `#graphql
 // ─── Parser ───────────────────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function parseGlobalCms(data: any): GlobalCmsConfig {
+export function parseGlobalCms(
+  data: any,
+  env?: {[key: string]: string | undefined},
+): GlobalCmsConfig {
   const shop = data?.shop ?? {};
   return {
-    announcementBar:
-      shop.announcementBar?.value ?? DEFAULT_CMS_CONFIG.announcementBar,
-    // Shopify boolean metafields are returned as the string "true"/"false"
-    promoTierEnabled: shop.promoTierEnabled?.value !== 'false',
+    // Local .env overrides take precedence over Shopify metafields.
+    // Set PROMO_TIER_ENABLED=true in .env to force-enable locally.
+    promoTierEnabled:
+      env?.PROMO_TIER_ENABLED !== undefined
+        ? env.PROMO_TIER_ENABLED === 'true'
+        : shop.promoTierEnabled?.value === 'true',
     ogImageUrl: shop.ogImageUrl?.value ?? DEFAULT_CMS_CONFIG.ogImageUrl,
     homepage_description:
       shop.homepageDescription?.value ??
