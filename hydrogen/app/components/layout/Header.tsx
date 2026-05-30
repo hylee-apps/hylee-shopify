@@ -27,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
 import type {HeaderQuery} from 'storefrontapi.generated';
+import {AnnouncementBanner} from './AnnouncementBanner';
 
 // ============================================================================
 // Types
@@ -40,6 +41,7 @@ export interface HeaderProps {
   isLoggedIn?: boolean | Promise<boolean>;
   cart?: CartLike | null | Promise<unknown>;
   announcement?: string;
+  promoTierEnabled?: boolean;
   variant?: HeaderVariant;
   currentLanguage?: string;
   categories?: Array<{
@@ -651,6 +653,7 @@ export function Header({
   isLoggedIn = false,
   cart,
   announcement,
+  promoTierEnabled = true,
   variant = 'default',
   currentLanguage = 'EN',
   categories = [],
@@ -724,10 +727,14 @@ export function Header({
           isHome ? 'bg-white' : 'bg-white border-b border-primary'
         }`}
       >
-        {announcement && (
-          <div className="bg-dark text-white text-center text-sm py-2 px-4">
-            {announcement}
-          </div>
+        {promoTierEnabled ? (
+          <AnnouncementBanner />
+        ) : (
+          announcement && (
+            <div className="bg-dark text-white text-center text-sm py-2 px-4">
+              {announcement}
+            </div>
+          )
         )}
 
         {isHome ? (

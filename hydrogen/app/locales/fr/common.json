@@ -756,6 +756,28 @@
     "newBadge": "Nouveau",
     "lifestyleNav": "Bien vivre partout — parcourir par style de vie"
   },
+  "announcementBanner": {
+    "firstOrder": {
+      "message": "Première commande ? Bénéficiez de 8% de réduction.",
+      "cta": "Réclamez votre réduction"
+    },
+    "newsletter": {
+      "message": "Inscrivez-vous à notre newsletter et économisez 10% sur votre prochain achat.",
+      "cta": "S'inscrire"
+    },
+    "accountCreation": {
+      "message": "Créez un compte et débloquez 15% de réduction sur votre première commande.",
+      "cta": "S'inscrire"
+    },
+    "referral": {
+      "message": "Parrainez un ami et gagnez 20% de réduction — récurrent à chaque parrainage.",
+      "cta": "Parrainer"
+    },
+    "prev": "Offre précédente",
+    "next": "Offre suivante",
+    "goToSlide": "Aller à l'offre {{n}}",
+    "dismiss": "Fermer la barre d'annonces"
+  },
   "quantity": {
     "decrease": "Diminuer la quantité",
     "increase": "Augmenter la quantité",

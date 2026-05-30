@@ -770,6 +770,28 @@
     "newBadge": "New",
     "lifestyleNav": "Live well anywhere — browse by lifestyle"
   },
+  "announcementBanner": {
+    "firstOrder": {
+      "message": "First-time shopper? Get 8% off your order.",
+      "cta": "Claim your discount"
+    },
+    "newsletter": {
+      "message": "Sign up for our newsletter and save 10% on your next purchase.",
+      "cta": "Sign up"
+    },
+    "accountCreation": {
+      "message": "Create an account and unlock 15% off your first order.",
+      "cta": "Register"
+    },
+    "referral": {
+      "message": "Refer a friend and earn 20% off — recurring for every referral.",
+      "cta": "Refer a friend"
+    },
+    "prev": "Previous offer",
+    "next": "Next offer",
+    "goToSlide": "Go to offer {{n}}",
+    "dismiss": "Dismiss announcement bar"
+  },
   "quantity": {
     "decrease": "Decrease quantity",
     "increase": "Increase quantity",

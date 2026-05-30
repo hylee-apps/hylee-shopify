@@ -85,6 +85,7 @@ export function PageLayout({children}: PageLayoutProps) {
         discountItems={discountItems ?? []}
         currentLanguage={currentLanguage ?? 'EN'}
         announcement={globalCms?.announcementBar ?? undefined}
+        promoTierEnabled={globalCms?.promoTierEnabled ?? true}
         socialFacebook={globalCms?.socialFacebook ?? null}
         socialInstagram={globalCms?.socialInstagram ?? null}
         socialPinterest={globalCms?.socialPinterest ?? null}
