@@ -378,88 +378,6 @@ function MobileMenu({
             {t('nav.whatsNew')}
           </Link>
 
-          {seasonalItems.length > 0 ? (
-            <div className="border-b border-border">
-              <button
-                className="flex items-center justify-between w-full px-4 py-3 text-text font-medium"
-                onClick={() => toggleSection('seasonal')}
-              >
-                <span>{t('nav.seasonal')}</span>
-                <ChevronDown
-                  size={16}
-                  className={`transition-transform ${
-                    expandedSection === 'seasonal' ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-              {expandedSection === 'seasonal' && (
-                <div className="bg-surface pb-2">
-                  {seasonalItems.map((item) => (
-                    <Link
-                      key={item.id}
-                      to={`/collections/${item.handle}`}
-                      className="block px-6 py-2 text-sm text-text hover:text-primary"
-                      onClick={onClose}
-                    >
-                      {item.title}
-                    </Link>
-                  ))}
-                  <Link
-                    to="/collections/seasonal"
-                    className="block px-6 py-2 text-sm font-semibold text-secondary hover:text-primary"
-                    onClick={onClose}
-                  >
-                    {t('nav.seeAll')}
-                  </Link>
-                </div>
-              )}
-            </div>
-          ) : (
-            <Link
-              to="/collections/seasonal"
-              className="block px-4 py-3 font-medium text-text hover:text-primary border-b border-border"
-              onClick={onClose}
-            >
-              {t('nav.seasonal')}
-            </Link>
-          )}
-
-          <div className="border-b border-border">
-            <button
-              className="flex items-center justify-between w-full px-4 py-3 text-text font-medium"
-              onClick={() => toggleSection('discounts')}
-            >
-              <span>{t('nav.discounts')}</span>
-              <ChevronDown
-                size={16}
-                className={`transition-transform ${
-                  expandedSection === 'discounts' ? 'rotate-180' : ''
-                }`}
-              />
-            </button>
-            {expandedSection === 'discounts' && (
-              <div className="bg-surface pb-2">
-                {discountItems.length > 0 ? (
-                  discountItems.map((item) => (
-                    <Link
-                      key={item.id}
-                      to={`/collections/${item.handle}`}
-                      className="block px-6 py-2 text-sm text-text hover:text-primary"
-                      onClick={onClose}
-                    >
-                      {item.title}
-                    </Link>
-                  ))
-                ) : (
-                  <p className="px-6 py-2 text-sm text-text-muted">
-                    {t('nav.discountsComingSoon', {
-                      defaultValue: 'Discounted categories coming soon',
-                    })}
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
           <Link
             to={FILTERED_URLS.promotions}
             className="block px-4 py-3 text-text font-medium border-b border-border hover:text-primary"
@@ -683,8 +601,7 @@ export function Header({
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [categoryBarOpen, setCategoryBarOpen] = useState(false);
   const [miniCartOpen, setMiniCartOpen] = useState(false);
-  const [seasonalBarOpen, setSeasonalBarOpen] = useState(false);
-  const [discountsBarOpen, setDiscountsBarOpen] = useState(false);
+
   const [resolvedIsLoggedIn, setResolvedIsLoggedIn] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const location = useLocation();
@@ -716,8 +633,6 @@ export function Header({
     setMobileMenuOpen(false);
     setMobileSearchOpen(false);
     setCategoryBarOpen(false);
-    setSeasonalBarOpen(false);
-    setDiscountsBarOpen(false);
     setMiniCartOpen(false);
   }, [location.pathname]);
 
@@ -785,8 +700,6 @@ export function Header({
                 <button
                   className={NAV_TRIGGER_CLASS}
                   onClick={() => {
-                    setSeasonalBarOpen(false);
-                    setDiscountsBarOpen(false);
                     setCategoryBarOpen((prev) => !prev);
                   }}
                 >
@@ -804,36 +717,6 @@ export function Header({
               >
                 {t('nav.whatsNew')}
               </Link>
-
-              <button
-                className={NAV_TRIGGER_CLASS}
-                onClick={() => {
-                  setCategoryBarOpen(false);
-                  setDiscountsBarOpen(false);
-                  setSeasonalBarOpen((prev) => !prev);
-                }}
-              >
-                {t('nav.seasonal')}
-                <ChevronDown
-                  size={16}
-                  className={`transition-transform ${seasonalBarOpen ? 'rotate-180' : ''}`}
-                />
-              </button>
-
-              <button
-                className={NAV_TRIGGER_CLASS}
-                onClick={() => {
-                  setCategoryBarOpen(false);
-                  setSeasonalBarOpen(false);
-                  setDiscountsBarOpen((prev) => !prev);
-                }}
-              >
-                {t('nav.discounts')}
-                <ChevronDown
-                  size={16}
-                  className={`transition-transform ${discountsBarOpen ? 'rotate-180' : ''}`}
-                />
-              </button>
 
               <Link to={FILTERED_URLS.promotions} className={NAV_TRIGGER_CLASS}>
                 {t('nav.promotionsDeals')}
@@ -995,8 +878,6 @@ export function Header({
         {categoryBarOpen && categories.length > 0 && (
           <CategoryBar categories={categories} />
         )}
-        {seasonalBarOpen && <SeasonalBar items={seasonalItems} />}
-        {discountsBarOpen && <DiscountsBar items={discountItems} />}
       </header>
 
       <MobileMenu
