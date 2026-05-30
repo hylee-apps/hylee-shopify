@@ -44,8 +44,6 @@
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export interface GlobalCmsConfig {
-  /** Text shown in the header announcement bar. null = bar is hidden. */
-  announcementBar: string | null;
   /** Whether the promo tier sticky banner is visible. Default: false (off until enabled in Admin). */
   promoTierEnabled: boolean;
   /** Default OG image URL for pages that don't specify their own. */
@@ -67,7 +65,6 @@ export interface GlobalCmsConfig {
 }
 
 const DEFAULT_CMS_CONFIG: GlobalCmsConfig = {
-  announcementBar: null,
   promoTierEnabled: false,
   ogImageUrl: null,
   homepage_description: null,
@@ -85,9 +82,6 @@ const DEFAULT_CMS_CONFIG: GlobalCmsConfig = {
 export const GLOBAL_CMS_QUERY = `#graphql
   query GlobalCms {
     shop {
-      announcementBar: metafield(namespace: "custom", key: "announcement_bar") {
-        value
-      }
       promoTierEnabled: metafield(namespace: "custom", key: "promo_tier_enabled") {
         value
       }
@@ -128,8 +122,6 @@ export const GLOBAL_CMS_QUERY = `#graphql
 export function parseGlobalCms(data: any): GlobalCmsConfig {
   const shop = data?.shop ?? {};
   return {
-    announcementBar:
-      shop.announcementBar?.value ?? DEFAULT_CMS_CONFIG.announcementBar,
     // Shopify boolean metafields are returned as the string "true"/"false".
     // Absent metafield → undefined → falls back to DEFAULT_CMS_CONFIG (false).
     promoTierEnabled: shop.promoTierEnabled?.value === 'true',
