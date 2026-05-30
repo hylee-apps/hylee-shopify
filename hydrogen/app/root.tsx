@@ -106,17 +106,33 @@ const BANNER_DISCOUNTS_QUERY = `
         codeDiscount {
           __typename
           ... on DiscountCodeBasic {
-            title
             status
             codes(first: 1) { nodes { code } }
+            customerGets {
+              value {
+                __typename
+                ... on DiscountPercentage { percentage }
+                ... on DiscountAmount { amount { amount currencyCode } }
+              }
+              items {
+                __typename
+                ... on AllDiscountItems { allItems }
+                ... on DiscountCollections {
+                  collections(first: 1) { nodes { title } }
+                }
+                ... on DiscountProducts {
+                  products(first: 1) { nodes { title } }
+                }
+              }
+            }
           }
           ... on DiscountCodeBxgy {
-            title
             status
             codes(first: 1) { nodes { code } }
+            customerBuys { value { ... on DiscountQuantity { quantity } } }
+            customerGets { value { ... on DiscountQuantity { quantity } } }
           }
           ... on DiscountCodeFreeShipping {
-            title
             status
             codes(first: 1) { nodes { code } }
           }
@@ -126,16 +142,63 @@ const BANNER_DISCOUNTS_QUERY = `
   }
 `;
 
+function describeDiscount(d: any): string {
+  const type = d.__typename;
+
+  if (type === 'DiscountCodeFreeShipping') return 'Free shipping on your order';
+
+  if (type === 'DiscountCodeBxgy') {
+    const buy = d.customerBuys?.value?.quantity ?? 2;
+    const get = d.customerGets?.value?.quantity ?? 1;
+    return `Buy ${buy}, get ${get} free`;
+  }
+
+  if (type === 'DiscountCodeBasic') {
+    const val = d.customerGets?.value;
+    const items = d.customerGets?.items;
+
+    // Build value string
+    let valueStr = '';
+    if (val?.__typename === 'DiscountPercentage') {
+      const pct = Math.round((val.percentage ?? 0) * 100);
+      valueStr = `${pct}% off`;
+    } else if (val?.__typename === 'DiscountAmount') {
+      const amt = parseFloat(val.amount?.amount ?? '0');
+      const currency = val.amount?.currencyCode ?? 'USD';
+      valueStr = `${new Intl.NumberFormat('en-US', {style: 'currency', currency}).format(amt)} off`;
+    }
+
+    // Build scope string
+    let scopeStr = '';
+    const itemType = items?.__typename;
+    if (itemType === 'AllDiscountItems') {
+      scopeStr = 'everything';
+    } else if (itemType === 'DiscountCollections') {
+      const collTitle = items.collections?.nodes?.[0]?.title;
+      scopeStr = collTitle ?? 'select collections';
+    } else if (itemType === 'DiscountProducts') {
+      const prodTitle = items.products?.nodes?.[0]?.title;
+      scopeStr = prodTitle ?? 'select products';
+    }
+
+    return (
+      [valueStr, scopeStr].filter(Boolean).join(' on ') || 'Special discount'
+    );
+  }
+
+  return 'Special discount';
+}
+
 function parseBannerDiscounts(data: any): BannerDiscount[] {
   const nodes: any[] = data?.codeDiscountNodes?.nodes ?? [];
   return nodes
     .filter((n) => n.codeDiscount?.status === 'ACTIVE')
-    .map((n) => ({
-      id: n.id as string,
-      code: (n.codeDiscount.codes?.nodes?.[0]?.code as string) ?? '',
-      title: (n.codeDiscount.title as string) ?? '',
-    }))
-    .filter((d) => d.code && d.title);
+    .map((n) => {
+      const code = (n.codeDiscount.codes?.nodes?.[0]?.code as string) ?? '';
+      const description = describeDiscount(n.codeDiscount);
+      return {id: n.id as string, code, title: description};
+    })
+    .filter((d) => d.code);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
