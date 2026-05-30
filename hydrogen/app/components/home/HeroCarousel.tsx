@@ -19,6 +19,8 @@ interface HeroCarouselProps {
   interval?: number;
   /** Rendered at the top of the content block (e.g. logo) */
   header?: React.ReactNode;
+  /** Rendered between header and footer (e.g. lifestyle nav pills) */
+  body?: React.ReactNode;
   /** Rendered between subheadline and CTA (e.g. search form) */
   footer?: React.ReactNode;
 }
@@ -30,6 +32,7 @@ export function HeroCarousel({
   slides,
   interval = 4500,
   header,
+  body,
   footer,
 }: HeroCarouselProps) {
   const [current, setCurrent] = useState(0);
@@ -151,6 +154,7 @@ export function HeroCarousel({
           style={{zIndex: 20}}
         >
           {header}
+          {body}
           {footer}
         </div>
       </div>
