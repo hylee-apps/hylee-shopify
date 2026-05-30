@@ -194,7 +194,10 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
       .query(GLOBAL_CMS_QUERY, {cache: storefront.CacheShort()})
       .catch(() => null),
     adminApi(context.env as unknown as AdminEnv, BANNER_DISCOUNTS_QUERY).catch(
-      () => null,
+      (err) => {
+        console.error('[BannerDiscounts] Admin API error:', err);
+        return null;
+      },
     ),
   ]);
 
