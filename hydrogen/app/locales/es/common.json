@@ -13,7 +13,8 @@
     "signIn": "Iniciar Sesión",
     "register": "Registrarse",
     "signOut": "Cerrar Sesión",
-    "categoryTitles": {}
+    "categoryTitles": {},
+    "allCategories": "Todas las Categorías"
   },
   "header": {
     "openMenu": "Abrir menú",
@@ -754,6 +755,42 @@
     "discounts": "Descuentos",
     "promotionsDeals": "Promociones y Ofertas",
     "newBadge": "Nuevo"
+  },
+  "allCategories": {
+    "title": "Todas las Categorías de Productos",
+    "sectionLabel": "Categorías que empiezan con {{letter}}"
+  },
+  "miniCart": {
+    "title": "Tu Carrito ({{count}})",
+    "empty": "Tu carrito está vacío",
+    "continueShopping": "Continuar Comprando",
+    "qty": "Cant: {{count}}",
+    "subtotal": "Subtotal",
+    "viewCart": "Ver Carrito",
+    "checkout": "Pagar",
+    "close": "Cerrar carrito"
+  },
+  "announcementBanner": {
+    "firstOrder": {
+      "message": "¿Primera vez comprando? Obtén un 8% de descuento en tu pedido.",
+      "cta": "Reclama tu descuento"
+    },
+    "newsletter": {
+      "message": "Suscríbete a nuestro boletín y ahorra un 10% en tu próxima compra.",
+      "cta": "Suscribirse"
+    },
+    "accountCreation": {
+      "message": "Crea una cuenta y desbloquea un 15% de descuento en tu primer pedido.",
+      "cta": "Registrarse"
+    },
+    "referral": {
+      "message": "Recomienda a un amigo y gana un 20% de descuento — recurrente por cada recomendación.",
+      "cta": "Recomendar"
+    },
+    "prev": "Oferta anterior",
+    "next": "Siguiente oferta",
+    "goToSlide": "Ir a la oferta {{n}}",
+    "dismiss": "Cerrar barra de anuncios"
   },
   "quantity": {
     "decrease": "Disminuir cantidad",

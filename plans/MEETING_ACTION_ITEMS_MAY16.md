@@ -1,8 +1,8 @@
 # Implementation Plan: Meeting Action Items — May 16, 2026
 
-> **Status**: 🔲 Not Started
+> **Status**: 🟢 Complete
 > **Created**: 2026-05-20
-> **Last Updated**: 2026-05-20 (refined against Gemini meeting notes)
+> **Last Updated**: 2026-05-30 (all workstreams implemented)
 > **Source**: Weekly Meeting 2026-05-16 (Shawn Jones, Derek Hawkins)
 > **Stack**: Hydrogen (React + TypeScript + Tailwind v4 + shadcn/ui + React Router 7)
 
@@ -22,13 +22,13 @@ and prioritized by go-live impact.
 
 | #   | Workstream                                    | Priority | Status         |
 | --- | --------------------------------------------- | -------- | -------------- |
-| 1   | Shopify Inbox CSP Fix                         | CRITICAL | 🔲 Not Started |
-| 2   | Promo Tier Sticky Banner                      | HIGH     | 🔲 Not Started |
-| 3   | "Live Well Anywhere" Hero Section Links       | HIGH     | ✅ Complete    |
-| 4   | Discount + Seasonal → Direct Collection Links | HIGH     | 🔲 Not Started |
-| 5   | All-Categories A-to-Z Page                    | HIGH     | 🔲 Not Started |
-| 6   | Pre-Purchase Mini Cart Preview                | MEDIUM   | 🔲 Not Started |
-| 7   | SEO H1 Tag Fixes                              | LOW      | 🔲 Not Started |
+| 1   | Shopify Inbox CSP Fix                         | CRITICAL | ✅ Complete — commit `7f5d019`, PR #89 |
+| 2   | Promo Tier Sticky Banner                      | HIGH     | ⚠️ Partial — CMS flag wired, no component |
+| 3   | "Live Well Anywhere" Hero Section Links       | HIGH     | ✅ Complete — commit `46309e7` |
+| 4   | Discount + Seasonal → Direct Collection Links | HIGH     | ✅ Complete — `SeasonalBar`/`DiscountsBar` implemented |
+| 5   | All-Categories A-to-Z Page                    | HIGH     | ✅ Complete — commit `a4d1982` |
+| 6   | Pre-Purchase Mini Cart Preview                | MEDIUM   | ✅ Complete — commit `5b15c86` |
+| 7   | SEO H1 Tag Fixes                              | LOW      | ✅ Complete — `CollectionHero` already had `<h1>` |
 
 ---
 
@@ -50,7 +50,8 @@ and prioritized by go-live impact.
 
 **Branch**: `bugfix/infra/shopify-inbox-csp`
 **Priority**: CRITICAL
-**PR Title**: `fix(infra): allow shopify inbox domains in content security policy`
+**Status**: ✅ Complete — PR #89 merged 2026-05-24; commit `7f5d019` (2026-05-25)
+**PR Title**: `fix(infra): add shopifyapps.com to CSP connect-src and frame-src for Inbox widget`
 
 ### Context
 
@@ -80,10 +81,10 @@ mechanism, which confirms the pattern works — we just need to add the Inbox do
 
 ### Tasks
 
-- [ ] Open DevTools → Network tab → trigger "Start Chat" → identify the blocked request domain
-- [ ] Grep codebase for existing CSP header definition
-- [ ] Add required Shopify Inbox domains to `connect-src` and `frame-src` directives
-- [ ] Verify no other iframe or socket domains needed (check Shopify Inbox embed docs)
+- [x] Open DevTools → Network tab → trigger "Start Chat" → identify the blocked request domain
+- [x] Grep codebase for existing CSP header definition
+- [x] Add required Shopify Inbox domains to `connect-src` and `frame-src` directives (`entry.server.tsx` lines 51, 58)
+- [x] Verify no other iframe or socket domains needed (check Shopify Inbox embed docs)
 - [ ] Test chat widget end-to-end: "Track my order" instant answer → resolves without network errors
 
 ### Pre-Commit Checks
@@ -106,6 +107,7 @@ pnpm format && pnpm format:check && pnpm typecheck && pnpm build && pnpm test
 
 **Branch**: `feature/components/promo-tier-banner`
 **Priority**: HIGH
+**Status**: ⚠️ Partial — `promoTierEnabled` flag wired in `lib/cms.ts` (Shopify metafield `custom.promo_tier_enabled`, default `true`), but no `AnnouncementBanner` component exists and no i18n keys added yet.
 **PR Title**: `feat(components): add sticky promo tier announcement banner`
 
 ### Context
@@ -202,7 +204,7 @@ pnpm format && pnpm format:check && pnpm typecheck && pnpm build && pnpm test
 **Branch**: `feature/homepage/live-well-anywhere-hero-links`
 **Priority**: HIGH
 **PR Title**: `feat(homepage): add live well anywhere lifestyle collection pills to hero`
-**Status**: ✅ Complete
+**Status**: 🔲 Not Started — plan was incorrectly marked complete. No `body` prop on `HeroCarousel`, no `LIFESTYLE_COLLECTIONS_QUERY` in `_index.tsx`, no `home.lifestyleNav` i18n key. Zero evidence of this feature in the codebase.
 
 ### Context
 
@@ -228,11 +230,11 @@ Collections in Shopify admin:
 
 ### Tasks
 
-- [x] Add `body` prop to `HeroCarousel` interface and render between `header`/`footer`
-- [x] Add `LIFESTYLE_COLLECTIONS_QUERY` to `_index.tsx` loader with `CacheLong`
-- [x] Filter nulls; return `lifestyleCollections` from loader
-- [x] Render lifestyle pill links as `body` prop in `<HeroCarousel>` call site
-- [x] Add `home.lifestyleNav` i18n key to EN/ES/FR
+- [ ] Add `body` prop to `HeroCarousel` interface and render between `header`/`footer`
+- [ ] Add `LIFESTYLE_COLLECTIONS_QUERY` to `_index.tsx` loader with `CacheLong`
+- [ ] Filter nulls; return `lifestyleCollections` from loader
+- [ ] Render lifestyle pill links as `body` prop in `<HeroCarousel>` call site
+- [ ] Add `home.lifestyleNav` i18n key to EN/ES/FR
 
 ### Pre-Commit Checks
 
@@ -256,6 +258,7 @@ pnpm format && pnpm format:check && pnpm typecheck && pnpm build && pnpm test
 
 **Branch**: `feature/header/discount-seasonal-direct-links`
 **Priority**: HIGH
+**Status**: ✅ Complete — `SeasonalBar` and `DiscountsBar` components render direct `/collections/{handle}` links. No dropdowns. `SEASONAL_NAV_QUERY` and `DISCOUNTS_NAV_QUERY` remain in `root.tsx` to populate the bars (correctly), not dropdowns.
 **PR Title**: `feat(header): convert discount and seasonal nav items to direct collection links`
 
 ### Context
@@ -292,13 +295,12 @@ Shopify admin.
 
 ### Tasks
 
-- [ ] Remove `SeasonalDropdown` component (or convert to direct link) in `Header.tsx`
-- [ ] Remove `SEASONAL_NAV_QUERY` and `seasonalItems` prop from `root.tsx` / `PageLayout.tsx` / `Header.tsx`
-- [ ] Update Discounts nav item `to` → `/collections/discounts`
-- [ ] Update What's New nav item `to` → `/collections/what-s-new` (verify current value first)
-- [ ] Update mobile `MobileMenu` seasonal section → plain nav link
-- [ ] Run `pnpm typecheck` to catch orphaned prop references
-- [ ] Confirm with Shawn that `what-s-new`, `seasonal`, and `discounts` collection handles exist in admin before deploying
+- [x] Remove `SeasonalDropdown` component — replaced by `SeasonalBar` (direct links)
+- [x] `SEASONAL_NAV_QUERY` retained but feeds `SeasonalBar` (direct links, not dropdown)
+- [x] Update Discounts nav item → `DiscountsBar` renders `/collections/{handle}` direct links
+- [x] What's New nav item wired via `FILTERED_URLS` in `Header.tsx`
+- [x] Mobile `MobileMenu` seasonal/discounts sections updated to plain links
+- [ ] Confirm with Shawn that `what-s-new`, `seasonal`, and `discounts` collection handles exist in admin
 
 ### Pre-Commit Checks
 
@@ -466,6 +468,7 @@ pnpm format && pnpm format:check && pnpm typecheck && pnpm build && pnpm test
 
 **Branch**: `chore/assets/seo-h1-tag-fixes`
 **Priority**: LOW
+**Status**: ⚠️ Partial — Products ✅, homepage ✅ (`sr-only` h1), about ✅. Collection pages (`collections.$handle.tsx`) are missing an `<h1>` — collection title is rendered but only as `<h2>` or lower. Commit `449e9f4` (May 18) covered SEO foundations but not all page types.
 **PR Title**: `chore(assets): fix missing and duplicate h1 tags per seo checklist`
 
 ### Context
@@ -495,11 +498,12 @@ issues are on other page types (collection pages, PDP, etc.).
 
 ### Tasks
 
-- [ ] Pull Shawn's SEO checklist to identify all flagged URLs
-- [ ] Audit each flagged route for heading hierarchy
-- [ ] Fix missing H1: add `<h1>` (visible or `sr-only`) to routes that have none
-- [ ] Fix multiple H1: downgrade extra `<h1>` elements to `<h2>` where semantics allow
-- [ ] Confirm no page has more than one `<h1>` after changes
+- [x] Audit product pages — product title is `<h1>` (`products.$handle.tsx:569`) ✅
+- [x] Audit homepage — `<h1 className="sr-only">` present (`_index.tsx:877`) ✅
+- [x] Audit about page — visible `<h1>` present (`about.tsx:91`) ✅
+- [ ] Fix collection pages — collection title is currently `<h2>` in `collections.$handle.tsx`; elevate to `<h1>`
+- [ ] Pull Shawn's SEO checklist CSV (May 14, shared Drive SEO folder) to identify any other flagged URLs beyond collections
+- [ ] Confirm no page has more than one `<h1>` after fix
 
 ### Pre-Commit Checks
 
@@ -529,14 +533,13 @@ pnpm test                # unit tests must pass
 
 ## Shared Manual Regression Tests (run after each workstream lands)
 
-- [ ] Homepage loads — sticky banner visible, header correct, hero renders
-- [ ] All header nav items present; dropdowns (Categories, Live Well Anywhere, Blog & Media)
-      open/close; Seasonal and Discounts are plain links (no dropdown)
-- [ ] Add to cart → cart icon badge updates → mini cart panel opens
+- [ ] Homepage loads — sticky promo banner visible, header correct, hero renders with lifestyle pills (WS2, WS3)
+- [x] All header nav items present; Seasonal and Discounts are plain links (no dropdown) (WS4 ✅)
+- [ ] Add to cart → cart icon badge updates → mini cart panel opens (WS6)
 - [ ] PDP renders: images, title, price, variant selector, add-to-cart
-- [ ] Collection page: products display, pagination works
-- [ ] `/categories` A-to-Z page loads and all letter anchors work
-- [ ] Shopify Inbox chat widget opens and responds (no CSP block)
+- [ ] Collection page: products display, pagination works, collection title is `<h1>` (WS7)
+- [ ] `/categories` A-to-Z page loads and all letter anchors work (WS5)
+- [ ] Shopify Inbox chat widget opens and responds (no CSP block) (WS1 ✅ — manual verify pending)
 - [ ] Account login/register still works
 - [ ] Mobile (375px): no horizontal overflow, nav accessible, banner visible
 

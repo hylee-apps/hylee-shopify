@@ -27,6 +27,8 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
 import type {HeaderQuery} from 'storefrontapi.generated';
+import {AnnouncementBanner} from './AnnouncementBanner';
+import {MiniCart} from './MiniCart';
 
 // ============================================================================
 // Types
@@ -40,6 +42,7 @@ export interface HeaderProps {
   isLoggedIn?: boolean | Promise<boolean>;
   cart?: CartLike | null | Promise<unknown>;
   announcement?: string;
+  promoTierEnabled?: boolean;
   variant?: HeaderVariant;
   currentLanguage?: string;
   categories?: Array<{
@@ -276,6 +279,14 @@ function CategoryBar({
             </Link>
           </li>
         ))}
+        <li className="border-l border-border">
+          <Link
+            to="/categories"
+            className="block px-4 py-2.5 text-[14px] font-semibold text-secondary hover:text-secondary/80 transition-colors whitespace-nowrap"
+          >
+            {t('nav.allCategories')}
+          </Link>
+        </li>
       </ul>
     </nav>
   );
@@ -346,6 +357,13 @@ function MobileMenu({
                       })}
                     </Link>
                   ))}
+                  <Link
+                    to="/categories"
+                    className="block px-6 py-2 text-sm font-semibold text-secondary hover:text-secondary/80 border-t border-border mt-1 pt-2"
+                    onClick={onClose}
+                  >
+                    {t('nav.allCategories')}
+                  </Link>
                 </div>
               )}
             </div>
@@ -360,88 +378,6 @@ function MobileMenu({
             {t('nav.whatsNew')}
           </Link>
 
-          {seasonalItems.length > 0 ? (
-            <div className="border-b border-border">
-              <button
-                className="flex items-center justify-between w-full px-4 py-3 text-text font-medium"
-                onClick={() => toggleSection('seasonal')}
-              >
-                <span>{t('nav.seasonal')}</span>
-                <ChevronDown
-                  size={16}
-                  className={`transition-transform ${
-                    expandedSection === 'seasonal' ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-              {expandedSection === 'seasonal' && (
-                <div className="bg-surface pb-2">
-                  {seasonalItems.map((item) => (
-                    <Link
-                      key={item.id}
-                      to={`/collections/${item.handle}`}
-                      className="block px-6 py-2 text-sm text-text hover:text-primary"
-                      onClick={onClose}
-                    >
-                      {item.title}
-                    </Link>
-                  ))}
-                  <Link
-                    to="/collections/seasonal"
-                    className="block px-6 py-2 text-sm font-semibold text-secondary hover:text-primary"
-                    onClick={onClose}
-                  >
-                    {t('nav.seeAll')}
-                  </Link>
-                </div>
-              )}
-            </div>
-          ) : (
-            <Link
-              to="/collections/seasonal"
-              className="block px-4 py-3 font-medium text-text hover:text-primary border-b border-border"
-              onClick={onClose}
-            >
-              {t('nav.seasonal')}
-            </Link>
-          )}
-
-          <div className="border-b border-border">
-            <button
-              className="flex items-center justify-between w-full px-4 py-3 text-text font-medium"
-              onClick={() => toggleSection('discounts')}
-            >
-              <span>{t('nav.discounts')}</span>
-              <ChevronDown
-                size={16}
-                className={`transition-transform ${
-                  expandedSection === 'discounts' ? 'rotate-180' : ''
-                }`}
-              />
-            </button>
-            {expandedSection === 'discounts' && (
-              <div className="bg-surface pb-2">
-                {discountItems.length > 0 ? (
-                  discountItems.map((item) => (
-                    <Link
-                      key={item.id}
-                      to={`/collections/${item.handle}`}
-                      className="block px-6 py-2 text-sm text-text hover:text-primary"
-                      onClick={onClose}
-                    >
-                      {item.title}
-                    </Link>
-                  ))
-                ) : (
-                  <p className="px-6 py-2 text-sm text-text-muted">
-                    {t('nav.discountsComingSoon', {
-                      defaultValue: 'Discounted categories coming soon',
-                    })}
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
           <Link
             to={FILTERED_URLS.promotions}
             className="block px-4 py-3 text-text font-medium border-b border-border hover:text-primary"
@@ -651,6 +587,7 @@ export function Header({
   isLoggedIn = false,
   cart,
   announcement,
+  promoTierEnabled = true,
   variant = 'default',
   currentLanguage = 'EN',
   categories = [],
@@ -663,8 +600,8 @@ export function Header({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [categoryBarOpen, setCategoryBarOpen] = useState(false);
-  const [seasonalBarOpen, setSeasonalBarOpen] = useState(false);
-  const [discountsBarOpen, setDiscountsBarOpen] = useState(false);
+  const [miniCartOpen, setMiniCartOpen] = useState(false);
+
   const [resolvedIsLoggedIn, setResolvedIsLoggedIn] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const location = useLocation();
@@ -696,8 +633,7 @@ export function Header({
     setMobileMenuOpen(false);
     setMobileSearchOpen(false);
     setCategoryBarOpen(false);
-    setSeasonalBarOpen(false);
-    setDiscountsBarOpen(false);
+    setMiniCartOpen(false);
   }, [location.pathname]);
 
   const accountItems = resolvedIsLoggedIn
@@ -724,10 +660,14 @@ export function Header({
           isHome ? 'bg-white' : 'bg-white border-b border-primary'
         }`}
       >
-        {announcement && (
-          <div className="bg-dark text-white text-center text-sm py-2 px-4">
-            {announcement}
-          </div>
+        {promoTierEnabled ? (
+          <AnnouncementBanner />
+        ) : (
+          announcement && (
+            <div className="bg-dark text-white text-center text-sm py-2 px-4">
+              {announcement}
+            </div>
+          )
         )}
 
         {isHome ? (
@@ -760,8 +700,6 @@ export function Header({
                 <button
                   className={NAV_TRIGGER_CLASS}
                   onClick={() => {
-                    setSeasonalBarOpen(false);
-                    setDiscountsBarOpen(false);
                     setCategoryBarOpen((prev) => !prev);
                   }}
                 >
@@ -780,36 +718,6 @@ export function Header({
                 {t('nav.whatsNew')}
               </Link>
 
-              <button
-                className={NAV_TRIGGER_CLASS}
-                onClick={() => {
-                  setCategoryBarOpen(false);
-                  setDiscountsBarOpen(false);
-                  setSeasonalBarOpen((prev) => !prev);
-                }}
-              >
-                {t('nav.seasonal')}
-                <ChevronDown
-                  size={16}
-                  className={`transition-transform ${seasonalBarOpen ? 'rotate-180' : ''}`}
-                />
-              </button>
-
-              <button
-                className={NAV_TRIGGER_CLASS}
-                onClick={() => {
-                  setCategoryBarOpen(false);
-                  setSeasonalBarOpen(false);
-                  setDiscountsBarOpen((prev) => !prev);
-                }}
-              >
-                {t('nav.discounts')}
-                <ChevronDown
-                  size={16}
-                  className={`transition-transform ${discountsBarOpen ? 'rotate-180' : ''}`}
-                />
-              </button>
-
               <Link to={FILTERED_URLS.promotions} className={NAV_TRIGGER_CLASS}>
                 {t('nav.promotionsDeals')}
               </Link>
@@ -825,8 +733,9 @@ export function Header({
               <div className="hidden lg:flex items-center gap-1">
                 <LanguageSelector currentLanguage={currentLanguage} />
                 <NavDropdown label={t('nav.account')} items={accountItems} />
-                <Link
-                  to="/cart"
+                <button
+                  type="button"
+                  onClick={() => setMiniCartOpen(true)}
                   className="relative p-2 text-secondary hover:text-primary transition-colors shrink-0"
                   aria-label={t('header.cartCount', {count: cartCount})}
                 >
@@ -836,7 +745,7 @@ export function Header({
                       {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}
-                </Link>
+                </button>
               </div>
 
               {/* Mobile */}
@@ -856,8 +765,9 @@ export function Header({
                 >
                   <User size={20} />
                 </Link>
-                <Link
-                  to="/cart"
+                <button
+                  type="button"
+                  onClick={() => setMiniCartOpen(true)}
                   className="tap-target relative inline-flex items-center justify-center text-text-muted hover:text-primary transition-colors"
                   aria-label={t('header.cartCount', {count: cartCount})}
                 >
@@ -867,7 +777,7 @@ export function Header({
                       {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}
-                </Link>
+                </button>
               </div>
             </div>
           </div>
@@ -923,8 +833,9 @@ export function Header({
               <LanguageSelector currentLanguage={currentLanguage} />
               <NavDropdown label={t('nav.account')} items={accountItems} />
 
-              <Link
-                to="/cart"
+              <button
+                type="button"
+                onClick={() => setMiniCartOpen(true)}
                 className="relative p-2 text-secondary hover:text-primary transition-colors shrink-0"
                 aria-label={t('header.cartCount', {count: cartCount})}
               >
@@ -934,7 +845,7 @@ export function Header({
                     {cartCount > 99 ? '99+' : cartCount}
                   </span>
                 )}
-              </Link>
+              </button>
             </div>
 
             {/* Mobile: search + cart */}
@@ -947,8 +858,9 @@ export function Header({
               >
                 <Search size={20} />
               </button>
-              <Link
-                to="/cart"
+              <button
+                type="button"
+                onClick={() => setMiniCartOpen(true)}
                 className="tap-target relative inline-flex items-center justify-center text-text-muted hover:text-primary transition-colors"
                 aria-label={t('header.cartCount', {count: cartCount})}
               >
@@ -958,7 +870,7 @@ export function Header({
                     {cartCount > 99 ? '99+' : cartCount}
                   </span>
                 )}
-              </Link>
+              </button>
             </div>
           </div>
         )}
@@ -966,8 +878,6 @@ export function Header({
         {categoryBarOpen && categories.length > 0 && (
           <CategoryBar categories={categories} />
         )}
-        {seasonalBarOpen && <SeasonalBar items={seasonalItems} />}
-        {discountsBarOpen && <DiscountsBar items={discountItems} />}
       </header>
 
       <MobileMenu
@@ -987,6 +897,12 @@ export function Header({
       <MobileSearchSheet
         isOpen={mobileSearchOpen}
         onClose={() => setMobileSearchOpen(false)}
+      />
+
+      <MiniCart
+        open={miniCartOpen}
+        onClose={() => setMiniCartOpen(false)}
+        cartCount={cartCount}
       />
     </>
   );
