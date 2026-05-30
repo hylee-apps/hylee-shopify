@@ -131,7 +131,8 @@ const NAV_TRIGGER_CLASS =
 // Tag-based filters require products to be tagged accordingly in Shopify Admin.
 const FILTERED_URLS = {
   newArrivals: '/collections/all?sort=newest',
-  discounts: `/collections/all?filter=${encodeURIComponent(JSON.stringify({tag: 'sale'}))}`,
+  seasonal: '/collections/seasonal',
+  discounts: '/collections/discounts',
   promotions: `/collections/all?filter=${encodeURIComponent(JSON.stringify({tag: 'promotion'}))}`,
 } as const;
 
@@ -375,6 +376,22 @@ function MobileMenu({
             onClick={onClose}
           >
             {t('nav.whatsNew')}
+          </Link>
+
+          <Link
+            to={FILTERED_URLS.seasonal}
+            className="block px-4 py-3 text-text font-medium border-b border-border hover:text-primary"
+            onClick={onClose}
+          >
+            {t('nav.seasonal')}
+          </Link>
+
+          <Link
+            to={FILTERED_URLS.discounts}
+            className="block px-4 py-3 text-text font-medium border-b border-border hover:text-primary"
+            onClick={onClose}
+          >
+            {t('nav.discounts')}
           </Link>
 
           <Link
@@ -706,6 +723,14 @@ export function Header({
                 className={NAV_TRIGGER_CLASS}
               >
                 {t('nav.whatsNew')}
+              </Link>
+
+              <Link to={FILTERED_URLS.seasonal} className={NAV_TRIGGER_CLASS}>
+                {t('nav.seasonal')}
+              </Link>
+
+              <Link to={FILTERED_URLS.discounts} className={NAV_TRIGGER_CLASS}>
+                {t('nav.discounts')}
               </Link>
 
               <Link to={FILTERED_URLS.promotions} className={NAV_TRIGGER_CLASS}>
