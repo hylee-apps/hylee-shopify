@@ -139,7 +139,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
       })
       .catch(() => null),
     storefront
-      .query(GLOBAL_CMS_QUERY, {cache: storefront.CacheLong()})
+      .query(GLOBAL_CMS_QUERY, {cache: storefront.CacheShort()})
       .catch(() => null),
   ]);
 
