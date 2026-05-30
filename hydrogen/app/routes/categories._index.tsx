@@ -2,7 +2,6 @@ import {useMemo, useRef} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Link, useLoaderData} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
-import {Image} from '@shopify/hydrogen';
 import {PageBreadcrumbs} from '~/components/ui/PageBreadcrumbs';
 import type {Route} from './+types/categories._index';
 
@@ -20,12 +19,6 @@ const ALL_COLLECTIONS_QUERY = `#graphql
         id
         title
         handle
-        image {
-          url
-          altText
-          width
-          height
-        }
       }
     }
   }
@@ -60,17 +53,8 @@ export async function loader({request, context}: Route.LoaderArgs) {
     })
     .catch(() => null);
 
-  const collections: Array<{
-    id: string;
-    title: string;
-    handle: string;
-    image: {
-      url: string;
-      altText?: string | null;
-      width?: number | null;
-      height?: number | null;
-    } | null;
-  }> = data?.collections?.nodes ?? [];
+  const collections: Array<{id: string; title: string; handle: string}> =
+    data?.collections?.nodes ?? [];
 
   return {collections};
 }
@@ -81,17 +65,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
 const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-type Collection = {
-  id: string;
-  title: string;
-  handle: string;
-  image: {
-    url: string;
-    altText?: string | null;
-    width?: number | null;
-    height?: number | null;
-  } | null;
-};
+type Collection = {id: string; title: string; handle: string};
 
 export default function CategoriesIndex() {
   const {collections} = useLoaderData<typeof loader>();
@@ -184,30 +158,16 @@ export default function CategoriesIndex() {
                 {letter}
               </h2>
 
-              {/* Collection tiles */}
-              <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {/* Category text links — 3-column directory layout */}
+              <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-1">
                 {cols.map((col) => (
                   <li key={col.id}>
                     <Link
                       to={`/collections/${col.handle}`}
                       data-testid="category-tile"
-                      className="group flex flex-col items-center gap-2 rounded-[12px] border border-border p-3 hover:border-secondary hover:shadow-sm transition-all"
+                      className="block py-1.5 text-sm text-text hover:text-secondary hover:underline underline-offset-2 transition-colors truncate"
                     >
-                      <div className="w-full aspect-square rounded-[8px] overflow-hidden bg-gray-100">
-                        {col.image ? (
-                          <Image
-                            data={col.image}
-                            sizes="(min-width: 1280px) 160px, (min-width: 1024px) 180px, (min-width: 768px) 25vw, 50vw"
-                            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200"
-                            alt={col.image.altText ?? col.title}
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-100" />
-                        )}
-                      </div>
-                      <span className="text-xs font-medium text-text text-center line-clamp-2 leading-tight">
-                        {col.title}
-                      </span>
+                      {col.title}
                     </Link>
                   </li>
                 ))}
