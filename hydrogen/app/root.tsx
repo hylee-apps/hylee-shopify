@@ -25,6 +25,7 @@ import {readWishlistIds, type AdminEnv} from '~/lib/wishlist';
 import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
 import {GLOBAL_CMS_QUERY, parseGlobalCms} from '~/lib/cms';
 import {
+  adminApi,
   getInboxScriptUrl,
   getMainThemeId,
   buildInboxWidgetConfig,
@@ -89,6 +90,56 @@ export async function loader(args: Route.LoaderArgs) {
   };
 }
 
+// ─── Banner Discounts ─────────────────────────────────────────────────────────
+
+export interface BannerDiscount {
+  id: string;
+  code: string;
+  title: string;
+}
+
+const BANNER_DISCOUNTS_QUERY = `
+  query BannerDiscounts {
+    codeDiscountNodes(first: 30) {
+      nodes {
+        id
+        codeDiscount {
+          __typename
+          ... on DiscountCodeBasic {
+            title
+            status
+            codes(first: 1) { nodes { code } }
+          }
+          ... on DiscountCodeBxgy {
+            title
+            status
+            codes(first: 1) { nodes { code } }
+          }
+          ... on DiscountCodeFreeShipping {
+            title
+            status
+            codes(first: 1) { nodes { code } }
+          }
+        }
+      }
+    }
+  }
+`;
+
+function parseBannerDiscounts(data: any): BannerDiscount[] {
+  const nodes: any[] = data?.codeDiscountNodes?.nodes ?? [];
+  return nodes
+    .filter((n) => n.codeDiscount?.status === 'ACTIVE')
+    .map((n) => ({
+      id: n.id as string,
+      code: (n.codeDiscount.codes?.nodes?.[0]?.code as string) ?? '',
+      title: (n.codeDiscount.title as string) ?? '',
+    }))
+    .filter((d) => d.code && d.title);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 async function loadCriticalData({context, request}: Route.LoaderArgs) {
   const {storefront} = context;
 
@@ -104,6 +155,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     seasonalNavResult,
     discountsNavResult,
     globalCmsData,
+    bannerDiscountsData,
   ] = await Promise.all([
     storefront.query(HEADER_QUERY, {
       cache: storefront.CacheLong(),
@@ -141,6 +193,9 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     storefront
       .query(GLOBAL_CMS_QUERY, {cache: storefront.CacheShort()})
       .catch(() => null),
+    adminApi(context.env as unknown as AdminEnv, BANNER_DISCOUNTS_QUERY).catch(
+      () => null,
+    ),
   ]);
 
   const rawCategories =
@@ -255,6 +310,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
 
   const adminEnv = context.env as unknown as AdminEnv;
   const globalCms = parseGlobalCms(globalCmsData);
+  const bannerDiscounts = parseBannerDiscounts(bannerDiscountsData);
   const [inboxScriptUrl, shopifyThemeId] = await Promise.all([
     getInboxScriptUrl(adminEnv, globalCms.shopifyInboxWidgetScriptUrl),
     getMainThemeId(adminEnv),
@@ -277,6 +333,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     locale,
     wishlistIds,
     globalCms,
+    bannerDiscounts,
     inboxConfig,
     shopifyThemeId,
     storeCurrency: header?.shop?.paymentSettings?.currencyCode ?? 'USD',
