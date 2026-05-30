@@ -278,6 +278,14 @@ function CategoryBar({
             </Link>
           </li>
         ))}
+        <li className="border-l border-border">
+          <Link
+            to="/categories"
+            className="block px-4 py-2.5 text-[14px] font-semibold text-secondary hover:text-secondary/80 transition-colors whitespace-nowrap"
+          >
+            {t('nav.allCategories')}
+          </Link>
+        </li>
       </ul>
     </nav>
   );
@@ -348,6 +356,13 @@ function MobileMenu({
                       })}
                     </Link>
                   ))}
+                  <Link
+                    to="/categories"
+                    className="block px-6 py-2 text-sm font-semibold text-secondary hover:text-secondary/80 border-t border-border mt-1 pt-2"
+                    onClick={onClose}
+                  >
+                    {t('nav.allCategories')}
+                  </Link>
                 </div>
               )}
             </div>

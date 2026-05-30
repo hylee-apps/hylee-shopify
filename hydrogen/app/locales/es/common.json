@@ -13,7 +13,8 @@
     "signIn": "Iniciar Sesión",
     "register": "Registrarse",
     "signOut": "Cerrar Sesión",
-    "categoryTitles": {}
+    "categoryTitles": {},
+    "allCategories": "Todas las Categorías"
   },
   "header": {
     "openMenu": "Abrir menú",
@@ -755,6 +756,10 @@
     "promotionsDeals": "Promociones y Ofertas",
     "newBadge": "Nuevo",
     "lifestyleNav": "Vive bien en cualquier lugar — explora por estilo de vida"
+  },
+  "allCategories": {
+    "title": "Todas las Categorías de Productos",
+    "sectionLabel": "Categorías que empiezan con {{letter}}"
   },
   "announcementBanner": {
     "firstOrder": {

@@ -13,7 +13,8 @@
     "signIn": "Sign In",
     "register": "Register",
     "signOut": "Sign Out",
-    "categoryTitles": {}
+    "categoryTitles": {},
+    "allCategories": "All Categories"
   },
   "header": {
     "openMenu": "Open menu",
@@ -769,6 +770,10 @@
     "promotionsDeals": "Promotions & Deals",
     "newBadge": "New",
     "lifestyleNav": "Live well anywhere — browse by lifestyle"
+  },
+  "allCategories": {
+    "title": "All Product Categories",
+    "sectionLabel": "Categories beginning with {{letter}}"
   },
   "announcementBanner": {
     "firstOrder": {
