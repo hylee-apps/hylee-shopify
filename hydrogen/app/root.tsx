@@ -372,10 +372,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
   }
 
   const adminEnv = context.env as unknown as AdminEnv;
-  const globalCms = parseGlobalCms(
-    globalCmsData,
-    context.env as Record<string, string | undefined>,
-  );
+  const globalCms = parseGlobalCms(globalCmsData, adminEnv);
   const bannerDiscounts = parseBannerDiscounts(bannerDiscountsData);
   if (globalCms.promoTierEnabled && !bannerDiscounts.length) {
     console.warn(

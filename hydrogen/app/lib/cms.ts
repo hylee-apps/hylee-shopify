@@ -121,7 +121,7 @@ export const GLOBAL_CMS_QUERY = `#graphql
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function parseGlobalCms(
   data: any,
-  env?: Record<string, string | undefined>,
+  env?: {[key: string]: string | undefined},
 ): GlobalCmsConfig {
   const shop = data?.shop ?? {};
   return {
