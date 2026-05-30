@@ -46,7 +46,7 @@
 export interface GlobalCmsConfig {
   /** Text shown in the header announcement bar. null = bar is hidden. */
   announcementBar: string | null;
-  /** Whether the promo tier sticky banner is visible. Default: true. */
+  /** Whether the promo tier sticky banner is visible. Default: false (off until enabled in Admin). */
   promoTierEnabled: boolean;
   /** Default OG image URL for pages that don't specify their own. */
   ogImageUrl: string | null;
@@ -130,8 +130,9 @@ export function parseGlobalCms(data: any): GlobalCmsConfig {
   return {
     announcementBar:
       shop.announcementBar?.value ?? DEFAULT_CMS_CONFIG.announcementBar,
-    // Shopify boolean metafields are returned as the string "true"/"false"
-    promoTierEnabled: shop.promoTierEnabled?.value !== 'false',
+    // Shopify boolean metafields are returned as the string "true"/"false".
+    // Absent metafield → undefined → falls back to DEFAULT_CMS_CONFIG (false).
+    promoTierEnabled: shop.promoTierEnabled?.value === 'true',
     ogImageUrl: shop.ogImageUrl?.value ?? DEFAULT_CMS_CONFIG.ogImageUrl,
     homepage_description:
       shop.homepageDescription?.value ??
