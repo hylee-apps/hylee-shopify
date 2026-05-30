@@ -314,6 +314,13 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     context.env as Record<string, string | undefined>,
   );
   const bannerDiscounts = parseBannerDiscounts(bannerDiscountsData);
+  if (globalCms.promoTierEnabled && !bannerDiscounts.length) {
+    console.warn(
+      '[AnnouncementBanner] promoTierEnabled=true but no active discounts returned.',
+      'Raw response:',
+      JSON.stringify(bannerDiscountsData)?.slice(0, 300),
+    );
+  }
   const [inboxScriptUrl, shopifyThemeId] = await Promise.all([
     getInboxScriptUrl(adminEnv, globalCms.shopifyInboxWidgetScriptUrl),
     getMainThemeId(adminEnv),
