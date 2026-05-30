@@ -309,7 +309,10 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
   }
 
   const adminEnv = context.env as unknown as AdminEnv;
-  const globalCms = parseGlobalCms(globalCmsData);
+  const globalCms = parseGlobalCms(
+    globalCmsData,
+    context.env as Record<string, string | undefined>,
+  );
   const bannerDiscounts = parseBannerDiscounts(bannerDiscountsData);
   const [inboxScriptUrl, shopifyThemeId] = await Promise.all([
     getInboxScriptUrl(adminEnv, globalCms.shopifyInboxWidgetScriptUrl),

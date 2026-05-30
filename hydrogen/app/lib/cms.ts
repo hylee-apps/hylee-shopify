@@ -119,12 +119,18 @@ export const GLOBAL_CMS_QUERY = `#graphql
 // ─── Parser ───────────────────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function parseGlobalCms(data: any): GlobalCmsConfig {
+export function parseGlobalCms(
+  data: any,
+  env?: Record<string, string | undefined>,
+): GlobalCmsConfig {
   const shop = data?.shop ?? {};
   return {
-    // Shopify boolean metafields are returned as the string "true"/"false".
-    // Absent metafield → undefined → falls back to DEFAULT_CMS_CONFIG (false).
-    promoTierEnabled: shop.promoTierEnabled?.value === 'true',
+    // Local .env overrides take precedence over Shopify metafields.
+    // Set PROMO_TIER_ENABLED=true in .env to force-enable locally.
+    promoTierEnabled:
+      env?.PROMO_TIER_ENABLED !== undefined
+        ? env.PROMO_TIER_ENABLED === 'true'
+        : shop.promoTierEnabled?.value === 'true',
     ogImageUrl: shop.ogImageUrl?.value ?? DEFAULT_CMS_CONFIG.ogImageUrl,
     homepage_description:
       shop.homepageDescription?.value ??
