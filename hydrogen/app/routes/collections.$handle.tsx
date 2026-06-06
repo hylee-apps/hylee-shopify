@@ -507,7 +507,11 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
               title: (p.variants.nodes[0] as any).title ?? 'Default',
               price: p.variants.nodes[0].price,
             },
-            {index: i + 1, item_list_id: collection.handle, item_list_name: collection.title},
+            {
+              index: i + 1,
+              item_list_id: collection.handle,
+              item_list_name: collection.title,
+            },
           ),
         ),
       },

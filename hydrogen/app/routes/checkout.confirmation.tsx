@@ -297,7 +297,8 @@ function CreateAccountCTA() {
 // ============================================================================
 
 export default function CheckoutConfirmationPage() {
-  const {orderId, orderNumber, cart, isLoggedIn} = useLoaderData<typeof loader>();
+  const {orderId, orderNumber, cart, isLoggedIn} =
+    useLoaderData<typeof loader>();
   const purchaseFiredRef = useRef(false);
 
   useEffect(() => {
@@ -307,20 +308,26 @@ export default function CheckoutConfirmationPage() {
     const items = lines.flatMap((line: any, i: number) => {
       if (typeof line.merchandise === 'string') return [];
       const {product, selectedOptions} = line.merchandise;
-      const variantTitle = selectedOptions
-        ?.filter((o: any) => !(o.name === 'Title' && o.value === 'Default Title'))
-        .map((o: any) => o.value)
-        .join(' / ') || 'Default';
-      return [{
-        item_id: line.merchandise.sku || line.merchandise.id?.split('/').pop() || '',
-        item_name: product?.title ?? '',
-        item_brand: product?.vendor ?? '',
-        item_category: product?.productType ?? '',
-        item_variant: variantTitle,
-        price: parseFloat(line.cost?.amountPerQuantity?.amount ?? '0'),
-        quantity: line.quantity,
-        index: i + 1,
-      }];
+      const variantTitle =
+        selectedOptions
+          ?.filter(
+            (o: any) => !(o.name === 'Title' && o.value === 'Default Title'),
+          )
+          .map((o: any) => o.value)
+          .join(' / ') || 'Default';
+      return [
+        {
+          item_id:
+            line.merchandise.sku || line.merchandise.id?.split('/').pop() || '',
+          item_name: product?.title ?? '',
+          item_brand: product?.vendor ?? '',
+          item_category: product?.productType ?? '',
+          item_variant: variantTitle,
+          price: parseFloat(line.cost?.amountPerQuantity?.amount ?? '0'),
+          quantity: line.quantity,
+          index: i + 1,
+        },
+      ];
     });
     pushEcommerceEvent({
       event: 'purchase',

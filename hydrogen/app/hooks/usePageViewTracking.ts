@@ -1,16 +1,16 @@
 //Route change tracking for page views
-import { useEffect, useRef } from 'react';
-import { useLocation } from '@remix-run/react';
-import { pushDataLayer } from '~/utils/data-layer';
+import {useEffect, useRef} from 'react';
+import {useLocation} from 'react-router';
+import {pushDataLayer} from '~/utils/data-layer';
 
 interface PageViewOptions {
-    /**
-     * When true, a new page_view fires when only the query string changes.
-     * Set to false for pages that use query params for filters without
-     * representing a new logical page (e.g. collection sort/filter).
-     */
-    trackQueryChanges?: boolean;
-    enabled?: boolean;
+  /**
+   * When true, a new page_view fires when only the query string changes.
+   * Set to false for pages that use query params for filters without
+   * representing a new logical page (e.g. collection sort/filter).
+   */
+  trackQueryChanges?: boolean;
+  enabled?: boolean;
 }
 
 /**
@@ -25,26 +25,26 @@ interface PageViewOptions {
  * (where effects run twice in development).
  */
 export function usePageViewTracking({
-    trackQueryChanges = false,
-    enabled = true,
+  trackQueryChanges = false,
+  enabled = true,
 }: PageViewOptions = {}): void {
-    const location = useLocation();
-    const prevPathRef = useRef<string | null>(null);
+  const location = useLocation();
+  const prevPathRef = useRef<string | null>(null);
 
-    const key = trackQueryChanges
-        ? location.pathname + location.search
-        : location.pathname;
+  const key = trackQueryChanges
+    ? location.pathname + location.search
+    : location.pathname;
 
-    useEffect(() => {
-        if (!enabled) return;
-        // Deduplicate: don't fire if the effective path hasn't changed
-        if (prevPathRef.current === key) return;
-        prevPathRef.current = key;
+  useEffect(() => {
+    if (!enabled) return;
+    // Deduplicate: don't fire if the effective path hasn't changed
+    if (prevPathRef.current === key) return;
+    prevPathRef.current = key;
 
-        pushDataLayer({
-            event: 'page_view',
-            page_path: location.pathname + location.search,
-            page_title: typeof document !== 'undefined' ? document.title : '',
-        });
-    }, [key, enabled, location.pathname, location.search]);
+    pushDataLayer({
+      event: 'page_view',
+      page_path: location.pathname + location.search,
+      page_title: typeof document !== 'undefined' ? document.title : '',
+    });
+  }, [key, enabled, location.pathname, location.search]);
 }

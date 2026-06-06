@@ -4,7 +4,7 @@ import {
   useNonce,
   useLoadScript,
 } from '@shopify/hydrogen';
-import type { LanguageCode } from '@shopify/hydrogen/storefront-api-types';
+import type {LanguageCode} from '@shopify/hydrogen/storefront-api-types';
 import {
   Outlet,
   useRouteError,
@@ -16,13 +16,13 @@ import {
   ScrollRestoration,
   useRouteLoaderData,
 } from 'react-router';
-import type { Route } from './+types/root';
-import { useMemo, useEffect } from 'react';
+import type {Route} from './+types/root';
+import {useMemo, useEffect} from 'react';
 import i18next from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import { I18nextProvider } from 'react-i18next';
-import { resources, i18nConfig } from '~/i18n';
-import { PageLayout } from '~/components/layout';
+import {initReactI18next} from 'react-i18next';
+import {I18nextProvider} from 'react-i18next';
+import {resources, i18nConfig} from '~/i18n';
+import {PageLayout} from '~/components/layout';
 import appStyles from '~/styles/app.css?url';
 import {categoryNavConfig} from '~/config/navigation';
 import {prioritizeCategories} from '~/lib/navigation';
@@ -40,7 +40,6 @@ import {
   getInboxScriptUrl,
   getMainThemeId,
   buildInboxWidgetConfig,
-  type InboxWidgetConfig,
 } from '~/lib/admin-api';
 
 export type RootLoader = typeof loader;
@@ -52,8 +51,8 @@ const INBOX_CHAT_SCRIPT =
 
 export function links() {
   return [
-    { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-    { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+    {rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'},
+    {rel: 'preconnect', href: 'https://fonts.googleapis.com'},
     {
       rel: 'preconnect',
       href: 'https://fonts.gstatic.com',
@@ -63,8 +62,8 @@ export function links() {
       rel: 'stylesheet',
       href: 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Assistant:wght@300;400;500;600;700;800&display=swap',
     },
-    { rel: 'preconnect', href: 'https://cdn.shopify.com' },
-    { rel: 'preconnect', href: 'https://shop.app' },
+    {rel: 'preconnect', href: 'https://cdn.shopify.com'},
+    {rel: 'preconnect', href: 'https://shop.app'},
   ];
 }
 
@@ -85,9 +84,13 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
 export async function loader(args: Route.LoaderArgs) {
   const deferredData = loadDeferredData(args);
   const criticalData = await loadCriticalData(args);
-  const analyticsConfig = getAnalyticsConfig();
+  const analyticsConfig = getAnalyticsConfig({
+    gtmContainerId: criticalData.globalCms?.gtmContainerId,
+    ga4MeasurementId: criticalData.globalCms?.ga4MeasurementId,
+    ga4ApiSecret: criticalData.globalCms?.ga4ApiSecret,
+  });
 
-  const { storefront, env } = args.context;
+  const {storefront, env} = args.context;
 
   return {
     ...deferredData,
@@ -110,6 +113,30 @@ export async function loader(args: Route.LoaderArgs) {
 }
 
 // ─── Banner Discounts ─────────────────────────────────────────────────────────
+
+// Cache banner discounts for 5 minutes to avoid Admin API rate limiting.
+// Uses the Cloudflare Cache API (shared across isolates) so the TTL is
+// respected in production Oxygen, not just within a single worker instance.
+const BANNER_DISCOUNTS_CACHE_KEY = new Request(
+  'https://cache.internal/banner-discounts',
+);
+
+async function fetchBannerDiscountsWithCache(
+  env: Parameters<typeof adminApi>[0],
+): Promise<unknown> {
+  const cache = await caches.open('hydrogen');
+  const cached = await cache.match(BANNER_DISCOUNTS_CACHE_KEY);
+  if (cached) return cached.json();
+
+  const data = await adminApi(env, BANNER_DISCOUNTS_QUERY);
+  await cache.put(
+    BANNER_DISCOUNTS_CACHE_KEY,
+    new Response(JSON.stringify(data), {
+      headers: {'Cache-Control': 'max-age=300'},
+    }),
+  );
+  return data;
+}
 
 export interface BannerDiscount {
   id: string;
@@ -271,7 +298,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     storefront
       .query(GLOBAL_CMS_QUERY, {cache: storefront.CacheShort()})
       .catch(() => null),
-    adminApi(context.env as unknown as AdminEnv, BANNER_DISCOUNTS_QUERY).catch(
+    fetchBannerDiscountsWithCache(context.env as unknown as AdminEnv).catch(
       (err) => {
         console.error('[BannerDiscounts] Admin API error:', err);
         return null;
@@ -285,7 +312,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
         id: string;
         title: string;
         handle: string;
-        menuPriority?: { value: string } | null;
+        menuPriority?: {value: string} | null;
       }) => ({
         id: c.id,
         title: c.title,
@@ -309,7 +336,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
         id: string;
         title: string;
         handle: string;
-        menuPriority?: { value: string } | null;
+        menuPriority?: {value: string} | null;
       }) => ({
         id: c.id,
         title: c.title,
@@ -327,7 +354,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
       return a.title.localeCompare(b.title);
     })
     .slice(0, 5)
-    .map(({ priority: _p, ...item }) => item);
+    .map(({priority: _p, ...item}) => item);
 
   const rawDiscountItems: Array<{
     id: string;
@@ -367,13 +394,13 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
   const sessionToken = getCustomerAccessToken(context.session);
   if (sessionToken) {
     try {
-      const { customer: rootCustomer } = await storefront.query(
+      const {customer: rootCustomer} = await storefront.query(
         `#graphql
           query RootCustomerId($customerAccessToken: String!) {
             customer(customerAccessToken: $customerAccessToken) { id }
           }
         ` as const,
-        { variables: { customerAccessToken: sessionToken } },
+        {variables: {customerAccessToken: sessionToken}},
       );
       const customerId = rootCustomer?.id ?? undefined;
       wishlistIds = await readWishlistIds(
@@ -426,8 +453,8 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
   };
 }
 
-function loadDeferredData({ context }: Route.LoaderArgs) {
-  const { storefront, cart } = context;
+function loadDeferredData({context}: Route.LoaderArgs) {
+  const {storefront, cart} = context;
 
   const footer = storefront
     .query(FOOTER_QUERY, {
@@ -450,7 +477,7 @@ function loadDeferredData({ context }: Route.LoaderArgs) {
 
 // ─── Layout ──────────────────────────────────────────────────────────────────
 
-export function Layout({ children }: { children?: React.ReactNode }) {
+export function Layout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>('root');
   const locale = (data?.locale ?? 'en') as string;
@@ -572,7 +599,7 @@ export default function App() {
   const data = useRouteLoaderData<RootLoader>('root');
   const locale = (data?.locale ?? 'en') as string;
 
-  usePageViewTracking({ enabled: !!data?.analytics });
+  usePageViewTracking({enabled: !!data?.analytics});
   useAnalyticsContext({
     enabled: !!data?.analytics,
     isLoggedIn: data?.isLoggedIn ?? false,
