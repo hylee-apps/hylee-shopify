@@ -41,10 +41,30 @@ interface CheckoutProgressProps {
 export function CheckoutProgress({currentStep}: CheckoutProgressProps) {
   const {t} = useTranslation();
   const currentIndex = STEPS.findIndex((s) => s.id === currentStep);
+  const currentStepData = STEPS[currentIndex];
 
   return (
-    <div className="w-full border-b border-border bg-white py-6">
-      <div className="flex items-center justify-center">
+    <div className="w-full border-b border-border bg-white py-4 sm:py-6">
+      {/* Compact pill on <sm: just "Step N of 4 · <Label>" so the bar
+          doesn't wrap or overflow at 390px. */}
+      <div className="flex items-center justify-center sm:hidden">
+        <div className="flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+          <span className="text-text-muted">
+            {t('checkout.stepProgress', {
+              defaultValue: 'Step {{current}} of {{total}}',
+              current: currentIndex + 1,
+              total: STEPS.length,
+            })}
+          </span>
+          <span aria-hidden="true">·</span>
+          <span className="font-semibold">
+            {currentStepData ? t(currentStepData.labelKey) : ''}
+          </span>
+        </div>
+      </div>
+
+      {/* Full step bar at sm+ (Figma desktop spec). */}
+      <div className="hidden items-center justify-center sm:flex">
         {STEPS.map((step, idx) => {
           const isActive = step.id === currentStep;
           const isCompleted = idx < currentIndex;

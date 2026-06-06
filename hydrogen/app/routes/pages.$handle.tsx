@@ -32,7 +32,7 @@ const PAGE_QUERY = `#graphql
 // Loader
 // ============================================================================
 
-export async function loader({params, context}: Route.LoaderArgs) {
+export async function loader({params, request, context}: Route.LoaderArgs) {
   const {storefront} = context;
 
   if (!params.handle) {
@@ -48,10 +48,23 @@ export async function loader({params, context}: Route.LoaderArgs) {
   });
 
   if (!page) {
-    return {page: null, comingSoon: true as const, handle: params.handle};
+    return {
+      page: null,
+      comingSoon: true as const,
+      handle: params.handle,
+      canonicalUrl: null,
+    };
   }
 
-  return {page, comingSoon: false as const, handle: params.handle};
+  const url = new URL(request.url);
+  const canonicalUrl = `${url.origin}/pages/${params.handle}`;
+
+  return {
+    page,
+    comingSoon: false as const,
+    handle: params.handle,
+    canonicalUrl,
+  };
 }
 
 // ============================================================================
@@ -69,12 +82,16 @@ export function meta({data}: Route.MetaArgs) {
       : 'Coming Soon';
     return [{title: `${title} | Hy-lee`}];
   }
+  const canonical = data?.canonicalUrl
+    ? [{tagName: 'link', rel: 'canonical', href: data.canonicalUrl}]
+    : [];
   return [
     {title: page.seo?.title ?? page.title ?? 'Page'},
     {
       name: 'description',
       content: page.seo?.description ?? page.bodySummary ?? '',
     },
+    ...canonical,
   ];
 }
 

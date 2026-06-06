@@ -53,6 +53,10 @@ export default defineConfig({
   expect: {
     timeout: 5000,
   },
+  // Namespace `toHaveScreenshot()` baselines by project so mobile-chrome and
+  // chromium snapshots don't collide for the same test name.
+  snapshotPathTemplate:
+    'tests/e2e/visual/screenshots/{projectName}/{testFilePath}/{arg}{ext}',
   outputDir: 'test-results/',
 
   // Start Hydrogen dev server automatically

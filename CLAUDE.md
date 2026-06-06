@@ -4,35 +4,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **dual-stack Shopify project** for Hy-lee (a Walmart-style e-commerce marketplace):
-
-- `theme/` — Shopify Liquid theme (CSS + Liquid templating)
-- `hydrogen/` — Hydrogen/Remix storefront (React + TypeScript + Tailwind v4)
+**Hy-lee** is a Shopify Hydrogen/Remix storefront (React + TypeScript + Tailwind v4). All storefront code lives in `hydrogen/`.
 
 ## Commands
 
 ```bash
 # Development
-pnpm theme:dev          # Start dev server (syncs with Shopify store)
-pnpm theme:push         # Deploy to Shopify
-pnpm theme:pull         # Pull theme from Shopify
+pnpm dev                # Start Hydrogen dev server (http://localhost:3000)
+pnpm build              # Production build
+pnpm preview            # Preview production build
 
 # Linting & Formatting
-pnpm theme-check        # Run Shopify theme linter
-pnpm format             # Format Liquid, CSS, JSON files
+pnpm format             # Format TypeScript, CSS, JSON files
 pnpm format:check       # Check formatting
-pnpm check-tokens       # Validate design token usage
+pnpm lint               # ESLint
+
+# Type Checking
+pnpm typecheck          # TypeScript type checking (runs inside hydrogen/)
 
 # Testing
 pnpm test               # Run unit tests (Vitest)
 pnpm test:watch         # Watch mode
-pnpm test:e2e           # Run E2E tests (Playwright)
+pnpm test:e2e           # Run E2E tests (Playwright, requires dev server)
 pnpm test:e2e:ui        # E2E with UI
-
-# Validation
-pnpm validate           # Run all checks (theme-check + structure + tests)
-pnpm validate:structure # Check directory structure
-pnpm verify             # Run workflow-agent verification
 ```
 
 ## Architecture
@@ -40,57 +34,49 @@ pnpm verify             # Run workflow-agent verification
 ### Directory Structure
 
 ```
-theme/
-├── layout/       # Theme layouts (theme.liquid)
-├── templates/    # JSON templates referencing sections
-│   └── customers/  # Customer account templates
-├── sections/     # Reusable sections with schemas
-├── snippets/     # Liquid partials ({% render 'name' %})
-├── assets/       # CSS, JS, images
-├── config/       # Theme settings (settings_schema.json)
-└── locales/      # Translation files
+hydrogen/
+├── app/
+│   ├── components/     # React components
+│   │   ├── commerce/   # Product, cart, collection components
+│   │   ├── layout/     # Header, Footer, navigation
+│   │   ├── product/    # PDP-specific components
+│   │   └── ui/         # Generic UI primitives (shadcn-based)
+│   ├── routes/         # Remix routes (file-based routing)
+│   ├── styles/         # app.css (Tailwind v4 @theme tokens)
+│   ├── lib/            # Utilities, GraphQL fragments, API helpers
+│   ├── locales/        # i18n JSON files (en, es, fr)
+│   └── graphql/        # GraphQL operation files (.graphql)
+├── public/             # Static assets
+└── design-references/  # Figma spec captures per component
 ```
 
 ### Component-First Development
 
 **Before creating any UI element:**
 
-1. Check `theme/snippets/` for existing components
-2. If it exists, USE IT
-3. If not, CREATE IT FIRST as a reusable snippet
-
-### File Naming
-
-- Components: `{name}.liquid` in `theme/snippets/`
-- Component CSS: `component-{name}.css` in `theme/assets/`
-- Section CSS: `section-{name}.css`
-- Template CSS: `template-{name}.css`
+1. Check `hydrogen/app/components/` for existing components
+2. Check `hydrogen/app/components/ui/` for shadcn primitives
+3. If it exists, USE IT
+4. If not, CREATE IT FIRST as a reusable component
 
 ### Design Tokens
 
-ALWAYS use CSS custom properties from `theme-variables.css`:
+ALWAYS use Tailwind tokens from `hydrogen/app/styles/app.css` `@theme` block:
 
-```css
-/* Correct */
-color: var(--color-primary);
-padding: var(--spacing-md);
-font-size: var(--font-size-base);
+```tsx
+// Correct — uses design tokens
+<div className="bg-primary text-white p-4 rounded-lg">
 
-/* Wrong - never hardcode */
-color: #4a90a4;
-padding: 16px;
+// Wrong — never hardcode
+<div style={{ backgroundColor: '#2ac864', padding: '16px' }}>
 ```
 
-### CSS Naming (BEM)
+### CSS Approach
 
-```css
-.component-name {
-}
-.component-name__element {
-}
-.component-name--modifier {
-}
-```
+- Tailwind v4 utility classes in JSX
+- `@apply` sparingly in component CSS when needed
+- No inline styles
+- No hardcoded hex colors or pixel values outside `app.css`
 
 ## Branching & Commits
 
@@ -102,7 +88,7 @@ padding: 16px;
 
 **Types:** `feature`, `bugfix`, `hotfix`, `chore`, `refactor`, `docs`, `test`
 
-**Scopes:** `theme`, `components`, `sections`, `templates`, `assets`, `customer`, `checkout`, `header`, `footer`, `product`, `cart`, `testing`, `configuration`, `documentation`, `locales`, `snippets`
+**Scopes:** `hydrogen`, `components`, `routes`, `styles`, `customer`, `checkout`, `header`, `footer`, `product`, `cart`, `infra`, `testing`, `configuration`, `documentation`, `locales`
 
 ### Commit Format
 
@@ -112,9 +98,9 @@ padding: 16px;
 
 **Examples:**
 
-- `feat(sections): add hero banner section`
+- `feat(components): add hero banner section`
 - `fix(cart): resolve quantity update issue`
-- `chore(assets): optimize image loading`
+- `chore(styles): update design token mapping`
 
 ## Guidelines Reference
 
@@ -126,30 +112,25 @@ Comprehensive guidelines are in `/guidelines/`:
 - `COMPONENT_LIBRARY.md` - UI components, design tokens, feature flags
 - `SINGLE_SOURCE_OF_TRUTH.md` - Canonical file locations
 - `LIBRARY_INVENTORY.md` - Approved dependencies
-- `DEPLOYMENT_STRATEGY.md` - Deployment workflow
+- `DEPLOYMENT_STRATEGY.md` - Deployment workflow (Oxygen)
 - `PATTERN_ANALYSIS_WORKFLOW.md` - Pattern capture for workflow improvements
 - `SELF_IMPROVEMENT_MANDATE.md` - Continuous improvement tracking
-- `SCOPE_CREATION_WORKFLOW.md` - Creating custom workflow scopes
-- `PROJECT_TEMPLATE_README.md` - Using guidelines as templates
-- `BLUEPRINT_CREATION_GUIDE.md` - Creating reusable project blueprints
 - `ACCESSIBILITY_STANDARDS.md` - WCAG 2.1 Level AA compliance rules
 
 ## Key Rules
 
-1. **No React/TypeScript** - This is a Liquid theme project
-2. **No inline styles** - Use CSS files with design tokens
-3. **No hardcoded colors/spacing** - Use CSS custom properties
-4. **Check snippets first** - Reuse existing components
-5. **Update documentation** - When completing work:
+1. **React + TypeScript only** — all UI is Hydrogen/Remix components
+2. **No inline styles** — use Tailwind utility classes
+3. **No hardcoded colors/spacing** — use design tokens from `app.css`
+4. **Check components first** — reuse before creating
+5. **Update documentation** — when completing work:
    - New component: Update `docs/COMPONENT_INVENTORY.md`
    - Completed task: Update `docs/IMPLEMENTATION_PLAN.md`
    - Architecture decision: Update `docs/ARCHITECTURE.md`
 
 ## Pre-Commit Checklist (MANDATORY)
 
-**ALL checks below MUST pass before committing. Do NOT commit if any check fails. Fix errors first, re-run, and only commit once everything is green.**
-
-### Hydrogen (when hydrogen/ files are changed)
+**ALL checks below MUST pass before committing. Do NOT commit if any check fails.**
 
 ```bash
 pnpm format              # 1. Format code (auto-fix)
@@ -159,22 +140,12 @@ pnpm build               # 4. Production build — MUST PASS (catches SSR errors
 pnpm test                # 5. Run unit tests — MUST PASS
 ```
 
-### Theme (when theme/ files are changed)
-
-```bash
-pnpm format              # 1. Format code (auto-fix)
-pnpm format:check        # 2. Verify formatting passes
-pnpm theme-check         # 3. Shopify theme linter — MUST PASS
-pnpm test                # 4. Run unit tests — MUST PASS
-pnpm validate            # 5. Full validation — MUST PASS
-```
-
 ### Rules
 
 - **Never skip checks** — even if "it looks fine", run them all
 - **Fix errors before committing** — do not commit known failures
 - **Re-run after fixes** — always verify the fix actually works
-- **Build catches what typecheck misses** — always run both for Hydrogen changes
+- **Build catches what typecheck misses** — always run both
 - **Do not push known-broken code** — if CI will fail, fix it locally first
 
 ## Workflow Agent & Agentic Coding
@@ -185,8 +156,6 @@ This project uses `workflow-agent-cli` for standardized agentic workflows. Confi
 
 ```bash
 pnpm workflow       # Run workflow agent
-pnpm verify         # Verify changes
-pnpm verify:fix     # Auto-fix issues
 ```
 
 ### Pattern Capture (MANDATORY after meaningful fixes)
@@ -199,9 +168,6 @@ workflow verify --fix --learn
 
 # Manual: record a specific pattern
 workflow learn:record --type fix --name "..." --description "..." --category <lint|type-error|dependency|config|runtime|build|test>
-
-# Record a project blueprint (for project scaffolding patterns)
-workflow learn:record --type blueprint --name "..." --description "..." --framework <framework>
 
 # View captured patterns
 workflow learn:list

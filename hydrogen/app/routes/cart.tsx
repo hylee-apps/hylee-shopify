@@ -29,16 +29,20 @@ import {Input} from '~/components/ui/input';
 import {Card} from '~/components/ui/card';
 import {cn} from '~/lib/utils';
 import {CheckoutProgress} from '~/components/checkout/CheckoutProgress';
+import {MobileSummaryDrawer} from '~/components/commerce/MobileSummaryDrawer';
 
 // ============================================================================
 // Route Meta
 // ============================================================================
 
 export function meta({data}: Route.MetaArgs) {
-  return getSeoMeta({
-    title: 'Shopping Cart',
-    description: 'Review your shopping cart and proceed to checkout.',
-  });
+  return [
+    ...(getSeoMeta({
+      title: 'Shopping Cart',
+      description: 'Review your shopping cart and proceed to checkout.',
+    }) ?? []),
+    {name: 'robots', content: 'noindex, nofollow'},
+  ];
 }
 
 // ============================================================================
@@ -158,7 +162,7 @@ function CartEmpty() {
       </h2>
       <p className="mb-8 text-text-muted">{t('cart.empty.subtitle')}</p>
       <Button size="lg" asChild>
-        <Link to="/collections">{t('cart.empty.cta')}</Link>
+        <Link to="/collections/all">{t('cart.empty.cta')}</Link>
       </Button>
     </div>
   );
@@ -442,7 +446,11 @@ interface OrderSummaryProps {
   discountCodes?: any[];
 }
 
-function OrderSummary({cart, discountCodes}: OrderSummaryProps) {
+function OrderSummary({
+  cart,
+  discountCodes,
+  mode = 'inline',
+}: OrderSummaryProps & {mode?: 'inline' | 'drawer'}) {
   const {t} = useTranslation();
   const {cost, totalQuantity} = cart;
   const subtotal = cost?.subtotalAmount;
@@ -456,116 +464,124 @@ function OrderSummary({cart, discountCodes}: OrderSummaryProps) {
       ? parseFloat(subtotal.amount) - parseFloat(total.amount)
       : 0;
 
+  const body = (
+    <div className={mode === 'drawer' ? 'pt-2' : 'px-6 pt-6'}>
+      {/* Summary Rows */}
+      <div className="flex flex-col gap-[17px]">
+        <div className="flex items-center justify-between">
+          <span className="text-[15px] text-[#4b5563]">
+            {t('cart.summary.subtotal', {
+              count: totalQuantity,
+              item: totalQuantity === 1 ? t('cart.item') : t('cart.items'),
+            })}
+          </span>
+          <span className="text-[15px] text-[#4b5563]">
+            {subtotal ? formatMoney(subtotal) : '—'}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <span className="text-[15px] text-[#4b5563]">
+            {t('cart.summary.shipping')}
+          </span>
+          <span className="text-[15px] text-[#9ca3af]">
+            {t('cart.summary.shippingCalc')}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <span className="text-[15px] text-[#4b5563]">
+            {t('cart.summary.tax')}
+          </span>
+          <span className="text-[15px] text-[#9ca3af]">
+            {t('cart.summary.shippingCalc')}
+          </span>
+        </div>
+
+        {discountAmount > 0 && (
+          <div className="flex items-center justify-between">
+            <span className="text-[15px] text-primary">
+              {t('cart.summary.promoDiscount')}
+            </span>
+            <span className="text-[15px] font-medium text-primary">
+              -${discountAmount.toFixed(2)}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* 2px separator */}
+      <div className="my-[22px] border-t-2 border-border" />
+
+      {/* Estimated Total */}
+      <div className="flex items-center justify-between">
+        <span className="text-lg font-bold text-[#111827]">
+          {t('cart.summary.total')}
+        </span>
+        <span className="text-lg font-bold text-[#111827]">
+          {total ? formatMoney(total) : '—'}
+        </span>
+      </div>
+
+      {/* Checkout CTA */}
+      <div className="mt-[22px]">
+        <Link
+          to="/checkout/payment"
+          onClick={() => {
+            const items = cartLinesToDataLayerItems(cart.lines?.nodes ?? []);
+            pushEcommerceEvent({
+              event: 'begin_checkout',
+              ecommerce: {
+                currency: total?.currencyCode ?? 'USD',
+                value: parseFloat(total?.amount ?? '0'),
+                coupon:
+                  discountCodes
+                    ?.filter((d: any) => d.applicable)
+                    .map((d: any) => d.code)
+                    .join(',') ?? '',
+                items,
+              },
+            });
+          }}
+          className="flex w-full items-center justify-center gap-2 rounded-sm bg-brand-accent px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-brand-accent/90"
+        >
+          {t('cart.summary.checkout')}
+          <ArrowRight size={16} />
+        </Link>
+      </div>
+
+      {/* Trust Badges */}
+      <div className="mb-6 mt-6 flex items-center justify-center gap-6 border-t border-border pt-6">
+        <div className="flex items-center gap-2">
+          <Lock size={13} className="text-primary" />
+          <span className="text-[13px] text-[#4b5563]">
+            {t('cart.summary.secureCheckout')}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <ShieldCheck size={13} className="text-primary" />
+          <span className="text-[13px] text-[#4b5563]">
+            {t('cart.summary.sslEncrypted')}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Drawer mode: render only the body (the drawer provides its own title bar).
+  if (mode === 'drawer') return body;
+
+  // Inline (desktop) mode: sticky Card with title row. Hidden on <lg so the
+  // MobileSummaryDrawer can take over.
   return (
-    <Card className="sticky top-0 w-[400px] shrink-0 gap-0 overflow-hidden bg-white p-0 shadow-sm">
+    <Card className="hidden lg:flex flex-col sticky top-0 w-[400px] shrink-0 gap-0 overflow-hidden bg-white p-0 shadow-sm">
       {/* Title */}
       <div className="border-b border-border px-6 pb-[18px] pt-6">
         <h3 className="text-lg font-bold text-[#1f2937]">
           {t('cart.summary.title')}
         </h3>
       </div>
-
-      <div className="px-6 pt-6">
-        {/* Summary Rows */}
-        <div className="flex flex-col gap-[17px]">
-          <div className="flex items-center justify-between">
-            <span className="text-[15px] text-[#4b5563]">
-              {t('cart.summary.subtotal', {
-                count: totalQuantity,
-                item: totalQuantity === 1 ? t('cart.item') : t('cart.items'),
-              })}
-            </span>
-            <span className="text-[15px] text-[#4b5563]">
-              {subtotal ? formatMoney(subtotal) : '—'}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <span className="text-[15px] text-[#4b5563]">
-              {t('cart.summary.shipping')}
-            </span>
-            <span className="text-[15px] text-[#9ca3af]">
-              {t('cart.summary.shippingCalc')}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <span className="text-[15px] text-[#4b5563]">
-              {t('cart.summary.tax')}
-            </span>
-            <span className="text-[15px] text-[#9ca3af]">
-              {t('cart.summary.shippingCalc')}
-            </span>
-          </div>
-
-          {discountAmount > 0 && (
-            <div className="flex items-center justify-between">
-              <span className="text-[15px] text-primary">
-                {t('cart.summary.promoDiscount')}
-              </span>
-              <span className="text-[15px] font-medium text-primary">
-                -${discountAmount.toFixed(2)}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* 2px separator */}
-        <div className="my-[22px] border-t-2 border-border" />
-
-        {/* Estimated Total */}
-        <div className="flex items-center justify-between">
-          <span className="text-lg font-bold text-[#111827]">
-            {t('cart.summary.total')}
-          </span>
-          <span className="text-lg font-bold text-[#111827]">
-            {total ? formatMoney(total) : '—'}
-          </span>
-        </div>
-
-        {/* Checkout CTA */}
-        <div className="mt-[22px]">
-          <Link
-            to="/checkout/payment"
-            onClick={() => {
-              const items = cartLinesToDataLayerItems(cart.lines?.nodes ?? []);
-              pushEcommerceEvent({
-                event: 'begin_checkout',
-                ecommerce: {
-                  currency: total?.currencyCode ?? 'USD',
-                  value: parseFloat(total?.amount ?? '0'),
-                  coupon:
-                    cart.discountCodes
-                      ?.filter((d: any) => d.applicable)
-                      .map((d: any) => d.code)
-                      .join(',') ?? '',
-                  items,
-                },
-              });
-            }}
-            className="flex w-full items-center justify-center gap-2 rounded-sm bg-brand-accent px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-brand-accent/90"
-          >
-            {t('cart.summary.checkout')}
-            <ArrowRight size={16} />
-          </Link>
-        </div>
-
-        {/* Trust Badges */}
-        <div className="mb-6 mt-6 flex items-center justify-center gap-6 border-t border-border pt-6">
-          <div className="flex items-center gap-2">
-            <Lock size={13} className="text-primary" />
-            <span className="text-[13px] text-[#4b5563]">
-              {t('cart.summary.secureCheckout')}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <ShieldCheck size={13} className="text-primary" />
-            <span className="text-[13px] text-[#4b5563]">
-              {t('cart.summary.sslEncrypted')}
-            </span>
-          </div>
-        </div>
-      </div>
+      {body}
     </Card>
   );
 }
@@ -599,9 +615,9 @@ export default function CartPage() {
       {/* Step indicator */}
       <CheckoutProgress currentStep="cart" />
 
-      <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-8 pb-24 lg:pb-8">
         {hasItems ? (
-          <div className="flex items-start gap-8">
+          <div className="flex flex-col items-stretch gap-6 lg:flex-row lg:items-start lg:gap-8">
             {/* ── Left: Main content ── */}
             <div className="flex min-w-0 flex-1 flex-col gap-6">
               {/* Guest banner — hidden for logged-in users */}
@@ -610,7 +626,7 @@ export default function CartPage() {
               {/* Shopping Cart card */}
               <Card className="gap-0 overflow-hidden bg-white p-0 shadow-sm">
                 {/* Header */}
-                <div className="flex items-center justify-between border-b border-border px-6 py-5">
+                <div className="flex items-center justify-between border-b border-border px-4 py-4 sm:px-6 sm:py-5">
                   <h2 className="text-lg font-bold text-[#111827]">
                     {t('cart.heading', {
                       count: cart.totalQuantity,
@@ -625,12 +641,14 @@ export default function CartPage() {
                     asChild
                     className="p-2 text-[15px] font-medium text-secondary hover:bg-transparent hover:text-secondary/80"
                   >
-                    <Link to="/collections">{t('cart.continueShopping')}</Link>
+                    <Link to="/collections/all">
+                      {t('cart.continueShopping')}
+                    </Link>
                   </Button>
                 </div>
 
                 {/* Items */}
-                <div className="px-6 pt-6">
+                <div className="px-4 pt-4 sm:px-6 sm:pt-6">
                   {cart.lines.nodes.map((line: any, idx: number) => (
                     <CartLineRow
                       key={line.id}
@@ -645,7 +663,7 @@ export default function CartPage() {
               <PromoCodeCard discountCodes={cart.discountCodes} />
             </div>
 
-            {/* ── Right: Order Summary ── */}
+            {/* ── Right: Order Summary (desktop sticky sidebar) ── */}
             <OrderSummary
               cart={cart as OptimisticCart<any>}
               discountCodes={cart.discountCodes}
@@ -655,6 +673,50 @@ export default function CartPage() {
           <CartEmpty />
         )}
       </div>
+
+      {/* Mobile-only summary drawer + sticky checkout bar.
+          Hidden on lg+ via the underlying StickyBottomBar primitive. */}
+      {hasItems && (
+        <MobileSummaryDrawer
+          title={t('cart.summary.title')}
+          stickyBar={({openSummary}) => {
+            // Cast mirrors the inline sidebar's signature — Hydrogen's strict
+            // MoneyV2 type makes amount/currencyCode optional, but the runtime
+            // shape always has them when the cart is non-empty.
+            const total = (cart as OptimisticCart<any>).cost?.totalAmount;
+            return (
+              <div className="flex items-stretch gap-3 px-4 py-3">
+                <button
+                  type="button"
+                  onClick={openSummary}
+                  className="tap-target flex flex-1 flex-col items-start justify-center text-left"
+                  aria-label={t('cart.summary.title')}
+                >
+                  <span className="text-xs uppercase tracking-wide text-text-muted">
+                    {t('cart.summary.total')}
+                  </span>
+                  <span className="text-lg font-bold text-[#111827]">
+                    {total ? formatMoney(total) : '—'}
+                  </span>
+                </button>
+                <Link
+                  to="/checkout/payment"
+                  className="tap-target inline-flex flex-1 items-center justify-center gap-2 rounded-sm bg-brand-accent px-4 text-base font-semibold text-white transition-colors hover:bg-brand-accent/90"
+                >
+                  {t('cart.summary.checkout')}
+                  <ArrowRight size={16} />
+                </Link>
+              </div>
+            );
+          }}
+        >
+          <OrderSummary
+            cart={cart as OptimisticCart<any>}
+            discountCodes={cart.discountCodes}
+            mode="drawer"
+          />
+        </MobileSummaryDrawer>
+      )}
     </div>
   );
 }

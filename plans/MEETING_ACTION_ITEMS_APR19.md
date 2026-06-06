@@ -332,11 +332,13 @@ Shawn identified three bugs during the meeting:
 
 ### Tasks
 - [x] **Bug 4**: Add `CollectionHero` to end-node layout (`collections.$handle.tsx`)
-- [ ] **Bug 1**: Reproduce breadcrumb gap for Furniture > Bed and Accessories
-  - Check `buildPathFromParentMetafields` in `~/lib/breadcrumbs`
-  - May need Shawn to verify the `custom.parent_collection` metafield is set on "Bed and Accessories"
-- [ ] **Bug 2**: Verify Latex Mattress in Shopify admin (active + assigned to collection)
-  - If present in admin but missing in app, check `availableForSale` filter in `COLLECTION_QUERY`
+- [ ] **Bug 1**: Breadcrumb gap confirmed as a Shawn/data task — code is correct
+  - `buildPathFromParentMetafields` uses `custom.parent_node` (NOT `parent_collection`)
+  - **Shawn**: In Shopify Admin → Collections → "Bed and Accessories" → Metafields, set `custom.parent_node` to point to the "Furniture" collection. Repeat for any other collections with missing breadcrumbs.
+  - Falls back to nav menu if metafield not set; "Bed and Accessories" is deep enough it's not in header nav, so metafield is required.
+- [ ] **Bug 2**: Verify Latex Mattress in Shopify admin (active + assigned to collection) — code is correct, no `availableForSale` filter being applied
+  - Most likely causes: product not assigned to collection, set to draft, or Shopify store-level "hide out-of-stock" is filtering it
+  - **Shawn**: Check product is Active, Published, and in the right collection
 - [ ] **Bug 3**: Decide approach with Shawn — either raise page size limit or accept `+` indicator
 
 ### Manual Tests

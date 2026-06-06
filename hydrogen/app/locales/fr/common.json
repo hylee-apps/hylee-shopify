@@ -9,10 +9,12 @@
     "account": "Compte",
     "myAccount": "Mon Compte",
     "myOrders": "Mes Commandes",
+    "trackOrders": "Suivre les Commandes",
     "signIn": "Se Connecter",
     "register": "S'inscrire",
     "signOut": "Se Déconnecter",
-    "categoryTitles": {}
+    "categoryTitles": {},
+    "allCategories": "Toutes les Catégories"
   },
   "header": {
     "openMenu": "Ouvrir le menu",
@@ -753,6 +755,42 @@
     "discounts": "Réductions",
     "promotionsDeals": "Promotions et Offres",
     "newBadge": "Nouveau"
+  },
+  "allCategories": {
+    "title": "Toutes les Catégories de Produits",
+    "sectionLabel": "Catégories commençant par {{letter}}"
+  },
+  "miniCart": {
+    "title": "Votre Panier ({{count}})",
+    "empty": "Votre panier est vide",
+    "continueShopping": "Continuer vos Achats",
+    "qty": "Qté : {{count}}",
+    "subtotal": "Sous-total",
+    "viewCart": "Voir le Panier",
+    "checkout": "Commander",
+    "close": "Fermer le panier"
+  },
+  "announcementBanner": {
+    "firstOrder": {
+      "message": "Première commande ? Bénéficiez de 8% de réduction.",
+      "cta": "Réclamez votre réduction"
+    },
+    "newsletter": {
+      "message": "Inscrivez-vous à notre newsletter et économisez 10% sur votre prochain achat.",
+      "cta": "S'inscrire"
+    },
+    "accountCreation": {
+      "message": "Créez un compte et débloquez 15% de réduction sur votre première commande.",
+      "cta": "S'inscrire"
+    },
+    "referral": {
+      "message": "Parrainez un ami et gagnez 20% de réduction — récurrent à chaque parrainage.",
+      "cta": "Parrainer"
+    },
+    "prev": "Offre précédente",
+    "next": "Offre suivante",
+    "goToSlide": "Aller à l'offre {{n}}",
+    "dismiss": "Fermer la barre d'annonces"
   },
   "quantity": {
     "decrease": "Diminuer la quantité",

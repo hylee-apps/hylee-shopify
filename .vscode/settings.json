@@ -5,10 +5,6 @@
   "editor.insertSpaces": true,
   "editor.detectIndentation": false,
 
-  "files.associations": {
-    "*.liquid": "liquid"
-  },
-
   "files.exclude": {
     "**/node_modules": true,
     "**/.git": true
@@ -17,11 +13,6 @@
   "search.exclude": {
     "**/node_modules": true,
     "**/pnpm-lock.yaml": true
-  },
-
-  "[liquid]": {
-    "editor.defaultFormatter": "Shopify.theme-check-vscode",
-    "editor.formatOnSave": true
   },
 
   "[css]": {
@@ -43,6 +34,10 @@
 
   "css.validate": true,
   "css.lint.unknownAtRules": "ignore",
+
+  "typescript.tsserver.maxTsServerMemory": 6144,
+  "typescript.tsserver.experimental.useVsCodeWatcher": true,
+  "typescript.disableAutomaticTypeAcquisition": true,
 
   "github.copilot.chat.codeGeneration.instructions": [
     {

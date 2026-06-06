@@ -11,7 +11,7 @@
     "dev": "shopify hydrogen dev --codegen --disable-version-check",
     "preview": "shopify hydrogen preview --build",
     "lint": "eslint --no-error-on-unmatched-pattern .",
-    "typecheck": "react-router typegen && NODE_OPTIONS=--max-old-space-size=8192 tsc --noEmit",
+    "typecheck": "react-router typegen && NODE_OPTIONS=--max-old-space-size=2048 tsc --noEmit",
     "codegen": "shopify hydrogen codegen && react-router typegen",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -19,6 +19,7 @@
     "test:e2e": "playwright test --config=playwright.config.ts",
     "test:e2e:ui": "playwright test --config=playwright.config.ts --ui",
     "visual:header": "playwright test --config=playwright.config.ts --project=chromium tests/e2e/visual/header.visual.spec.ts",
+    "visual:mobile": "playwright test --config=playwright.config.ts --project=mobile-chrome tests/e2e/visual/",
     "compare:header": "npx tsx scripts/compare-design.ts header",
     "translate": "npx tsx scripts/translate.ts"
   },

@@ -260,8 +260,13 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
 
   // Collection exists but has no products and no active filters — treat as
   // "not yet ready" rather than an empty results state.
+  // Exception: collections with child nodes are category browse pages and must
+  // never be considered empty regardless of their direct product count.
   const hasActiveFilters = filters.length > 0;
+  const hasChildCollections =
+    (collection.childCollections?.references?.nodes?.length ?? 0) > 0;
   const isEmpty =
+    !hasChildCollections &&
     !hasActiveFilters &&
     collection.products.nodes.length === 0 &&
     !collection.products.pageInfo.hasNextPage;
@@ -388,10 +393,13 @@ function EndNodeResultsHeader({
 
       {/* Right: Filters + Sort */}
       <div className="flex items-center gap-[12px]">
-        {/* Filters button — opens mobile sheet on all viewports */}
+        {/* Filters button — opens mobile sheet on all viewports.
+            Inline minHeight for WCAG 2.5.5 — 44px tap target on phones.
+            Hidden at lg+ where Figma spec is 37px. */}
         <button
           type="button"
           onClick={onOpenFilters}
+          style={{minHeight: 44}}
           className="bg-white border border-[#d1d5db] rounded-[8px] px-[17px] py-[9px] flex items-center gap-[8px] hover:bg-[#f9fafb] transition-colors lg:hidden"
         >
           <Filter size={13} className="text-[#374151]" />
@@ -400,7 +408,7 @@ function EndNodeResultsHeader({
           </span>
         </button>
 
-        {/* Sort — override pill style → Figma square rounded-[8px] */}
+        {/* Sort — override pill style → Figma square rounded-[8px]. */}
         <SortSelect
           searchParams={searchParams}
           className="!rounded-[8px] !border-[#d1d5db] !px-[17px] !py-[9px] !text-[14px] !text-[#374151] !font-normal"
@@ -414,8 +422,49 @@ function EndNodeResultsHeader({
 // Component
 // ============================================================================
 
+function BreadcrumbJsonLd({
+  crumbs,
+  current,
+  currentUrl,
+}: {
+  crumbs: Array<{title: string; url: string}>;
+  current: string;
+  currentUrl: string;
+}) {
+  const origin = currentUrl.startsWith('http')
+    ? new URL(currentUrl).origin
+    : '';
+  const items = [
+    {title: 'Home', url: `${origin}/`},
+    ...crumbs.map((c) => ({
+      title: c.title,
+      url: c.url.startsWith('http') ? c.url : `${origin}${c.url}`,
+    })),
+    {title: current, url: currentUrl},
+  ];
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: item.title,
+      item: item.url,
+    })),
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{__html: JSON.stringify(schema)}}
+    />
+  );
+}
+
 export default function CollectionPage({loaderData}: Route.ComponentProps) {
-  const {collection, comingSoon, handle, searchParamsString} = loaderData;
+  const {collection, comingSoon, handle, searchParamsString, canonicalUrl} =
+    loaderData;
   const {t} = useTranslation();
   const {pathname} = useLocation();
   const navigation = useNavigation();
@@ -500,6 +549,14 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
   if (isCategory) {
     return (
       <div className="pb-12">
+        {canonicalUrl && (
+          <BreadcrumbJsonLd
+            crumbs={breadcrumbAncestors}
+            current={breadcrumbCurrent}
+            currentUrl={canonicalUrl}
+          />
+        )}
+
         {/* Breadcrumbs */}
         <PageBreadcrumbs
           crumbs={breadcrumbAncestors}
@@ -557,7 +614,7 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
                       )}
 
                       {/* 6-column grid — Figma: ~229px pitch on 1400px container */}
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
                         {(nodes as CollectionProduct[]).map((product) => (
                           <ProductCard
                             key={product.id}
@@ -617,6 +674,14 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
 
   return (
     <div className="pb-12">
+      {canonicalUrl && (
+        <BreadcrumbJsonLd
+          crumbs={breadcrumbAncestors}
+          current={breadcrumbCurrent}
+          currentUrl={canonicalUrl}
+        />
+      )}
+
       {/* Breadcrumbs */}
       <PageBreadcrumbs
         crumbs={breadcrumbAncestors}
@@ -689,7 +754,7 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
                       )}
 
                       {/* 4-column grid — Figma: 4 cols at 1080px main width */}
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
                         {(nodes as CollectionProduct[]).map((product) => (
                           <ProductCard
                             key={product.id}

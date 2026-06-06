@@ -9,8 +9,11 @@ import {
   type ProductCardProps,
 } from '~/components/commerce/ProductCard';
 import {HeroCarousel, type CarouselSlide} from '~/components/home/HeroCarousel';
+import {headingText} from '~/lib/responsive-text';
+import {cn} from '~/lib/utils';
 import type {Route} from './+types/_index';
 import {adminApi, type AdminEnv} from '~/lib/admin-api';
+import type {GlobalCmsConfig} from '~/lib/cms';
 
 // ============================================================================
 // Hero slides — Shopify metaobjects (type: "hero_slide")
@@ -67,22 +70,44 @@ function buildHeroSlides(data: any): CarouselSlide[] {
 }
 
 // ============================================================================
-// Meta
+// Homepage SEO — reads from globalCms in the root loader (GLOBAL_CMS_QUERY).
+// Fields: custom.homepage_title / custom.homepage_description
+// To create definitions: Settings → Metafields and metaobjects → Metafield definitions → Shop
+// To set values: Settings → General → Store Assets → Metafields
+// See plans/SHOPIFY_CMS_PLAN.md for full setup instructions.
 // ============================================================================
 
-export function meta({}: Route.MetaArgs) {
-  return getSeoMeta({
-    title: 'Hy-lee | Home',
-    description:
-      'Discover unique products from trusted vendors worldwide. Shop electronics, fashion, home goods, and more.',
-    media: {
-      type: 'image',
-      url: 'https://hy-lee.com/logo-full.png',
-      height: 630,
-      width: 1200,
-      altText: 'Hy-lee — your marketplace for unique products',
-    },
-  });
+export function meta({data, matches}: Route.MetaArgs) {
+  const rootMatch = matches.find((m) => m?.id === 'root');
+  const globalCms = (
+    rootMatch?.data as {globalCms?: GlobalCmsConfig} | undefined
+  )?.globalCms;
+
+  const title = globalCms?.homepage_title ?? 'Hy-lee | Home';
+  const description =
+    globalCms?.homepage_description ??
+    'Shop Hylee for compact furniture, off-grid power, and space-saving essentials. Perfect for tiny homes, van life, dorms & small apartments. Maximize your space!';
+
+  const canonical = data?.canonicalUrl
+    ? [{tagName: 'link', rel: 'canonical', href: data.canonicalUrl}]
+    : [];
+
+  return [
+    ...(getSeoMeta({
+      title,
+      description,
+      media: globalCms?.ogImageUrl
+        ? {
+            type: 'image',
+            url: globalCms.ogImageUrl,
+            height: 630,
+            width: 1200,
+            altText: 'Hy-lee — your marketplace for unique products',
+          }
+        : undefined,
+    }) ?? []),
+    ...canonical,
+  ];
 }
 
 // ============================================================================
@@ -485,7 +510,8 @@ function buildPromoSlidesFromDiscounts(data: any): PromoSlide[] {
 // Loader
 // ============================================================================
 
-export async function loader({context}: Route.LoaderArgs) {
+export async function loader({request, context}: Route.LoaderArgs) {
+  const canonicalUrl = new URL(request.url).origin + '/';
   const {storefront} = context;
 
   const baseVars = {
@@ -499,7 +525,9 @@ export async function loader({context}: Route.LoaderArgs) {
     .toISOString()
     .split('T')[0];
 
-  // Fetch all homepage data in parallel
+  // Fetch all homepage data in parallel.
+  // Note: homepage SEO (title/description) comes from the root loader's
+  // globalCms — no need to fetch it again here.
   const [
     whatsNewResult,
     seasonalResult,
@@ -544,6 +572,7 @@ export async function loader({context}: Route.LoaderArgs) {
     discounted: discountedResult?.products?.nodes ?? [],
     promotions,
     heroSlides,
+    canonicalUrl,
   };
 }
 
@@ -619,7 +648,12 @@ function ProductSection({
         <div className="flex items-center justify-between border-b-2 border-border pb-3 mb-5">
           <div className="flex items-center gap-3">
             <span className="w-1 h-8 rounded-full bg-secondary shrink-0" />
-            <h2 className="text-[32px] font-bold text-[#111827] leading-tight tracking-tight">
+            <h2
+              className={cn(
+                headingText({size: 'h1'}),
+                'font-bold text-[#111827] tracking-tight',
+              )}
+            >
               {categoryLabel}
             </h2>
           </div>
@@ -649,7 +683,7 @@ function ProductSection({
 
         <div
           ref={scrollRef}
-          className="no-scrollbar flex gap-4 overflow-x-auto overflow-y-hidden cursor-grab select-none"
+          className="no-scrollbar flex gap-4 overflow-x-auto overflow-y-hidden snap-x snap-mandatory cursor-grab select-none scroll-px-4 lg:snap-none"
           style={
             {
               touchAction: 'pan-x',
@@ -667,7 +701,7 @@ function ProductSection({
             return (
               <div
                 key={product.id}
-                className="shrink-0 w-[calc(50%-8px)] sm:w-[calc(33.333%-11px)] lg:w-[calc(16.666%-14px)]"
+                className="snap-start shrink-0 w-[calc(50%-8px)] sm:w-[calc(33.333%-11px)] lg:w-[calc(16.666%-14px)]"
               >
                 <ProductCard
                   product={product}
@@ -766,12 +800,12 @@ function PromotionsCarousel({promotions}: {promotions: PromoSlide[]}) {
   }
 
   const slideBase =
-    'min-w-[50%] shrink-0 rounded-xl h-[260px] p-8 lg:p-12 flex items-center gap-10 lg:gap-16';
+    'snap-start min-w-[88%] sm:min-w-[70%] lg:min-w-[50%] shrink-0 rounded-xl h-auto sm:h-[260px] p-5 sm:p-8 lg:p-12 flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-10 lg:gap-16';
 
   return (
     <div
       ref={scrollRef}
-      className="no-scrollbar flex gap-4 overflow-x-auto overflow-y-hidden cursor-grab select-none"
+      className="no-scrollbar flex gap-4 overflow-x-auto overflow-y-hidden snap-x snap-mandatory cursor-grab select-none scroll-px-4"
       style={
         {
           touchAction: 'pan-x',
@@ -792,25 +826,30 @@ function PromotionsCarousel({promotions}: {promotions: PromoSlide[]}) {
                   {promo.badge}
                 </p>
               )}
-              <p className="text-[80px] font-black leading-none text-white mt-1">
+              <p className="text-[56px] sm:text-[64px] lg:text-[80px] font-black leading-none text-white mt-1">
                 {promo.heading}
               </p>
               {promo.subheading && (
-                <p className="text-[38px] font-bold leading-none text-white -mt-3">
+                <p className="text-[28px] sm:text-[32px] lg:text-[38px] font-bold leading-none text-white -mt-3">
                   {promo.subheading}
                 </p>
               )}
             </div>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 w-full sm:w-auto">
               {promo.description && (
-                <p className="text-[20px] font-semibold text-white/95 leading-snug max-w-[340px]">
+                <p
+                  className={cn(
+                    headingText({size: 'h3'}),
+                    'font-semibold text-white/95 max-w-[340px]',
+                  )}
+                >
                   {promo.description}
                 </p>
               )}
               {promo.ctaLabel && promo.ctaUrl && (
                 <Link
                   to={promo.ctaUrl}
-                  className={`inline-flex items-center bg-white rounded-[100px] px-6 h-10 text-[14px] font-semibold hover:bg-white/90 transition-colors w-fit ${colors.cta}`}
+                  className={`inline-flex items-center justify-center bg-white rounded-[100px] px-6 h-11 text-[14px] font-semibold hover:bg-white/90 transition-colors w-full sm:w-fit ${colors.cta}`}
                 >
                   {promo.ctaLabel}
                 </Link>
@@ -866,7 +905,7 @@ export default function Homepage() {
       {/* ================================================================ */}
       {/* PRODUCTS CONTAINER — Figma node 218:476 (1440×1778px)           */}
       {/* ================================================================ */}
-      <div className="flex flex-col items-start w-full gap-12 py-10">
+      <div className="flex flex-col items-start w-full gap-8 sm:gap-10 lg:gap-12 py-8 sm:py-10 lg:py-14">
         {/* What's New — products created in the last 30 days */}
         {whatsNew.length > 0 && (
           <ProductSection
@@ -906,7 +945,12 @@ export default function Homepage() {
               <div className="flex items-center justify-between border-b-2 border-border pb-3 mb-5">
                 <div className="flex items-center gap-3">
                   <span className="w-1 h-8 rounded-full bg-secondary shrink-0" />
-                  <h2 className="text-[32px] font-bold text-[#111827] leading-tight tracking-tight">
+                  <h2
+                    className={cn(
+                      headingText({size: 'h1'}),
+                      'font-bold text-[#111827] tracking-tight',
+                    )}
+                  >
                     {t('home.promotionsDeals')}
                   </h2>
                 </div>

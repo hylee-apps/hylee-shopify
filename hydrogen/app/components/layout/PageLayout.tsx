@@ -67,7 +67,9 @@ export function PageLayout({children}: PageLayoutProps) {
     cart,
     categories,
     seasonalItems,
+    discountItems,
     currentLanguage,
+    globalCms,
   } = data;
 
   return (
@@ -80,7 +82,12 @@ export function PageLayout({children}: PageLayoutProps) {
         variant={headerVariant}
         categories={categories}
         seasonalItems={seasonalItems ?? []}
+        discountItems={discountItems ?? []}
         currentLanguage={currentLanguage ?? 'EN'}
+        promoTierEnabled={globalCms?.promoTierEnabled ?? false}
+        socialFacebook={globalCms?.socialFacebook ?? null}
+        socialInstagram={globalCms?.socialInstagram ?? null}
+        socialPinterest={globalCms?.socialPinterest ?? null}
       />
 
       <main className="flex-1">{children ?? <Outlet />}</main>
@@ -91,6 +98,9 @@ export function PageLayout({children}: PageLayoutProps) {
             <Footer
               menu={resolvedFooter?.menu}
               shopName={header?.shop?.name ?? 'Hy-lee'}
+              socialFacebook={globalCms?.socialFacebook ?? null}
+              socialInstagram={globalCms?.socialInstagram ?? null}
+              socialPinterest={globalCms?.socialPinterest ?? null}
             />
           )}
         </Await>

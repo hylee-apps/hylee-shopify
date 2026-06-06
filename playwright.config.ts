@@ -27,8 +27,7 @@ export default defineConfig({
 
   // Shared settings for all projects
   use: {
-    // Base URL for navigation - update to your theme preview URL
-    baseURL: process.env.SHOPIFY_PREVIEW_URL || 'http://127.0.0.1:9292',
+    baseURL: process.env.HYDROGEN_URL || 'http://localhost:3000',
 
     // Collect trace when retrying failed test
     trace: 'on-first-retry',

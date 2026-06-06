@@ -10,8 +10,10 @@ import {
 } from 'react-router';
 import type {RootLoader} from '~/root';
 import {Image, getSeoMeta} from '@shopify/hydrogen';
-import {ProductGallery, VariantSelector} from '~/components';
+import {ProductGallery, StickyMobileCTA, VariantSelector} from '~/components';
 import {AddToCart, PriceDisplay, QuantitySelector} from '~/components/commerce';
+import {headingText} from '~/lib/responsive-text';
+import {cn} from '~/lib/utils';
 import {
   formatPriceParts,
   type MoneyLike,
@@ -366,6 +368,8 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
     // No reviews yet or Admin API unavailable — show empty list
   }
 
+  const canonicalUrl = `${url.origin}/products/${encodeURIComponent(handle)}`;
+
   return {
     product,
     selectedVariant,
@@ -373,6 +377,7 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
     collectionHandle,
     isLoggedIn,
     storedReviews,
+    canonicalUrl,
   };
 }
 
@@ -384,12 +389,18 @@ export function meta({data}: Route.MetaArgs) {
   if (!data?.product) {
     return [{title: 'Product Not Found'}];
   }
-  const {product, selectedVariant} = data;
-  return getSeoMeta({
-    title: product.seo?.title ?? product.title,
-    description: product.seo?.description ?? product.description,
-    media: selectedVariant?.image ?? product.featuredImage,
-  });
+  const {product, selectedVariant, canonicalUrl} = data;
+  const canonical = canonicalUrl
+    ? [{tagName: 'link', rel: 'canonical', href: canonicalUrl}]
+    : [];
+  return [
+    ...(getSeoMeta({
+      title: product.seo?.title ?? product.title,
+      description: product.seo?.description ?? product.description,
+      media: selectedVariant?.image ?? product.featuredImage,
+    }) ?? []),
+    ...canonical,
+  ];
 }
 
 // ============================================================================
@@ -476,6 +487,7 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
 
   const isOutOfStock = !selectedVariant?.availableForSale;
   const [quantity, setQuantity] = useState(1);
+  const inPageCtaRef = useRef<HTMLDivElement>(null);
   const [searchParams] = useSearchParams();
   const writeReviewParam = searchParams.get('write_review') === '1';
   const [openDetailsItems, setOpenDetailsItems] = useState<string[]>(
@@ -513,15 +525,50 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
     (opt: {name: string}) => opt.name.toLowerCase() !== 'title',
   );
 
+  const {canonicalUrl} = loaderData;
+  const origin = canonicalUrl ? new URL(canonicalUrl).origin : '';
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: `${origin}/`,
+      },
+      ...breadcrumbNodes.map((crumb, i) => ({
+        '@type': 'ListItem',
+        position: i + 2,
+        name: crumb.title,
+        item: crumb.url.startsWith('http')
+          ? crumb.url
+          : `${origin}${crumb.url}`,
+      })),
+      {
+        '@type': 'ListItem',
+        position: breadcrumbNodes.length + 2,
+        name: product.title,
+        item: canonicalUrl ?? `${origin}/products/${product.handle}`,
+      },
+    ],
+  };
+
   return (
     <>
+      {canonicalUrl && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{__html: JSON.stringify(breadcrumbSchema)}}
+        />
+      )}
       {/* Product title omitted — breadcrumb ends at the parent collection */}
       <PageBreadcrumbs crumbs={breadcrumbNodes} />
-      <div className="mx-auto max-w-screen-2xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-screen-2xl px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:pb-6">
         {/* ── 3-Column Grid ── */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-[10px]">
           {/* Col 1: Image Gallery (vertical thumbnails) */}
-          <div>
+          <div className="order-1">
             <ProductGallery
               images={images}
               selectedVariant={selectedVariant}
@@ -530,9 +577,14 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
             />
           </div>
 
-          {/* Col 2: Product Info + Accordion */}
-          <div className="flex flex-col gap-[9px]">
-            <h1 className="text-[21px] font-semibold leading-normal text-black">
+          {/* Col 2 (desktop) / Col 3 (mobile): Product Info + Accordion */}
+          <div className="order-3 flex flex-col gap-[9px] md:order-2">
+            <h1
+              className={cn(
+                headingText({size: 'h2'}),
+                'font-semibold leading-normal text-black',
+              )}
+            >
               {product.title}
             </h1>
 
@@ -622,8 +674,8 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
             </Accordion>
           </div>
 
-          {/* Col 3: Purchase Controls */}
-          <div className="flex flex-col gap-0 overflow-hidden py-0.5">
+          {/* Col 3 (desktop) / Col 2 (mobile): Purchase Controls */}
+          <div className="order-2 flex flex-col gap-0 overflow-hidden py-0.5 md:order-3">
             {/* Price */}
             <div className="flex items-baseline gap-3">
               {selectedVariant && (
@@ -661,7 +713,7 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
 
             {/* Quantity + Add to Cart */}
             {selectedVariant && (
-              <div className="flex items-center gap-[10px]">
+              <div ref={inPageCtaRef} className="flex items-center gap-[10px]">
                 <QuantitySelector
                   quantity={quantity}
                   onChange={setQuantity}
@@ -795,6 +847,25 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
           </Suspense>
         </section>
       </div>
+
+      {/* Mobile-only sticky Add-to-Cart bar — shows once the in-page CTA
+          scrolls out of view. Hidden on lg+ via StickyBottomBar. */}
+      {selectedVariant && (
+        <StickyMobileCTA
+          variantId={selectedVariant.id}
+          quantity={quantity}
+          available={!isOutOfStock}
+          inPageCtaRef={inPageCtaRef}
+          productTitle={product.title}
+          priceNode={
+            <PdpPrice
+              money={selectedVariant.price}
+              className="text-base font-semibold"
+              supClassName="text-[10px]"
+            />
+          }
+        />
+      )}
     </>
   );
 }

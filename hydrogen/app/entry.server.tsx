@@ -22,7 +22,6 @@ export default async function handleRequest(
     },
     scriptSrc: [
       "'self'",
-      "'strict-dynamic'",
       'https://cdn.shopify.com',
       'https://www.googletagmanager.com',
       'https://www.google-analytics.com',
@@ -36,10 +35,35 @@ export default async function handleRequest(
     fontSrc: ["'self'", 'https://fonts.gstatic.com', 'https://cdn.shopify.com'],
     connectSrc: [
       "'self'",
+      'https://www.googletagmanager.com',
       'https://www.google-analytics.com',
       'https://region1.google-analytics.com',
       'https://fonts.googleapis.com',
       'https://fonts.gstatic.com',
+      'https://cdn.shopify.com',
+      'https://*.myshopify.com',
+      'https://*.shopify.com',
+      'https://*.shopifysvc.com',
+      'https://error-analytics-sessions-production.shopifysvc.com',
+      'https://otlp-http-production.shopifysvc.com',
+      'wss://*.shopify.com',
+      'wss://www.googletagmanager.com',
+      'https://messaging-api.shopifyapps.com',
+    ],
+    frameSrc: [
+      "'self'",
+      'https://www.googletagmanager.com',
+      'https://cdn.shopify.com',
+      'https://*.shopify.com',
+      'https://*.shopifyapps.com',
+    ],
+    imgSrc: [
+      "'self'",
+      'data:',
+      'https://www.googletagmanager.com',
+      'https://www.google-analytics.com',
+      'https://cdn.shopify.com',
+      'https://*.shopify.com',
     ],
   });
 

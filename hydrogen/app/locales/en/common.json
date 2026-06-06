@@ -9,10 +9,12 @@
     "account": "Account",
     "myAccount": "My Account",
     "myOrders": "My Orders",
+    "trackOrders": "Track Orders",
     "signIn": "Sign In",
     "register": "Register",
     "signOut": "Sign Out",
-    "categoryTitles": {}
+    "categoryTitles": {},
+    "allCategories": "All Categories"
   },
   "header": {
     "openMenu": "Open menu",
@@ -767,6 +769,42 @@
     "discounts": "Discounts",
     "promotionsDeals": "Promotions & Deals",
     "newBadge": "New"
+  },
+  "allCategories": {
+    "title": "All Product Categories",
+    "sectionLabel": "Categories beginning with {{letter}}"
+  },
+  "miniCart": {
+    "title": "Your Cart ({{count}})",
+    "empty": "Your cart is empty",
+    "continueShopping": "Continue Shopping",
+    "qty": "Qty: {{count}}",
+    "subtotal": "Subtotal",
+    "viewCart": "View Cart",
+    "checkout": "Checkout",
+    "close": "Close cart"
+  },
+  "announcementBanner": {
+    "firstOrder": {
+      "message": "First-time shopper? Get 8% off your order.",
+      "cta": "Claim your discount"
+    },
+    "newsletter": {
+      "message": "Sign up for our newsletter and save 10% on your next purchase.",
+      "cta": "Sign up"
+    },
+    "accountCreation": {
+      "message": "Create an account and unlock 15% off your first order.",
+      "cta": "Register"
+    },
+    "referral": {
+      "message": "Refer a friend and earn 20% off — recurring for every referral.",
+      "cta": "Refer a friend"
+    },
+    "prev": "Previous offer",
+    "next": "Next offer",
+    "goToSlide": "Go to offer {{n}}",
+    "dismiss": "Dismiss announcement bar"
   },
   "quantity": {
     "decrease": "Decrease quantity",

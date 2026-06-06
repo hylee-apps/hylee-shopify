@@ -20,10 +20,13 @@ import {isCustomerLoggedIn} from '~/lib/customer-auth';
 // ============================================================================
 
 export function meta(_: Route.MetaArgs) {
-  return getSeoMeta({
-    title: 'Order Confirmed — Hy-lee',
-    description: 'Thank you for your order!',
-  });
+  return [
+    ...(getSeoMeta({
+      title: 'Order Confirmed — Hy-lee',
+      description: 'Thank you for your order!',
+    }) ?? []),
+    {name: 'robots', content: 'noindex, nofollow'},
+  ];
 }
 
 // ============================================================================
@@ -348,7 +351,7 @@ export default function CheckoutConfirmationPage() {
       </div>
 
       {/* Order details */}
-      <div className="mx-auto max-w-[800px] px-6 py-8">
+      <div className="mx-auto max-w-[800px] px-4 py-8 sm:px-6">
         <OrderDetailsCard cart={cart} />
 
         {/* Account creation CTA — only for guests */}

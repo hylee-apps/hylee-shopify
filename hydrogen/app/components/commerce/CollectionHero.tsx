@@ -34,54 +34,32 @@ export function CollectionHero({title, image, className}: CollectionHeroProps) {
     <section
       className={`max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 ${className ?? ''}`}
     >
-      {/* ------------------------------------------------------------------ */}
-      {/* Desktop — image left + title vertically centered right              */}
-      {/* ------------------------------------------------------------------ */}
-      <div className="hidden lg:flex items-center gap-10">
-        {/* Hero Image — larger, rounded, subtle shadow */}
-        <div className="shrink-0 w-[400px] h-[280px] rounded-[12px] overflow-hidden shadow-md bg-[#f3f4f6]">
-          {image ? (
-            <Image
-              data={image}
-              aspectRatio="400/280"
-              sizes="400px"
-              className="w-full h-full object-cover"
-              loading="eager"
-              alt={image.altText ?? t('collectionHero.imageAlt', {title})}
-            />
-          ) : (
-            <div className="w-full h-full bg-[#f3f4f6]" />
-          )}
-        </div>
-
-        {/* Title only — vertically centered by parent items-center */}
-        <h1
-          id="collection-title"
-          className="font-bold text-[42px] leading-tight text-[#111827]"
-        >
-          {title}
-        </h1>
-      </div>
-
-      {/* ------------------------------------------------------------------ */}
-      {/* Mobile — image stacked above title                                  */}
-      {/* ------------------------------------------------------------------ */}
-      <div className="lg:hidden flex flex-col gap-4">
-        <div className="w-full h-48 rounded-[12px] overflow-hidden shadow-md bg-[#f3f4f6]">
+      {/*
+        Single responsive layout — flex-col on mobile, flex-row on desktop.
+        One <h1> in the DOM at all breakpoints, satisfying the one-h1-per-page rule.
+      */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-10">
+        {/* Hero image */}
+        <div className="w-full h-48 shrink-0 rounded-[12px] overflow-hidden shadow-md bg-gray-100 lg:w-[400px] lg:h-[280px]">
           {image ? (
             <Image
               data={image}
               aspectRatio="16/9"
-              sizes="100vw"
+              sizes="(min-width: 1024px) 400px, 100vw"
               className="w-full h-full object-cover"
               loading="eager"
               alt={image.altText ?? t('collectionHero.imageAlt', {title})}
             />
           ) : (
-            <div className="w-full h-full bg-[#f3f4f6]" />
+            <div className="w-full h-full bg-gray-100" />
           )}
         </div>
-        <h1 className="font-bold text-[28px] leading-tight text-[#111827]">
+
+        {/* Single H1 — responsive size, one DOM node */}
+        <h1
+          id="collection-title"
+          className="font-bold text-[28px] leading-tight text-text lg:text-[42px]"
+        >
           {title}
         </h1>
       </div>

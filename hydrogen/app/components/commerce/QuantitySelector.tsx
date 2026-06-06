@@ -74,8 +74,8 @@ export function QuantitySelector({
       icon: 14,
     },
     md: {
-      container: 'h-10',
-      button: 'w-10 h-10',
+      container: 'h-11',
+      button: 'w-11 h-11',
       input: 'w-12 text-base',
       icon: 16,
     },

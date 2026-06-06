@@ -24,16 +24,24 @@ import { I18nextProvider } from 'react-i18next';
 import { resources, i18nConfig } from '~/i18n';
 import { PageLayout } from '~/components/layout';
 import appStyles from '~/styles/app.css?url';
-import { categoryNavConfig } from '~/config/navigation';
-import { prioritizeCategories } from '~/lib/navigation';
-import { readWishlistIds, type AdminEnv } from '~/lib/wishlist';
-import { isCustomerLoggedIn, getCustomerAccessToken } from '~/lib/customer-auth';
-import { getAnalyticsConfig } from '~/config/analytics.server';
-import { GtmConsentDefaults } from '~/components/analytics/GtmConsentDefaults';
-import { GtmScript } from '~/components/analytics/GtmScript';
-import { GtmNoScript } from '~/components/analytics/GtmNoScript';
-import { usePageViewTracking } from '~/hooks/usePageViewTracking';
-import { useAnalyticsContext } from '~/hooks/useAnalyticsContext';
+import {categoryNavConfig} from '~/config/navigation';
+import {prioritizeCategories} from '~/lib/navigation';
+import {readWishlistIds, type AdminEnv} from '~/lib/wishlist';
+import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
+import {getAnalyticsConfig} from '~/config/analytics.server';
+import {GtmConsentDefaults} from '~/components/analytics/GtmConsentDefaults';
+import {GtmScript} from '~/components/analytics/GtmScript';
+import {GtmNoScript} from '~/components/analytics/GtmNoScript';
+import {usePageViewTracking} from '~/hooks/usePageViewTracking';
+import {useAnalyticsContext} from '~/hooks/useAnalyticsContext';
+import {GLOBAL_CMS_QUERY, parseGlobalCms} from '~/lib/cms';
+import {
+  adminApi,
+  getInboxScriptUrl,
+  getMainThemeId,
+  buildInboxWidgetConfig,
+  type InboxWidgetConfig,
+} from '~/lib/admin-api';
 
 export type RootLoader = typeof loader;
 
@@ -86,6 +94,7 @@ export async function loader(args: Route.LoaderArgs) {
     ...criticalData,
     analytics: analyticsConfig.enabled ? analyticsConfig : null,
     publicStoreDomain: env.PUBLIC_STORE_DOMAIN,
+    storeCountry: args.context.storefront.i18n.country,
     shop: getShopAnalytics({
       storefront,
       publicStorefrontId: env.PUBLIC_STOREFRONT_ID,
@@ -100,15 +109,132 @@ export async function loader(args: Route.LoaderArgs) {
   };
 }
 
-async function loadCriticalData({ context, request }: Route.LoaderArgs) {
-  const { storefront } = context;
+// ─── Banner Discounts ─────────────────────────────────────────────────────────
+
+export interface BannerDiscount {
+  id: string;
+  code: string;
+  title: string;
+}
+
+const BANNER_DISCOUNTS_QUERY = `
+  query BannerDiscounts {
+    codeDiscountNodes(first: 30) {
+      nodes {
+        id
+        codeDiscount {
+          __typename
+          ... on DiscountCodeBasic {
+            status
+            codes(first: 1) { nodes { code } }
+            customerGets {
+              value {
+                __typename
+                ... on DiscountPercentage { percentage }
+                ... on DiscountAmount { amount { amount currencyCode } }
+              }
+              items {
+                __typename
+                ... on AllDiscountItems { allItems }
+                ... on DiscountCollections {
+                  collections(first: 1) { nodes { title } }
+                }
+                ... on DiscountProducts {
+                  products(first: 1) { nodes { title } }
+                }
+              }
+            }
+          }
+          ... on DiscountCodeBxgy {
+            title
+            status
+            codes(first: 1) { nodes { code } }
+          }
+          ... on DiscountCodeFreeShipping {
+            status
+            codes(first: 1) { nodes { code } }
+          }
+        }
+      }
+    }
+  }
+`;
+
+function describeDiscount(d: any): string {
+  const type = d.__typename;
+
+  if (type === 'DiscountCodeFreeShipping') return 'Free shipping on your order';
+
+  if (type === 'DiscountCodeBxgy') {
+    return d.title || 'Buy & get offer';
+  }
+
+  if (type === 'DiscountCodeBasic') {
+    const val = d.customerGets?.value;
+    const items = d.customerGets?.items;
+
+    // Build value string
+    let valueStr = '';
+    if (val?.__typename === 'DiscountPercentage') {
+      const pct = Math.round((val.percentage ?? 0) * 100);
+      valueStr = `${pct}% off`;
+    } else if (val?.__typename === 'DiscountAmount') {
+      const amt = parseFloat(val.amount?.amount ?? '0');
+      const currency = val.amount?.currencyCode ?? 'USD';
+      valueStr = `${new Intl.NumberFormat('en-US', {style: 'currency', currency}).format(amt)} off`;
+    }
+
+    // Build scope string
+    let scopeStr = '';
+    const itemType = items?.__typename;
+    if (itemType === 'AllDiscountItems') {
+      scopeStr = 'everything';
+    } else if (itemType === 'DiscountCollections') {
+      const collTitle = items.collections?.nodes?.[0]?.title;
+      scopeStr = collTitle ?? 'select collections';
+    } else if (itemType === 'DiscountProducts') {
+      const prodTitle = items.products?.nodes?.[0]?.title;
+      scopeStr = prodTitle ?? 'select products';
+    }
+
+    return (
+      [valueStr, scopeStr].filter(Boolean).join(' on ') || 'Special discount'
+    );
+  }
+
+  return 'Special discount';
+}
+
+function parseBannerDiscounts(data: any): BannerDiscount[] {
+  const nodes: any[] = data?.codeDiscountNodes?.nodes ?? [];
+  return nodes
+    .filter((n) => n.codeDiscount?.status === 'ACTIVE')
+    .map((n) => {
+      const code = (n.codeDiscount.codes?.nodes?.[0]?.code as string) ?? '';
+      const description = describeDiscount(n.codeDiscount);
+      return {id: n.id as string, code, title: description};
+    })
+    .filter((d) => d.code);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function loadCriticalData({context, request}: Route.LoaderArgs) {
+  const {storefront} = context;
 
   const cookie = request.headers.get('Cookie') ?? '';
   const langMatch = /(?:^|;\s*)language=([^;]+)/.exec(cookie);
   const lang = langMatch?.[1]?.toUpperCase() ?? '';
   const currentLanguage = ['EN', 'ES', 'FR'].includes(lang) ? lang : 'EN';
 
-  const [header, collectionsResult, seasonalNavResult] = await Promise.all([
+  const [
+    header,
+    collectionsResult,
+    seasonalNavResult,
+    discountsNavResult,
+    globalCmsData,
+    bannerDiscountsData,
+  ] = await Promise.all([
     storefront.query(HEADER_QUERY, {
       cache: storefront.CacheLong(),
       variables: {
@@ -133,6 +259,24 @@ async function loadCriticalData({ context, request }: Route.LoaderArgs) {
         },
       })
       .catch(() => null),
+    storefront
+      .query(DISCOUNTS_NAV_QUERY, {
+        cache: storefront.CacheLong(),
+        variables: {
+          language: currentLanguage as LanguageCode,
+          country: storefront.i18n.country,
+        },
+      })
+      .catch(() => null),
+    storefront
+      .query(GLOBAL_CMS_QUERY, {cache: storefront.CacheShort()})
+      .catch(() => null),
+    adminApi(context.env as unknown as AdminEnv, BANNER_DISCOUNTS_QUERY).catch(
+      (err) => {
+        console.error('[BannerDiscounts] Admin API error:', err);
+        return null;
+      },
+    ),
   ]);
 
   const rawCategories =
@@ -185,6 +329,38 @@ async function loadCriticalData({ context, request }: Route.LoaderArgs) {
     .slice(0, 5)
     .map(({ priority: _p, ...item }) => item);
 
+  const rawDiscountItems: Array<{
+    id: string;
+    title: string;
+    handle: string;
+    priority: number | null;
+  }> =
+    (
+      discountsNavResult?.collection?.childCollections?.references?.nodes ?? []
+    ).map(
+      (c: {
+        id: string;
+        title: string;
+        handle: string;
+        menuPriority?: {value: string} | null;
+      }) => ({
+        id: c.id,
+        title: c.title,
+        handle: c.handle,
+        priority: c.menuPriority ? parseInt(c.menuPriority.value, 10) : null,
+      }),
+    ) ?? [];
+
+  const discountItems = rawDiscountItems
+    .sort((a, b) => {
+      if (a.priority !== null && b.priority !== null)
+        return a.priority - b.priority;
+      if (a.priority !== null) return -1;
+      if (b.priority !== null) return 1;
+      return a.title.localeCompare(b.title);
+    })
+    .map(({priority: _p, ...item}) => item);
+
   const locale = currentLanguage.toLowerCase() as 'en' | 'es' | 'fr';
 
   let wishlistIds: string[] = [];
@@ -211,13 +387,42 @@ async function loadCriticalData({ context, request }: Route.LoaderArgs) {
     }
   }
 
+  const adminEnv = context.env as unknown as AdminEnv;
+  const globalCms = parseGlobalCms(globalCmsData, adminEnv);
+  const bannerDiscounts = parseBannerDiscounts(bannerDiscountsData);
+  if (globalCms.promoTierEnabled && !bannerDiscounts.length) {
+    console.warn(
+      '[AnnouncementBanner] promoTierEnabled=true but no active discounts returned.',
+      'Raw response:',
+      JSON.stringify(bannerDiscountsData)?.slice(0, 300),
+    );
+  }
+  const [inboxScriptUrl, shopifyThemeId] = await Promise.all([
+    getInboxScriptUrl(adminEnv, globalCms.shopifyInboxWidgetScriptUrl),
+    getMainThemeId(adminEnv),
+  ]);
+
+  const inboxConfig = inboxScriptUrl
+    ? buildInboxWidgetConfig(
+        inboxScriptUrl,
+        context.env.PUBLIC_STORE_DOMAIN,
+        globalCms.shopifyInboxShopId,
+      )
+    : null;
+
   return {
     header,
     categories,
     seasonalItems,
+    discountItems,
     currentLanguage,
     locale,
     wishlistIds,
+    globalCms,
+    bannerDiscounts,
+    inboxConfig,
+    shopifyThemeId,
+    storeCurrency: header?.shop?.paymentSettings?.currencyCode ?? 'USD',
   };
 }
 
@@ -250,12 +455,36 @@ export function Layout({ children }: { children?: React.ReactNode }) {
   const data = useRouteLoaderData<RootLoader>('root');
   const locale = (data?.locale ?? 'en') as string;
   const analytics = data?.analytics;
+  const shopDomain = data?.publicStoreDomain;
+  const inboxConfig = data?.inboxConfig ?? null;
+  const storeCurrency = data?.storeCurrency ?? 'USD';
+  const storeCountry = data?.storeCountry ?? 'US';
+  const shopifyThemeId = data?.shopifyThemeId ?? 0;
+  const gtmContainerId = data?.globalCms?.gtmContainerId || null;
 
   return (
     <html lang={locale} data-locale={locale}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
+        {/* Google Tag Manager — container ID from custom.google_tag_manager_id Shop metafield */}
+        {gtmContainerId && (
+          <>
+            <script
+              nonce={nonce}
+              suppressHydrationWarning
+              dangerouslySetInnerHTML={{
+                __html: `window.dataLayer=window.dataLayer||[];window.dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});`,
+              }}
+            />
+            <script
+              nonce={nonce}
+              async
+              suppressHydrationWarning
+              src={`https://www.googletagmanager.com/gtm.js?id=${gtmContainerId}`}
+            />
+          </>
+        )}
         <link rel="stylesheet" href={appStyles} />
         <Meta />
         <Links />
@@ -284,6 +513,53 @@ export function Layout({ children }: { children?: React.ReactNode }) {
         )}
         {children}
         <ScrollRestoration nonce={nonce} />
+        {inboxConfig ? (
+          <>
+            <script
+              nonce={nonce}
+              id="shopify-features"
+              type="application/json"
+              suppressHydrationWarning
+              dangerouslySetInnerHTML={{
+                __html: '{"features":["shopify-chat"]}',
+              }}
+            />
+            <script
+              nonce={nonce}
+              suppressHydrationWarning
+              dangerouslySetInnerHTML={{
+                __html: [
+                  'window.Shopify = window.Shopify || {};',
+                  `window.Shopify.shop = ${JSON.stringify(shopDomain)};`,
+                  `window.Shopify.locale = ${JSON.stringify(locale)};`,
+                  `window.Shopify.currency = ${JSON.stringify(storeCurrency)};`,
+                  `window.Shopify.country = ${JSON.stringify(storeCountry)};`,
+                  // role:"main" + real theme id lets Inbox match the store's
+                  // Admin-configured settings (greeting, quick replies, etc.).
+                  `window.Shopify.theme = {handle:"hydrogen",id:${shopifyThemeId},role:"main",style:{id:null,handle:null}};`,
+                ].join(' '),
+              }}
+            />
+            <script
+              nonce={nonce}
+              type="module"
+              defer
+              async
+              suppressHydrationWarning
+              src={inboxConfig.scriptUrl}
+              data-button-color={inboxConfig.buttonColor}
+              data-secondary-color={inboxConfig.secondaryColor}
+              data-ternary-color={inboxConfig.ternaryColor}
+              data-icon={inboxConfig.icon}
+              data-text={inboxConfig.text}
+              data-position={inboxConfig.position}
+              data-vertical-position={inboxConfig.verticalPosition}
+              data-shop-id={inboxConfig.shopId}
+              data-shop={inboxConfig.shopDomain}
+              data-shop-domain={inboxConfig.shopDomain}
+            />
+          </>
+        ) : null}
         <Scripts nonce={nonce} />
       </body>
     </html>
@@ -342,23 +618,117 @@ export default function App() {
 
 export function ErrorBoundary() {
   const error = useRouteError();
-  let errorMessage = 'Unknown error';
   let errorStatus = 500;
 
   if (isRouteErrorResponse(error)) {
-    errorMessage = error?.data?.message ?? error.data;
     errorStatus = error.status;
-  } else if (error instanceof Error) {
-    errorMessage = error.message;
   }
 
+  const is404 = errorStatus === 404;
+
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-5xl font-bold text-dark">{errorStatus}</h1>
-        <p className="mt-4 text-lg text-text-muted">{errorMessage}</p>
-      </div>
-    </div>
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        {is404 && <meta name="robots" content="noindex, nofollow" />}
+        <title>
+          {is404 ? 'Page Not Found | Hy-lee' : 'Something went wrong | Hy-lee'}
+        </title>
+        <Links />
+      </head>
+      <body>
+        <div className="flex min-h-screen flex-col items-center justify-center gap-8 px-4 text-center">
+          {is404 ? (
+            <>
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-widest text-primary">
+                  404
+                </p>
+                <h1 className="mt-2 text-4xl font-bold text-dark sm:text-5xl">
+                  Page not found
+                </h1>
+                <p className="mt-4 text-lg text-text-muted">
+                  The page you&apos;re looking for doesn&apos;t exist or has
+                  been moved.
+                </p>
+              </div>
+
+              <form
+                action="/search"
+                method="get"
+                className="flex w-full max-w-md gap-2"
+              >
+                <input
+                  type="search"
+                  name="q"
+                  placeholder="Search products…"
+                  className="flex-1 rounded-xl border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  aria-label="Search products"
+                />
+                <button
+                  type="submit"
+                  className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary/90"
+                >
+                  Search
+                </button>
+              </form>
+
+              <nav
+                aria-label="Return to site"
+                className="flex flex-wrap justify-center gap-3"
+              >
+                <a
+                  href="/"
+                  className="rounded-xl border border-border px-4 py-2 text-sm font-medium hover:bg-accent"
+                >
+                  Home
+                </a>
+                <a
+                  href="/collections"
+                  className="rounded-xl border border-border px-4 py-2 text-sm font-medium hover:bg-accent"
+                >
+                  All Collections
+                </a>
+                <a
+                  href="/collections/new-arrivals"
+                  className="rounded-xl border border-border px-4 py-2 text-sm font-medium hover:bg-accent"
+                >
+                  New Arrivals
+                </a>
+                <a
+                  href="/faq"
+                  className="rounded-xl border border-border px-4 py-2 text-sm font-medium hover:bg-accent"
+                >
+                  FAQ
+                </a>
+              </nav>
+            </>
+          ) : (
+            <>
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-widest text-destructive">
+                  {errorStatus}
+                </p>
+                <h1 className="mt-2 text-4xl font-bold text-dark sm:text-5xl">
+                  Something went wrong
+                </h1>
+                <p className="mt-4 text-lg text-text-muted">
+                  An unexpected error occurred. Please try again later.
+                </p>
+              </div>
+              <a
+                href="/"
+                className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary/90"
+              >
+                Return to home
+              </a>
+            </>
+          )}
+        </div>
+        <Scripts />
+      </body>
+    </html>
   );
 }
 
@@ -417,6 +787,9 @@ const HEADER_QUERY = `#graphql
         }
       }
     }
+    paymentSettings {
+      currencyCode
+    }
   }
   query Header(
     $country: CountryCode
@@ -459,6 +832,30 @@ const SEASONAL_NAV_QUERY = `#graphql
     collection(handle: "seasonal") {
       childCollections: metafield(namespace: "custom", key: "child_nodes") {
         references(first: 10) {
+          nodes {
+            ... on Collection {
+              id
+              title
+              handle
+              menuPriority: metafield(namespace: "custom", key: "menu_priority_order") {
+                value
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+` as const;
+
+const DISCOUNTS_NAV_QUERY = `#graphql
+  query DiscountsNavItems(
+    $country: CountryCode
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
+    collection(handle: "discounts-menu") {
+      childCollections: metafield(namespace: "custom", key: "child_nodes") {
+        references(first: 20) {
           nodes {
             ... on Collection {
               id

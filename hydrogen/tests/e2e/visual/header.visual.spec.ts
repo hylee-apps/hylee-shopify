@@ -1,6 +1,10 @@
 import {test, expect} from '@playwright/test';
 import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 
+// hydrogen/package.json is "type": "module", so __dirname is undefined at
+// runtime. Derive it from import.meta.url instead.
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SCREENSHOTS_DIR = path.join(__dirname, 'screenshots');
 
 /**

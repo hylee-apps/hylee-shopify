@@ -44,6 +44,7 @@ export function SelectedItemsPreview({
                 src={item.image.url}
                 alt={item.image.altText ?? item.title}
                 className="size-[50px] rounded-[8px] object-cover"
+                loading="eager"
               />
             ) : (
               <Package size={20} className="text-[#9ca3af]" />

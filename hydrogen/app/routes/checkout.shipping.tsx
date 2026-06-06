@@ -14,6 +14,8 @@ import {cn} from '~/lib/utils';
 import {CheckoutProgress} from '~/components/checkout/CheckoutProgress';
 import {OrderSummary} from '~/components/checkout/OrderSummary';
 import {ShippingCategorySelector} from '~/components/checkout/ShippingCategorySelector';
+import {MobileSummaryDrawer} from '~/components/commerce/MobileSummaryDrawer';
+import {ArrowRight} from 'lucide-react';
 import {
   SHIPPING_METHODS,
   CHECKOUT_ATTR,
@@ -22,6 +24,7 @@ import {
   buildCartAttributes,
   getCheckoutAttributes,
   validateShippingAddress,
+  formatMoney,
   type ShippingAddress,
   type ValidationErrors,
 } from '~/lib/checkout';
@@ -38,10 +41,13 @@ import type {Route} from './+types/checkout.shipping';
 // ============================================================================
 
 export function meta(_: Route.MetaArgs) {
-  return getSeoMeta({
-    title: 'Shipping — Checkout',
-    description: 'Enter your shipping address and select a shipping method.',
-  });
+  return [
+    ...(getSeoMeta({
+      title: 'Shipping — Checkout',
+      description: 'Enter your shipping address and select a shipping method.',
+    }) ?? []),
+    {name: 'robots', content: 'noindex, nofollow'},
+  ];
 }
 
 // ============================================================================
@@ -561,15 +567,21 @@ export default function CheckoutShippingPage() {
   const formDefaults = actionData?.address ?? filledAddress ?? savedAddress;
   const shippingCost = SHIPPING_METHODS[0];
 
+  const t = useTranslation('common').t;
+  const total = (cart as any)?.cost?.totalAmount;
+
   return (
     <div className="min-h-screen bg-[#f9fafb]">
       <CheckoutProgress currentStep="shipping" />
 
-      <Form method="post" className="mx-auto max-w-[1443px] px-6 py-8">
+      <Form
+        method="post"
+        className="mx-auto max-w-[1443px] px-4 py-8 pb-24 sm:px-6 lg:pb-8"
+      >
         {/* Hidden field for shipping method — standard only */}
         <input type="hidden" name="shippingMethod" value="standard" />
 
-        <div className="grid grid-cols-[1fr_400px] items-start gap-8">
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[1fr_400px] lg:gap-8">
           {/* Left: Main content */}
           <div className="flex flex-col gap-6">
             <ShippingCategorySelector
@@ -593,12 +605,54 @@ export default function CheckoutShippingPage() {
             />
           </div>
 
-          {/* Right: Order Summary */}
-          <OrderSummaryWithTranslation
-            cart={cart as any}
-            shippingCost={shippingCost}
-          />
+          {/* Right: Order Summary — desktop sticky sidebar (hidden on <lg) */}
+          <div className="hidden lg:block">
+            <OrderSummaryWithTranslation
+              cart={cart as any}
+              shippingCost={shippingCost}
+            />
+          </div>
         </div>
+
+        {/* Mobile summary drawer + sticky bar with the step's submit CTA.
+            The sticky bar's button is `type="submit"` on the parent Form so
+            tapping Continue submits the same way as the desktop CTA. */}
+        <MobileSummaryDrawer
+          title={t('orderSummary.defaultTitle')}
+          stickyBar={({openSummary}) => (
+            <div className="flex items-stretch gap-3 px-4 py-3">
+              <button
+                type="button"
+                onClick={openSummary}
+                className="tap-target flex flex-1 flex-col items-start justify-center text-left"
+                aria-label={t('orderSummary.defaultTitle')}
+              >
+                <span className="text-xs uppercase tracking-wide text-text-muted">
+                  {t('orderSummary.defaultTotal')}
+                </span>
+                <span className="text-lg font-bold text-[#111827]">
+                  {total ? formatMoney(total) : '—'}
+                </span>
+              </button>
+              <button
+                type="submit"
+                className="tap-target inline-flex flex-1 items-center justify-center gap-2 rounded-[8px] bg-primary px-4 text-base font-semibold text-white transition-colors hover:bg-primary/90"
+              >
+                {t('checkout.shipping.continueToReview')}
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          )}
+        >
+          <OrderSummary
+            cart={cart as any}
+            showProductItems
+            shippingDisplay={
+              shippingCost ? `$${shippingCost.price.toFixed(2)}` : null
+            }
+            mode="drawer"
+          />
+        </MobileSummaryDrawer>
       </Form>
     </div>
   );

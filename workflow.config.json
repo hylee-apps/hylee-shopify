@@ -14,33 +14,21 @@
       "category": "features"
     },
     {
-      "name": "theme",
-      "description": "Theme configuration and settings",
-      "emoji": "🎨",
-      "category": "infrastructure"
-    },
-    {
       "name": "components",
-      "description": "CSS and JS component development",
+      "description": "React component development",
       "emoji": "🧩",
       "category": "features"
     },
     {
-      "name": "sections",
-      "description": "Shopify section templates",
-      "emoji": "📦",
-      "category": "features"
-    },
-    {
-      "name": "templates",
-      "description": "Liquid template files",
+      "name": "routes",
+      "description": "Remix route files",
       "emoji": "📄",
       "category": "features"
     },
     {
-      "name": "assets",
-      "description": "CSS, JS, and static asset files",
-      "emoji": "🎯",
+      "name": "styles",
+      "description": "CSS, Tailwind, and design tokens",
+      "emoji": "🎨",
       "category": "infrastructure"
     },
     {
@@ -80,6 +68,18 @@
       "category": "features"
     },
     {
+      "name": "hydrogen",
+      "description": "Hydrogen/Remix storefront app",
+      "emoji": "⚡",
+      "category": "infrastructure"
+    },
+    {
+      "name": "infra",
+      "description": "Infrastructure, CSP, deployment, environment",
+      "emoji": "🏗️",
+      "category": "infrastructure"
+    },
+    {
       "name": "testing",
       "description": "Tests, E2E specs, and QA",
       "emoji": "🧪",
@@ -99,21 +99,9 @@
     },
     {
       "name": "locales",
-      "description": "Translations and locale files",
+      "description": "Translations and i18n files",
       "emoji": "🌐",
       "category": "features"
-    },
-    {
-      "name": "snippets",
-      "description": "Liquid snippets and partials",
-      "emoji": "✂️",
-      "category": "features"
-    },
-    {
-      "name": "hydrogen",
-      "description": "Hydrogen/Remix storefront app",
-      "emoji": "⚡",
-      "category": "infrastructure"
     }
   ],
   "enforcement": "strict",

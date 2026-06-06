@@ -248,9 +248,9 @@ export function OrderCard({order}: OrderCardProps) {
   return (
     <div className="w-full overflow-clip rounded-[12px] bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
       {/* Card Header */}
-      <div className="flex flex-wrap justify-between gap-y-[12px] border-b border-[#e5e7eb] bg-gradient-to-r from-[#f9fafb] to-white px-[24px] pb-[17px] pt-[16px]">
+      <div className="flex flex-wrap justify-between gap-y-[12px] border-b border-[#e5e7eb] bg-gradient-to-r from-[#f9fafb] to-white px-4 pb-[17px] pt-[16px] sm:px-[24px]">
         {/* Left: Order Placed, Total, Ship To */}
-        <div className="flex flex-wrap gap-x-[24px] gap-y-[8px]">
+        <div className="flex flex-wrap gap-x-[16px] gap-y-[8px] sm:gap-x-[24px]">
           <MetaItem
             label={t('orderCard.meta.orderPlaced')}
             value={formatDate(order.processedAt, locale)}

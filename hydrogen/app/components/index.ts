@@ -42,7 +42,9 @@ export {
 export {
   ProductGallery,
   VariantSelector,
+  StickyMobileCTA,
   type VariantSelectorProps,
   type VariantSelectorVariant,
   type VariantOption,
+  type StickyMobileCTAProps,
 } from './product';

@@ -1,3 +1,5 @@
+import type {LoaderFunctionArgs} from 'react-router';
+import type {Route} from './+types/about';
 import {Link} from 'react-router';
 import {useTranslation} from 'react-i18next';
 import {ShieldCheck, Users, Sparkles, Eye, ArrowRight} from 'lucide-react';
@@ -6,7 +8,14 @@ import {ShieldCheck, Users, Sparkles, Eye, ArrowRight} from 'lucide-react';
 // Meta
 // ============================================================================
 
-export function meta() {
+export async function loader({request}: LoaderFunctionArgs) {
+  return {canonicalUrl: `${new URL(request.url).origin}/about`};
+}
+
+export function meta({data}: Route.MetaArgs) {
+  const canonical = data?.canonicalUrl
+    ? [{tagName: 'link', rel: 'canonical', href: data.canonicalUrl}]
+    : [];
   return [
     {title: 'About Us | Hy-lee'},
     {
@@ -14,6 +23,7 @@ export function meta() {
       content:
         'Learn about Hy-lee — a modern marketplace built for small-space living.',
     },
+    ...canonical,
   ];
 }
 
