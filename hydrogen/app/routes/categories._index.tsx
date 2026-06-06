@@ -19,6 +19,9 @@ const ALL_COLLECTIONS_QUERY = `#graphql
         id
         title
         handle
+        isDisplayed: metafield(namespace: "custom", key: "is_displayed_on_all_product_categories_page") {
+          value
+        }
       }
     }
   }
@@ -53,8 +56,9 @@ export async function loader({request, context}: Route.LoaderArgs) {
     })
     .catch(() => null);
 
-  const collections: Array<{id: string; title: string; handle: string}> =
-    data?.collections?.nodes ?? [];
+  const collections: Array<{id: string; title: string; handle: string}> = (
+    data?.collections?.nodes ?? []
+  ).filter((c) => c.isDisplayed?.value === 'true');
 
   return {collections};
 }
