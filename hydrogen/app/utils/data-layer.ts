@@ -57,7 +57,7 @@ interface MinimalProduct {
 
 interface MinimalVariant {
   id: string;
-  sku: string | null | undefined;
+  sku?: string | null;
   title: string;
   price: {amount: string; currencyCode: string};
 }
