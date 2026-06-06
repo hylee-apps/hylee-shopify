@@ -1,9 +1,4 @@
-import {
-  Analytics,
-  getShopAnalytics,
-  useNonce,
-  useLoadScript,
-} from '@shopify/hydrogen';
+import {Analytics, getShopAnalytics, useNonce} from '@shopify/hydrogen';
 import type {LanguageCode} from '@shopify/hydrogen/storefront-api-types';
 import {
   Outlet,
@@ -43,9 +38,6 @@ import {
 } from '~/lib/admin-api';
 
 export type RootLoader = typeof loader;
-
-const INBOX_CHAT_SCRIPT =
-  'https://cdn.shopify.com/extensions/a91f9cd9-7693-4b55-b0f8-a47f69a8cb0c/inbox-1267/assets/inbox-chat-loader.js';
 
 // ─── Links ────────────────────────────────────────────────────────────────────
 
@@ -489,6 +481,31 @@ export function Layout({children}: {children?: React.ReactNode}) {
   const shopifyThemeId = data?.shopifyThemeId ?? 0;
   const gtmContainerId = data?.globalCms?.gtmContainerId || null;
 
+  // Inject the Inbox widget script imperatively so React's resource reconciler
+  // cannot hoist, deduplicate, or remove it during hydration. The <script> JSX
+  // approach with type="module" src=... is treated as a managed resource by
+  // React 18 and gets reconciled away during hydration, causing the flash.
+  useEffect(() => {
+    if (!inboxConfig) return;
+    const scriptId = 'shopify-inbox-widget';
+    if (document.getElementById(scriptId)) return;
+    const s = document.createElement('script');
+    s.id = scriptId;
+    s.type = 'module';
+    s.src = inboxConfig.scriptUrl;
+    s.setAttribute('data-button-color', inboxConfig.buttonColor);
+    s.setAttribute('data-secondary-color', inboxConfig.secondaryColor);
+    s.setAttribute('data-ternary-color', inboxConfig.ternaryColor);
+    s.setAttribute('data-icon', inboxConfig.icon);
+    s.setAttribute('data-text', inboxConfig.text);
+    s.setAttribute('data-position', inboxConfig.position);
+    s.setAttribute('data-vertical-position', inboxConfig.verticalPosition);
+    s.setAttribute('data-shop-id', inboxConfig.shopId);
+    s.setAttribute('data-shop', inboxConfig.shopDomain);
+    s.setAttribute('data-shop-domain', inboxConfig.shopDomain);
+    document.body.appendChild(s);
+  }, [inboxConfig]);
+
   return (
     <html lang={locale} data-locale={locale}>
       <head>
@@ -540,53 +557,31 @@ export function Layout({children}: {children?: React.ReactNode}) {
         )}
         {children}
         <ScrollRestoration nonce={nonce} />
-        {inboxConfig ? (
-          <>
-            <script
-              nonce={nonce}
-              id="shopify-features"
-              type="application/json"
-              suppressHydrationWarning
-              dangerouslySetInnerHTML={{
-                __html: '{"features":["shopify-chat"]}',
-              }}
-            />
-            <script
-              nonce={nonce}
-              suppressHydrationWarning
-              dangerouslySetInnerHTML={{
-                __html: [
-                  'window.Shopify = window.Shopify || {};',
-                  `window.Shopify.shop = ${JSON.stringify(shopDomain)};`,
-                  `window.Shopify.locale = ${JSON.stringify(locale)};`,
-                  `window.Shopify.currency = ${JSON.stringify(storeCurrency)};`,
-                  `window.Shopify.country = ${JSON.stringify(storeCountry)};`,
-                  // role:"main" + real theme id lets Inbox match the store's
-                  // Admin-configured settings (greeting, quick replies, etc.).
-                  `window.Shopify.theme = {handle:"hydrogen",id:${shopifyThemeId},role:"main",style:{id:null,handle:null}};`,
-                ].join(' '),
-              }}
-            />
-            <script
-              nonce={nonce}
-              type="module"
-              defer
-              async
-              suppressHydrationWarning
-              src={inboxConfig.scriptUrl}
-              data-button-color={inboxConfig.buttonColor}
-              data-secondary-color={inboxConfig.secondaryColor}
-              data-ternary-color={inboxConfig.ternaryColor}
-              data-icon={inboxConfig.icon}
-              data-text={inboxConfig.text}
-              data-position={inboxConfig.position}
-              data-vertical-position={inboxConfig.verticalPosition}
-              data-shop-id={inboxConfig.shopId}
-              data-shop={inboxConfig.shopDomain}
-              data-shop-domain={inboxConfig.shopDomain}
-            />
-          </>
-        ) : null}
+        {/* window.Shopify globals are required by the Inbox chat loader
+            regardless of whether inboxConfig resolved — always emit them. */}
+        <script
+          nonce={nonce}
+          id="shopify-features"
+          type="application/json"
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: '{"features":["shopify-chat"]}',
+          }}
+        />
+        <script
+          nonce={nonce}
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: [
+              'window.Shopify = window.Shopify || {};',
+              `window.Shopify.shop = ${JSON.stringify(shopDomain)};`,
+              `window.Shopify.locale = ${JSON.stringify(locale)};`,
+              `window.Shopify.currency = ${JSON.stringify(storeCurrency)};`,
+              `window.Shopify.country = ${JSON.stringify(storeCountry)};`,
+              `window.Shopify.theme = {handle:"hydrogen",id:${shopifyThemeId},role:"main",style:{id:null,handle:null}};`,
+            ].join(' '),
+          }}
+        />
         <Scripts nonce={nonce} />
       </body>
     </html>
@@ -604,9 +599,6 @@ export default function App() {
     enabled: !!data?.analytics,
     isLoggedIn: data?.isLoggedIn ?? false,
   });
-
-  // Load Shopify Inbox chat widget asynchronously
-  useLoadScript(INBOX_CHAT_SCRIPT);
 
   const i18nInstance = useMemo(() => {
     const instance = i18next.createInstance();
