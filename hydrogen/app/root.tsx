@@ -1,5 +1,10 @@
-import {Analytics, getShopAnalytics, useNonce} from '@shopify/hydrogen';
-import type {LanguageCode} from '@shopify/hydrogen/storefront-api-types';
+import {
+  Analytics,
+  getShopAnalytics,
+  useNonce,
+  useLoadScript,
+} from '@shopify/hydrogen';
+import type { LanguageCode } from '@shopify/hydrogen/storefront-api-types';
 import {
   Outlet,
   useRouteError,
@@ -11,18 +16,24 @@ import {
   ScrollRestoration,
   useRouteLoaderData,
 } from 'react-router';
-import type {Route} from './+types/root';
-import {useMemo, useEffect} from 'react';
+import type { Route } from './+types/root';
+import { useMemo, useEffect } from 'react';
 import i18next from 'i18next';
-import {initReactI18next} from 'react-i18next';
-import {I18nextProvider} from 'react-i18next';
-import {resources, i18nConfig} from '~/i18n';
-import {PageLayout} from '~/components/layout';
+import { initReactI18next } from 'react-i18next';
+import { I18nextProvider } from 'react-i18next';
+import { resources, i18nConfig } from '~/i18n';
+import { PageLayout } from '~/components/layout';
 import appStyles from '~/styles/app.css?url';
 import {categoryNavConfig} from '~/config/navigation';
 import {prioritizeCategories} from '~/lib/navigation';
 import {readWishlistIds, type AdminEnv} from '~/lib/wishlist';
 import {isCustomerLoggedIn, getCustomerAccessToken} from '~/lib/customer-auth';
+import {getAnalyticsConfig} from '~/config/analytics.server';
+import {GtmConsentDefaults} from '~/components/analytics/GtmConsentDefaults';
+import {GtmScript} from '~/components/analytics/GtmScript';
+import {GtmNoScript} from '~/components/analytics/GtmNoScript';
+import {usePageViewTracking} from '~/hooks/usePageViewTracking';
+import {useAnalyticsContext} from '~/hooks/useAnalyticsContext';
 import {GLOBAL_CMS_QUERY, parseGlobalCms} from '~/lib/cms';
 import {
   adminApi,
@@ -34,9 +45,31 @@ import {
 
 export type RootLoader = typeof loader;
 
-/**
- * Avoid re-fetching root queries on sub-navigations.
- */
+const INBOX_CHAT_SCRIPT =
+  'https://cdn.shopify.com/extensions/a91f9cd9-7693-4b55-b0f8-a47f69a8cb0c/inbox-1267/assets/inbox-chat-loader.js';
+
+// ─── Links ────────────────────────────────────────────────────────────────────
+
+export function links() {
+  return [
+    { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+    { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+    {
+      rel: 'preconnect',
+      href: 'https://fonts.gstatic.com',
+      crossOrigin: 'anonymous' as const,
+    },
+    {
+      rel: 'stylesheet',
+      href: 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Assistant:wght@300;400;500;600;700;800&display=swap',
+    },
+    { rel: 'preconnect', href: 'https://cdn.shopify.com' },
+    { rel: 'preconnect', href: 'https://shop.app' },
+  ];
+}
+
+// ─── Revalidation ────────────────────────────────────────────────────────────
+
 export const shouldRevalidate: ShouldRevalidateFunction = ({
   formMethod,
   currentUrl,
@@ -47,33 +80,19 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
   return false;
 };
 
-export function links() {
-  return [
-    {rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'},
-    {rel: 'preconnect', href: 'https://fonts.googleapis.com'},
-    {
-      rel: 'preconnect',
-      href: 'https://fonts.gstatic.com',
-      crossOrigin: 'anonymous' as const,
-    },
-    {
-      rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Assistant:wght@300;400;500;600;700;800&display=swap',
-    },
-    {rel: 'preconnect', href: 'https://cdn.shopify.com'},
-    {rel: 'preconnect', href: 'https://shop.app'},
-  ];
-}
+// ─── Loader ──────────────────────────────────────────────────────────────────
 
 export async function loader(args: Route.LoaderArgs) {
   const deferredData = loadDeferredData(args);
   const criticalData = await loadCriticalData(args);
+  const analyticsConfig = getAnalyticsConfig();
 
-  const {storefront, env} = args.context;
+  const { storefront, env } = args.context;
 
   return {
     ...deferredData,
     ...criticalData,
+    analytics: analyticsConfig.enabled ? analyticsConfig : null,
     publicStoreDomain: env.PUBLIC_STORE_DOMAIN,
     storeCountry: args.context.storefront.i18n.country,
     shop: getShopAnalytics({
@@ -203,7 +222,6 @@ function parseBannerDiscounts(data: any): BannerDiscount[] {
 async function loadCriticalData({context, request}: Route.LoaderArgs) {
   const {storefront} = context;
 
-  // Read language preference from cookie; default to EN
   const cookie = request.headers.get('Cookie') ?? '';
   const langMatch = /(?:^|;\s*)language=([^;]+)/.exec(cookie);
   const lang = langMatch?.[1]?.toUpperCase() ?? '';
@@ -267,7 +285,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
         id: string;
         title: string;
         handle: string;
-        menuPriority?: {value: string} | null;
+        menuPriority?: { value: string } | null;
       }) => ({
         id: c.id,
         title: c.title,
@@ -291,7 +309,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
         id: string;
         title: string;
         handle: string;
-        menuPriority?: {value: string} | null;
+        menuPriority?: { value: string } | null;
       }) => ({
         id: c.id,
         title: c.title,
@@ -309,7 +327,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
       return a.title.localeCompare(b.title);
     })
     .slice(0, 5)
-    .map(({priority: _p, ...item}) => item);
+    .map(({ priority: _p, ...item }) => item);
 
   const rawDiscountItems: Array<{
     id: string;
@@ -345,19 +363,17 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
 
   const locale = currentLanguage.toLowerCase() as 'en' | 'es' | 'fr';
 
-  // Fetch wishlist IDs for logged-in users so all product cards start with
-  // the correct wishlisted state without a client-side roundtrip.
   let wishlistIds: string[] = [];
   const sessionToken = getCustomerAccessToken(context.session);
   if (sessionToken) {
     try {
-      const {customer: rootCustomer} = await storefront.query(
+      const { customer: rootCustomer } = await storefront.query(
         `#graphql
           query RootCustomerId($customerAccessToken: String!) {
             customer(customerAccessToken: $customerAccessToken) { id }
           }
         ` as const,
-        {variables: {customerAccessToken: sessionToken}},
+        { variables: { customerAccessToken: sessionToken } },
       );
       const customerId = rootCustomer?.id ?? undefined;
       wishlistIds = await readWishlistIds(
@@ -410,8 +426,8 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
   };
 }
 
-function loadDeferredData({context}: Route.LoaderArgs) {
-  const {storefront, cart} = context;
+function loadDeferredData({ context }: Route.LoaderArgs) {
+  const { storefront, cart } = context;
 
   const footer = storefront
     .query(FOOTER_QUERY, {
@@ -432,10 +448,13 @@ function loadDeferredData({context}: Route.LoaderArgs) {
   };
 }
 
-export function Layout({children}: {children?: React.ReactNode}) {
+// ─── Layout ──────────────────────────────────────────────────────────────────
+
+export function Layout({ children }: { children?: React.ReactNode }) {
   const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>('root');
   const locale = (data?.locale ?? 'en') as string;
+  const analytics = data?.analytics;
   const shopDomain = data?.publicStoreDomain;
   const inboxConfig = data?.inboxConfig ?? null;
   const storeCurrency = data?.storeCurrency ?? 'USD';
@@ -469,18 +488,28 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <link rel="stylesheet" href={appStyles} />
         <Meta />
         <Links />
+
+        {analytics && (
+          <>
+            {/* Consent defaults before GTM so all states start as 'denied' */}
+            <GtmConsentDefaults nonce={nonce} waitMs={500} />
+            {/* GTM bootstrap after consent, before </head> */}
+            <GtmScript
+              containerId={analytics.gtm.containerId}
+              nonce={nonce}
+              dataLayerName={analytics.gtm.dataLayerName}
+              serverUrl={analytics.gtm.serverUrl}
+            />
+          </>
+        )}
       </head>
       <body>
-        {/* Google Tag Manager (noscript) */}
-        {gtmContainerId && (
-          <noscript>
-            <iframe
-              src={`https://www.googletagmanager.com/ns.html?id=${gtmContainerId}`}
-              height="0"
-              width="0"
-              style={{display: 'none', visibility: 'hidden'}}
-            />
-          </noscript>
+        {/* GTM noscript immediately after <body> — required by GTM spec */}
+        {analytics && (
+          <GtmNoScript
+            containerId={analytics.gtm.containerId}
+            serverUrl={analytics.gtm.serverUrl}
+          />
         )}
         {children}
         <ScrollRestoration nonce={nonce} />
@@ -537,12 +566,21 @@ export function Layout({children}: {children?: React.ReactNode}) {
   );
 }
 
+// ─── App ─────────────────────────────────────────────────────────────────────
+
 export default function App() {
   const data = useRouteLoaderData<RootLoader>('root');
   const locale = (data?.locale ?? 'en') as string;
 
-  // Create a per-render i18next instance with the correct locale.
-  // With inline resources, init() resolves synchronously — no flash.
+  usePageViewTracking({ enabled: !!data?.analytics });
+  useAnalyticsContext({
+    enabled: !!data?.analytics,
+    isLoggedIn: data?.isLoggedIn ?? false,
+  });
+
+  // Load Shopify Inbox chat widget asynchronously
+  useLoadScript(INBOX_CHAT_SCRIPT);
+
   const i18nInstance = useMemo(() => {
     const instance = i18next.createInstance();
     void instance.use(initReactI18next).init({
@@ -553,9 +591,6 @@ export default function App() {
     return instance;
   }, [locale]);
 
-  // Keep the global i18next instance in sync so any component that falls
-  // back to the global instance (e.g. outside the provider during hydration)
-  // still gets the correct language.
   useEffect(() => {
     if (i18next.language !== locale) {
       void i18next.changeLanguage(locale);
@@ -578,6 +613,8 @@ export default function App() {
     </I18nextProvider>
   );
 }
+
+// ─── Error boundary ──────────────────────────────────────────────────────────
 
 export function ErrorBoundary() {
   const error = useRouteError();
@@ -695,6 +732,8 @@ export function ErrorBoundary() {
   );
 }
 
+// ─── GraphQL ─────────────────────────────────────────────────────────────────
+
 const MENU_FRAGMENT = `#graphql
   fragment MenuItem on MenuItem {
     id
@@ -704,25 +743,21 @@ const MENU_FRAGMENT = `#graphql
     type
     url
   }
-  # L4 — deepest level (e.g. Air Fryers)
   fragment L4MenuItem on MenuItem {
     ...MenuItem
   }
-  # L3 — e.g. Kitchen Appliance
   fragment L3MenuItem on MenuItem {
     ...MenuItem
     items {
       ...L4MenuItem
     }
   }
-  # L2 — e.g. Kitchen & Dining
   fragment L2MenuItem on MenuItem {
     ...MenuItem
     items {
       ...L3MenuItem
     }
   }
-  # L1 — top-level category (e.g. Home & Garden)
   fragment L1MenuItem on MenuItem {
     ...MenuItem
     items {

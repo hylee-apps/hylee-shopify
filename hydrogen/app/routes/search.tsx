@@ -1,6 +1,8 @@
 import type {Route} from './+types/search';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {useLoaderData, useSearchParams, Form, Link} from 'react-router';
+import {useEffect} from 'react';
+import {pushDataLayer} from '~/utils/data-layer';
 import {useTranslation} from 'react-i18next';
 import {Search} from 'lucide-react';
 import {Button} from '~/components/ui/button';
@@ -88,6 +90,15 @@ export default function SearchPage() {
   const {searchTerm, products, totalCount, page, pageSize} =
     useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (!searchTerm) return;
+    pushDataLayer({
+      event: 'search',
+      search_term: searchTerm,
+      search_results_count: totalCount,
+    });
+  }, [searchTerm, totalCount]);
 
   const totalPages = pageSize > 0 ? Math.ceil(totalCount / pageSize) : 1;
 

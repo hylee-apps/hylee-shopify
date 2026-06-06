@@ -1,6 +1,8 @@
 import {getSeoMeta, Image} from '@shopify/hydrogen';
 import {Link, useLoaderData} from 'react-router';
+import {useEffect, useRef} from 'react';
 import {useTranslation} from 'react-i18next';
+import {pushEcommerceEvent} from '~/utils/data-layer';
 import {
   CheckCircle,
   Package,
@@ -295,7 +297,49 @@ function CreateAccountCTA() {
 // ============================================================================
 
 export default function CheckoutConfirmationPage() {
-  const {orderNumber, cart, isLoggedIn} = useLoaderData<typeof loader>();
+  const {orderId, orderNumber, cart, isLoggedIn} = useLoaderData<typeof loader>();
+  const purchaseFiredRef = useRef(false);
+
+  useEffect(() => {
+    if (purchaseFiredRef.current) return;
+    purchaseFiredRef.current = true;
+    const lines = cart?.lines?.nodes ?? [];
+    const items = lines.flatMap((line: any, i: number) => {
+      if (typeof line.merchandise === 'string') return [];
+      const {product, selectedOptions} = line.merchandise;
+      const variantTitle = selectedOptions
+        ?.filter((o: any) => !(o.name === 'Title' && o.value === 'Default Title'))
+        .map((o: any) => o.value)
+        .join(' / ') || 'Default';
+      return [{
+        item_id: line.merchandise.sku || line.merchandise.id?.split('/').pop() || '',
+        item_name: product?.title ?? '',
+        item_brand: product?.vendor ?? '',
+        item_category: product?.productType ?? '',
+        item_variant: variantTitle,
+        price: parseFloat(line.cost?.amountPerQuantity?.amount ?? '0'),
+        quantity: line.quantity,
+        index: i + 1,
+      }];
+    });
+    pushEcommerceEvent({
+      event: 'purchase',
+      ecommerce: {
+        transaction_id: orderId ?? orderNumber,
+        value: parseFloat(cart?.cost?.totalAmount?.amount ?? '0'),
+        tax: parseFloat(cart?.cost?.totalTaxAmount?.amount ?? '0'),
+        shipping: 0,
+        currency: cart?.cost?.totalAmount?.currencyCode ?? 'USD',
+        coupon:
+          cart?.discountCodes
+            ?.filter((d: any) => d.applicable)
+            .map((d: any) => d.code)
+            .join(',') ?? '',
+        affiliation: 'Hy-Lee',
+        items,
+      },
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="min-h-screen bg-[#f9fafb]">

@@ -1,4 +1,5 @@
-import {useState, useMemo} from 'react';
+import {useState, useMemo, useEffect} from 'react';
+import {pushEcommerceEvent, buildDataLayerItem} from '~/utils/data-layer';
 import {useTranslation} from 'react-i18next';
 import {
   redirect,
@@ -50,6 +51,7 @@ const COLLECTION_PRODUCT_FRAGMENT = `#graphql
     title
     handle
     vendor
+    productType
     availableForSale
     tags
     images(first: 2) {
@@ -76,6 +78,8 @@ const COLLECTION_PRODUCT_FRAGMENT = `#graphql
     variants(first: 1) {
       nodes {
         id
+        sku
+        title
         availableForSale
         price {
           amount
@@ -228,7 +232,7 @@ export async function loader({params, request, context}: Route.LoaderArgs) {
 
   const filters = parseFiltersFromSearchParams(searchParams);
   const {sortKey, reverse} = parseSortFromSearchParams(searchParams);
-  const paginationVariables = getPaginationVariables(request, {pageBy: 48});
+  const paginationVariables = getPaginationVariables(request, {pageBy: 24});
 
   const {collection} = await storefront.query(COLLECTION_QUERY, {
     variables: {
@@ -480,6 +484,35 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
   }, [searchParamsString]);
 
   const isNavigating = navigation.state !== 'idle';
+
+  useEffect(() => {
+    const nodes = collection.products.nodes;
+    if (!nodes.length) return;
+    pushEcommerceEvent({
+      event: 'view_item_list',
+      ecommerce: {
+        item_list_id: collection.handle,
+        item_list_name: collection.title,
+        items: nodes.map((p, i) =>
+          buildDataLayerItem(
+            {
+              id: p.id,
+              title: p.title,
+              vendor: p.vendor,
+              productType: (p as any).productType ?? '',
+            },
+            {
+              id: p.variants.nodes[0].id,
+              sku: (p.variants.nodes[0] as any).sku ?? null,
+              title: (p.variants.nodes[0] as any).title ?? 'Default',
+              price: p.variants.nodes[0].price,
+            },
+            {index: i + 1, item_list_id: collection.handle, item_list_name: collection.title},
+          ),
+        ),
+      },
+    });
+  }, [collection.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const metafieldPath = buildPathFromParentMetafields(
     collection as unknown as CollectionRef,

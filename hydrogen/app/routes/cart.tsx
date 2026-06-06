@@ -1,5 +1,8 @@
 import type {Route} from './+types/cart';
 import {isCustomerLoggedIn} from '~/lib/customer-auth';
+import {useEffect, useRef} from 'react';
+import {pushEcommerceEvent} from '~/utils/data-layer';
+import type {DataLayerItem} from '~/types/data-layer';
 import {
   CartForm,
   Image,
@@ -124,6 +127,27 @@ function formatMoney(money: {amount: string; currencyCode: string}): string {
   }).format(parseFloat(money.amount));
 }
 
+function cartLinesToDataLayerItems(lines: any[]): DataLayerItem[] {
+  return lines.flatMap((line, i) => {
+    if (typeof line.merchandise === 'string') return [];
+    const {product, selectedOptions} = line.merchandise;
+    const variantTitle = selectedOptions
+      ?.filter((o: any) => !(o.name === 'Title' && o.value === 'Default Title'))
+      .map((o: any) => o.value)
+      .join(' / ') || 'Default';
+    return [{
+      item_id: line.merchandise.sku || line.merchandise.id?.split('/').pop() || '',
+      item_name: product?.title ?? '',
+      item_brand: product?.vendor ?? '',
+      item_category: product?.productType ?? '',
+      item_variant: variantTitle,
+      price: parseFloat(line.cost?.amountPerQuantity?.amount ?? line.merchandise.price?.amount ?? '0'),
+      quantity: line.quantity,
+      index: i + 1,
+    }];
+  });
+}
+
 // ============================================================================
 // CartEmpty
 // ============================================================================
@@ -181,6 +205,31 @@ function CartLineRow({line, isLast}: CartLineRowProps) {
   const {id, quantity, cost, merchandise} = line;
 
   if (typeof merchandise === 'string') return null;
+
+  const handleRemove = () => {
+    const {product, selectedOptions} = merchandise;
+    const variantTitle = selectedOptions
+      ?.filter((o: any) => !(o.name === 'Title' && o.value === 'Default Title'))
+      .map((o: any) => o.value)
+      .join(' / ') || 'Default';
+    const unitPrice = parseFloat(cost?.amountPerQuantity?.amount ?? '0');
+    pushEcommerceEvent({
+      event: 'remove_from_cart',
+      ecommerce: {
+        currency: cost?.totalAmount?.currencyCode ?? 'USD',
+        value: unitPrice * quantity,
+        items: [{
+          item_id: merchandise.sku || merchandise.id?.split('/').pop() || '',
+          item_name: product?.title ?? '',
+          item_brand: product?.vendor ?? '',
+          item_category: product?.productType ?? '',
+          item_variant: variantTitle,
+          price: unitPrice,
+          quantity,
+        }],
+      },
+    });
+  };
 
   const {product, image, selectedOptions} = merchandise;
   const lineUrl = `/products/${product.handle}`;
@@ -288,6 +337,7 @@ function CartLineRow({line, isLast}: CartLineRowProps) {
         >
           <button
             type="submit"
+            onClick={handleRemove}
             className="text-text-muted transition-colors hover:text-red-500"
             aria-label={t('cart.removeItem')}
           >
@@ -477,6 +527,22 @@ function OrderSummary({
       <div className="mt-[22px]">
         <Link
           to="/checkout/payment"
+          onClick={() => {
+            const items = cartLinesToDataLayerItems(cart.lines?.nodes ?? []);
+            pushEcommerceEvent({
+              event: 'begin_checkout',
+              ecommerce: {
+                currency: total?.currencyCode ?? 'USD',
+                value: parseFloat(total?.amount ?? '0'),
+                coupon:
+                  discountCodes
+                    ?.filter((d: any) => d.applicable)
+                    .map((d: any) => d.code)
+                    .join(',') ?? '',
+                items,
+              },
+            });
+          }}
           className="flex w-full items-center justify-center gap-2 rounded-sm bg-brand-accent px-4 py-4 text-base font-semibold text-white transition-colors hover:bg-brand-accent/90"
         >
           {t('cart.summary.checkout')}
@@ -529,6 +595,20 @@ export default function CartPage() {
   const {cart: originalCart, isLoggedIn} = useLoaderData<typeof loader>();
   const cart = useOptimisticCart(originalCart);
   const hasItems = cart && (cart.totalQuantity ?? 0) > 0;
+  const viewCartFiredRef = useRef(false);
+
+  useEffect(() => {
+    if (!hasItems || viewCartFiredRef.current) return;
+    viewCartFiredRef.current = true;
+    const lines = cart?.lines?.nodes ?? [];
+    const items = cartLinesToDataLayerItems(lines);
+    const value = parseFloat(cart?.cost?.totalAmount?.amount ?? '0');
+    const currency = cart?.cost?.totalAmount?.currencyCode ?? 'USD';
+    pushEcommerceEvent({
+      event: 'view_cart',
+      ecommerce: {currency, value, items},
+    });
+  }, [hasItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="min-h-screen bg-[#f9fafb]">
