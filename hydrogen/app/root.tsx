@@ -33,6 +33,7 @@ import { GtmConsentDefaults } from '~/components/analytics/GtmConsentDefaults';
 import { GtmScript } from '~/components/analytics/GtmScript';
 import { GtmNoScript } from '~/components/analytics/GtmNoScript';
 import { usePageViewTracking } from '~/hooks/usePageViewTracking';
+import { useAnalyticsContext } from '~/hooks/useAnalyticsContext';
 
 export type RootLoader = typeof loader;
 
@@ -296,6 +297,10 @@ export default function App() {
   const locale = (data?.locale ?? 'en') as string;
 
   usePageViewTracking({ enabled: !!data?.analytics });
+  useAnalyticsContext({
+    enabled: !!data?.analytics,
+    isLoggedIn: data?.isLoggedIn ?? false,
+  });
 
   // Load Shopify Inbox chat widget asynchronously
   useLoadScript(INBOX_CHAT_SCRIPT);

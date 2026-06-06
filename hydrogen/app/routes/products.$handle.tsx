@@ -46,6 +46,7 @@ import {
   AccordionTrigger,
 } from '~/components/ui/accordion';
 import {PageBreadcrumbs} from '~/components/ui/PageBreadcrumbs';
+import {pushEcommerceEvent, buildDataLayerItem} from '~/utils/data-layer';
 
 import {
   findDeepestNavPath,
@@ -456,6 +457,18 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
         ]
       : []);
 
+  useEffect(() => {
+    if (!product || !selectedVariant) return;
+    pushEcommerceEvent({
+      event: 'view_item',
+      ecommerce: {
+        currency: selectedVariant.price.currencyCode,
+        value: parseFloat(selectedVariant.price.amount),
+        items: [buildDataLayerItem(product, selectedVariant)],
+      },
+    });
+  }, [product.id, selectedVariant?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const isOnSale =
     selectedVariant?.compareAtPrice &&
     parseFloat(selectedVariant.compareAtPrice.amount) >
@@ -661,6 +674,21 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
                   quantity={quantity}
                   available={!isOutOfStock}
                   className="flex-1 rounded-full bg-secondary px-5 py-2.5 text-sm font-medium text-white hover:bg-secondary/90"
+                  onSuccess={() => {
+                    pushEcommerceEvent({
+                      event: 'add_to_cart',
+                      ecommerce: {
+                        currency: selectedVariant.price.currencyCode,
+                        value:
+                          parseFloat(selectedVariant.price.amount) * quantity,
+                        items: [
+                          buildDataLayerItem(product, selectedVariant, {
+                            quantity,
+                          }),
+                        ],
+                      },
+                    });
+                  }}
                 >
                   <span className="flex items-center justify-center gap-2">
                     <Plus size={16} />
