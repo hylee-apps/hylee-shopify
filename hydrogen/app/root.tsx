@@ -1,9 +1,4 @@
-import {
-  Analytics,
-  getShopAnalytics,
-  useNonce,
-  useLoadScript,
-} from '@shopify/hydrogen';
+import {Analytics, getShopAnalytics, useNonce} from '@shopify/hydrogen';
 import type {LanguageCode} from '@shopify/hydrogen/storefront-api-types';
 import {
   Outlet,
@@ -43,9 +38,6 @@ import {
 } from '~/lib/admin-api';
 
 export type RootLoader = typeof loader;
-
-const INBOX_CHAT_SCRIPT =
-  'https://cdn.shopify.com/extensions/a91f9cd9-7693-4b55-b0f8-a47f69a8cb0c/inbox-1267/assets/inbox-chat-loader.js';
 
 // ─── Links ────────────────────────────────────────────────────────────────────
 
@@ -602,9 +594,6 @@ export default function App() {
     enabled: !!data?.analytics,
     isLoggedIn: data?.isLoggedIn ?? false,
   });
-
-  // Load Shopify Inbox chat widget asynchronously
-  useLoadScript(INBOX_CHAT_SCRIPT);
 
   const i18nInstance = useMemo(() => {
     const instance = i18next.createInstance();
