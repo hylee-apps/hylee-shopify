@@ -540,53 +540,51 @@ export function Layout({children}: {children?: React.ReactNode}) {
         )}
         {children}
         <ScrollRestoration nonce={nonce} />
-        {inboxConfig ? (
-          <>
-            <script
-              nonce={nonce}
-              id="shopify-features"
-              type="application/json"
-              suppressHydrationWarning
-              dangerouslySetInnerHTML={{
-                __html: '{"features":["shopify-chat"]}',
-              }}
-            />
-            <script
-              nonce={nonce}
-              suppressHydrationWarning
-              dangerouslySetInnerHTML={{
-                __html: [
-                  'window.Shopify = window.Shopify || {};',
-                  `window.Shopify.shop = ${JSON.stringify(shopDomain)};`,
-                  `window.Shopify.locale = ${JSON.stringify(locale)};`,
-                  `window.Shopify.currency = ${JSON.stringify(storeCurrency)};`,
-                  `window.Shopify.country = ${JSON.stringify(storeCountry)};`,
-                  // role:"main" + real theme id lets Inbox match the store's
-                  // Admin-configured settings (greeting, quick replies, etc.).
-                  `window.Shopify.theme = {handle:"hydrogen",id:${shopifyThemeId},role:"main",style:{id:null,handle:null}};`,
-                ].join(' '),
-              }}
-            />
-            <script
-              nonce={nonce}
-              type="module"
-              defer
-              async
-              suppressHydrationWarning
-              src={inboxConfig.scriptUrl}
-              data-button-color={inboxConfig.buttonColor}
-              data-secondary-color={inboxConfig.secondaryColor}
-              data-ternary-color={inboxConfig.ternaryColor}
-              data-icon={inboxConfig.icon}
-              data-text={inboxConfig.text}
-              data-position={inboxConfig.position}
-              data-vertical-position={inboxConfig.verticalPosition}
-              data-shop-id={inboxConfig.shopId}
-              data-shop={inboxConfig.shopDomain}
-              data-shop-domain={inboxConfig.shopDomain}
-            />
-          </>
-        ) : null}
+        {/* window.Shopify globals are required by the Inbox chat loader
+            regardless of whether inboxConfig resolved — always emit them. */}
+        <script
+          nonce={nonce}
+          id="shopify-features"
+          type="application/json"
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: '{"features":["shopify-chat"]}',
+          }}
+        />
+        <script
+          nonce={nonce}
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: [
+              'window.Shopify = window.Shopify || {};',
+              `window.Shopify.shop = ${JSON.stringify(shopDomain)};`,
+              `window.Shopify.locale = ${JSON.stringify(locale)};`,
+              `window.Shopify.currency = ${JSON.stringify(storeCurrency)};`,
+              `window.Shopify.country = ${JSON.stringify(storeCountry)};`,
+              `window.Shopify.theme = {handle:"hydrogen",id:${shopifyThemeId},role:"main",style:{id:null,handle:null}};`,
+            ].join(' '),
+          }}
+        />
+        {inboxConfig && (
+          <script
+            nonce={nonce}
+            type="module"
+            defer
+            async
+            suppressHydrationWarning
+            src={inboxConfig.scriptUrl}
+            data-button-color={inboxConfig.buttonColor}
+            data-secondary-color={inboxConfig.secondaryColor}
+            data-ternary-color={inboxConfig.ternaryColor}
+            data-icon={inboxConfig.icon}
+            data-text={inboxConfig.text}
+            data-position={inboxConfig.position}
+            data-vertical-position={inboxConfig.verticalPosition}
+            data-shop-id={inboxConfig.shopId}
+            data-shop={inboxConfig.shopDomain}
+            data-shop-domain={inboxConfig.shopDomain}
+          />
+        )}
         <Scripts nonce={nonce} />
       </body>
     </html>
