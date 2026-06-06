@@ -115,19 +115,26 @@ export async function loader(args: Route.LoaderArgs) {
 // ─── Banner Discounts ─────────────────────────────────────────────────────────
 
 // Cache banner discounts for 5 minutes to avoid Admin API rate limiting.
-// The Admin API has strict throttle limits; this query runs on every request.
-const BANNER_DISCOUNTS_TTL_MS = 5 * 60 * 1000;
-let _bannerDiscountsCache: {data: unknown; expiresAt: number} | null = null;
+// Uses the Cloudflare Cache API (shared across isolates) so the TTL is
+// respected in production Oxygen, not just within a single worker instance.
+const BANNER_DISCOUNTS_CACHE_KEY = new Request(
+  'https://cache.internal/banner-discounts',
+);
 
 async function fetchBannerDiscountsWithCache(
   env: Parameters<typeof adminApi>[0],
 ): Promise<unknown> {
-  const now = Date.now();
-  if (_bannerDiscountsCache && now < _bannerDiscountsCache.expiresAt) {
-    return _bannerDiscountsCache.data;
-  }
+  const cache = await caches.open('hydrogen');
+  const cached = await cache.match(BANNER_DISCOUNTS_CACHE_KEY);
+  if (cached) return cached.json();
+
   const data = await adminApi(env, BANNER_DISCOUNTS_QUERY);
-  _bannerDiscountsCache = {data, expiresAt: now + BANNER_DISCOUNTS_TTL_MS};
+  await cache.put(
+    BANNER_DISCOUNTS_CACHE_KEY,
+    new Response(JSON.stringify(data), {
+      headers: {'Cache-Control': 'max-age=300'},
+    }),
+  );
   return data;
 }
 

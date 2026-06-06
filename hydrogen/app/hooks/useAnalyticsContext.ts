@@ -43,8 +43,7 @@ export function useAnalyticsContext({
         type: getPageType(location.pathname),
         path: location.pathname + location.search,
         title: typeof document !== 'undefined' ? document.title : '',
-        referrer:
-          typeof document !== 'undefined' ? document.referrer : '',
+        referrer: typeof document !== 'undefined' ? document.referrer : '',
       },
     });
   }, [location.pathname, location.search, enabled]);
