@@ -481,6 +481,31 @@ export function Layout({children}: {children?: React.ReactNode}) {
   const shopifyThemeId = data?.shopifyThemeId ?? 0;
   const gtmContainerId = data?.globalCms?.gtmContainerId || null;
 
+  // Inject the Inbox widget script imperatively so React's resource reconciler
+  // cannot hoist, deduplicate, or remove it during hydration. The <script> JSX
+  // approach with type="module" src=... is treated as a managed resource by
+  // React 18 and gets reconciled away during hydration, causing the flash.
+  useEffect(() => {
+    if (!inboxConfig) return;
+    const scriptId = 'shopify-inbox-widget';
+    if (document.getElementById(scriptId)) return;
+    const s = document.createElement('script');
+    s.id = scriptId;
+    s.type = 'module';
+    s.src = inboxConfig.scriptUrl;
+    s.setAttribute('data-button-color', inboxConfig.buttonColor);
+    s.setAttribute('data-secondary-color', inboxConfig.secondaryColor);
+    s.setAttribute('data-ternary-color', inboxConfig.ternaryColor);
+    s.setAttribute('data-icon', inboxConfig.icon);
+    s.setAttribute('data-text', inboxConfig.text);
+    s.setAttribute('data-position', inboxConfig.position);
+    s.setAttribute('data-vertical-position', inboxConfig.verticalPosition);
+    s.setAttribute('data-shop-id', inboxConfig.shopId);
+    s.setAttribute('data-shop', inboxConfig.shopDomain);
+    s.setAttribute('data-shop-domain', inboxConfig.shopDomain);
+    document.body.appendChild(s);
+  }, [inboxConfig]);
+
   return (
     <html lang={locale} data-locale={locale}>
       <head>
@@ -557,26 +582,6 @@ export function Layout({children}: {children?: React.ReactNode}) {
             ].join(' '),
           }}
         />
-        {inboxConfig && (
-          <script
-            nonce={nonce}
-            type="module"
-            defer
-            async
-            suppressHydrationWarning
-            src={inboxConfig.scriptUrl}
-            data-button-color={inboxConfig.buttonColor}
-            data-secondary-color={inboxConfig.secondaryColor}
-            data-ternary-color={inboxConfig.ternaryColor}
-            data-icon={inboxConfig.icon}
-            data-text={inboxConfig.text}
-            data-position={inboxConfig.position}
-            data-vertical-position={inboxConfig.verticalPosition}
-            data-shop-id={inboxConfig.shopId}
-            data-shop={inboxConfig.shopDomain}
-            data-shop-domain={inboxConfig.shopDomain}
-          />
-        )}
         <Scripts nonce={nonce} />
       </body>
     </html>
