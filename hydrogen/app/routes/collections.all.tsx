@@ -235,8 +235,9 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
 export function meta({}: Route.MetaArgs) {
   return getSeoMeta({
-    title: 'All Products',
-    description: 'Browse our full catalog of products.',
+    title: 'Everything — Hy-lee',
+    description:
+      'Every space-saving essential we carry — compact furniture, off-grid power, and tiny home essentials.',
   });
 }
 
