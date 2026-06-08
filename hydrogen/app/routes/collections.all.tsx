@@ -262,57 +262,21 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
       {/* ================================================================ */}
       {/* HERO BANNER                                                        */}
       {/* ================================================================ */}
-      {/* ── Variant B: Left-Aligned Panel — matches homepage hero language ── */}
-      <section className="relative overflow-hidden bg-dark">
-        {/* Teal glow — token-driven, no inline style */}
-        <div
-          className="pointer-events-none absolute inset-y-0 left-0 w-2/3 bg-[radial-gradient(ellipse_60%_80%_at_20%_50%,var(--color-secondary),transparent)] opacity-20"
-          aria-hidden="true"
-        />
-
-        <div className="relative mx-auto flex max-w-screen-2xl items-center gap-8 px-4 py-10 sm:px-6 lg:gap-16 lg:px-8 lg:py-14">
-          {/* Text block */}
-          <div className="flex-1">
-            <h1 className="text-5xl font-black leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl">
+      {/* ── Variant B: Functional strip with teal accent + description ──────
+            A compact dark strip with a 3px teal left-border accent, title,
+            and a short collection description line beneath it.
+            Inspired by Crate & Barrel / Williams-Sonoma category headers.
+      ─────────────────────────────────────────────────────────────────── */}
+      <section className="bg-dark border-b border-white/10">
+        <div className="mx-auto max-w-screen-2xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+          <div className="border-l-[3px] border-secondary pl-4">
+            <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl">
               {t('collectionsAll.title')}
             </h1>
-            <p className="mt-4 max-w-md text-lg leading-relaxed text-white/65">
+            <p className="mt-1 text-sm text-white/55 sm:text-base">
               {t('collectionsAll.description')}
             </p>
-            <Link
-              to="#products"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
-            >
-              {t('collection.shopNow')}
-            </Link>
           </div>
-
-          {/* Collection image (when available) or decorative colour blocks */}
-          {collectionImage ? (
-            <div className="hidden shrink-0 overflow-hidden rounded-2xl shadow-lg lg:block lg:h-[220px] lg:w-[360px]">
-              <Image
-                data={collectionImage}
-                aspectRatio="360/220"
-                sizes="360px"
-                className="h-full w-full object-cover"
-                loading="eager"
-              />
-            </div>
-          ) : (
-            <div
-              className="hidden shrink-0 lg:grid lg:h-[200px] lg:w-[300px] lg:grid-cols-2 lg:gap-3"
-              aria-hidden
-            >
-              {[
-                'bg-primary',
-                'bg-secondary',
-                'bg-brand-accent',
-                'bg-dark/60',
-              ].map((bg) => (
-                <div key={bg} className={`${bg} rounded-xl`} />
-              ))}
-            </div>
-          )}
         </div>
       </section>
 
