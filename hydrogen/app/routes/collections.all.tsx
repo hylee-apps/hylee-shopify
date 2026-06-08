@@ -235,8 +235,9 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
 export function meta({}: Route.MetaArgs) {
   return getSeoMeta({
-    title: 'All Products',
-    description: 'Browse our full catalog of products.',
+    title: 'Shop All — Hy-lee',
+    description:
+      'Every space-saving essential we carry — compact furniture, off-grid power, and tiny home essentials.',
   });
 }
 
@@ -262,60 +263,20 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
       {/* ================================================================ */}
       {/* HERO BANNER                                                        */}
       {/* ================================================================ */}
-      <section className="relative overflow-hidden bg-dark">
-        {/* Decorative glow */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-25"
-          style={{
-            background:
-              'radial-gradient(ellipse 55% 70% at 80% 50%, #2699a6, transparent)',
-          }}
-          aria-hidden
-        />
-
-        <div className="relative mx-auto flex max-w-screen-2xl items-center gap-8 px-4 py-10 sm:px-6 lg:gap-16 lg:px-8 lg:py-14">
-          {/* Text block */}
-          <div className="flex-1">
-            <h1 className="text-5xl font-black leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl">
-              {t('collectionsAll.title')}
-            </h1>
-            <p className="mt-4 max-w-md text-lg leading-relaxed text-white/65">
-              {t('collectionsAll.description')}
-            </p>
-            <Link
-              to="#products"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
-            >
-              {t('collection.shopNow')}
-            </Link>
-          </div>
-
-          {/* Collection image (when available) or decorative colour blocks */}
-          {collectionImage ? (
-            <div className="hidden shrink-0 overflow-hidden rounded-2xl shadow-lg lg:block lg:h-[220px] lg:w-[360px]">
-              <Image
-                data={collectionImage}
-                aspectRatio="360/220"
-                sizes="360px"
-                className="h-full w-full object-cover"
-                loading="eager"
-              />
-            </div>
-          ) : (
-            <div
-              className="hidden shrink-0 lg:grid lg:h-[200px] lg:w-[300px] lg:grid-cols-2 lg:gap-3"
-              aria-hidden
-            >
-              {[
-                'bg-primary',
-                'bg-secondary',
-                'bg-brand-accent',
-                'bg-dark/60',
-              ].map((bg) => (
-                <div key={bg} className={`${bg} rounded-xl`} />
-              ))}
-            </div>
-          )}
+      {/* ── Variant B: Clean white / light mode ──────────────────────────────
+            Pure white background, large dark title, teal border-b underline.
+            Zero decoration — the contrast between the white strip and the
+            darker page body creates a natural visual break.
+            Inspired by Apple product pages, Linear, Notion.
+      ─────────────────────────────────────────────────────────────────── */}
+      <section className="bg-white border-b-2 border-secondary">
+        <div className="mx-auto max-w-screen-2xl px-4 py-7 sm:px-6 sm:py-8 lg:px-8">
+          <h1 className="text-2xl font-black tracking-tight text-dark sm:text-3xl lg:text-4xl">
+            {t('collectionsAll.title')}
+          </h1>
+          <p className="mt-1 text-sm text-text-muted sm:text-base">
+            {t('collectionsAll.description')}
+          </p>
         </div>
       </section>
 

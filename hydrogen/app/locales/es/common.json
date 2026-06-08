@@ -1216,8 +1216,8 @@
     "empty": "No hay colecciones disponibles."
   },
   "collectionsAll": {
-    "title": "Todos los productos",
-    "description": "Echa un vistazo a nuestro catálogo completo de productos.",
+    "title": "Ver Todo",
+    "description": "Todo lo esencial para espacios pequeños.",
     "promoHeadline": "Consigue hasta un 50 % de descuento en productos seleccionados",
     "loadPrevious": "Cargar anterior",
     "loading": "Cargando...",
