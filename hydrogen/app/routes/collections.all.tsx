@@ -262,21 +262,20 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
       {/* ================================================================ */}
       {/* HERO BANNER                                                        */}
       {/* ================================================================ */}
-      {/* ── Variant B: Functional strip with teal accent + description ──────
-            A compact dark strip with a 3px teal left-border accent, title,
-            and a short collection description line beneath it.
-            Inspired by Crate & Barrel / Williams-Sonoma category headers.
+      {/* ── Variant B: Clean white / light mode ──────────────────────────────
+            Pure white background, large dark title, teal border-b underline.
+            Zero decoration — the contrast between the white strip and the
+            darker page body creates a natural visual break.
+            Inspired by Apple product pages, Linear, Notion.
       ─────────────────────────────────────────────────────────────────── */}
-      <section className="bg-dark border-b border-white/10">
-        <div className="mx-auto max-w-screen-2xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-          <div className="border-l-[3px] border-secondary pl-4">
-            <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl">
-              {t('collectionsAll.title')}
-            </h1>
-            <p className="mt-1 text-sm text-white/55 sm:text-base">
-              {t('collectionsAll.description')}
-            </p>
-          </div>
+      <section className="bg-white border-b-2 border-secondary">
+        <div className="mx-auto max-w-screen-2xl px-4 py-7 sm:px-6 sm:py-8 lg:px-8">
+          <h1 className="text-2xl font-black tracking-tight text-dark sm:text-3xl lg:text-4xl">
+            {t('collectionsAll.title')}
+          </h1>
+          <p className="mt-1 text-sm text-text-muted sm:text-base">
+            {t('collectionsAll.description')}
+          </p>
         </div>
       </section>
 
