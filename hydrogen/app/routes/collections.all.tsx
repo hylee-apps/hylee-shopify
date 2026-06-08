@@ -262,60 +262,41 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
       {/* ================================================================ */}
       {/* HERO BANNER                                                        */}
       {/* ================================================================ */}
+      {/* ── Variant C: Bottom-Anchored — matches homepage hero language ────── */}
       <section className="relative overflow-hidden bg-dark">
-        {/* Decorative glow */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-25"
-          style={{
-            background:
-              'radial-gradient(ellipse 55% 70% at 80% 50%, #2699a6, transparent)',
-          }}
-          aria-hidden
-        />
+        {/* Full-bleed collection image as background */}
+        {collectionImage && (
+          <div
+            className="pointer-events-none absolute inset-0 opacity-30"
+            aria-hidden="true"
+          >
+            <Image
+              data={collectionImage}
+              sizes="100vw"
+              className="size-full object-cover object-center"
+              loading="eager"
+            />
+          </div>
+        )}
 
-        <div className="relative mx-auto flex max-w-screen-2xl items-center gap-8 px-4 py-10 sm:px-6 lg:gap-16 lg:px-8 lg:py-14">
-          {/* Text block */}
-          <div className="flex-1">
-            <h1 className="text-5xl font-black leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl">
-              {t('collectionsAll.title')}
-            </h1>
-            <p className="mt-4 max-w-md text-lg leading-relaxed text-white/65">
-              {t('collectionsAll.description')}
-            </p>
+        {/* Bottom-anchored gradient strip — matches carousel Variant C */}
+        <div className="relative bg-linear-to-t from-dark/90 via-dark/50 to-transparent">
+          <div className="mx-auto flex max-w-screen-2xl items-end justify-between gap-6 px-6 pb-8 pt-24 sm:px-10 sm:pb-10 sm:pt-32 lg:px-14 lg:pb-12 lg:pt-40">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-3xl font-black leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+                {t('collectionsAll.title')}
+              </h1>
+              <p className="text-sm font-medium text-white/70 sm:text-base">
+                {t('collectionsAll.description')}
+              </p>
+            </div>
             <Link
               to="#products"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
+              className="shrink-0 inline-flex items-center rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-white shadow-lg transition hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:px-8 sm:py-3"
             >
               {t('collection.shopNow')}
             </Link>
           </div>
-
-          {/* Collection image (when available) or decorative colour blocks */}
-          {collectionImage ? (
-            <div className="hidden shrink-0 overflow-hidden rounded-2xl shadow-lg lg:block lg:h-[220px] lg:w-[360px]">
-              <Image
-                data={collectionImage}
-                aspectRatio="360/220"
-                sizes="360px"
-                className="h-full w-full object-cover"
-                loading="eager"
-              />
-            </div>
-          ) : (
-            <div
-              className="hidden shrink-0 lg:grid lg:h-[200px] lg:w-[300px] lg:grid-cols-2 lg:gap-3"
-              aria-hidden
-            >
-              {[
-                'bg-primary',
-                'bg-secondary',
-                'bg-brand-accent',
-                'bg-dark/60',
-              ].map((bg) => (
-                <div key={bg} className={`${bg} rounded-xl`} />
-              ))}
-            </div>
-          )}
         </div>
       </section>
 
