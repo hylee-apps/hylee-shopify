@@ -262,15 +262,12 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
       {/* ================================================================ */}
       {/* HERO BANNER                                                        */}
       {/* ================================================================ */}
+      {/* ── Variant B: Left-Aligned Panel — matches homepage hero language ── */}
       <section className="relative overflow-hidden bg-dark">
-        {/* Decorative glow */}
+        {/* Teal glow — token-driven, no inline style */}
         <div
-          className="pointer-events-none absolute inset-0 opacity-25"
-          style={{
-            background:
-              'radial-gradient(ellipse 55% 70% at 80% 50%, #2699a6, transparent)',
-          }}
-          aria-hidden
+          className="pointer-events-none absolute inset-y-0 left-0 w-2/3 bg-[radial-gradient(ellipse_60%_80%_at_20%_50%,var(--color-secondary),transparent)] opacity-20"
+          aria-hidden="true"
         />
 
         <div className="relative mx-auto flex max-w-screen-2xl items-center gap-8 px-4 py-10 sm:px-6 lg:gap-16 lg:px-8 lg:py-14">
