@@ -262,41 +262,33 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
       {/* ================================================================ */}
       {/* HERO BANNER                                                        */}
       {/* ================================================================ */}
-      {/* ── Variant C: Bottom-Anchored — matches homepage hero language ────── */}
-      <section className="relative overflow-hidden bg-dark">
-        {/* Full-bleed collection image as background */}
-        {collectionImage && (
-          <div
-            className="pointer-events-none absolute inset-0 opacity-30"
-            aria-hidden="true"
-          >
-            <Image
-              data={collectionImage}
-              sizes="100vw"
-              className="size-full object-cover object-center"
-              loading="eager"
-            />
+      {/* ── Variant C: Functional strip with collection image thumbnail ─────
+            Compact dark strip with title left and a small tight-cropped
+            collection image on the right (hidden on mobile).
+            Inspired by IKEA / Article category page headers.
+      ─────────────────────────────────────────────────────────────────── */}
+      <section className="bg-dark border-b border-white/10">
+        <div className="mx-auto flex max-w-screen-2xl items-center gap-6 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl">
+              {t('collectionsAll.title')}
+            </h1>
+            <p className="mt-0.5 truncate text-sm text-white/50">
+              {t('collectionsAll.description')}
+            </p>
           </div>
-        )}
 
-        {/* Bottom-anchored gradient strip — matches carousel Variant C */}
-        <div className="relative bg-linear-to-t from-dark/90 via-dark/50 to-transparent">
-          <div className="mx-auto flex max-w-screen-2xl items-end justify-between gap-6 px-6 pb-8 pt-24 sm:px-10 sm:pb-10 sm:pt-32 lg:px-14 lg:pb-12 lg:pt-40">
-            <div className="flex flex-col gap-2">
-              <h1 className="text-3xl font-black leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
-                {t('collectionsAll.title')}
-              </h1>
-              <p className="text-sm font-medium text-white/70 sm:text-base">
-                {t('collectionsAll.description')}
-              </p>
+          {collectionImage && (
+            <div className="hidden shrink-0 overflow-hidden rounded-lg sm:block sm:h-16 sm:w-28 lg:h-20 lg:w-36">
+              <Image
+                data={collectionImage}
+                aspectRatio="9/5"
+                sizes="(min-width: 1024px) 144px, 112px"
+                className="size-full object-cover"
+                loading="eager"
+              />
             </div>
-            <Link
-              to="#products"
-              className="shrink-0 inline-flex items-center rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-white shadow-lg transition hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:px-8 sm:py-3"
-            >
-              {t('collection.shopNow')}
-            </Link>
-          </div>
+          )}
         </div>
       </section>
 
