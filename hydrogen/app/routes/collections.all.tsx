@@ -262,37 +262,16 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
       {/* ================================================================ */}
       {/* HERO BANNER                                                        */}
       {/* ================================================================ */}
-      {/* ── Variant A: Centered Editorial — matches homepage hero language ── */}
-      <section className="relative overflow-hidden bg-dark">
-        {/* Collection image as a faded right-side background accent */}
-        {collectionImage && (
-          <div
-            className="pointer-events-none absolute inset-y-0 right-0 w-1/2 opacity-15"
-            aria-hidden="true"
-          >
-            <img
-              src={collectionImage.url}
-              alt=""
-              className="size-full object-cover object-center"
-            />
-          </div>
-        )}
-
-        {/* Teal glow — token-driven, no inline style */}
-        <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_55%_70%_at_80%_50%,var(--color-secondary),transparent)] opacity-20"
-          aria-hidden="true"
-        />
-
-        <div className="relative mx-auto flex max-w-screen-2xl items-center gap-8 px-4 py-12 text-center sm:px-6 sm:py-16 lg:px-8 lg:py-20">
-          <div className="mx-auto flex flex-col items-center gap-4">
-            <h1 className="text-4xl font-black leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl drop-shadow-lg">
-              {t('collectionsAll.title')}
-            </h1>
-            <p className="max-w-xl text-base font-medium text-white/75 sm:text-lg lg:text-xl">
-              {t('collectionsAll.description')}
-            </p>
-          </div>
+      {/* ── Variant A: Functional strip — pure minimal, title only ─────────
+            Inspired by West Elm / Wayfair filtered category pages.
+            Compact dark strip; no image, no description — content starts
+            immediately below. The simplest possible page header.
+      ─────────────────────────────────────────────────────────────────── */}
+      <section className="bg-dark border-b border-white/10">
+        <div className="mx-auto max-w-screen-2xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+          <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl">
+            {t('collectionsAll.title')}
+          </h1>
         </div>
       </section>
 
