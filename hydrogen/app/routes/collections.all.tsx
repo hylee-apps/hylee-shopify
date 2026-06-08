@@ -262,60 +262,37 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
       {/* ================================================================ */}
       {/* HERO BANNER                                                        */}
       {/* ================================================================ */}
+      {/* ── Variant A: Centered Editorial — matches homepage hero language ── */}
       <section className="relative overflow-hidden bg-dark">
-        {/* Decorative glow */}
+        {/* Collection image as a faded right-side background accent */}
+        {collectionImage && (
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 w-1/2 opacity-15"
+            aria-hidden="true"
+          >
+            <img
+              src={collectionImage.url}
+              alt=""
+              className="size-full object-cover object-center"
+            />
+          </div>
+        )}
+
+        {/* Teal glow — token-driven, no inline style */}
         <div
-          className="pointer-events-none absolute inset-0 opacity-25"
-          style={{
-            background:
-              'radial-gradient(ellipse 55% 70% at 80% 50%, #2699a6, transparent)',
-          }}
-          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_55%_70%_at_80%_50%,var(--color-secondary),transparent)] opacity-20"
+          aria-hidden="true"
         />
 
-        <div className="relative mx-auto flex max-w-screen-2xl items-center gap-8 px-4 py-10 sm:px-6 lg:gap-16 lg:px-8 lg:py-14">
-          {/* Text block */}
-          <div className="flex-1">
-            <h1 className="text-5xl font-black leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl">
+        <div className="relative mx-auto flex max-w-screen-2xl items-center gap-8 px-4 py-12 text-center sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+          <div className="mx-auto flex flex-col items-center gap-4">
+            <h1 className="text-4xl font-black leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl drop-shadow-lg">
               {t('collectionsAll.title')}
             </h1>
-            <p className="mt-4 max-w-md text-lg leading-relaxed text-white/65">
+            <p className="max-w-xl text-base font-medium text-white/75 sm:text-lg lg:text-xl">
               {t('collectionsAll.description')}
             </p>
-            <Link
-              to="#products"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
-            >
-              {t('collection.shopNow')}
-            </Link>
           </div>
-
-          {/* Collection image (when available) or decorative colour blocks */}
-          {collectionImage ? (
-            <div className="hidden shrink-0 overflow-hidden rounded-2xl shadow-lg lg:block lg:h-[220px] lg:w-[360px]">
-              <Image
-                data={collectionImage}
-                aspectRatio="360/220"
-                sizes="360px"
-                className="h-full w-full object-cover"
-                loading="eager"
-              />
-            </div>
-          ) : (
-            <div
-              className="hidden shrink-0 lg:grid lg:h-[200px] lg:w-[300px] lg:grid-cols-2 lg:gap-3"
-              aria-hidden
-            >
-              {[
-                'bg-primary',
-                'bg-secondary',
-                'bg-brand-accent',
-                'bg-dark/60',
-              ].map((bg) => (
-                <div key={bg} className={`${bg} rounded-xl`} />
-              ))}
-            </div>
-          )}
         </div>
       </section>
 

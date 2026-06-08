@@ -1,4 +1,5 @@
 import {useState, useEffect, useCallback, useRef} from 'react';
+import {Link} from 'react-router';
 
 export interface CarouselSlide {
   id: string;
@@ -73,6 +74,8 @@ export function HeroCarousel({slides, interval = 4500}: HeroCarouselProps) {
 
   if (!count) return null;
 
+  const slide = slides[current];
+
   return (
     <div
       className="relative w-full overflow-hidden"
@@ -80,7 +83,7 @@ export function HeroCarousel({slides, interval = 4500}: HeroCarouselProps) {
       aria-label="Featured promotions"
     >
       <div
-        className="relative flex w-full aspect-video max-h-screen items-center justify-center px-4 sm:px-[157px]"
+        className="relative flex w-full aspect-video max-h-screen items-center justify-center"
         aria-roledescription="slide"
         aria-label={`Slide ${current + 1} of ${count}`}
       >
@@ -96,30 +99,31 @@ export function HeroCarousel({slides, interval = 4500}: HeroCarouselProps) {
             2 — current/incoming slide (fades 0→1 on top)
            10 — scrim
            20 — content
+           30 — dots
         */}
-        {slides.map((slide, i) => {
+        {slides.map((s, i) => {
           const isCurrent = i === current;
           const isPrev = i === prev;
 
           return (
             <div
-              key={slide.id}
+              key={s.id}
               className="absolute inset-0 transition-opacity"
               style={{
                 opacity: isCurrent || isPrev ? 1 : 0,
                 zIndex: isCurrent ? 2 : isPrev ? 1 : 0,
                 transitionDuration: `${FADE_MS}ms`,
                 pointerEvents: isCurrent ? 'auto' : 'none',
-                backgroundColor: slide.bgColor ?? 'var(--color-hero)',
+                backgroundColor: s.bgColor ?? 'var(--color-hero)',
                 backgroundImage:
-                  !slide.videoUrl && slide.backgroundImage
-                    ? `url('${slide.backgroundImage}')`
+                  !s.videoUrl && s.backgroundImage
+                    ? `url('${s.backgroundImage}')`
                     : undefined,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
               }}
             >
-              {slide.videoUrl && (
+              {s.videoUrl && (
                 <video
                   className="absolute inset-0 size-full object-cover"
                   autoPlay
@@ -127,28 +131,73 @@ export function HeroCarousel({slides, interval = 4500}: HeroCarouselProps) {
                   loop
                   playsInline
                   preload="auto"
-                  poster={slide.backgroundImage}
+                  poster={s.backgroundImage}
                   aria-hidden="true"
                 >
-                  <source src={slide.videoUrl} type="video/mp4" />
+                  <source src={s.videoUrl} type="video/mp4" />
                 </video>
               )}
             </div>
           );
         })}
 
-        {/* Scrim */}
+        {/* Scrim — slightly heavier than default for text legibility */}
         <div
-          className="absolute inset-0 bg-black/25 pointer-events-none"
+          className="absolute inset-0 bg-black/40 pointer-events-none"
           style={{zIndex: 10}}
           aria-hidden="true"
         />
 
-        {/* Content — layout implemented per variant */}
+        {/* ── Variant A: Centered Editorial ─────────────────────────────────
+            Headline → subheadline → CTA, all centered.
+            Logo removed — it lives in the header.
+            Search bar removed — it lives in the header.
+        ─────────────────────────────────────────────────────────────────── */}
         <div
-          className="relative flex flex-col items-center gap-4 px-4 text-center sm:px-[221px] w-full"
+          className="relative flex flex-col items-center gap-5 px-6 text-center sm:px-16 lg:px-32 w-full"
           style={{zIndex: 20}}
-        />
+        >
+          {slide.headline && (
+            <h2 className="text-3xl font-black leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl drop-shadow-lg">
+              {slide.headline}
+            </h2>
+          )}
+          {slide.subheadline && (
+            <p className="max-w-2xl text-base font-medium text-white/80 sm:text-lg lg:text-xl drop-shadow">
+              {slide.subheadline}
+            </p>
+          )}
+          {slide.ctaLabel && slide.ctaUrl && (
+            <Link
+              to={slide.ctaUrl}
+              className="mt-2 inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-bold text-white shadow-lg transition-colors hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:text-base sm:px-10 sm:py-4"
+            >
+              {slide.ctaLabel}
+            </Link>
+          )}
+        </div>
+
+        {/* Slide dot navigation */}
+        {count > 1 && (
+          <div
+            className="absolute bottom-5 flex gap-2 items-center justify-center w-full"
+            style={{zIndex: 30}}
+          >
+            {slides.map((s, i) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => setCurrent(i)}
+                aria-label={`Go to slide ${i + 1}`}
+                className={`rounded-full transition-all ${
+                  i === current
+                    ? 'w-6 h-2 bg-white'
+                    : 'w-2 h-2 bg-white/50 hover:bg-white/75'
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
