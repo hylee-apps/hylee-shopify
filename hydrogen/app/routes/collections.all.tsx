@@ -262,16 +262,19 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
       {/* ================================================================ */}
       {/* HERO BANNER                                                        */}
       {/* ================================================================ */}
-      {/* ── Variant A: Functional strip — pure minimal, title only ─────────
-            Inspired by West Elm / Wayfair filtered category pages.
-            Compact dark strip; no image, no description — content starts
-            immediately below. The simplest possible page header.
+      {/* ── Variant A: Brand green block ─────────────────────────────────────
+            bg-primary (brand green) strip — title and description in near-black.
+            Flips the color expectation entirely; makes the brand color do the
+            heavy lifting. Inspired by Spotify category headers.
       ─────────────────────────────────────────────────────────────────── */}
-      <section className="bg-dark border-b border-white/10">
-        <div className="mx-auto max-w-screen-2xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-          <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl">
+      <section className="bg-primary">
+        <div className="mx-auto max-w-screen-2xl px-4 py-7 sm:px-6 sm:py-8 lg:px-8">
+          <h1 className="text-2xl font-black tracking-tight text-dark sm:text-3xl lg:text-4xl">
             {t('collectionsAll.title')}
           </h1>
+          <p className="mt-1 text-sm font-medium text-dark/60 sm:text-base">
+            {t('collectionsAll.description')}
+          </p>
         </div>
       </section>
 
