@@ -262,33 +262,32 @@ export default function AllProductsPage({loaderData}: Route.ComponentProps) {
       {/* ================================================================ */}
       {/* HERO BANNER                                                        */}
       {/* ================================================================ */}
-      {/* ── Variant C: Functional strip with collection image thumbnail ─────
-            Compact dark strip with title left and a small tight-cropped
-            collection image on the right (hidden on mobile).
-            Inspired by IKEA / Article category page headers.
+      {/* ── Variant C: Oversized ambient typography ──────────────────────────
+            Dark strip with the title rendered HUGE and translucent in the
+            background (~7% opacity), creating a typographic texture.
+            A small, readable title + description sits on top.
+            Inspired by Figma, fashion magazines, Awwwards editorial sites.
       ─────────────────────────────────────────────────────────────────── */}
-      <section className="bg-dark border-b border-white/10">
-        <div className="mx-auto flex max-w-screen-2xl items-center gap-6 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
-          <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl">
-              {t('collectionsAll.title')}
-            </h1>
-            <p className="mt-0.5 truncate text-sm text-white/50">
-              {t('collectionsAll.description')}
-            </p>
-          </div>
+      <section className="relative overflow-hidden bg-dark">
+        {/* Ambient oversized text — purely decorative */}
+        <span
+          className="pointer-events-none absolute inset-0 flex select-none items-center px-2 text-[clamp(5rem,18vw,14rem)] font-black uppercase leading-none tracking-tighter text-white opacity-[0.07]"
+          aria-hidden="true"
+        >
+          {t('collectionsAll.title')}
+        </span>
 
-          {collectionImage && (
-            <div className="hidden shrink-0 overflow-hidden rounded-lg sm:block sm:h-16 sm:w-28 lg:h-20 lg:w-36">
-              <Image
-                data={collectionImage}
-                aspectRatio="9/5"
-                sizes="(min-width: 1024px) 144px, 112px"
-                className="size-full object-cover"
-                loading="eager"
-              />
-            </div>
-          )}
+        {/* Readable content layer */}
+        <div className="relative mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-secondary">
+            Hy-lee
+          </p>
+          <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl">
+            {t('collectionsAll.title')}
+          </h1>
+          <p className="mt-1 text-sm text-white/50 sm:text-base">
+            {t('collectionsAll.description')}
+          </p>
         </div>
       </section>
 
