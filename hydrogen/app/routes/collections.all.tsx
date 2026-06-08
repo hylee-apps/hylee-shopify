@@ -235,7 +235,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
 
 export function meta({}: Route.MetaArgs) {
   return getSeoMeta({
-    title: 'Everything — Hy-lee',
+    title: 'Shop All — Hy-lee',
     description:
       'Every space-saving essential we carry — compact furniture, off-grid power, and tiny home essentials.',
   });
