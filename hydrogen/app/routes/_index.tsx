@@ -1,8 +1,9 @@
 import {useEffect, useRef} from 'react';
 import {ChevronLeft, ChevronRight} from 'lucide-react';
 import {useTranslation} from 'react-i18next';
-import {Link, useLoaderData} from 'react-router';
+import {Link, Form, useLoaderData} from 'react-router';
 import {getSeoMeta} from '@shopify/hydrogen';
+import {PillInput} from '~/components/ui/pill-input';
 import {
   ProductCard,
   type ProductCardProps,
@@ -41,10 +42,6 @@ const HERO_SLIDES_QUERY = `#graphql
   }
 ` as const;
 
-// Fields parsed from the hero_slide metaobject:
-//   background_image, video_url, bg_color, sort_order, active  — existing
-//   headline, subheadline, cta_label, cta_url                  — new (add in Admin)
-
 function buildHeroSlides(data: any): CarouselSlide[] {
   const nodes: any[] = data?.metaobjects?.nodes ?? [];
 
@@ -62,10 +59,6 @@ function buildHeroSlides(data: any): CarouselSlide[] {
           (byKey.background_image?.reference?.image?.url as string) ||
           undefined,
         bgColor: (byKey.bg_color?.value as string) || undefined,
-        headline: (byKey.headline?.value as string) || undefined,
-        subheadline: (byKey.subheadline?.value as string) || undefined,
-        ctaLabel: (byKey.cta_label?.value as string) || undefined,
-        ctaUrl: (byKey.cta_url?.value as string) || undefined,
         _sort: byKey.sort_order?.value
           ? parseInt(byKey.sort_order.value, 10)
           : 999,
@@ -888,7 +881,27 @@ export default function Homepage() {
       {/* HERO CAROUSEL — Figma node 203:267                              */}
       {/* Carousel IS the hero: cycling bg + logo + search always shown   */}
       {/* ================================================================ */}
-      <HeroCarousel slides={heroSlides} />
+      <HeroCarousel
+        slides={heroSlides}
+        header={
+          <img
+            src="/logo-white.png"
+            alt="Hylee"
+            className="h-[101.821px] w-[183px] object-cover shrink-0"
+            loading="eager"
+          />
+        }
+        footer={
+          <Form action="/search" method="get" className="w-full max-w-[683px]">
+            <PillInput
+              type="search"
+              name="q"
+              placeholder={t('home.searchPlaceholder')}
+              autoComplete="off"
+            />
+          </Form>
+        }
+      />
 
       {/* ================================================================ */}
       {/* PRODUCTS CONTAINER — Figma node 218:476 (1440×1778px)           */}

@@ -11,26 +11,27 @@ export interface CarouselSlide {
   /** Fallback bg color shown only during true initial load (before any
    *  content has loaded). Never flashed during slide transitions. */
   bgColor?: string;
-  /** Primary headline text (from hero_slide.headline metafield). */
-  headline?: string;
-  /** Supporting subheadline text (from hero_slide.subheadline metafield). */
-  subheadline?: string;
-  /** CTA button label (from hero_slide.cta_label metafield). */
-  ctaLabel?: string;
-  /** CTA button destination URL (from hero_slide.cta_url metafield). */
-  ctaUrl?: string;
 }
 
 interface HeroCarouselProps {
   slides: CarouselSlide[];
   /** Auto-advance interval in ms. 0 = disabled. Default: 4500 */
   interval?: number;
+  /** Rendered at the top of the content block (e.g. logo) */
+  header?: React.ReactNode;
+  /** Rendered between subheadline and CTA (e.g. search form) */
+  footer?: React.ReactNode;
 }
 
 // Duration of the crossfade between slides (ms)
 const FADE_MS = 500;
 
-export function HeroCarousel({slides, interval = 4500}: HeroCarouselProps) {
+export function HeroCarousel({
+  slides,
+  interval = 4500,
+  header,
+  footer,
+}: HeroCarouselProps) {
   const [current, setCurrent] = useState(0);
   // Index of the outgoing slide — kept at opacity 1 (beneath the incoming
   // slide) until the crossfade completes so the bgColor never shows through.
@@ -144,11 +145,14 @@ export function HeroCarousel({slides, interval = 4500}: HeroCarouselProps) {
           aria-hidden="true"
         />
 
-        {/* Content — layout implemented per variant */}
+        {/* Content */}
         <div
           className="relative flex flex-col items-center gap-4 px-4 text-center sm:px-[221px] w-full"
           style={{zIndex: 20}}
-        />
+        >
+          {header}
+          {footer}
+        </div>
       </div>
     </div>
   );
