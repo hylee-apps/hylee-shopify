@@ -113,10 +113,9 @@ export default function CategoriesIndex() {
         className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pb-16"
         data-testid="categories-index"
       >
-        {/* Page heading */}
-        <h1 className="text-3xl font-bold text-text mt-2 mb-6">
-          {t('allCategories.title')}
-        </h1>
+        {/* Page heading — visually hidden; breadcrumb conveys the same context.
+            Kept in DOM for screen readers and SEO. */}
+        <h1 className="sr-only">{t('allCategories.title')}</h1>
 
         {/* A-Z letter strip — sticky within the page content */}
         <div
