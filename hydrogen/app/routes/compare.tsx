@@ -152,9 +152,7 @@ export default function ComparePage({loaderData}: Route.ComponentProps) {
         {/* Header */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
-              {t('compare.page.heading')}
-            </h1>
+            <h1 className="sr-only">{t('compare.page.heading')}</h1>
             {hasProducts && (
               <p className="mt-1 text-sm text-slate-600">
                 {t('compare.page.subheading', {count: products.length})}
