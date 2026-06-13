@@ -260,14 +260,19 @@ async function adminRestGet<T = unknown>(
 //
 // Requires the Admin app to have the `read_script_tags` scope.
 
-let cachedInboxUrl: string | null = null;
-let inboxUrlExpiresAt = 0;
+const INBOX_URL_CACHE_KEY = new Request(
+  'https://cache.internal/inbox-script-url',
+);
+const THEME_ID_CACHE_KEY = new Request('https://cache.internal/main-theme-id');
+// 24-hour TTL — long enough to avoid per-request overhead, short enough to
+// pick up Inbox version or theme changes within a day.
+const ADMIN_CACHE_MAX_AGE = 24 * 60 * 60;
 
 /**
  * Returns the current Shopify Inbox widget CDN URL.
  *
  * Resolution order:
- *   1. In-memory cache (24h TTL)
+ *   1. Cloudflare Cache API (24h TTL, shared across isolates)
  *   2. Admin REST API script_tags lookup (live, authoritative)
  *   3. cmsOverride — value from the custom.shopify_inbox_widget_script_url Shop metafield
  *   4. null — widget is not loaded
@@ -276,9 +281,9 @@ export async function getInboxScriptUrl(
   env: AdminEnv,
   cmsOverride?: string | null,
 ): Promise<string | null> {
-  if (cachedInboxUrl && Date.now() < inboxUrlExpiresAt) {
-    return cachedInboxUrl;
-  }
+  const cache = await caches.open('hydrogen');
+  const cached = await cache.match(INBOX_URL_CACHE_KEY);
+  if (cached) return cached.text();
 
   try {
     const data = await adminRestGet<{
@@ -292,11 +297,13 @@ export async function getInboxScriptUrl(
     );
 
     if (tag) {
-      cachedInboxUrl = tag.src;
-      // 24-hour cache — long enough to avoid per-request overhead, short
-      // enough to pick up Inbox version updates within a day.
-      inboxUrlExpiresAt = Date.now() + 24 * 60 * 60 * 1000;
-      return cachedInboxUrl;
+      await cache.put(
+        INBOX_URL_CACHE_KEY,
+        new Response(tag.src, {
+          headers: {'Cache-Control': `max-age=${ADMIN_CACHE_MAX_AGE}`},
+        }),
+      );
+      return tag.src;
     }
   } catch {
     // Swallow — missing read_script_tags scope or network error.
@@ -361,13 +368,10 @@ export function buildInboxWidgetConfig(
 //
 // Requires the Admin app to have the `read_themes` scope.
 
-let cachedThemeId: number | null = null;
-let themeIdExpiresAt = 0;
-
 export async function getMainThemeId(env: AdminEnv): Promise<number> {
-  if (cachedThemeId !== null && Date.now() < themeIdExpiresAt) {
-    return cachedThemeId;
-  }
+  const cache = await caches.open('hydrogen');
+  const cached = await cache.match(THEME_ID_CACHE_KEY);
+  if (cached) return (await cached.json()) as number;
 
   try {
     const data = await adminRestGet<{
@@ -376,10 +380,13 @@ export async function getMainThemeId(env: AdminEnv): Promise<number> {
 
     const main = data.themes.find((t) => t.role === 'main');
     if (main) {
-      cachedThemeId = main.id;
-      // Themes rarely change — cache for 24 hours.
-      themeIdExpiresAt = Date.now() + 24 * 60 * 60 * 1000;
-      return cachedThemeId;
+      await cache.put(
+        THEME_ID_CACHE_KEY,
+        new Response(String(main.id), {
+          headers: {'Cache-Control': `max-age=${ADMIN_CACHE_MAX_AGE}`},
+        }),
+      );
+      return main.id;
     }
   } catch {
     // Swallow — missing read_themes scope or network error. Caller falls back.

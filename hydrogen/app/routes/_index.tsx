@@ -84,9 +84,10 @@ export function meta({data, matches}: Route.MetaArgs) {
   )?.globalCms;
 
   const title = globalCms?.homepage_title ?? 'Hy-lee | Home';
-  const description =
+  const rawDescription =
     globalCms?.homepage_description ??
-    'Shop Hylee for compact furniture, off-grid power, and space-saving essentials. Perfect for tiny homes, van life, dorms & small apartments. Maximize your space!';
+    'Shop Hylee for compact furniture, off-grid power, and space-saving essentials. Perfect for tiny homes, van life, dorms & small apartments.';
+  const description = rawDescription.slice(0, 155);
 
   const canonical = data?.canonicalUrl
     ? [{tagName: 'link', rel: 'canonical', href: data.canonicalUrl}]

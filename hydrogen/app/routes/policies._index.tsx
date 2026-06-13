@@ -86,9 +86,7 @@ export default function PoliciesIndex({loaderData}: Route.ComponentProps) {
     <>
       <PageBreadcrumbs current="Policies" />
       <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-        <h1 className="mt-6 mb-8 text-3xl font-bold text-dark sm:text-4xl">
-          Store Policies
-        </h1>
+        <h1 className="sr-only">Store Policies</h1>
 
         <div className="grid gap-4 sm:grid-cols-2">
           {policies.map((policy) => (

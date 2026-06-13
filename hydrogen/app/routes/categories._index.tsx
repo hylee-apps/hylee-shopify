@@ -19,6 +19,9 @@ const ALL_COLLECTIONS_QUERY = `#graphql
         id
         title
         handle
+        isDisplayed: metafield(namespace: "custom", key: "is_displayed_on_all_product_categories_page") {
+          value
+        }
       }
     }
   }
@@ -53,8 +56,9 @@ export async function loader({request, context}: Route.LoaderArgs) {
     })
     .catch(() => null);
 
-  const collections: Array<{id: string; title: string; handle: string}> =
-    data?.collections?.nodes ?? [];
+  const collections: Array<{id: string; title: string; handle: string}> = (
+    data?.collections?.nodes ?? []
+  ).filter((c) => c.isDisplayed?.value === 'true');
 
   return {collections};
 }
@@ -100,82 +104,84 @@ export default function CategoriesIndex() {
   ];
 
   return (
-    <div
-      className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pb-16"
-      data-testid="categories-index"
-    >
-      {/* Breadcrumb */}
+    <>
+      {/* Breadcrumb — rendered outside the padded container so its own
+          px-4 sm:px-6 lg:px-8 aligns with the rest of the site */}
       <PageBreadcrumbs current={t('allCategories.title')} />
 
-      {/* Page heading */}
-      <h1 className="text-3xl font-bold text-text mt-2 mb-6">
-        {t('allCategories.title')}
-      </h1>
-
-      {/* A-Z letter strip — sticky within the page content */}
       <div
-        className="sticky top-[56px] z-10 bg-white border-b border-border py-2 mb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 overflow-x-auto"
-        data-testid="letter-strip"
+        className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pb-16"
+        data-testid="categories-index"
       >
-        <ul className="flex gap-1 min-w-max">
-          {ALPHA.map((letter) => {
-            const active = activeLetters.has(letter);
+        {/* Page heading — visually hidden; breadcrumb conveys the same context.
+            Kept in DOM for screen readers and SEO. */}
+        <h1 className="sr-only">{t('allCategories.title')}</h1>
+
+        {/* A-Z letter strip — sticky within the page content */}
+        <div
+          className="sticky top-[56px] z-10 bg-white border-b border-border py-2 mb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 overflow-x-auto"
+          data-testid="letter-strip"
+        >
+          <ul className="flex gap-1 min-w-max">
+            {ALPHA.map((letter) => {
+              const active = activeLetters.has(letter);
+              return (
+                <li key={letter}>
+                  <button
+                    type="button"
+                    onClick={() => active && scrollTo(letter)}
+                    disabled={!active}
+                    className={`w-8 h-8 rounded-md text-sm font-semibold transition-colors ${
+                      active
+                        ? 'text-secondary hover:bg-secondary/10 cursor-pointer'
+                        : 'text-text-muted/40 cursor-default'
+                    }`}
+                  >
+                    {letter}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        {/* Letter sections */}
+        <div className="space-y-12">
+          {orderedKeys.map((letter) => {
+            const cols = grouped.get(letter)!;
             return (
-              <li key={letter}>
-                <button
-                  type="button"
-                  onClick={() => active && scrollTo(letter)}
-                  disabled={!active}
-                  className={`w-8 h-8 rounded-md text-sm font-semibold transition-colors ${
-                    active
-                      ? 'text-secondary hover:bg-secondary/10 cursor-pointer'
-                      : 'text-text-muted/40 cursor-default'
-                  }`}
-                >
+              <section
+                key={letter}
+                ref={(el) => {
+                  sectionRefs.current[letter] = el;
+                }}
+                id={`section-${letter}`}
+                aria-label={t('allCategories.sectionLabel', {letter})}
+              >
+                {/* Section heading */}
+                <h2 className="text-xl font-bold text-secondary border-b border-border pb-2 mb-5">
                   {letter}
-                </button>
-              </li>
+                </h2>
+
+                {/* Category text links — 3-column directory layout */}
+                <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-1">
+                  {cols.map((col) => (
+                    <li key={col.id}>
+                      <Link
+                        to={`/collections/${col.handle}`}
+                        data-testid="category-tile"
+                        className="block py-1.5 text-sm text-text hover:text-secondary hover:underline underline-offset-2 transition-colors truncate"
+                      >
+                        {col.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
             );
           })}
-        </ul>
+        </div>
       </div>
-
-      {/* Letter sections */}
-      <div className="space-y-12">
-        {orderedKeys.map((letter) => {
-          const cols = grouped.get(letter)!;
-          return (
-            <section
-              key={letter}
-              ref={(el) => {
-                sectionRefs.current[letter] = el;
-              }}
-              id={`section-${letter}`}
-              aria-label={t('allCategories.sectionLabel', {letter})}
-            >
-              {/* Section heading */}
-              <h2 className="text-xl font-bold text-secondary border-b border-border pb-2 mb-5">
-                {letter}
-              </h2>
-
-              {/* Category text links — 3-column directory layout */}
-              <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-1">
-                {cols.map((col) => (
-                  <li key={col.id}>
-                    <Link
-                      to={`/collections/${col.handle}`}
-                      data-testid="category-tile"
-                      className="block py-1.5 text-sm text-text hover:text-secondary hover:underline underline-offset-2 transition-colors truncate"
-                    >
-                      {col.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          );
-        })}
-      </div>
-    </div>
+    </>
   );
 }

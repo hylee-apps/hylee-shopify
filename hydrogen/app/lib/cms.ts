@@ -32,6 +32,8 @@
  * | social_media_instagram        | URL                | Instagram profile URL                |
  * | social_media_pinterest        | URL                | Pinterest profile URL                |
  * | google_container_id           | Single line text   | GTM container ID (e.g. GTM-XXXXXXX)  |
+ * | ga4_measurement_id            | Single line text   | GA4 measurement ID (e.g. G-XXXXXXXXX)|
+ * | ga4_api_secret                | Single line text   | GA4 Measurement Protocol API secret  |
  * | shopify_inbox_widget_script_url | URL              | Inbox widget CDN URL fallback        |
  * | shopify_inbox_shop_id         | Single line text   | Inbox data-shop-id attribute value   |
  *
@@ -58,6 +60,10 @@ export interface GlobalCmsConfig {
   socialPinterest: string | null;
   /** GTM container ID (e.g. "GTM-T925VVHC"). null = metafield not configured, GTM will not load. */
   gtmContainerId: string | null;
+  /** GA4 measurement ID (e.g. "G-XXXXXXXXXX"). null = metafield not configured, GA4 will not load. */
+  ga4MeasurementId: string | null;
+  /** GA4 Measurement Protocol API secret. null = server-side events disabled. */
+  ga4ApiSecret: string | null;
   /** Shopify Inbox widget CDN URL. Used as fallback when Admin API script_tags lookup fails. */
   shopifyInboxWidgetScriptUrl: string | null;
   /** Inbox widget data-shop-id attribute. Visible in the Liquid <script> tag Shopify injects. */
@@ -73,6 +79,8 @@ const DEFAULT_CMS_CONFIG: GlobalCmsConfig = {
   socialInstagram: null,
   socialPinterest: null,
   gtmContainerId: null,
+  ga4MeasurementId: null,
+  ga4ApiSecret: null,
   shopifyInboxWidgetScriptUrl: null,
   shopifyInboxShopId: null,
 };
@@ -104,6 +112,12 @@ export const GLOBAL_CMS_QUERY = `#graphql
         value
       }
       gtmContainerId: metafield(namespace: "custom", key: "google_container_id") {
+        value
+      }
+      ga4MeasurementId: metafield(namespace: "custom", key: "ga4_measurement_id") {
+        value
+      }
+      ga4ApiSecret: metafield(namespace: "custom", key: "ga4_api_secret") {
         value
       }
       shopifyInboxWidgetScriptUrl: metafield(namespace: "custom", key: "shopify_inbox_widget_script_url") {
@@ -144,6 +158,8 @@ export function parseGlobalCms(
     socialPinterest:
       shop.socialPinterest?.value ?? DEFAULT_CMS_CONFIG.socialPinterest,
     gtmContainerId: shop.gtmContainerId?.value || null,
+    ga4MeasurementId: shop.ga4MeasurementId?.value || null,
+    ga4ApiSecret: shop.ga4ApiSecret?.value || null,
     shopifyInboxWidgetScriptUrl:
       shop.shopifyInboxWidgetScriptUrl?.value ??
       DEFAULT_CMS_CONFIG.shopifyInboxWidgetScriptUrl,
