@@ -9,7 +9,7 @@ import {
   useFetcher,
 } from 'react-router';
 import type {RootLoader} from '~/root';
-import {Image, getSeoMeta} from '@shopify/hydrogen';
+import {Image, getSeoMeta, Analytics} from '@shopify/hydrogen';
 import {ProductGallery, StickyMobileCTA, VariantSelector} from '~/components';
 import {AddToCart, PriceDisplay, QuantitySelector} from '~/components/commerce';
 import {headingText} from '~/lib/responsive-text';
@@ -726,21 +726,6 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
                   quantity={quantity}
                   available={!isOutOfStock}
                   className="flex-1 rounded-full bg-secondary px-5 py-2.5 text-sm font-medium text-white hover:bg-secondary/90"
-                  onSuccess={() => {
-                    pushEcommerceEvent({
-                      event: 'add_to_cart',
-                      ecommerce: {
-                        currency: selectedVariant.price.currencyCode,
-                        value:
-                          parseFloat(selectedVariant.price.amount) * quantity,
-                        items: [
-                          buildDataLayerItem(product, selectedVariant, {
-                            quantity,
-                          }),
-                        ],
-                      },
-                    });
-                  }}
                 >
                   <span className="flex items-center justify-center gap-2">
                     <Plus size={16} />
@@ -847,6 +832,24 @@ export default function ProductPage({loaderData}: Route.ComponentProps) {
           </Suspense>
         </section>
       </div>
+
+      {selectedVariant && (
+        <Analytics.ProductView
+          data={{
+            products: [
+              {
+                id: product.id,
+                title: product.title,
+                price: selectedVariant.price.amount,
+                vendor: product.vendor,
+                variantId: selectedVariant.id,
+                variantTitle: selectedVariant.title,
+                quantity: 1,
+              },
+            ],
+          }}
+        />
+      )}
 
       {/* Mobile-only sticky Add-to-Cart bar — shows once the in-page CTA
           scrolls out of view. Hidden on lg+ via StickyBottomBar. */}

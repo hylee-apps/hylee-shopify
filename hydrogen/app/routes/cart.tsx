@@ -11,7 +11,7 @@ import {
   getSeoMeta,
 } from '@shopify/hydrogen';
 import type {CartLineInput} from '@shopify/hydrogen/storefront-api-types';
-import {Link, useFetcher, useLoaderData} from 'react-router';
+import {data, Link, useFetcher, useLoaderData} from 'react-router';
 import {useTranslation} from 'react-i18next';
 import {
   ShoppingCart,
@@ -110,8 +110,8 @@ export async function action({request, context}: Route.ActionArgs) {
   const headers = cartId ? cart.setCartId(result.cart.id) : new Headers();
   const {cart: cartResult, errors, warnings} = result;
 
-  return Response.json(
-    {cart: cartResult, errors, warnings},
+  return data(
+    {cart: cartResult, errors, warnings, analytics: {cartId}},
     {status: 200, headers},
   );
 }
@@ -352,7 +352,6 @@ function CartLineRow({line, isLast}: CartLineRowProps) {
         >
           <button
             type="submit"
-            onClick={handleRemove}
             className="text-text-muted transition-colors hover:text-red-500"
             aria-label={t('cart.removeItem')}
           >

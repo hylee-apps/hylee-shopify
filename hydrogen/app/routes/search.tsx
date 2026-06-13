@@ -1,5 +1,5 @@
 import type {Route} from './+types/search';
-import {getSeoMeta} from '@shopify/hydrogen';
+import {Analytics, getSeoMeta} from '@shopify/hydrogen';
 import {useLoaderData, useSearchParams, Form, Link} from 'react-router';
 import {useEffect} from 'react';
 import {pushDataLayer} from '~/utils/data-layer';
@@ -104,6 +104,7 @@ export default function SearchPage() {
 
   return (
     <>
+      {searchTerm && <Analytics.SearchView data={{searchTerm}} />}
       <PageBreadcrumbs current={t('search.breadcrumb.search')} />
       <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Results */}
