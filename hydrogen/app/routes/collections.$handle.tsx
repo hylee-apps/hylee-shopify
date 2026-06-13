@@ -20,6 +20,7 @@ import {
   getPaginationVariables,
   Pagination,
   getSeoMeta,
+  Analytics,
 } from '@shopify/hydrogen';
 import type {ProductCardProps} from '~/components/commerce/ProductCard';
 import {Link} from 'react-router';
@@ -549,6 +550,14 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
   if (isCategory) {
     return (
       <div className="pb-12">
+        <Analytics.CollectionView
+          data={{
+            collection: {
+              id: collection.id,
+              handle: collection.handle,
+            },
+          }}
+        />
         {canonicalUrl && (
           <BreadcrumbJsonLd
             crumbs={breadcrumbAncestors}
@@ -674,6 +683,14 @@ export default function CollectionPage({loaderData}: Route.ComponentProps) {
 
   return (
     <div className="pb-12">
+      <Analytics.CollectionView
+        data={{
+          collection: {
+            id: collection.id,
+            handle: collection.handle,
+          },
+        }}
+      />
       {canonicalUrl && (
         <BreadcrumbJsonLd
           crumbs={breadcrumbAncestors}

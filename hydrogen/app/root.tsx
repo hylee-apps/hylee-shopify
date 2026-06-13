@@ -32,6 +32,7 @@ import {getAnalyticsConfig} from '~/config/analytics.server';
 import {GtmConsentDefaults} from '~/components/analytics/GtmConsentDefaults';
 import {GtmScript} from '~/components/analytics/GtmScript';
 import {GtmNoScript} from '~/components/analytics/GtmNoScript';
+import {ShopifyAnalyticsBridge} from '~/components/analytics/ShopifyAnalyticsBridge';
 import {usePageViewTracking} from '~/hooks/usePageViewTracking';
 import {useAnalyticsContext} from '~/hooks/useAnalyticsContext';
 import {GLOBAL_CMS_QUERY, parseGlobalCms} from '~/lib/cms';
@@ -608,6 +609,7 @@ export default function App() {
         shop={data.shop}
         consent={data.consent}
       >
+        <ShopifyAnalyticsBridge />
         <PageLayout />
       </Analytics.Provider>
     </I18nextProvider>

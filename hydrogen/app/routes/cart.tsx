@@ -11,7 +11,7 @@ import {
   getSeoMeta,
 } from '@shopify/hydrogen';
 import type {CartLineInput} from '@shopify/hydrogen/storefront-api-types';
-import {Link, useFetcher, useLoaderData} from 'react-router';
+import {data, Link, useFetcher, useLoaderData} from 'react-router';
 import {useTranslation} from 'react-i18next';
 import {
   ShoppingCart,
@@ -110,8 +110,8 @@ export async function action({request, context}: Route.ActionArgs) {
   const headers = cartId ? cart.setCartId(result.cart.id) : new Headers();
   const {cart: cartResult, errors, warnings} = result;
 
-  return Response.json(
-    {cart: cartResult, errors, warnings},
+  return data(
+    {cart: cartResult, errors, warnings, analytics: {cartId}},
     {status: 200, headers},
   );
 }
@@ -205,31 +205,6 @@ function CartLineRow({line, isLast}: CartLineRowProps) {
   const {id, quantity, cost, merchandise} = line;
 
   if (typeof merchandise === 'string') return null;
-
-  const handleRemove = () => {
-    const {product, selectedOptions} = merchandise;
-    const variantTitle = selectedOptions
-      ?.filter((o: any) => !(o.name === 'Title' && o.value === 'Default Title'))
-      .map((o: any) => o.value)
-      .join(' / ') || 'Default';
-    const unitPrice = parseFloat(cost?.amountPerQuantity?.amount ?? '0');
-    pushEcommerceEvent({
-      event: 'remove_from_cart',
-      ecommerce: {
-        currency: cost?.totalAmount?.currencyCode ?? 'USD',
-        value: unitPrice * quantity,
-        items: [{
-          item_id: merchandise.sku || merchandise.id?.split('/').pop() || '',
-          item_name: product?.title ?? '',
-          item_brand: product?.vendor ?? '',
-          item_category: product?.productType ?? '',
-          item_variant: variantTitle,
-          price: unitPrice,
-          quantity,
-        }],
-      },
-    });
-  };
 
   const {product, image, selectedOptions} = merchandise;
   const lineUrl = `/products/${product.handle}`;
@@ -337,7 +312,6 @@ function CartLineRow({line, isLast}: CartLineRowProps) {
         >
           <button
             type="submit"
-            onClick={handleRemove}
             className="text-text-muted transition-colors hover:text-red-500"
             aria-label={t('cart.removeItem')}
           >
